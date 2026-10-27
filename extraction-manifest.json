@@ -20,7 +20,7 @@
       "source": "agents/skills/engineering/harness-audit/BACKLOG.md",
       "target": "skills/harness-audit/BACKLOG.md",
       "source_sha256": "e6585aecc04e06097ac13de92215c0f31635c848af6e49cf681782c72657d17d",
-      "sha256": "7de6084ef2298e5391c32548bc347556448d089235fe32d2c89a00b344c575a4",
+      "sha256": "3ce2f6e22775061d8821eca9cd6af2a978b9291e910b4a59020ff2229c6b00c3",
       "kind": "reviewed-update"
     },
     {
@@ -1132,8 +1132,8 @@
     {
       "source": "session:harness-audit-v1.2",
       "target": "docs/0004/Agreement-Report-v1.2.md",
-      "source_sha256": "e52e527b9497d2bca133bd6b5564a9a575a89b6e5d8af3084fe12759b2a90109",
-      "sha256": "e52e527b9497d2bca133bd6b5564a9a575a89b6e5d8af3084fe12759b2a90109",
+      "source_sha256": "d14f693ed84480c1e0c3d07565edfa769950af7754f95a54a5904a730d305ec8",
+      "sha256": "d14f693ed84480c1e0c3d07565edfa769950af7754f95a54a5904a730d305ec8",
       "kind": "reviewed-update"
     }
   ]

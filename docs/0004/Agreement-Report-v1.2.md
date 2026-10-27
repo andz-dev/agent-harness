@@ -12,37 +12,37 @@ owner: 'Andreas Elser'
 <!-- markdownlint-disable-next-line MD025 -->
 # Judgement Agreement Report (v1.2)
 
-Repos: 12 · answers compared: 49 · agreement: 33/49 (67%) · Cohen's kappa: 0.356
+Second run, after the prompt fixes in B-162 and with DOC-06 resolved by script where possible.
+Two blind runs (A and B) by independent subagents over the 15 repos that have judgement tasks.
+First run (before the fixes, 12 repos): 33/49 agree (67%), kappa 0.36.
+
+Repos: 15 · answers compared: 54 · agreement: 47/54 (87%) · Cohen's kappa: 0.768
 
 | Task | Agree | Total |
 | --- | --- | --- |
-| DOC-06 | 6 | 12 |
-| ENT-05 | 3 | 4 |
-| ORI-05 | 4 | 4 |
-| ORI-06 | 4 | 4 |
+| DOC-06 | 7 | 9 |
+| ENT-05 | 7 | 7 |
+| ORI-05 | 6 | 7 |
+| ORI-06 | 7 | 7 |
 | ORI-08 | 1 | 2 |
-| ORI-09 | 2 | 4 |
-| STA-09 | 7 | 10 |
-| TRG-06 | 0 | 1 |
-| VER-11 | 6 | 8 |
+| ORI-09 | 5 | 7 |
+| TRG-06 | 1 | 1 |
+| VER-11 | 13 | 14 |
 
 ## Disagreements
 
 | Repo | Task | Run A | Run B |
 | --- | --- | --- | --- |
-| express | DOC-06 | unknown | pass |
-| fastapi | DOC-06 | unknown | pass |
-| home-assistant-core | ORI-08 | fail | pass |
+| home-assistant-core | ORI-08 | pass | unknown |
 | home-assistant-core | ORI-09 | pass | unknown |
-| httpie-cli | DOC-06 | unknown | pass |
-| httpie-cli | STA-09 | unknown | pass |
-| immich | DOC-06 | unknown | pass |
-| immich | STA-09 | unknown | fail |
-| immich | VER-11 | unknown | fail |
-| immich-public-proxy | DOC-06 | unknown | pass |
-| n8n | DOC-06 | unknown | pass |
+| immich-public-proxy | VER-11 | pass | fail |
 | n8n | ORI-09 | unknown | pass |
-| n8n | STA-09 | pass | unknown |
-| n8n | TRG-06 | unknown | fail |
-| paperless-ngx | VER-11 | unknown | fail |
-| vite | ENT-05 | fail | pass |
+| nextjs | DOC-06 | pass | unknown |
+| opencode | ORI-05 | fail | pass |
+| vllm | DOC-06 | pass | unknown |
+
+## Effect on scores
+
+Scoring each repo with run A and run B answers: 13 of 15 repos get the same score; n8n differs
+by 7 (78 vs 85, ORI-09 unknown vs pass) and opencode by 6 (42 vs 48, ORI-05 fail vs pass). Mean difference 0.9 points.
+Answer files are not committed (see AGENTS.md).
