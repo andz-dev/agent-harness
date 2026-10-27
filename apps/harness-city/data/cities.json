@@ -3,7 +3,457 @@
   "title": "Synthetic Harness City",
   "tool": "harness-audit 0.1.0",
   "scanDate": "2026-10-27",
-  "source": "Illustrative synthetic profiles only; not audited repository results"
+  "source": "Illustrative synthetic profiles only; not audited repository results",
+  "checks": {
+   "ORI-01": {
+    "p": 1,
+    "l": 1,
+    "g": true,
+    "a": "all",
+    "t": "README exists and has a setup or usage section",
+    "w": "Baseline human orientation; agents read it first."
+   },
+   "ORI-02": {
+    "p": 1,
+    "l": 1,
+    "g": false,
+    "a": "all",
+    "t": "Any agent instruction file exists",
+    "w": "Shows the maintainers thought about agents at all."
+   },
+   "ORI-03": {
+    "p": 1,
+    "l": 1,
+    "g": false,
+    "a": "all",
+    "t": "CONTRIBUTING or development guide exists",
+    "w": "Documents the human workflow that agents should mirror."
+   },
+   "ORI-04": {
+    "p": 1,
+    "l": 2,
+    "g": true,
+    "a": "all",
+    "t": "Agent file names build, test and lint commands",
+    "w": "The first thing an agent needs is how to verify its work."
+   },
+   "ORI-05": {
+    "p": 1,
+    "l": 2,
+    "g": false,
+    "a": "all",
+    "t": "Agent file describes repository structure",
+    "w": "A directory map saves most exploratory searching."
+   },
+   "ORI-06": {
+    "p": 1,
+    "l": 2,
+    "g": false,
+    "a": "all",
+    "t": "Agent file states conventions or boundaries (do, do not)",
+    "w": "Prevents the common wrong-but-plausible changes."
+   },
+   "ORI-07": {
+    "p": 1,
+    "l": 2,
+    "g": false,
+    "a": "all",
+    "t": "Architecture or design overview document exists",
+    "w": "Explains why the code looks the way it does."
+   },
+   "ORI-08": {
+    "p": 1,
+    "l": 3,
+    "g": true,
+    "a": "all",
+    "t": "AGENTS.md is canonical; tool-specific files point to it instead of duplicating",
+    "w": "One source of truth keeps Claude and Copilot behavior identical."
+   },
+   "ORI-09": {
+    "p": 1,
+    "l": 3,
+    "g": true,
+    "a": "all",
+    "t": "No drift between agent files, README and runner targets",
+    "w": "Contradicting instructions are worse than none."
+   },
+   "ORI-10": {
+    "p": 1,
+    "l": 3,
+    "g": false,
+    "a": "all",
+    "t": "Nested or scoped instructions for large components",
+    "w": "Monorepos need per-component guidance, not one giant file."
+   },
+   "VER-01": {
+    "p": 0,
+    "l": 1,
+    "g": true,
+    "a": "python",
+    "t": "Python tests exist",
+    "w": "No tests means no feedback loop."
+   },
+   "VER-02": {
+    "p": 0,
+    "l": 1,
+    "g": true,
+    "a": "node",
+    "t": "Node tests exist",
+    "w": "No tests means no feedback loop."
+   },
+   "VER-03": {
+    "p": 0,
+    "l": 1,
+    "g": false,
+    "a": "python",
+    "t": "Python test framework configured",
+    "w": "Configured frameworks run the same way for everyone."
+   },
+   "VER-04": {
+    "p": 0,
+    "l": 1,
+    "g": false,
+    "a": "node",
+    "t": "Node test framework configured",
+    "w": "Configured frameworks run the same way for everyone."
+   },
+   "VER-05": {
+    "p": 0,
+    "l": 2,
+    "g": true,
+    "a": "python",
+    "t": "Python tests run in CI",
+    "w": "Tests that only run locally rot."
+   },
+   "VER-06": {
+    "p": 0,
+    "l": 2,
+    "g": true,
+    "a": "node",
+    "t": "Node tests run in CI",
+    "w": "Tests that only run locally rot."
+   },
+   "VER-07": {
+    "p": 0,
+    "l": 2,
+    "g": false,
+    "a": "all",
+    "t": "Tests gate merges (CI runs on pull requests)",
+    "w": "Enforcement means a failing test blocks the change."
+   },
+   "VER-08": {
+    "p": 0,
+    "l": 2,
+    "g": false,
+    "a": "all",
+    "t": "Test dependencies are declared and pinned or locked",
+    "w": "Agents get the same environment as CI."
+   },
+   "VER-09": {
+    "p": 0,
+    "l": 3,
+    "g": false,
+    "a": "all",
+    "t": "Fast subset exists (markers, scopes, or separate unit and e2e targets)",
+    "w": "Agents iterate on seconds-long checks, not hour-long suites. Speed is inferred from config only."
+   },
+   "VER-10": {
+    "p": 0,
+    "l": 3,
+    "g": false,
+    "a": "all",
+    "t": "Coverage configured",
+    "w": "Shows which code the tests actually touch."
+   },
+   "VER-11": {
+    "p": 0,
+    "l": 3,
+    "g": false,
+    "a": "all",
+    "t": "Test layout is documented for agents (where tests live, how to run one)",
+    "w": "Running one test is the agent's main inner loop."
+   },
+   "STA-01": {
+    "p": 2,
+    "l": 1,
+    "g": true,
+    "a": "python",
+    "t": "Python linter or formatter configured",
+    "w": "Mechanical style checks remove a whole class of review noise."
+   },
+   "STA-02": {
+    "p": 2,
+    "l": 1,
+    "g": true,
+    "a": "node",
+    "t": "Node linter or formatter configured",
+    "w": "Mechanical style checks remove a whole class of review noise."
+   },
+   "STA-03": {
+    "p": 2,
+    "l": 2,
+    "g": true,
+    "a": "python",
+    "t": "Python lint runs in CI or a hook",
+    "w": "Config without enforcement is a suggestion."
+   },
+   "STA-04": {
+    "p": 2,
+    "l": 2,
+    "g": true,
+    "a": "node",
+    "t": "Node lint runs in CI or a hook",
+    "w": "Config without enforcement is a suggestion."
+   },
+   "STA-05": {
+    "p": 2,
+    "l": 2,
+    "g": false,
+    "a": "all",
+    "t": "Formatter is enforced (check mode in CI, or a formatter hook that CI runs)",
+    "w": "Formatting disputes should never reach a reviewer."
+   },
+   "STA-06": {
+    "p": 2,
+    "l": 3,
+    "g": true,
+    "a": "python",
+    "t": "Python type checking configured and enforced",
+    "w": "Types give agents precise, machine-readable contracts."
+   },
+   "STA-07": {
+    "p": 2,
+    "l": 3,
+    "g": true,
+    "a": "node",
+    "t": "TypeScript type check enforced (tsc --noEmit or equivalent)",
+    "w": "Types give agents precise, machine-readable contracts."
+   },
+   "STA-08": {
+    "p": 2,
+    "l": 3,
+    "g": false,
+    "a": "all",
+    "t": "One configuration per tool (no conflicting duplicate configs)",
+    "w": "Duplicate configs make results depend on the working directory."
+   },
+   "STA-09": {
+    "p": 2,
+    "l": 3,
+    "g": false,
+    "a": "all",
+    "t": "Linter output is actionable (rule ids, file and line)",
+    "w": "Agents fix what they can locate; a wall of text is skipped."
+   },
+   "TRG-01": {
+    "p": 4,
+    "l": 1,
+    "g": true,
+    "a": "all",
+    "t": "Any hook configuration exists",
+    "w": "Starting point for local automation."
+   },
+   "TRG-02": {
+    "p": 4,
+    "l": 2,
+    "g": true,
+    "a": "all",
+    "t": "Git hooks run lint or format",
+    "w": "Cheap checks belong at commit time."
+   },
+   "TRG-03": {
+    "p": 4,
+    "l": 2,
+    "g": false,
+    "a": "all",
+    "t": "Git hooks run tests or a fast check target",
+    "w": "Catches breakage before CI does."
+   },
+   "TRG-04": {
+    "p": 4,
+    "l": 2,
+    "g": false,
+    "a": "all",
+    "t": "Hooks are versioned in the repo and installed by a documented step",
+    "w": "A hook nobody installs does nothing."
+   },
+   "TRG-05": {
+    "p": 4,
+    "l": 3,
+    "g": true,
+    "a": "all",
+    "t": "Agent hooks configured (e.g. .claude/settings.json hooks, Copilot equivalents)",
+    "w": "Lets the repo fire checks right after an agent edits files."
+   },
+   "TRG-06": {
+    "p": 4,
+    "l": 3,
+    "g": false,
+    "a": "all",
+    "t": "Agent hooks and Git hooks call the same entry points (no duplicated logic)",
+    "w": "Identical behavior no matter who or what triggers the check."
+   },
+   "ENT-01": {
+    "p": 3,
+    "l": 1,
+    "g": true,
+    "a": "all",
+    "t": "A task runner defines at least one target (Taskfile, Makefile, justfile, package.json scripts, tox, nox, poe)",
+    "w": "Commands that live in a file can be found and reused."
+   },
+   "ENT-02": {
+    "p": 3,
+    "l": 2,
+    "g": true,
+    "a": "all",
+    "t": "Standard targets defined (test, lint, and one of check/ci/verify)",
+    "w": "Predictable names mean no reverse-engineering."
+   },
+   "ENT-03": {
+    "p": 3,
+    "l": 2,
+    "g": false,
+    "a": "all",
+    "t": "Targets are documented (description fields, help target, or README section)",
+    "w": "Self-describing runners guide humans and agents alike."
+   },
+   "ENT-04": {
+    "p": 3,
+    "l": 2,
+    "g": false,
+    "a": "all",
+    "t": "Setup is one command (install or bootstrap target)",
+    "w": "A new clone should reach a working state without a wiki trip."
+   },
+   "ENT-05": {
+    "p": 3,
+    "l": 3,
+    "g": true,
+    "a": "all",
+    "t": "One entry point is documented as the way for agents",
+    "w": "One interface to learn instead of five tool invocations."
+   },
+   "ENT-06": {
+    "p": 3,
+    "l": 3,
+    "g": false,
+    "a": "all",
+    "t": "A preflight or doctor target checks the environment",
+    "w": "Agents fail early and clearly when tools are missing."
+   },
+   "ENT-07": {
+    "p": 3,
+    "l": 3,
+    "g": false,
+    "a": "all",
+    "t": "Runner supports scoped runs (per package, per path or per test)",
+    "w": "Narrow runs keep the agent loop fast."
+   },
+   "CIP-01": {
+    "p": 5,
+    "l": 1,
+    "g": true,
+    "a": "all",
+    "t": "A CI definition exists",
+    "w": "Without CI nothing is enforced for contributors."
+   },
+   "CIP-02": {
+    "p": 5,
+    "l": 2,
+    "g": true,
+    "a": "all",
+    "t": "CI runs both lint and tests",
+    "w": "The minimum useful pipeline."
+   },
+   "CIP-03": {
+    "p": 5,
+    "l": 2,
+    "g": false,
+    "a": "all",
+    "t": "CI runs on pull requests and on the default branch",
+    "w": "Checks must run before and after merge."
+   },
+   "CIP-04": {
+    "p": 5,
+    "l": 2,
+    "g": false,
+    "a": "all",
+    "t": "CI uses dependency caching or lockfile installs",
+    "w": "Reproducible and fast; also shows lockfile discipline."
+   },
+   "CIP-05": {
+    "p": 5,
+    "l": 3,
+    "g": true,
+    "a": "all",
+    "t": "CI calls the local entry point (task, make, npm run, nox) instead of duplicating commands",
+    "w": "What passes locally passes in CI, and the reverse."
+   },
+   "CIP-06": {
+    "p": 5,
+    "l": 3,
+    "g": false,
+    "a": "all",
+    "t": "Matrix covers supported versions (Python or Node versions, OS)",
+    "w": "Documents the supported range as executable fact."
+   },
+   "CIP-07": {
+    "p": 5,
+    "l": 3,
+    "g": false,
+    "a": "all",
+    "t": "Dependency and workflow updates automated (Dependabot or Renovate)",
+    "w": "Keeps the harness itself from decaying."
+   },
+   "DOC-01": {
+    "p": 6,
+    "l": 1,
+    "g": false,
+    "a": "all",
+    "t": "A docs directory or documentation site exists",
+    "w": "Documentation has an obvious home."
+   },
+   "DOC-02": {
+    "p": 6,
+    "l": 2,
+    "g": true,
+    "a": "all",
+    "t": "Docs build or link check runs in CI",
+    "w": "Broken docs are found by machines, not by readers."
+   },
+   "DOC-03": {
+    "p": 6,
+    "l": 2,
+    "g": false,
+    "a": "all",
+    "t": "Markdown lint configured",
+    "w": "Consistent structure helps parsing by tools and agents."
+   },
+   "DOC-04": {
+    "p": 6,
+    "l": 3,
+    "g": false,
+    "a": "all",
+    "t": "Front matter or schema enforced on docs",
+    "w": "Metadata that is enforced is metadata that can be trusted."
+   },
+   "DOC-05": {
+    "p": 6,
+    "l": 3,
+    "g": false,
+    "a": "all",
+    "t": "Decisions recorded (ADR directory with recent entries)",
+    "w": "Gives agents the reasons, not just the code."
+   },
+   "DOC-06": {
+    "p": 6,
+    "l": 3,
+    "g": false,
+    "a": "all",
+    "t": "Documentation references resolve (no dead paths or commands in docs)",
+    "w": "Stale references are the most common way docs mislead agents."
+   }
+  }
  },
  "cities": [
   {
@@ -26,7 +476,20 @@
    "done": null,
    "steps": [],
    "ent": [],
-   "caps": []
+   "caps": [],
+   "G": [
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    []
+   ],
+   "f": [],
+   "lim": [
+    "Illustrative synthetic levels only; no repository was audited and no checks or runtime behavior were observed."
+   ]
   },
   {
    "id": "prosperous-demo",
@@ -48,7 +511,20 @@
    "done": null,
    "steps": [],
    "ent": [],
-   "caps": []
+   "caps": [],
+   "G": [
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    []
+   ],
+   "f": [],
+   "lim": [
+    "Illustrative synthetic levels only; no repository was audited and no checks or runtime behavior were observed."
+   ]
   },
   {
    "id": "working-demo",
@@ -70,7 +546,20 @@
    "done": null,
    "steps": [],
    "ent": [],
-   "caps": []
+   "caps": [],
+   "G": [
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    []
+   ],
+   "f": [],
+   "lim": [
+    "Illustrative synthetic levels only; no repository was audited and no checks or runtime behavior were observed."
+   ]
   },
   {
    "id": "absent-demo",
@@ -92,7 +581,20 @@
    "done": null,
    "steps": [],
    "ent": [],
-   "caps": []
+   "caps": [],
+   "G": [
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    []
+   ],
+   "f": [],
+   "lim": [
+    "Illustrative synthetic levels only; no repository was audited and no checks or runtime behavior were observed."
+   ]
   }
  ]
 }

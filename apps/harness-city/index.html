@@ -85,6 +85,27 @@ ul.plain{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;g
 .btnlink{all:unset;cursor:pointer;color:var(--accent);font-size:13px;font-weight:500}
 .btnlink:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .empty{color:var(--muted);font-size:13px;margin:0}
+@media (min-width:981px){.panel{max-height:min(74vh,760px);overflow:auto}}
+.cityplate{cursor:pointer}
+.about{background:color-mix(in srgb,var(--accent) 7%,transparent);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:6px}
+.about p{margin:0;font-size:13px}.about h3{font-size:15px}
+.about li.cur{font-weight:600}
+.see{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 10px;font-size:13px;margin:0}
+.see dt{font-family:var(--f-mono);font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);padding-top:2px}.see dd{margin:0}
+.lad{border:1px solid var(--line);border-radius:10px;padding:8px 10px;display:flex;flex-direction:column;gap:6px}
+.lad.ok{border-color:color-mix(in srgb,var(--good) 50%,var(--line))}
+.lad.next{border-color:var(--warn);box-shadow:inset 3px 0 0 var(--warn)}
+.lad .lh{display:flex;justify-content:space-between;gap:8px;font-size:13px;font-weight:600}
+.lad .lh small{font-family:var(--f-mono);font-weight:500;color:var(--muted);white-space:nowrap}
+.lad .ld{font-size:12px;color:var(--muted);margin:0}
+.ck{display:grid;grid-template-columns:14px auto minmax(0,1fr);gap:2px 6px;font-size:12.5px;align-items:start}
+.st{font-family:var(--f-mono);font-weight:700;text-align:center}
+.st.pass{color:var(--good)}.st.fail,.st.error{color:var(--bad)}.st.unknown{color:var(--warn)}.st.not_applicable,.st.none{color:var(--muted)}
+.gate{font-family:var(--f-mono);font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);border:1px solid var(--line);border-radius:3px;padding:0 4px;margin-left:5px;vertical-align:1px}
+.ev{grid-column:2/-1;font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:2px;overflow-wrap:anywhere}
+.ev .path{color:var(--ink)}
+details.sec>summary{cursor:pointer;font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+details.sec>ul{margin-top:6px}
 section{display:flex;flex-direction:column;gap:12px}
 .key{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
 .kc{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden;display:flex;flex-direction:column;min-width:0}
@@ -142,7 +163,7 @@ table.data tbody tr:hover td{background:color-mix(in srgb,var(--accent) 7%,trans
           <button id="lbl" title="Show or hide labels" aria-label="Show or hide labels" aria-pressed="true">Aa</button>
         </div>
       </div>
-      <div class="hint">Drag to move · scroll or pinch to zoom · click a district</div>
+      <div class="hint">Drag to move · scroll or pinch to zoom · click a building, street, bus, rail or power line</div>
       <div class="loading" id="loading">Loading city assets…</div>
     </div>
     <aside class="panel" id="panel" aria-live="polite"></aside>
@@ -197,6 +218,28 @@ const ENR={"ENR-01":{t:"orphaned script",where:"Abandoned wagon on the rail sidi
 let REPOS=[],META={};
 const tierOf=s=>s>=80?{n:"Thriving",c:"#2b8a55",v:"good"}:s>=60?{n:"Prosperous",c:"#4f9a3d",v:"good"}:s>=45?{n:"Working",c:"#b98318",v:"warn"}:{n:"Neglected",c:"#c2452f",v:"bad"};
 const TRAFFIC=["Road closed: nothing reaches this district","One lane, traffic light, queue: present but thin","Two lanes, steady traffic: enforced","Free-flowing boulevard: agent-native"];
+// level wording from the harness-audit catalog level_rule
+const LEVEL_DESC=["Absent: not even L1 is reached","Present: exists, but you have to know about it","Enforced: runs automatically through hooks or CI","Agent-native: documented for agents, fast, actionable output"];
+const ABOUT={
+ verification:{q:"Can the agent tell whether it broke something?",b:"The hospital diagnoses changes: tests, test frameworks and CI test runs. Ambulances stand for test runs; the ward tower and helipad appear once tests are fast, scoped, measured and documented for agents."},
+ orientation:{q:"Can an agent find its way without reading everything?",b:"City hall gives directions: README, agent instruction files, structure and architecture notes. The info board is the README; the dome and clock tower appear when agent files name the commands and stay free of drift."},
+ static_guardrails:{q:"Are style and correctness enforced, not suggested?",b:"Police headquarters keeps order: linters, formatters and type checkers. Patrol cars are enforced checks; the radar dish appears with enforced type checks and one configuration per tool."},
+ workflow_entry_points:{q:"Is there one obvious way to do common things?",b:"The central station is the timetable: task runner targets for setup, test, lint and check. It is also the transit hub, so its level limits how well every other district is served."},
+ automatic_triggers:{q:"Do checks fire without anyone remembering?",b:"The fire station reacts by itself: Git hooks and agent hooks. Fire trucks are hooks; the siren glows when hooks run lint and tests on their own."},
+ pipeline_parity:{q:"Does CI run what developers run locally?",b:"The power plant is CI. Cooling towers grow when CI runs lint and tests on every pull request and calls the same entry points developers use locally; the power line carries it into the city."},
+ doc_hygiene:{q:"Is the docs layer machine-readable and current?",b:"The library holds the docs. Books on the roof are documentation practices in place: link checks, Markdown lint, front matter, decision records."}};
+const BUILDING=["Vacant, fenced lot: nothing has been built.","A small building: the basics exist, but you have to know about them.","A working building with mid-rise blocks and green space: it runs automatically.","A flagship with towers and paved plazas: agents can use it directly."];
+const TRANSIT=["No service: nothing departs from the central station to this district.","One bus with long waits at a plain stop sign.","Two buses that keep moving, with shelters at both stops.","An underground metro straight from the station (the see-through train), plus buses."];
+const RAIL=["One rusty track and no trains: no task runner target exists.","A single-car train that stops at the platform: a runner exists, but you have to know about it.","A three-car train, a platform canopy and a footbridge: standard targets (test, lint, check, setup) are defined and documented.","Two express lines without waiting: one documented entry point for agents, with preflight and scoped runs."];
+const GRID=["No power line: no CI definition exists.","A small generator: CI exists.","A cooling tower with steam: CI runs lint and tests on pull requests and the default branch.","Two cooling towers: CI calls the local entry points, covers the version matrix and keeps dependencies updated."];
+const STATUS={pass:["✓","passed"],fail:["✗","failed"],error:["!","error"],unknown:["?","unknown, needs a human"],not_applicable:["–","not applicable"],none:["·","no finding in this data"]};
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+let CHECKS={};
+const checksOf=i=>Object.entries(CHECKS).filter(([,c])=>c.p===i).sort((a,b)=>a[1].l-b[1].l||a[0].localeCompare(b[0]));
+const pillarOfId=id=>CHECKS[id]?CHECKS[id].p:PILLARS.findIndex(p=>id.startsWith(p.pre));
+function statusOf(rep,id){const fs=rep.f.filter(f=>f.c===id);if(!fs.length)return"none";for(const s of ["fail","error","unknown","pass","not_applicable"])if(fs.some(f=>f.s===s))return s;return fs[0].s}
+const issuesOf=(rep,i)=>rep.f.filter(f=>["fail","error","unknown"].includes(f.s)&&pillarOfId(f.c)===i);
+const transitQ=(rep,k)=>Math.min(rep.L[PI.workflow_entry_points],rep.L[PI[k]]);
 const stepsFor=(rep,p)=>rep.steps.filter(s=>s.c.startsWith(p.pre));
 const DIST={
  workflow_entry_points:{x0:1,x1:8,z0:1,z1:7},
@@ -339,17 +382,17 @@ function buildDistrict(par,k,lvl,b,rep,seed,opt={}){
  // zone colour curb so the district reads at a glance
  const cw=.07,cy=.03;const curb=mat(p.c);for(const [w,d,x,z] of [[W,cw,(x0+x1)/2,z0-.5+cw/2],[W,cw,(x0+x1)/2,z1+.5-cw/2],[cw,D,x0-.5+cw/2,(z0+z1)/2],[cw,D,x1+.5-cw/2,(z0+z1)/2]]){const m=new THREE.Mesh(bg(w,.06,d),curb);m.position.set(x,cy,z);g.add(m)}
  // landmark front-centre on the road side
- const lx=(x0+x1)/2,lz=z1-.55;const lm=landmark(k,lvl,rep);lm.position.set(lx,0,lz);g.add(lm);
+ const lx=(x0+x1)/2,lz=z1-.55;const lm=landmark(k,lvl,rep);lm.position.set(lx,0,lz);lm.userData.pick={kind:"building",k};g.add(lm);
  let sg=null;if(opt.signs){sg=signSprite(p,opt.signScale||1);sg.position.set(lx,(lm.userData.top||1)+.55,lz);g.add(sg)}
  const res=new Set();for(let x=Math.floor(lx-1.6);x<=Math.ceil(lx+1.6);x++)for(let z=z1-1;z<=z1;z++)res.add(rk(x,z));
  // construction site for the next planned fix in this pillar (or a vacant L0 lot)
- const steps=opt.steps||[];let site=null;
- if(steps.length||lvl===0){const sx=x0+(lvl===0?Math.floor(W/2)-1:0),sz=z0+(lvl===0?1:0);site={x:sx,z:sz};for(let x=sx;x<sx+3;x++)for(let z=sz;z<sz+2;z++)res.add(rk(x,z));
-  groundPlane(g,sx-.5,sz-.5,sx+2.5,sz+1.5,"#c2a473",.03);const fz=[sz-.48,sz+1.48];for(let x=sx;x<sx+3;x++)for(const z of fz){const m=new THREE.Mesh(bg(.96,.22,.03),mat("#ff8a2a"));m.position.set(x,.11,z);m.castShadow=true;g.add(m)}
-  for(const x of [sx-.48,sx+2.48]){const m=new THREE.Mesh(bg(.03,.22,1.96),mat("#ff8a2a"));m.position.set(x,.11,sz+.5);m.castShadow=true;g.add(m)}
-  put(g,"digger",sx+.6,sz+.6,35,1);const cr=crane(g,sx+2,sz+.2,lvl===0?1.9:2.3);g.userData.crane=cr;put(g,"crate",sx+1.3,sz+1.1,10,1);put(g,"barrels",sx+2.1,sz+1.1,0,1);
+ const steps=opt.steps||[];let site=null,siteCrane=null;
+ if(steps.length||lvl===0){const sg2=new THREE.Group();sg2.userData.pick={kind:"site",k};g.add(sg2);const sx=x0+(lvl===0?Math.floor(W/2)-1:0),sz=z0+(lvl===0?1:0);site={x:sx,z:sz};for(let x=sx;x<sx+3;x++)for(let z=sz;z<sz+2;z++)res.add(rk(x,z));
+  groundPlane(sg2,sx-.5,sz-.5,sx+2.5,sz+1.5,"#c2a473",.03);const fz=[sz-.48,sz+1.48];for(let x=sx;x<sx+3;x++)for(const z of fz){const m=new THREE.Mesh(bg(.96,.22,.03),mat("#ff8a2a"));m.position.set(x,.11,z);m.castShadow=true;sg2.add(m)}
+  for(const x of [sx-.48,sx+2.48]){const m=new THREE.Mesh(bg(.03,.22,1.96),mat("#ff8a2a"));m.position.set(x,.11,sz+.5);m.castShadow=true;sg2.add(m)}
+  put(sg2,"digger",sx+.6,sz+.6,35,1);siteCrane=crane(sg2,sx+2,sz+.2,lvl===0?1.9:2.3);put(sg2,"crate",sx+1.3,sz+1.1,10,1);put(sg2,"barrels",sx+2.1,sz+1.1,0,1);
   const st=steps[0];const label=st?[`NEXT · ${st.c.split(" ")[0]}`,st.p!=null?`+${st.p.toFixed(1)} pts`:"planned fix"]:["VACANT LOT","L0 absent"];
-  const ts=textSprite("site-"+label.join("|"),label,{bg:st?"#ffd23f":"#f4ecdc",scale:.9});ts.position.set(sx+1,1.0,sz+1.6);g.add(ts)}
+  const ts=textSprite("site-"+label.join("|"),label,{bg:st?"#ffd23f":"#f4ecdc",scale:.9});ts.position.set(sx+1,1.0,sz+1.6);sg2.add(ts)}
  // filler buildings: tall at the back (north), low at the front
  const towers=["tower-a","tower-b","tower-c"],mids=["bld-a","bld-b","bld-c","bld-d","bld-f","bld-g","bld-h"],smalls=["house-a","house-b","house-d","garage"];
  const free=(x,z)=>!res.has(rk(x,z));const trees=[],grassT=[];
@@ -365,7 +408,7 @@ function buildDistrict(par,k,lvl,b,rep,seed,opt={}){
   for(let x=x0;x<=x1;x++){put(g,"fence",x,z0-.42,0,1);put(g,"fence",x,z1+.42,0,1)}for(let z=z0;z<=z1;z++){put(g,"fence",x0-.42,z,90,1);put(g,"fence",x1+.42,z,90,1)}}
  // cap: district closed by order (e.g. no-tests caps the whole score)
  if(opt.cap){for(let i=0;i<3;i++)barrier(g,lx-1+i,z1+.25,0,.9);const cs=textSprite("closed",["CLOSED","cap: "+opt.cap],{bg:"#d6342a",fg:"#fff",scale:1});cs.position.set(lx,(lm.userData.top||1)+1.25,lz);g.add(cs)}
- g.userData={k,lm,sign:sg,site};return g}
+ g.userData={k,lm,sign:sg,site,crane:siteCrane};return g}
 
 /* ================= roads, rail, traffic ================= */
 function buildRoads(par,rep){const lists={"road-straight":[],"road-lamps":[],"road-cross":[],"road-t":[],"road-corner":[]};
@@ -375,7 +418,7 @@ function buildRoads(par,rep){const lists={"road-straight":[],"road-lamps":[],"ro
   else{rot=(e||w)&&!(n||s)?90:0;if((e||w)&&!(n||s)&&(x%4===2)&&x>0&&x<29)id="road-lamps"}
   lists[id].push([x,z,rot])}
  for(const [id,l] of Object.entries(lists))instanced(par,id,l,id==="road-lamps")}
-function buildRail(par,rep){const lvl=rep.L[PI.workflow_entry_points];const g=new THREE.Group();par.add(g);const xa=BOUNDS.x0-6,xb=BOUNDS.x1+6,len=xb-xa;
+function buildRail(par,rep){const lvl=rep.L[PI.workflow_entry_points];const g=new THREE.Group();g.userData.pick={kind:"rail"};par.add(g);const xa=BOUNDS.x0-6,xb=BOUNDS.x1+6,len=xb-xa;
  const tracks=lvl===0?[RAIL_Z[0]]:RAIL_Z;const rust=lvl===0;
  for(const tz of tracks){const bed=new THREE.Mesh(bg(len,.06,.78),mat(rust?"#a59578":"#9c9184"));bed.position.set((xa+xb)/2,.03,tz);bed.receiveShadow=true;g.add(bed);
   const n=Math.floor(len/.28);const sl=new THREE.InstancedMesh(bg(.08,.03,.62),mat(rust?"#6e5640":"#5b4636"),n);const t=new THREE.Object3D();let k=0;for(let i=0;i<n;i++){if(rust&&i%3===1){continue}t.position.set(xa+i*.28,.075,tz);t.updateMatrix();sl.setMatrixAt(k++,t.matrix)}sl.count=k;sl.receiveShadow=true;g.add(sl);
@@ -397,7 +440,8 @@ function buildRail(par,rep){const lvl=rep.L[PI.workflow_entry_points];const g=ne
   if(lvl===3)trains.push({o:mk(4,"#2a63c9"),z:RAIL_Z[1],dir:-1,speed:2.8,dwell:false,off:len*.45,len})}
  return {g,trains,xa,xb}}
 // traffic on the district's front street
-function buildTraffic(par,k,lvl,b,seed){const g=new THREE.Group();par.add(g);const r=rng(seed);const zr=b.z1+1;const xa=b.x0-.45,xb=b.x1+.45;const lanes=[];
+function buildTraffic(par,k,lvl,b,seed){const g=new THREE.Group();g.userData.pick={kind:"street",k};par.add(g);const r=rng(seed);const zr=b.z1+1;const xa=b.x0-.45,xb=b.x1+.45;const lanes=[];
+ {const hit=new THREE.Mesh(bg(xb-xa,.04,.9),new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false}));hit.position.set((xa+xb)/2,.02,zr);g.add(hit)}
  const pool=["sedan","taxi","suv","van","truck","delivery-van","sedan","taxi","garbage-truck"];
  const mkCar=()=>{const id=pool[Math.floor(r()*pool.length)];const o=A[id].clone();g.add(o);return o};
  if(lvl===0){barrier(g,xa+.15,zr,90,.9);barrier(g,xb-.15,zr,90,.9);for(let x=xa+.6;x<xb-.4;x+=.7)cone(g,x,zr+(r()-.5)*.5);const s=textSprite("roadclosed",["ROAD CLOSED","nothing reaches it"],{bg:"#fff",fg:"#d6342a",scale:.75});s.position.set(xa+.6,.85,zr);g.add(s);put(g,"rock",(xa+xb)/2,zr+.1,0,1.4);return {g,lanes,light:null}}
@@ -410,7 +454,7 @@ function buildTraffic(par,k,lvl,b,seed){const g=new THREE.Group();par.add(g);con
  if(lvl===3){for(let x=b.x0;x<=b.x1;x+=2)put(g,"tree-oak",x,zr-.47,r()*360,.6)}
  return {g,lanes,light:null,xa,xb}}
 function buildGrid(par,rep){// power line from the plant to the city along the south edge; stale workflows break pylons
- const lvl=rep.L[PI.pipeline_parity];const g=new THREE.Group();par.add(g);if(lvl===0)return {g,sparks:[]};const stale=rep.ent.filter(e=>e.c==="ENR-04");
+ const lvl=rep.L[PI.pipeline_parity];const g=new THREE.Group();g.userData.pick={kind:"grid"};par.add(g);if(lvl===0)return {g,sparks:[]};const stale=rep.ent.filter(e=>e.c==="ENR-04");
  const zl=17.3;const xs=[];for(let x=22;x>=-2;x-=3)xs.push(x);const brokenIdx=new Set(stale.map((_,i)=>Math.min(xs.length-1,1+i*Math.max(1,Math.floor((xs.length-1)/Math.max(1,stale.length))))));
  const sparks=[];let prev=null;xs.forEach((x,i)=>{const br=brokenIdx.has(i);pylon(g,x,zl,br);const tip=new THREE.Vector3(br?x-.55:x,br?.95:1.27,zl);
   if(prev&&!br&&!prev.br){cable(g,new THREE.Vector3(prev.x-.3,1.06,zl),new THREE.Vector3(x-.3,1.06,zl));cable(g,new THREE.Vector3(prev.x+.3,1.06,zl),new THREE.Vector3(x+.3,1.06,zl))}
@@ -418,6 +462,34 @@ function buildGrid(par,rep){// power line from the plant to the city along the s
   prev={x,br}});
  if(stale.length)tags.push({pos:new THREE.Vector3(xs[Math.min(xs.length-1,2)],1.9,zl),text:`${stale.length} stale CI workflow${stale.length>1?"s":""}`,color:"#b23526",kind:"ENR-04"});
  return {g,sparks}}
+/* public transport: line quality = min(station level, district level); bus L1-L3, metro L3 */
+const HUB={x:4.5,z:8},LINK_X=[0,9,16,24,29];
+function busRoute(k){const b=DIST[k];const cx=(b.x0+b.x1)/2;if(b.z1<8)return [[HUB.x,8],[cx,8]];let xc=LINK_X[0],best=1e9;for(const x of LINK_X){const d=Math.abs(x-HUB.x)+Math.abs(x-cx);if(d<best){best=d;xc=x}}return [[HUB.x,8],[xc,8],[xc,16],[cx,16]]}
+// shift a right-angled route to the right-hand side of travel
+function offsetPath(pts,o){const n=(a,b)=>{const dx=b[0]-a[0],dz=b[1]-a[1],L=Math.hypot(dx,dz)||1;return [-dz/L,dx/L]};return pts.map((p,i)=>{let ox=0,oz=0;if(i>0){const m=n(pts[i-1],p);ox+=m[0];oz+=m[1]}if(i<pts.length-1){const m=n(p,pts[i+1]);ox+=m[0];oz+=m[1]}return [p[0]+ox*o,p[1]+oz*o]})}
+const pathLen=pts=>pts.slice(1).reduce((s,p,i)=>s+Math.hypot(p[0]-pts[i][0],p[1]-pts[i][1]),0);
+function pathAt(pts,s){for(let i=1;i<pts.length;i++){const a=pts[i-1],b=pts[i];const L=Math.hypot(b[0]-a[0],b[1]-a[1]);if(s<=L||i===pts.length-1){const u=Math.min(1,Math.max(0,s/(L||1)));return {x:a[0]+(b[0]-a[0])*u,z:a[1]+(b[1]-a[1])*u,r:Math.atan2(-(b[1]-a[1]),b[0]-a[0])}}s-=L}}
+function shuttle(o,pts,{off=0,speed=1,dwell=1,phase=0,y=0}){const F=off?offsetPath(pts,off):pts,B=off?offsetPath([...pts].reverse(),off):[...pts].reverse();const LF=pathLen(F),LB=pathLen(B);return {o,F,B,LF,LB,speed,dwell,y,phase:phase*(LF/speed+LB/speed+2*dwell)}}
+function moveShuttle(s,t){const tf=s.LF/s.speed,tb=s.LB/s.speed,cyc=tf+tb+2*s.dwell;const u=(t+s.phase)%cyc;let p;
+ if(u<s.dwell)p=pathAt(s.F,0);else if(u<s.dwell+tf)p=pathAt(s.F,(u-s.dwell)*s.speed);else if(u<2*s.dwell+tf)p=pathAt(s.F,s.LF);else p=pathAt(s.B,(u-2*s.dwell-tf)*s.speed);
+ s.o.position.set(p.x,s.y,p.z);s.o.rotation.y=p.r}
+function busModel(color){const g=new THREE.Group();box(g,.62,.19,.22,color,0,.05,0);box(g,.58,.07,.226,"#bfe0f2",0,.15,0);box(g,.02,.07,.18,"#bfe0f2",.315,.15,0);box(g,.6,.03,.2,"#f4f4f2",0,.24,0);for(const dx of [-.19,.19])box(g,.11,.06,.23,"#1f2326",dx,0,0);return g}
+function busStop(par,x,z,color,shelter){const g=new THREE.Group();cyl(g,.015,.015,.5,"#5a646b",0,0,0,6);const s=new THREE.Mesh(new THREE.CircleGeometry(.08,16),mat(color,{side:THREE.DoubleSide}));s.position.y=.5;g.add(s);
+ if(shelter){box(g,.5,.02,.24,"#5a646b",.32,.36,0);box(g,.5,.34,.02,"#9cc6e6",.32,.02,-.11,{transparent:true,opacity:.6});box(g,.36,.04,.08,"#7a5a36",.32,.1,-.05)}g.position.set(x,0,z);par.add(g);return g}
+const metroSign=()=>new THREE.SpriteMaterial({map:canvasTex("metro",64,64,(x)=>{rr(x,2,2,60,60,12);x.fillStyle="#2a63c9";x.fill();x.fillStyle="#fff";x.font=`800 44px ${FONT_D}`;x.textAlign="center";x.textBaseline="middle";x.fillText("M",32,35)})});
+function ghostTrain(color){const g=new THREE.Group();const m=new THREE.MeshBasicMaterial({color,transparent:true,opacity:.8,depthTest:false});for(let i=0;i<2;i++){const c=new THREE.Mesh(bg(.48,.13,.16),m);c.position.set(-i*.52,.07,0);c.renderOrder=4;g.add(c)}return g}
+function buildTransit(par,rep){const hub=rep.L[PI.workflow_entry_points];const g=new THREE.Group();par.add(g);const moving=[];if(hub===0)return {g,moving};
+ const sb=DIST.workflow_entry_points;const hubPick={kind:"transit",k:"workflow_entry_points"};
+ const hs=busStop(g,HUB.x-1.1,7.42,"#24946a",hub>=2);hs.userData.pick=hubPick;
+ const portalA=[sb.x1-.25,7.2];if(hub===3){const s=new THREE.Sprite(metroSign());s.scale.set(.34,.34,1);s.position.set(portalA[0],.55,portalA[1]);s.userData.pick=hubPick;g.add(s)}
+ for(const p of PILLARS){if(p.k==="workflow_entry_points")continue;const q=transitQ(rep,p.k);if(q===0)continue;const lg=new THREE.Group();lg.userData.pick={kind:"transit",k:p.k};g.add(lg);const b=DIST[p.k];
+  const route=busRoute(p.k);const end=offsetPath(route,.6).at(-1);busStop(lg,end[0],end[1],p.c,q>=2);
+  const nb=q===1?1:2;for(let i=0;i<nb;i++){const bus=busModel(p.c);lg.add(bus);moving.push(shuttle(bus,route,{off:.33,speed:q===1?.7:1.1,dwell:q===1?2.5:1,phase:i/nb+hash(p.k)%7/7}))}
+  if(q===3){const B=[b.x1-.25,b.z1+.2];const dx=B[0]-portalA[0],dz=B[1]-portalA[1],L=Math.hypot(dx,dz);
+   const rib=new THREE.Mesh(bg(L,.02,.15),new THREE.MeshBasicMaterial({color:p.c,transparent:true,opacity:.5,depthTest:false,depthWrite:false}));rib.position.set((portalA[0]+B[0])/2,.1,(portalA[1]+B[1])/2);rib.rotation.y=Math.atan2(-dz,dx);rib.renderOrder=3;lg.add(rib);
+   const s=new THREE.Sprite(metroSign());s.scale.set(.34,.34,1);s.position.set(B[0],.55,B[1]);lg.add(s);
+   const tr=ghostTrain(p.c);lg.add(tr);moving.push(shuttle(tr,[portalA,B],{speed:3,dwell:.8,phase:hash(p.k+"m")%5/5,y:.04}))}}
+ return {g,moving}}
 function buildOutskirts(par,rep){const g=new THREE.Group();par.add(g);const t=tierOf(rep.score);const r=rng(hash(rep.id+"out"));
  groundPlane(g,BOUNDS.x0-60,BOUNDS.z0-50,BOUNDS.x1+60,BOUNDS.z1+50,"#a9cf8f",-.03);
  // meadow trees around the city; denser for richer cities
@@ -443,14 +515,14 @@ function fitSize(aspect){// half-height in world units so the whole city (incl. 
  return Math.max(my,mx/aspect)*1.0}
 function resize(){const w=stage.clientWidth,h=stage.clientHeight;renderer.setSize(w,h,false);placeCamera()}
 function build(rep){if(city){scene.remove(city)}tags=[];city=new THREE.Group();scene.add(city);
- buildOutskirts(city,rep);buildRoads(city,rep);const rail=buildRail(city,rep);const grid=buildGrid(city,rep);
+ buildOutskirts(city,rep);buildRoads(city,rep);const rail=buildRail(city,rep);const grid=buildGrid(city,rep);const transit=buildTransit(city,rep);
  const districts={},traffic=[];
  for(const p of PILLARS){const lvl=rep.L[PI[p.k]];const st=stepsFor(rep,p);const cap=p.k==="verification"&&rep.caps.length?rep.caps[0]:null;
   const d=buildDistrict(city,p.k,lvl,DIST[p.k],rep,hash(rep.id+p.k),{steps:st,cap});districts[p.k]=d;
   traffic.push(buildTraffic(city,p.k,lvl,DIST[p.k],hash(rep.id+p.k+"t")));
   const b=DIST[p.k];const pick=new THREE.Mesh(bg(b.x1-b.x0+1,1.2,b.z1-b.z0+1),new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false}));pick.position.set((b.x0+b.x1)/2,.6,(b.z0+b.z1)/2);pick.userData.pick={kind:"district",k:p.k};city.add(pick)}
  const selLine=new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(),new THREE.Vector3(.1,0,0),new THREE.Vector3(0,0,.1)]),new THREE.LineBasicMaterial({color:"#111"}));selLine.visible=false;city.add(selLine);
- dyn={rail,grid,districts,traffic,selLine,t0:performance.now(),signs:[]};
+ dyn={rail,grid,transit,districts,traffic,selLine,t0:performance.now(),signs:[]};
  makePlates(rep);updateSelection()}
 function makePlates(rep){labelsEl.innerHTML="";plates=[];
  for(const p of PILLARS){const lvl=rep.L[PI[p.k]];const b=DIST[p.k];const el=document.createElement("div");el.className="plate";el.style.setProperty("--pc",p.c);
@@ -474,17 +546,18 @@ function animate(now){if(!dyn)return;const t=(now-dyn.t0)/1000;const tt=reduce?3
   const x=trn.dir>0?dyn.rail.xa+s-2:dyn.rail.xb-s+2;trn.o.position.set(x,.1,trn.z);trn.o.rotation.y=trn.dir>0?0:Math.PI}
  for(const [k,d] of Object.entries(dyn.districts)){if(d.userData.crane&&!reduce)d.userData.crane.userData.top.rotation.y=Math.sin(t*.25+k.length)*1.1;if(d.userData.lm.userData.siren)d.userData.lm.userData.siren.material.emissiveIntensity=reduce?1:(Math.sin(t*6)>0?1.6:.2)}
  for(const sp of dyn.grid.sparks){sp.material.opacity=reduce?.9:(Math.random()<.5?1:.25);sp.scale.setScalar(reduce?.5:.35+Math.random()*.3)}
+ for(const s of dyn.transit.moving)moveShuttle(s,tt);
  steam(t)}
 const puffs=[];function steam(t){if(!dyn)return;const d=dyn.districts.pipeline_parity;if(!d||!d.userData.lm.userData.steam)return;if(!puffs.length||puffs.owner!==d){puffs.forEach(p=>p.parent&&p.parent.remove(p));puffs.length=0;puffs.owner=d;for(let i=0;i<10;i++){const s=new THREE.Sprite(steamMat());s.material=s.material.clone();d.userData.lm.add(s);puffs.push(s)}}
  const lvl=current.L[PI.pipeline_parity];const H=1.3+lvl*.25;puffs.forEach((s,i)=>{const u=((reduce?.5:t*.18)+i/10)%1;s.position.set(.7+Math.sin(i*7+u*3)*.12,H+u*1.4,-.1);s.scale.setScalar(.45+u*.9);s.material.opacity=(1-u)*.8})}
 let last=0;function loop(now){requestAnimationFrame(loop);if(document.hidden)return;animate(now);renderer.render(scene,camera);updateLabels()}
 
 /* ================= interaction ================= */
-const ray=new THREE.Raycaster(),ndc=new THREE.Vector2();let drag=null,moved=0;
+const ray=new THREE.Raycaster(),ndc=new THREE.Vector2();ray.params.Line.threshold=.05;let drag=null,moved=0;
 function pickAt(cx,cy){const b=canvas.getBoundingClientRect();ndc.set((cx-b.left)/b.width*2-1,-(cy-b.top)/b.height*2+1);ray.setFromCamera(ndc,camera);const hits=ray.intersectObjects(city.children,true);for(const h of hits){let o=h.object;while(o&&!o.userData.pick)o=o.parent;if(o&&o.userData.pick&&o.userData.pick.kind!=="district")return o.userData.pick}for(const h of hits){let o=h.object;while(o&&!o.userData.pick)o=o.parent;if(o&&o.userData.pick)return o.userData.pick}return null}
 canvas.addEventListener("pointerdown",e=>{drag={x:e.clientX,y:e.clientY,t:view.target.clone()};moved=0;canvas.setPointerCapture(e.pointerId)});
 canvas.addEventListener("pointermove",e=>{if(drag){const dx=e.clientX-drag.x,dy=e.clientY-drag.y;moved=Math.max(moved,Math.abs(dx)+Math.abs(dy));if(moved>4){canvas.classList.add("drag");const s=(camera.top-camera.bottom)/stage.clientHeight;const a=view.az*Math.PI/180;const rx=new THREE.Vector3(Math.cos(a),0,-Math.sin(a)),fz=new THREE.Vector3(-Math.sin(a),0,-Math.cos(a));view.target.copy(drag.t).addScaledVector(rx,-dx*s).addScaledVector(fz,dy*s*1.22);clampTarget();placeCamera()}}else{const pk=pickAt(e.clientX,e.clientY);canvas.classList.toggle("hot",!!pk)}});
-canvas.addEventListener("pointerup",e=>{canvas.classList.remove("drag");if(drag&&moved<=4){const pk=pickAt(e.clientX,e.clientY);if(pk){if(pk.kind==="district")select(sel===pk.k?null:pk.k);else select(null,pk.kind)}else select(null)}drag=null});
+canvas.addEventListener("pointerup",e=>{canvas.classList.remove("drag");if(drag&&moved<=4){const pk=pickAt(e.clientX,e.clientY);if(pk){if(pk.kind==="district")select(sel===pk.k&&!about?null:pk.k);else select(pk.k||null,pk.kind)}else select(null)}drag=null});
 canvas.addEventListener("wheel",e=>{e.preventDefault();zoomBy(e.deltaY<0?1.12:1/1.12)},{passive:false});
 let pinch=null;canvas.addEventListener("touchstart",e=>{if(e.touches.length===2){pinch=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);drag=null}},{passive:true});
 canvas.addEventListener("touchmove",e=>{if(pinch&&e.touches.length===2){const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);zoomBy(d/pinch);pinch=d}},{passive:true});
@@ -496,35 +569,70 @@ document.getElementById("rotL").onclick=()=>rotate(-90);document.getElementById(
 document.getElementById("zin").onclick=()=>zoomBy(1.25);document.getElementById("zout").onclick=()=>zoomBy(.8);
 document.getElementById("fit").onclick=()=>{view.zoom=1;view.target.set(14.5,0,7.5);placeCamera()};
 document.getElementById("lbl").onclick=e=>{const on=stage.classList.toggle("hide-labels");e.currentTarget.setAttribute("aria-pressed",String(!on))};
+document.getElementById("cityplate").onclick=()=>select(null,"city");
 function focusDistrict(k){const b=DIST[k];view.target.set((b.x0+b.x1)/2,0,(b.z0+b.z1)/2+.5);view.zoom=Math.max(view.zoom,1.7);placeCamera()}
-let selKind=null;function select(k,kind){sel=k;selKind=kind||null;if(k)focusDistrict(k);updateSelection();renderPanel()}
+let selKind=null,about=null;const KIND_PILLAR={rail:"workflow_entry_points",grid:"pipeline_parity"};
+function select(k,kind){if(KIND_PILLAR[kind])k=KIND_PILLAR[kind];sel=k||null;selKind=kind&&kind.startsWith("ENR")?kind:null;about=sel&&kind&&kind!=="district"?kind:null;if(sel&&!KIND_PILLAR[kind])focusDistrict(sel);updateSelection();renderPanel()}
 
 /* ================= panel, picker, table ================= */
 const fmt=n=>n==null?"":`+${n.toFixed(1)}`;
-function districtStory(rep,p){const lvl=rep.L[PI[p.k]];const st=stepsFor(rep,p);const lines=[];
- lines.push(lvl===0?`Vacant, fenced lot. The ${p.b.toLowerCase()} has not been built.`:lvl===1?`A small ${p.b.toLowerCase()} stands, surrounded by low houses.`:lvl===2?`A working ${p.b.toLowerCase()} with mid-rise blocks and green space.`:`A flagship ${p.b.toLowerCase()} with towers and paved plazas.`);
- lines.push("Street: "+TRAFFIC[lvl]+".");if(st.length)lines.push(`Construction site: ${st[0].c} is the next planned fix${st[0].p!=null?` (${fmt(st[0].p)} points)`:""}.`);
- if(p.k==="verification"&&rep.caps.length)lines.push("Closed by order: a score cap ("+rep.caps[0]+") limits the whole score.");return lines}
+function seeItems(rep,p){const i=PI[p.k],lvl=rep.L[i];const st=stepsFor(rep,p);const hub=rep.L[PI.workflow_entry_points];const q=transitQ(rep,p.k);const out=[];
+ out.push(["Building",`${BUILDING[lvl]} ${ABOUT[p.k].b}`]);
+ out.push(["Street",TRAFFIC[lvl]+"."]);
+ out.push(["Transit",p.k==="workflow_entry_points"?`This is the hub. ${RAIL[lvl]}`:`${TRANSIT[q]} Line quality L${q} = the lower of the station (L${hub}) and this district (L${lvl}).`]);
+ if(st.length)out.push(["Crane",`${st[0].c} is the next planned fix${st[0].p!=null?` (${fmt(st[0].p)} points)`:""}.`]);else if(lvl===0)out.push(["Crane","A vacant lot waiting for its first building: the L1 checks below."]);
+ if(p.k==="verification"&&rep.caps.length)out.push(["Closed",`A score cap (${rep.caps[0]}) limits the whole score.`]);return out}
+function levelList(lines,cur){return `<ul class="plain">${lines.map((l,i)=>`<li class="${i===cur?"cur":""}">L${i} · ${esc(l)}${i===cur?" ← here":""}</li>`).join("")}</ul>`}
+function aboutHTML(rep,kind,k){const p=k?PILLARS[PI[k]]:null;const lvl=p?rep.L[PI[k]]:0;
+ const card=(t,body)=>`<div class="about"><h3>${t}</h3>${body}</div>`;
+ switch(kind){
+  case"building":return card(`${p.place}: ${p.n}`,`<p><b>${esc(ABOUT[k].q)}</b></p><p>${esc(ABOUT[k].b)}</p>${levelList(BUILDING,lvl)}`);
+  case"street":return card("The street: how work reaches the district",`<p>Lanes stand for automation. A closed road means the pillar is missing; one lane with a traffic light means it exists but someone has to start it by hand; two lanes mean hooks or CI run it; a boulevard means agents use it directly.</p>${levelList(TRAFFIC,lvl)}`);
+  case"transit":{const hub=rep.L[PI.workflow_entry_points];const q=transitQ(rep,k);return card("Public transport from the central station",`<p>The central station stands for workflow entry points: runner targets such as <code>task test</code> or <code>make lint</code>. Each line shows how well that one entry point reaches a district. A line is only as good as both ends, so its level is the lower of the station level (L${hub}) and the district level (L${lvl}).</p>${levelList(TRANSIT,k==="workflow_entry_points"?hub:q)}`)}
+  case"site":{const st=stepsFor(rep,p);return card("Construction site: the next planned fix",st.length?`<p>Cranes stand where the fix plan will raise this pillar next.</p><ul class="plain">${st.map(s=>`<li class="wi"><span class="tag">${esc(s.c)}</span><span>${esc(s.t)} <span class="meta">${fmt(s.p)}</span></span></li>`).join("")}</ul>`:`<p>A vacant lot: no building yet. Passing the L1 checks listed below builds the first one.</p>`)}
+  case"rail":{const n=rep.ent.filter(e=>e.c==="ENR-01").length;return card("Rail line: workflow entry points",`<p>The main line is the task runner. Trains are runs of its targets; the busier and faster the line, the easier it is to do common work the same way every time.</p>${levelList(RAIL,lvl)}<p>The rusty siding holds abandoned wagons: ${n?`${n} orphaned script${n>1?"s":""} that nothing calls any more (ENR-01).`:"none in this data."}</p>`)}
+  case"grid":{const n=rep.ent.filter(e=>e.c==="ENR-04").length;return card("Power line: pipeline parity",`<p>The power plant is CI and the line carries its power into the city. Parity means CI runs the same checks, through the same entry points, that developers and agents run locally.</p>${levelList(GRID,lvl)}<p>Broken, sparking pylons: ${n?`${n} CI workflow${n>1?"s":""} pointing at files that no longer exist (ENR-04).`:"none in this data."}</p>`)}
+ }return""}
+function ckRow(rep,id,c){const s=statusOf(rep,id);const [ic,lab]=STATUS[s]||["?",s];return `<li class="ck"><span class="st ${esc(s)}" title="${esc(lab)}">${ic}</span><span class="tag">${esc(id)}</span><span>${esc(c.t)}${c.g?`<span class="gate" title="Gate: must pass to reach this level">gate</span>`:""}${c.a&&c.a!=="all"?` <span class="meta">${esc(c.a)} only</span>`:""}</span></li>`}
+function evHTML(f){const rows=[];if(f.m)rows.push(`<span>component ${esc(f.m)}</span>`);for(const e of f.e)rows.push(`<span>${e.k==="searched"?"Searched, not found":e.k==="found"?"Found":esc(e.k)}: <span class="path">${esc(e.p)}${e.l!=null?":"+esc(e.l):""}</span>${e.x?` · ${esc(e.x)}`:""}</span>`);if(f.n)rows.push(`<span>${esc(f.n)}</span>`);return rows.length?`<span class="ev">${rows.join("")}</span>`:""}
+function ladderHTML(rep,i){const lvl=rep.L[i];const cks=checksOf(i);let h="";
+ for(let l=1;l<=3;l++){const list=cks.filter(([,c])=>c.l===l);const state=l<=lvl?"ok":l===lvl+1?"next":"";
+  h+=`<div class="lad ${state}"><div class="lh"><span>L${l} ${LEVEL[l]}</span><small>${l<=lvl?"✓ reached":l===lvl+1?"next level":"later"}</small></div><p class="ld">${LEVEL_DESC[l]}.${l===lvl+1?` To get here, every gate check up to L${l} passes and at least 60% of the L${l} checks pass.`:""}</p>${list.length?`<ul class="plain">${list.map(([id,c])=>ckRow(rep,id,c)).join("")}</ul>`:""}</div>`}
+ if(!cks.length)h+=`<p class="empty">No check catalog in this data file. Convert with tools/report_to_city.py next to the harness-audit skill to list the checks per level.</p>`;
+ return h}
+function issuesHTML(rep,i){const p=PILLARS[i];const iss=issuesOf(rep,i);const gates=(rep.G&&rep.G[i])||[];
+ if(!rep.f.length&&!gates.length)return `<p class="empty">This data has no per-check findings (synthetic profile or compact export), so nothing can be named as missing. The level ladder below shows what the audit looks for; convert a full harness-audit report to see the evidence.</p>`;
+ if(!iss.length&&!gates.length)return `<p class="empty">No failed or unknown checks recorded for ${p.n}.</p>`;
+ let h=gates.length?`<p class="meta">Blocking the next level (gate failures): ${gates.map(esc).join(", ")}</p>`:"";
+ h+=`<ul class="plain">${iss.map(f=>{const c=CHECKS[f.c];const [ic,lab]=STATUS[f.s]||["?",f.s];return `<li class="ck"><span class="st ${esc(f.s)}" title="${esc(lab)}">${ic}</span><span class="tag ${f.s==="unknown"?"warn":"bad"}">${esc(f.c)}</span><span>${esc(c?c.t:f.c)}${c&&c.w?`<br><span class="meta">Why it matters: ${esc(c.w)}</span>`:""}</span>${evHTML(f)}</li>`}).join("")}</ul>`;return h}
+function cityHTML(rep){const raw=PILLARS.reduce((s,p,i)=>s+rep.L[i]/3*p.w,0);const t=tierOf(rep.score);const nIss=PILLARS.reduce((s,p,i)=>s+issuesOf(rep,i).length,0);
+ return `<div class="about"><h3>Reading this city</h3><p>Score ${rep.score}: the districts earn ${raw.toFixed(1)} of 100 points (level ÷ 3 × weight)${rep.pen?`, minus ${rep.pen.toFixed(1)} entropy penalty for decay`:""}${rep.caps.length?`, limited by the cap ${esc(rep.caps[0])}`:""}. Tier ${t.n}: Thriving ≥ 80, Prosperous ≥ 60, Working ≥ 45, Neglected below. Richer cities get more trees; neglected ones get potholes.</p><p>Each district is one pillar. Its building grows from a vacant lot (L0) to a skyline (L3). The street shows how work reaches it, buses and the metro from the central station show how well the entry points serve it, cranes mark the next planned fix, and wagons, graffiti and broken pylons are decay.</p>${rep.f.length?`<p>${nIss} failed or unknown check${nIss===1?"":"s"} recorded across the districts.</p>`:""}<p class="meta">Click a building, street, bus, the rail line or the power line to see what it means.</p></div>
+ <details class="sec"><summary>What the levels mean</summary>${levelList(LEVEL_DESC,-1)}</details>${rep.lim.length?`<details class="sec"><summary>Limitations of this scan</summary><ul class="plain">${rep.lim.map(l=>`<li class="meta">${esc(l)}</li>`).join("")}</ul></details>`:""}`}
 function renderPanel(){const rep=current,pn=document.getElementById("panel");const t=tierOf(rep.score);const pts=PILLARS.map((p,i)=>rep.L[i]/3*p.w);
- let h=`<div><div class="eyebrow">${rep.set?rep.set+" set · ":""}${rep.comp} component${rep.comp===1?"":"s"}</div><h2>${rep.id}</h2></div>
- <dl class="kv"><dt>Tool score</dt><dd>${rep.score} / 100 · ${t.n}</dd>${rep.gut!=null?`<dt>Human gut score</dt><dd>${rep.gut} (tool ${rep.score-rep.gut>=0?"+":""}${rep.score-rep.gut})</dd>`:""}${rep.done!=null?`<dt>All fixes done</dt><dd>${rep.done}</dd>`:""}<dt>Entropy penalty</dt><dd>${rep.pen.toFixed(1)}</dd><dt>Tracked files</dt><dd>${rep.files.toLocaleString("en")}</dd>${rep.caps.length?`<dt>Cap</dt><dd style="color:var(--bad)">${rep.caps[0]}</dd>`:""}</dl>`;
+ let h=`<div><div class="eyebrow">${rep.set?esc(rep.set)+" set · ":""}${rep.comp} component${rep.comp===1?"":"s"}</div><h2>${esc(rep.id)}</h2></div>
+ <dl class="kv"><dt>Tool score</dt><dd>${rep.score} / 100 · ${t.n}</dd>${rep.gut!=null?`<dt>Human gut score</dt><dd>${rep.gut} (tool ${rep.score-rep.gut>=0?"+":""}${rep.score-rep.gut})</dd>`:""}${rep.done!=null?`<dt>All fixes done</dt><dd>${rep.done}</dd>`:""}<dt>Entropy penalty</dt><dd>${rep.pen.toFixed(1)}</dd><dt>Tracked files</dt><dd>${rep.files.toLocaleString("en")}</dd>${rep.caps.length?`<dt>Cap</dt><dd style="color:var(--bad)">${esc(rep.caps[0])}</dd>`:""}</dl>`;
  if(sel){const p=PILLARS[PI[sel]];const i=PI[sel];const lvl=rep.L[i];const st=stepsFor(rep,p);
-  h+=`<div class="focus" style="--pc:${p.c}"><div><div class="eyebrow">${p.b}</div><h3>${p.n}: L${lvl} ${LEVEL[lvl]}</h3><div class="meta">${pts[i].toFixed(1)} of ${p.w} points${p.w-pts[i]>0?` · ${(p.w-pts[i]).toFixed(1)} still open`:" · complete"}</div></div>
-  ${districtStory(rep,p).map(l=>`<p>${l}</p>`).join("")}
-  ${st.length?`<ul class="plain">${st.map(s=>`<li class="wi"><span class="tag">${s.c}</span><span>${s.t} <span class="meta">${fmt(s.p)}</span></span></li>`).join("")}</ul>`:""}
+  h+=`<div class="focus" style="--pc:${p.c}"><div><div class="eyebrow">${p.b}</div><h3>${p.n}: L${lvl} ${LEVEL[lvl]}</h3><div class="meta">${pts[i].toFixed(1)} of ${p.w} points${p.w-pts[i]>0?` · ${(p.w-pts[i]).toFixed(1)} still open`:" · complete"}</div><p><i>${esc(ABOUT[p.k].q)}</i></p></div>
+  ${about?aboutHTML(rep,about,sel):""}
+  <div class="eyebrow">What you see</div><dl class="see">${seeItems(rep,p).map(([a,b])=>`<dt>${a}</dt><dd>${esc(b)}</dd>`).join("")}</dl>
+  <div class="eyebrow">Issues and missing files</div>${issuesHTML(rep,i)}
+  <div class="eyebrow">Level ladder · checks per level</div>${ladderHTML(rep,i)}
+  ${st.length?`<div class="eyebrow">Next fixes here</div><ul class="plain">${st.map(s=>`<li class="wi"><span class="tag">${esc(s.c)}</span><span>${esc(s.t)} <span class="meta">${fmt(s.p)}</span></span></li>`).join("")}</ul>`:""}
   <button class="btnlink" id="clr">Show the whole city</button></div>`}
- if(selKind){const items=rep.ent.filter(e=>e.c===selKind);h+=`<div class="focus" style="--pc:#b0377f"><div><div class="eyebrow">${ENR[selKind].where}</div><h3>${items.length} ${ENR[selKind].t}${items.length>1?"s":""}</h3></div><ul class="plain">${items.map(e=>`<li class="path">${e.p}</li>`).join("")}</ul><p class="meta">The tool only reports; a person decides whether to delete or wire it up.</p><button class="btnlink" id="clr">Show the whole city</button></div>`}
- h+=`<div><div class="eyebrow">Districts</div><table class="dtab">${PILLARS.map((p,i)=>`<tr data-k="${p.k}" class="${sel===p.k?"sel":""}"><td><span class="sw" style="background:${p.c}"></span>${p.n}</td><td class="lv">L${rep.L[i]}</td><td class="num">${pts[i].toFixed(1)}/${p.w}</td></tr>`).join("")}</table></div>`;
+ if(selKind){const items=rep.ent.filter(e=>e.c===selKind);h+=`<div class="focus" style="--pc:#b0377f"><div><div class="eyebrow">${ENR[selKind].where}</div><h3>${items.length} ${ENR[selKind].t}${items.length>1?"s":""}</h3></div><ul class="plain">${items.map(e=>`<li class="path">${esc(e.p)}</li>`).join("")}</ul><p class="meta">The tool only reports; a person decides whether to delete or wire it up.</p><button class="btnlink" id="clr">Show the whole city</button></div>`}
+ if(!sel&&!selKind)h+=cityHTML(rep);
+ const hasF=rep.f.length>0;
+ h+=`<div><div class="eyebrow">Districts${hasF?" · open issues":""}</div><table class="dtab">${PILLARS.map((p,i)=>{const n=issuesOf(rep,i).length;return `<tr data-k="${p.k}" class="${sel===p.k?"sel":""}"><td><span class="sw" style="background:${p.c}"></span>${p.n}</td><td class="lv">L${rep.L[i]}</td>${hasF?`<td class="num" style="color:var(--bad)">${n?n+" ✗":""}</td>`:""}<td class="num">${pts[i].toFixed(1)}/${p.w}</td></tr>`}).join("")}</table></div>`;
  const groups={};for(const e of rep.ent)(groups[e.c]=groups[e.c]||[]).push(e);
  h+=`<div><div class="eyebrow">Decay · ${rep.ent.length} entropy item${rep.ent.length===1?"":"s"}</div>${rep.ent.length?`<ul class="plain" style="margin-top:6px">${Object.entries(groups).map(([c,l])=>`<li class="wi"><span class="tag ${c==="ENR-04"?"bad":"warn"}">${c}</span><span><button class="btnlink" data-kind="${c}">${l.length} ${ENR[c].t}${l.length>1?"s":""}</button><br><span class="meta">${ENR[c].where}</span></span></li>`).join("")}</ul>`:`<p class="empty">No entropy items in the export for this repository.</p>`}</div>`;
- h+=`<div><div class="eyebrow">Next fixes (construction sites)</div><ul class="plain" style="margin-top:6px">${rep.steps.map(s=>`<li class="wi"><span class="tag">${s.c}</span><span>${s.t} <span class="meta">${fmt(s.p)}</span></span></li>`).join("")}</ul></div>`;
- pn.innerHTML=h;pn.querySelectorAll("tr[data-k]").forEach(tr=>tr.onclick=()=>select(sel===tr.dataset.k?null:tr.dataset.k));pn.querySelectorAll("[data-kind]").forEach(b=>b.onclick=()=>select(null,b.dataset.kind));const c=pn.querySelector("#clr");if(c)c.onclick=()=>{select(null);document.getElementById("fit").click()};
- document.getElementById("cityplate").innerHTML=`<div class="t">${rep.id}</div><div class="m"><span class="tierpill" style="background:${t.c}">${t.n}</span>score ${rep.score} · ${rep.gut!=null?`residents rate it ${rep.gut} · `:""}${rep.ent.length} decay</div>`}
-function renderPicker(){const el=document.getElementById("picker");const sorted=[...REPOS].sort((a,b)=>b.score-a.score);let h="",last="";for(const r of sorted){const t=tierOf(r.score);if(t.n!==last){h+=`<span class="grp">${t.n}</span>`;last=t.n}h+=`<button class="chip" data-id="${r.id}" aria-pressed="${r===current}">${r.id}<b style="background:${t.c}">${r.score}</b></button>`}el.innerHTML=h;el.querySelectorAll(".chip").forEach(b=>b.onclick=()=>choose(b.dataset.id,true))}
+ h+=`<div><div class="eyebrow">Next fixes (construction sites)</div>${rep.steps.length?`<ul class="plain" style="margin-top:6px">${rep.steps.map(s=>`<li class="wi"><span class="tag">${esc(s.c)}</span><span>${esc(s.t)} <span class="meta">${fmt(s.p)}</span></span></li>`).join("")}</ul>`:`<p class="empty">No fix plan in this data.</p>`}</div>`;
+ pn.innerHTML=h;pn.scrollTop=0;pn.querySelectorAll("tr[data-k]").forEach(tr=>tr.onclick=()=>select(sel===tr.dataset.k?null:tr.dataset.k));pn.querySelectorAll("[data-kind]").forEach(b=>b.onclick=()=>select(null,b.dataset.kind));const c=pn.querySelector("#clr");if(c)c.onclick=()=>{select(null);document.getElementById("fit").click()};
+ document.getElementById("cityplate").innerHTML=`<div class="t">${esc(rep.id)}</div><div class="m"><span class="tierpill" style="background:${t.c}">${t.n}</span>score ${rep.score} · ${rep.gut!=null?`residents rate it ${rep.gut} · `:""}${rep.ent.length} decay</div>`}
+function renderPicker(){const el=document.getElementById("picker");const sorted=[...REPOS].sort((a,b)=>b.score-a.score);let h="",last="";for(const r of sorted){const t=tierOf(r.score);if(t.n!==last){h+=`<span class="grp">${t.n}</span>`;last=t.n}h+=`<button class="chip" data-id="${esc(r.id)}" aria-pressed="${r===current}">${esc(r.id)}<b style="background:${t.c}">${r.score}</b></button>`}el.innerHTML=h;el.querySelectorAll(".chip").forEach(b=>b.onclick=()=>choose(b.dataset.id,true))}
 function renderTable(){const t=document.getElementById("dtable");const sorted=[...REPOS].sort((a,b)=>b.score-a.score);
- t.innerHTML=`<thead><tr><th>Repository</th><th>Set</th><th>Score</th><th>Gut</th><th>Tier</th>${PILLARS.map(p=>`<th title="${p.n}">${p.short}</th>`).join("")}<th>Penalty</th><th>Decay</th><th>All fixes</th></tr></thead><tbody>${sorted.map(r=>`<tr data-id="${r.id}"><td>${r.id}</td><td>${r.set}</td><td class="num">${r.score}</td><td class="num">${r.gut??"–"}</td><td>${tierOf(r.score).n}</td>${r.L.map(l=>`<td class="l">L${l}</td>`).join("")}<td class="num">${r.pen.toFixed(1)}</td><td class="num">${r.ent.length}</td><td class="num">${r.done??"–"}</td></tr>`).join("")}</tbody>`;
+ t.innerHTML=`<thead><tr><th>Repository</th><th>Set</th><th>Score</th><th>Gut</th><th>Tier</th>${PILLARS.map(p=>`<th title="${p.n}">${p.short}</th>`).join("")}<th>Penalty</th><th>Decay</th><th>All fixes</th></tr></thead><tbody>${sorted.map(r=>`<tr data-id="${esc(r.id)}"><td>${esc(r.id)}</td><td>${esc(r.set)}</td><td class="num">${r.score}</td><td class="num">${r.gut??"–"}</td><td>${tierOf(r.score).n}</td>${r.L.map(l=>`<td class="l">L${l}</td>`).join("")}<td class="num">${r.pen.toFixed(1)}</td><td class="num">${r.ent.length}</td><td class="num">${r.done??"–"}</td></tr>`).join("")}</tbody>`;
  t.querySelectorAll("tbody tr").forEach(tr=>tr.onclick=()=>{choose(tr.dataset.id,true);stage.scrollIntoView({behavior:reduce?"auto":"smooth",block:"center"})})}
-function choose(id,push){const r=REPOS.find(x=>x.id===id);if(!r)return;current=r;sel=null;selKind=null;if(push){try{history.replaceState(null,"","#"+id)}catch(e){location.hash=id}}renderPicker();renderPanel();if(scene){view.zoom=1;view.target.set(14.5,0,7.5);placeCamera();build(r)}}
+function choose(id,push){const r=REPOS.find(x=>x.id===id);if(!r)return;current=r;sel=null;selKind=null;about=null;if(push){try{history.replaceState(null,"","#"+id)}catch(e){location.hash=id}}renderPicker();renderPanel();if(scene){view.zoom=1;view.target.set(14.5,0,7.5);placeCamera();build(r)}}
 
 /* ================= offscreen thumbnails (asset sheet + key) ================= */
 async function renderThumbs(){const tr=new THREE.WebGLRenderer({antialias:true,alpha:true,preserveDrawingBuffer:true});tr.setPixelRatio(1);tr.setSize(480,360);tr.outputColorSpace=THREE.SRGBColorSpace;tr.shadowMap.enabled=true;tr.shadowMap.type=THREE.PCFSoftShadowMap;
@@ -540,6 +648,7 @@ async function renderThumbs(){const tr=new THREE.WebGLRenderer({antialias:true,a
   ["One lane and a traffic light","L1 present: the pillar exists but is thin. Half the street is coned off and cars queue at the light. A known limit.",g=>{groundPlane(g,-3,-3,9,8,"#a9cf8f",-.03);const rd=[];for(let x=-1;x<=6;x++)rd.push([x,2,90]);instanced(g,"road-straight",rd);for(let x=.5;x<5;x+=.45)cone(g,x,1.8);barrier(g,.2,1.8,90,.42);const tl=trafficLight(g,.0,2.42,90);tl.userData.set("red");put(g,"sedan",.45,2.18,90);put(g,"taxi",-.2,2.18,90);put(g,"van",-.85,2.18,90);put(g,"digger",2.6,1.7,90,.8);put(g,"house-a",1,.6,0,.9);put(g,"house-d",3,.6,0,.9);const ws=textSprite("onelane",["1 LANE","known limit"],{bg:"#ffd23f",scale:.65});ws.position.set(4.3,.78,1.7);g.add(ws)}],
   ["Road closed","L0 absent: the street to the district is barricaded. Nothing gets in or out.",g=>{groundPlane(g,-3,-3,9,8,"#a9cf8f",-.03);const rd=[];for(let x=-1;x<=6;x++)rd.push([x,2,90]);instanced(g,"road-straight",rd);barrier(g,.5,2,90,.9);barrier(g,4.4,2,90,.9);for(let x=1;x<4.2;x+=.7)cone(g,x,2+(x%1.4?.15:-.15));put(g,"rock",2.4,2.05,0,1.4);groundPlane(g,-.5,-.5,5.5,1.5,"#c7ae84",.02);for(let x=0;x<=5;x++)put(g,"fence",x,1.42,0,1);put(g,"stump",1.5,.6,0,1.5);put(g,"rock",3.5,.4,0,1.5);const s=textSprite("roadclosed",["ROAD CLOSED","nothing reaches it"],{bg:"#fff",fg:"#d6342a",scale:.75});s.position.set(2.4,.9,2.1);g.add(s)}],
   ["Construction site","The next planned fix from the fix plan, with its score gain. Built where the pillar will grow.",g=>{groundPlane(g,-3,-3,9,8,"#a9cf8f",-.03);const fake2={id:"k",L:[1,1,1,1,1,1,1],ent:[],caps:[],steps:[],score:50};buildDistrict(g,"pipeline_parity",1,{x0:0,x1:5,z0:0,z1:3},fake2,7,{steps:[{c:"CIP-05",t:"",p:3.3}],signScale:.8,signs:true})}],
+  ["Buses and metro","Lines from the central station to each district, as good as the weaker end: one bus (L1), frequent buses with shelters (L2), an underground metro (L3).",g=>{groundPlane(g,-3,-3,9,8,"#a9cf8f",-.03);const rd=[];for(let x=-1;x<=6;x++)rd.push([x,2,90]);instanced(g,"road-straight",rd);const b1=busModel("#d64545");b1.position.set(1,0,2.33);g.add(b1);const b2=busModel("#d64545");b2.position.set(3.6,0,1.67);b2.rotation.y=Math.PI;g.add(b2);busStop(g,4.8,2.62,"#d64545",true);const rib=new THREE.Mesh(bg(5,.02,.1),new THREE.MeshBasicMaterial({color:"#2f86c9",transparent:true,opacity:.45,depthTest:false,depthWrite:false}));rib.position.set(2.5,.1,.5);rib.renderOrder=3;g.add(rib);const tr=ghostTrain("#2f86c9");tr.position.set(2.2,.04,.5);g.add(tr);for(const x of [0,5]){const s=new THREE.Sprite(metroSign());s.scale.set(.34,.34,1);s.position.set(x,.55,.5);g.add(s)}put(g,"bld-c",1,-.6,0,.9);put(g,"bld-f",3.5,-.6,0,.9)}],
   ["Abandoned wagons","Each wagon on the rusty siding is one orphaned script that nothing calls any more (ENR-01).",g=>{groundPlane(g,-3,-3,9,8,"#a9cf8f",-.03);const bed=new THREE.Mesh(bg(7,.05,.7),mat("#a59578"));bed.position.set(2.5,.025,2);g.add(bed);for(const dz of [-.18,.18]){const rl=new THREE.Mesh(bg(7,.04,.035),mat("#8a5a3a"));rl.position.set(2.5,.08,2+dz);g.add(rl)}for(let i=0;i<4;i++){const w=wagon();w.position.set(.4+i*1.12,.1,2);g.add(w)}const r=rng(3);for(let i=0;i<14;i++)put(g,"bush",-.5+r()*6,1.5+r()*1,r()*360,.6)}],
   ["Broken pylon","Each toppled, sparking pylon on the power line is one CI workflow pointing at a file that no longer exists (ENR-04).",g=>{groundPlane(g,-3,-3,9,8,"#a9cf8f",-.03);let prev=null;[0,2.5,5].forEach((x,i)=>{const br=i===1;pylon(g,x,2,br);if(br){const sp=new THREE.Sprite(sparkMat());sp.scale.set(.5,.5,1);sp.position.set(x-.4,1,2);g.add(sp);cable(g,new THREE.Vector3(x-.6,.95,2),new THREE.Vector3(x-1.1,.1,2.3),.05)}});cable(g,new THREE.Vector3(-1,1.06,2),new THREE.Vector3(0,1.06,2));put(g,"generator",4.6,.6,0,1)}],
   ["Graffiti wall","Each tag on the wall in the police district is one tool configured twice in conflicting ways (ENR-02).",g=>{groundPlane(g,-3,-3,9,8,"#a9cf8f",-.03);const w=graffitiWall(2);w.position.set(2.5,0,2);g.add(w);put(g,"bld-c",1.5,.7,0,.9);put(g,"police-car",3.5,2.6,90)}],
@@ -551,7 +660,7 @@ async function renderThumbs(){const tr=new THREE.WebGLRenderer({antialias:true,a
 /* ================= boot ================= */
 async function loadData(){
  const raw=window.HARNESS_CITY_DATA||await (await fetch(new URLSearchParams(location.search).get("data")||"data/cities.json")).json();
- META=raw.meta||{};REPOS=(raw.cities||raw).map(c=>({set:"",gut:null,done:null,comp:1,files:0,pen:0,steps:[],ent:[],caps:[],...c}));
+ META=raw.meta||{};CHECKS=META.checks||{};REPOS=(raw.cities||raw).map(c=>({set:"",gut:null,done:null,comp:1,files:0,pen:0,steps:[],ent:[],caps:[],f:[],G:null,lim:[],...c}));
  if(!REPOS.length)throw new Error("no cities in data");
  const n=REPOS.length;document.getElementById("hdrEyebrow").textContent=[META.tool,META.scanDate?"scan of "+META.scanDate:"",n+" "+(n===1?"repository":"repositories")].filter(Boolean).join(" · ");
  if(META.title){document.getElementById("hdrTitle").textContent=META.title;document.title=META.title}

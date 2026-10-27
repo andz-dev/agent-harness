@@ -81,10 +81,18 @@ roadmap body was preserved, and 0001 contains an empty .gitkeep. Integrity and
 publication-pattern checks pass; these do not constitute a security guarantee.
 Remote CI results are verified separately after the first push.
 
-## Reviewed Updates
+## Runtime Changes
 
-Records with kind `reviewed-update` in [extraction-manifest.json](extraction-manifest.json)
-differ from the imported snapshot on purpose. The first baseline update brings in
+Intentional changes to copied runtime files are recorded in the manifest as
+`adapted-runtime`: `source_sha256` keeps the imported baseline and `sha256` the
+reviewed new content, which `task integrity` verifies. The Harness City page,
+adapter and app README were adapted on 2026-10-27 to explain districts, levels,
+traffic, rail, power line and a new transit network, and to show per-check
+findings and evidence. The synthetic demo still contains no findings.
+
+## Reviewed Skill Updates
+
+Skill files changed after the import are also recorded as `adapted-runtime` in
+[extraction-manifest.json](extraction-manifest.json). The first baseline update brings in
 harness-audit v1.2 (placeholder downgrade, DOC-06 script check, larger excerpt
-budgets, agreement tool); see [v1.2 records](docs/0004/README.md). Their checksums
-are the new baseline; `task integrity` verifies only `unchanged-source` records.
+budgets, agreement tool); see [v1.2 records](docs/0004/README.md). Their `sha256` is the reviewed baseline that `task integrity` verifies.

@@ -17,10 +17,12 @@ def integrity(root):
     manifest = json.loads((root / "extraction-manifest.json").read_text())
     failures = []
     for record in manifest["files"]:
-        if record["kind"] != "unchanged-source":
+        if record["kind"] not in ("unchanged-source", "adapted-runtime"):
             continue
+        # adapted-runtime: a reviewed, intentional change; verify against the new baseline
+        expected = record["source_sha256"] if record["kind"] == "unchanged-source" else record["sha256"]
         path = root / record["target"]
-        if not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest() != record["source_sha256"]:
+        if not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest() != expected:
             failures.append("Source checksum mismatch: " + record["target"])
     return failures
 
