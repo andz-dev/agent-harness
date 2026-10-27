@@ -405,6 +405,65 @@
               }
             }
           }
+        },
+        "levels": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "overall",
+            "weakest_area",
+            "areas"
+          ],
+          "properties": {
+            "overall": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 0,
+              "maximum": 3
+            },
+            "weakest_area": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "areas": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "level",
+                  "blocked_by",
+                  "pass_ratio_by_level"
+                ],
+                "properties": {
+                  "level": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 3
+                  },
+                  "blocked_by": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "pass_ratio_by_level": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": [
+                        "number",
+                        "null"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
         }
       }
     }

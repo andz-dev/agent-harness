@@ -29,11 +29,11 @@ proposal; the items are tracked as B-166 to B-190 in the skill's [BACKLOG](../..
 
 ## Design decisions
 
-Confirmed by the owner on 2026-10-27: D1 overlay, D3 order as recommended. Go is out of scope (B-156 dropped).
+Confirmed by the owner on 2026-10-27: D1 overlay, and the overlay has its own level L0 to L3 (implemented, B-198); D3 order as recommended. Go is out of scope (B-156 dropped).
 
 | # | Decision | Recommendation | Why |
 | --- | --- | --- |
-| D1 (decided: overlay) | Fold infra checks into the frozen 0-100 score, or report an infra overlay next to it? | Overlay first (own 0-100 and levels), fold in only after recalibration | Weights are frozen; adding checks to existing pillars changes scores of repos that ship a Dockerfile (immich, n8n, home-assistant-core) and would invalidate the calibration |
+| D1 (decided: overlay with its own level) | Fold infra checks into the frozen 0-100 score, or report an infra overlay next to it? | Overlay first (own 0-100 and levels), fold in only after recalibration | Weights are frozen; adding checks to existing pillars changes scores of repos that ship a Dockerfile (immich, n8n, home-assistant-core) and would invalidate the calibration |
 | D2 | Infra as an 8th pillar or as `applies_to` kinds inside the seven pillars? | Kinds inside the pillars for the overlay; no new pillar until recalibration | Keeps the pillar model and the city districts stable |
 | D3 (decided) | Which IaC tools first? | Terraform/OpenTofu, then Bicep, then Helm/Kubernetes manifests, then Pulumi, CloudFormation/CDK, Ansible | Matches the owner's stack (Azure, Terraform) |
 | D4 | Does the audit ever run `terraform validate` or `docker compose config`? | No | Read-only rule; static parsing only |
@@ -43,7 +43,7 @@ Confirmed by the owner on 2026-10-27: D1 overlay, D3 order as recommended. Go is
 Status key: `todo` = nothing built; `partly done` = some items built. Done so far (all as an overlay that never changes the score):
 
 - Track A, detection of all listed tools: `scripts/detect_infra.py` (B-166 to B-169, B-184).
-- Track B, first set of checks for Dockerfile, Compose, devcontainer and Terraform/OpenTofu: `scripts/infra_checks.py`, 25 checks (B-171, B-175 to B-177), with a per-check roll-up (B-194).
+- Track B, first set of checks for Dockerfile, Compose, devcontainer and Terraform/OpenTofu: `scripts/infra_checks.py`, 25 checks (B-171, B-175 to B-177), with a per-check roll-up (B-194) and the overlay's own level per area and overall (B-198, uncalibrated: B-202).
 - Track E, the `infra` block in `report.json` and the Infrastructure section in `report.md` (B-181).
 
 Still `todo`: the component model (B-170), Bicep, Kubernetes/Helm and the other IaC checks (B-172 to B-174), cross-cutting checks (B-178), infra entropy (B-179), the judgement prompt (B-180), the city adapter (B-182, B-183), the adoption skill (Track F), fixtures and calibration (Track G).

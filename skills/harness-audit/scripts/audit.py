@@ -124,7 +124,7 @@ def assemble(root: Path, catalog: dict, name=None, url=None, weight=None, llm_an
     meta = repo_meta(root, name, url, weight)
     infra = detect_infra.detect(root)
     extra = infra_checks.run(root, detect_stack.list_files(root), infra["detected"])
-    infra = {**infra, "checks": extra["findings"], "summary": extra["summary"], "rollup": extra["rollup"]}
+    infra = {**infra, "checks": extra["findings"], "summary": extra["summary"], "rollup": extra["rollup"], "levels": extra["levels"]}
     stack_out = dict(stack)
     stack_out["ecosystems"] = sorted({c["ecosystem"] for c in stack["components"]})
     return {
@@ -219,15 +219,21 @@ def render_md(r: dict, titles: dict[str, str]) -> str:
         lines += ["", f"{len(real)} locations; the list is capped at 25 rows.", ""]
         summary = r["infra"].get("summary", {})
         if summary:
+            lv = r["infra"]["levels"]
             lines += [
-                "### Infrastructure checks (overlay, not in the score)",
+                "### Infrastructure checks (overlay, "
+                + (f"own level: L{lv['overall']}, weakest area: {lv['weakest_area']}" if lv["overall"] is not None else "no level yet")
+                + "; not in the score)",
                 "",
-                "| Area | Passed | Failed | Pass rate |",
-                "|---|---|---|---|",
+                "| Area | Level | Passed | Failed | Pass rate | Blocked by |",
+                "|---|---|---|---|---|---|",
             ]
             for area, s in sorted(summary.items()):
                 rate = "-" if s["pass_rate"] is None else f"{round(s['pass_rate'] * 100)}%"
-                lines.append(f"| {area} | {s['passed']} | {s['failed']} | {rate} |")
+                a_lv = lv["areas"].get(area, {"level": 0, "blocked_by": []})
+                lines.append(
+                    f"| {area} | L{a_lv['level']} | {s['passed']} | {s['failed']} | {rate} | {', '.join(a_lv['blocked_by']) or '-'} |"
+                )
             lines += [""]
             for row in [x for x in r["infra"].get("rollup", []) if x["failed"]][:12]:
                 where = ", ".join(f"`{x}`" for x in row["failing"][:3]) + ("…" if row["failed"] > 3 else "")

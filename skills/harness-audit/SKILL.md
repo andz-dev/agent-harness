@@ -75,6 +75,10 @@ Dockerfile, Compose, devcontainers, gitpod, nix, mise) and, for Dockerfile, Comp
 - Checks use text matching and look at all CI text, not the job for one directory; use them as a list of leads.
 - Per-check roll-up (`infra.rollup`) shows in how many locations each check fails; per-area pass rates are in
   `infra.summary`.
+- The overlay has its own level, L0 to L3, per area and overall (`infra.levels`). Same rule as the pillars: level N
+  needs every gate check up to N and 60% of the checks at each level up to N. A check passes only if it fails in no
+  location, so one weak Dockerfile in a monorepo holds the area back. The overall level is the weakest area. Gates:
+  INF-D01, D02, C01, C03, V01, V03, T01, T02, T06. The level is not a score and is not added to it.
 
 ## Files
 

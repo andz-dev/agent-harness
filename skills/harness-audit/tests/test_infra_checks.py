@@ -169,7 +169,10 @@ class SummaryTests(unittest.TestCase):
         self.assertGreater(s["pass_rate"], 0)
 
     def test_no_infra_no_findings(self):
-        self.assertEqual(run({"app.py": "x=1\n"}), {"findings": [], "summary": {}, "rollup": []})
+        self.assertEqual(
+            run({"app.py": "x=1\n"}),
+            {"findings": [], "summary": {}, "rollup": [], "levels": {"overall": None, "weakest_area": None, "areas": {}}},
+        )
 
 
 class RollupTests(unittest.TestCase):
@@ -182,6 +185,52 @@ class RollupTests(unittest.TestCase):
 
     def test_empty(self):
         self.assertEqual(run({"app.py": "x=1\n"})["rollup"], [])
+
+
+class LevelTests(unittest.TestCase):
+    GOOD_TF = (
+        'terraform {\n  required_providers {\n    aws = {\n      source  = "hashicorp/aws"\n      version = "~> 5.0"\n    }\n  }\n'
+        '  backend "s3" {}\n}\nprovider "aws" {}\n'
+    )
+
+    def lvl(self, tree, area):
+        return run(tree)["levels"]["areas"][area]
+
+    def test_failed_gate_keeps_area_at_level_zero(self):
+        a = self.lvl({"Dockerfile": "FROM node\nUSER app\nHEALTHCHECK CMD true\n"}, "dockerfile")
+        self.assertEqual(a["level"], 0)
+        self.assertEqual(a["blocked_by"], ["INF-D01"])  # the level-2 gate INF-D02 is not looked at before L1 is met
+
+    def test_gates_pass_but_ratio_too_low_stays_below(self):
+        a = self.lvl({"Dockerfile": "FROM python:3.12\n", ".dockerignore": "x\n"}, "dockerfile")
+        self.assertEqual(a["level"], 1)
+        self.assertEqual(a["pass_ratio_by_level"]["1"], 1.0)
+
+    def test_full_marks_reach_level_three(self):
+        ci = ".github/workflows/ci.yml"
+        tree = {
+            "Dockerfile": GOOD_DOCKERFILE,
+            ".dockerignore": "x\n",
+            ci: "run: hadolint Dockerfile\nrun: docker build .\n",
+        }
+        a = self.lvl(tree, "dockerfile")
+        self.assertEqual(a["level"], 3)
+        self.assertEqual(a["blocked_by"], [])
+
+    def test_one_failing_location_fails_the_check(self):
+        tree = {"a/Dockerfile": "FROM python:3.12\n", "b/Dockerfile": "FROM node\n", "a/.dockerignore": "x\n", "b/.dockerignore": "x\n"}
+        a = self.lvl(tree, "dockerfile")
+        self.assertEqual(a["level"], 1)  # L1 met by both locations; INF-D02 is a level-2 gate and fails in b/
+        self.assertEqual(a["blocked_by"], ["INF-D02"])
+
+    def test_overall_is_the_weakest_area(self):
+        r = run({"Dockerfile": GOOD_DOCKERFILE, ".dockerignore": "x\n", "main.tf": self.GOOD_TF})
+        lv = r["levels"]
+        self.assertEqual(lv["overall"], min(a["level"] for a in lv["areas"].values()))
+        self.assertEqual(lv["areas"][lv["weakest_area"]]["level"], lv["overall"])
+
+    def test_no_infra_has_no_level(self):
+        self.assertEqual(run({"app.py": "x=1\n"})["levels"], {"overall": None, "weakest_area": None, "areas": {}})
 
 
 if __name__ == "__main__":

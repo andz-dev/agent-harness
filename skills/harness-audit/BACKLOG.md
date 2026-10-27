@@ -366,3 +366,6 @@ Full map: `docs/0005/Infrastructure-Coverage-Map.md`. Today the catalog has no i
 - B-199: Not yet implemented: Bicep (B-172), Kubernetes/Helm (B-173), Pulumi/CloudFormation/Ansible (B-174), cross-cutting (B-178), infra entropy (B-179), infra judgement prompt (B-180).
 - B-194 (done): `infra.rollup` gives one row per check (locations passed, failed, not applicable, up to 5 failing paths); `report.md` lists the most failing checks from it.
 - B-200 (done): Overlay documented in SKILL.md, README.md and the coverage map.
+- B-198 (done): Decided by the owner on 2026-10-27: the overlay gets its own level. `infra.levels` has L0-L3 per area and overall (weakest area), gates INF-D01, D02, C01, C03, V01, V03, T01, T02, T06, 60% pass ratio per level, a check passes only when it fails in no location. Smoke test: immich L0 (devcontainer has no setup command), n8n L0 (terraform lock file and provider versions), home-assistant-core L2.
+- B-201: The overall level is the weakest area; one missing devcontainer command puts immich at L0 although Docker is L1. Revisit after more repos (alternatives: median, or a level per area only).
+- B-202: Levels are uncalibrated: no human rated any repo's infrastructure. Do not compare them across tool versions or treat them as audited truth (see B-190).

@@ -38,6 +38,8 @@ HOOK_FILES = (
 )
 SECRET_NAME = re.compile(r"(PASSWORD|PASSWD|SECRET|TOKEN|API_?KEY|PRIVATE_?KEY|CREDENTIAL)", re.I)
 RUNNER_WORDS = re.compile(r"\b(task|make|just|npm|pnpm|yarn|uv|pip|poetry|pdm|nox|tox|bun)\b")
+PASS_RATIO = 0.6  # same rule as the pillars: a level needs 60% of its checks
+GATES = {"INF-D01", "INF-D02", "INF-C01", "INF-C03", "INF-V01", "INF-V03", "INF-T01", "INF-T02", "INF-T06"}
 AREAS = {"D": "dockerfile", "C": "compose", "V": "devcontainer", "T": "terraform"}
 
 CHECKS = {
@@ -424,7 +426,8 @@ def run(root: Path, files: list[str], detected: list[dict]) -> dict:
     for s in summary.values():
         total = s["passed"] + s["failed"]
         s["pass_rate"] = round(s["passed"] / total, 2) if total else None
-    return {"findings": findings, "summary": summary, "rollup": rollup(findings)}
+    rows = rollup(findings)
+    return {"findings": findings, "summary": summary, "rollup": rows, "levels": levels(rows)}
 
 
 def rollup(findings: list[dict]) -> list[dict]:
@@ -449,3 +452,29 @@ def rollup(findings: list[dict]) -> list[dict]:
         if f["status"] == "fail" and len(row["failing"]) < 5:
             row["failing"].append(f["scope"])
     return sorted(rows.values(), key=lambda r: (-r["failed"], r["check_id"]))
+
+
+def levels(rows: list[dict]) -> dict:
+    """Overlay level per area (L0-L3) and overall (weakest area). Same rule as the pillars (B-198).
+
+    A check passes in an area only when it fails nowhere and passes somewhere; one failing location fails
+    the check. Level N needs every gate check up to N to pass and 60% of the applicable checks at each level up to N.
+    """
+    areas: dict[str, dict] = {}
+    for area in sorted({r["area"] for r in rows}):
+        mine = [r for r in rows if r["area"] == area and r["passed"] + r["failed"] > 0]
+        reached, blocked, ratios = 0, [], {}
+        for lvl in (1, 2, 3):
+            at = [r for r in mine if r["level"] == lvl]
+            passed = [r for r in at if r["failed"] == 0]
+            ratios[str(lvl)] = round(len(passed) / len(at), 2) if at else None
+            gates = [r["check_id"] for r in mine if r["level"] <= lvl and r["check_id"] in GATES and r["failed"] > 0]
+            if gates or (at and len(passed) / len(at) < PASS_RATIO):
+                blocked = gates or [r["check_id"] for r in at if r["failed"]][:3]
+                break
+            reached = lvl
+        areas[area] = {"level": reached, "blocked_by": blocked, "pass_ratio_by_level": ratios}
+    if not areas:
+        return {"overall": None, "weakest_area": None, "areas": {}}
+    weakest = min(areas, key=lambda a: (areas[a]["level"], a))
+    return {"overall": areas[weakest]["level"], "weakest_area": weakest, "areas": areas}
