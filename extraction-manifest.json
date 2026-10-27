@@ -20,7 +20,7 @@
       "source": "agents/skills/engineering/harness-audit/BACKLOG.md",
       "target": "skills/harness-audit/BACKLOG.md",
       "source_sha256": "e6585aecc04e06097ac13de92215c0f31635c848af6e49cf681782c72657d17d",
-      "sha256": "42891e6a3ce9d46ec2ccd416359dddb24788408d495f03df9a5c5df65a0d2480",
+      "sha256": "fa2521fbc425686045b21bce51ea138306921c6d40ecc64565170c84ae5fc107",
       "kind": "adapted-runtime"
     },
     {
@@ -125,8 +125,8 @@
       "source": "agents/skills/engineering/harness-audit/scripts/bootstrap.py",
       "target": "skills/harness-audit/scripts/bootstrap.py",
       "source_sha256": "a38bf46c23eb297a5067aedcfe8f05b0240afc58b55ea939f69733d6bcb35695",
-      "sha256": "a38bf46c23eb297a5067aedcfe8f05b0240afc58b55ea939f69733d6bcb35695",
-      "kind": "unchanged-source"
+      "sha256": "4489b43df3573ca1b191868cc2d798386d5f3c89189bb1aa10cfa72777b4ba30",
+      "kind": "adapted-runtime"
     },
     {
       "source": "agents/skills/engineering/harness-audit/scripts/calibrate.py",
@@ -188,8 +188,8 @@
       "source": "agents/skills/engineering/harness-audit/tests/test_bootstrap.py",
       "target": "skills/harness-audit/tests/test_bootstrap.py",
       "source_sha256": "7c4a8c6ce1f5b86b970449596c376e12bb4e8eb41d813b2ef7d565d189e70bfd",
-      "sha256": "7c4a8c6ce1f5b86b970449596c376e12bb4e8eb41d813b2ef7d565d189e70bfd",
-      "kind": "unchanged-source"
+      "sha256": "e6662f08e120d96018b5cef30d06625d3c705561f0ebaacaddda74be4019efe1",
+      "kind": "adapted-runtime"
     },
     {
       "source": "agents/skills/engineering/harness-audit/tests/test_detect_stack.py",

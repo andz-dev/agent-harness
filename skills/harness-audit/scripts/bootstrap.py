@@ -242,6 +242,29 @@ def gen_precommit(f: dict) -> str:
 """
 
 
+def gen_husky(f: dict) -> str:
+    c = node_cmds(f)
+    lines = ["#!/usr/bin/env sh", "# Proposed by harness-audit: run the same checks as CI before each commit."]
+    for k in ("lint", "test"):
+        lines.append(c[k] if k in c else f"# TODO(human): add a `{k}` script to package.json and call it here")
+    return "\n".join(lines) + "\n"
+
+
+def gen_husky_patch(f: dict) -> str:
+    add = {"npm": "npm install --save-dev husky", "pnpm": "pnpm add --save-dev husky", "yarn": "yarn add --dev husky"}[f["pm"]]
+    return f"""Proposed change to package.json (not applied by --apply; review it and run the steps yourself).
+
+1. Install husky:
+     {add}
+2. Add the install hook to the "scripts" section of package.json:
+     "prepare": "husky"
+3. Make the hook executable and commit it:
+     chmod +x .husky/pre-commit
+
+Pin the husky version your lock file resolves; do not hand-edit lock files.
+"""
+
+
 def gen_ci(f: dict) -> str:
     if f["ecosystem"] == "python":
         setup = "      - uses: astral-sh/setup-uv@v5\n" if f["pm"] == "uv" else "      - run: pipx install poetry\n"
@@ -301,6 +324,8 @@ PLAN = [
     ("CLAUDE.md", lambda f: "@AGENTS.md\n", ["ORI-08"], None),
     ("Taskfile.yml", gen_taskfile, ["ENT-01", "ENT-02", "ENT-03", "ENT-04", "ENT-06"], ("python", "node")),
     (".pre-commit-config.yaml", gen_precommit, ["TRG-01", "TRG-02", "TRG-03"], ("python",)),
+    (".husky/pre-commit", gen_husky, ["TRG-01", "TRG-02", "TRG-03"], ("node",)),
+    ("package.json.patch", gen_husky_patch, ["TRG-01", "TRG-02", "TRG-03"], ("node",)),
     (".github/workflows/ci.yml", gen_ci, ["CIP-01", "CIP-02", "CIP-03", "CIP-05"], ("python", "node")),
     (".github/dependabot.yml", gen_dependabot, ["CIP-07"], ("python", "node")),
     ("CONTRIBUTING.md", gen_contributing, ["ORI-03"], None),
@@ -310,6 +335,8 @@ EXISTING_ALTERNATIVES = {
     "CLAUDE.md": ["CLAUDE.md"],
     "Taskfile.yml": ["Taskfile.yml", "Taskfile.yaml", "Makefile", "makefile", "justfile"],
     ".pre-commit-config.yaml": [".pre-commit-config.yaml", ".husky", "lefthook.yml", ".lefthook.yml"],
+    ".husky/pre-commit": [".husky", ".pre-commit-config.yaml", "lefthook.yml", ".lefthook.yml", ".simple-git-hooks.json"],
+    "package.json.patch": ["package.json.patch"],
     ".github/workflows/ci.yml": [".github/workflows/ci.yml", "azure-pipelines.yml", ".gitlab-ci.yml"],
     ".github/dependabot.yml": [".github/dependabot.yml", "renovate.json", ".github/renovate.json"],
     "CONTRIBUTING.md": ["CONTRIBUTING.md", ".github/CONTRIBUTING.md"],
@@ -337,13 +364,15 @@ def propose(root: Path, report: dict) -> dict:
         if ecos and f["ecosystem"] not in ecos:
             out["skipped"].append({"path": path, "reason": f"not proposed for {f['ecosystem']} repositories", "checks": want})
             continue
+        if path == "package.json.patch" and ".husky/pre-commit" not in {x["path"] for x in out["files"]}:
+            continue
         present = [a for a in EXISTING_ALTERNATIVES.get(path, [path]) if a in f["files"] or any(x.startswith(a + "/") for x in f["files"])]
         if present:
             out["skipped"].append({"path": path, "reason": f"{present[0]} already exists; add the missing parts by hand", "checks": want})
             continue
         if path == "Taskfile.yml" and f["ecosystem"] == "node" and "test" not in f["scripts"] and "lint" not in f["scripts"]:
             out["notes"].append("Taskfile proposed with TODO placeholders because package.json has no test or lint script.")
-        out["files"].append({"path": path, "content": gen(f), "checks": want})
+        out["files"].append({"path": path, "content": gen(f), "checks": want, **({"apply": False} if path.endswith(".patch") else {})})
     return out
 
 
@@ -375,7 +404,7 @@ def write(root: Path, out: Path, p: dict, apply: bool) -> list[str]:
         dst = out / "proposed" / x["path"]
         dst.parent.mkdir(parents=True, exist_ok=True)
         dst.write_text(x["content"])
-        if apply:
+        if apply and x.get("apply", True):
             target = root / x["path"]
             if target.exists():
                 continue  # never overwrite

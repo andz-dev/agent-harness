@@ -257,7 +257,7 @@ Fixes: (1) VER-03 accepts `runtests.py` / `tests/runtests.py` as a configured un
 Re-run, all 18 repos (before -> after, human): django 20 -> 41 (30), nestjs 61 -> 67 (60), vllm 39 -> 45 (40), fastapi 38 -> 43 (40), rich 35 -> 36 (35), nextjs 83 -> 84 (80), n8n 86 -> 87 (80), vite 69 -> 70 (54); the other ten unchanged.
 Holdout MAE 3.0 -> 5.2 (bias -0.7 -> +3.5): the first result was flattered by two errors that offset (django's detector bug, entropy over-penalty). The honest holdout figure is 5.2, in line with calibration MAE 5.1. Django now overshoots (+11): its Verification now reaches L2 but it has no agent file and weak orientation, so the remaining gap is a weights question, not frozen-set tuning.
 
-- B-144: rich STA-01 (formatters only, no linter) stays L0. Changing it is a check-semantics change; decide after v1 ships, using more repos.
+- B-144: Decided (user, 2026-10-27): a formatter without a linter gets no credit for STA-01; rich stays L0. Check semantics unchanged.
 - B-145: Tool is consistently 3-5 points above the human on mature OSS repos. Candidate for v1.1: a mild global recalibration or an "AI-era" bonus structure, but only with a fresh calibration set.
 
 ## 4q. v1.1 triage (done)
@@ -276,7 +276,7 @@ Holdout MAE 3.0 -> 5.2 (bias -0.7 -> +3.5): the first result was flattered by tw
 Experiment: express copy, audit 33, `--apply` of 4 files (AGENTS.md, CLAUDE.md, Taskfile.yml, CONTRIBUTING.md), re-audit 45 (+12) with placeholders unfilled.
 
 - B-150: Stubs raise the score although the TODO(human) parts are empty. Consider making the audit treat a file with `TODO(human)` markers as incomplete (ORI-05/06 judgement should already catch it, but the script checks do not).
-- B-151: Pre-commit for Node is not proposed (needs package.json changes: simple-git-hooks/husky). Add a package.json patch proposal (diff, not an edit).
+- B-151: Done (decision: Node hooks before Azure DevOps). Node repos get a proposed `.husky/pre-commit` (runs the lint and test scripts, TODO placeholders when missing) and a `package.json.patch` with the steps to install husky; the patch is never applied by `--apply`. Skipped when a hook manager already exists.
 - B-152: Monorepos: only root-level files for the dominant component. Add per-component AGENTS.md (ORI-10) and per-package runner targets.
 - B-153: `rev: v0.8.0` for ruff-pre-commit is a placeholder with a TODO; resolve the latest tag offline-safely (pin from uv.lock if present) or document.
 - B-154: The CI workflow uses fixed major versions of third-party actions (checkout@v4, setup-uv@v5, setup-task@v2); review for supply-chain pinning by SHA before use.
@@ -345,7 +345,7 @@ Full map: `docs/0005/Infrastructure-Coverage-Map.md`. Today the catalog has no i
 - B-187: Adoption safety rules (dry run default, reviewable diff, never apply/destroy/deploy).
 - B-188: Diff-based merge mode for existing files (supersedes B-151..B-156 scope).
 - B-189: Covered by the synthetic trees in `tests/test_infra_checks.py` (a pass and a fail case per tool and gate); no separate fixture repos needed.
-- B-190: Tooling done: `scripts/infra_calibration.py template` writes a blind rating file (levels hidden) and `compare` reports exact agreement, agreement within one level, error direction and gaps of two or more levels, also between two raters. Open: a human has to fill the ratings (16 repos, 73 area cells in the first set); no rating exists yet, so levels stay uncalibrated (B-202).
+- B-190: Tooling done: `scripts/infra_calibration.py template` writes a blind rating file (levels hidden) and `compare` reports exact agreement, agreement within one level, error direction and gaps of two or more levels, also between two raters. Open: the user rates the tool areas himself (decision 2026-10-27; a second human may follow, a model is not an independent rater): 15 repos, 35 cells in `infra-ratings-tool-areas.json`; no rating exists yet, so levels stay uncalibrated (B-202).
 - B-191 (done): ORI-09 gets mechanical candidates (documented `task/make/just/npm run X` commands that no runner defines) and `command_references_checked`; prompt rule 9. Needs a re-answer run to measure the effect on agreement (B-165).
 
 ### 4w. Decisions and first implementation (2026-10-27)

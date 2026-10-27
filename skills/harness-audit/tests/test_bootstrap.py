@@ -77,6 +77,35 @@ class ProposeTests(unittest.TestCase):
         self.assertTrue(p["notes"])
 
 
+class NodeHooksTests(unittest.TestCase):
+    def test_node_repo_gets_husky_hook_and_a_patch_proposal(self):
+        p = bootstrap.propose(make(NODE), report("TRG-01"))
+        by = {x["path"]: x for x in p["files"]}
+        self.assertIn("pnpm run lint", by[".husky/pre-commit"]["content"])
+        self.assertIn("pnpm add --save-dev husky", by["package.json.patch"]["content"])
+        self.assertIs(by["package.json.patch"]["apply"], False)
+
+    def test_missing_scripts_become_todos(self):
+        node = {**NODE, "package.json": json.dumps({"name": "x"})}
+        p = bootstrap.propose(make(node), report("TRG-01"))
+        self.assertIn("TODO(human)", {x["path"]: x for x in p["files"]}[".husky/pre-commit"]["content"])
+
+    def test_existing_hook_manager_is_respected(self):
+        p = bootstrap.propose(make({**NODE, "lefthook.yml": "pre-commit: {}\n"}), report("TRG-01"))
+        self.assertEqual([x["path"] for x in p["files"]], [])
+
+    def test_apply_never_writes_the_patch_into_the_repository(self):
+        repo = make(NODE)
+        p = bootstrap.propose(repo, report("TRG-01"))
+        bootstrap.write(repo, Path(tempfile.mkdtemp()), p, True)
+        self.assertTrue((repo / ".husky" / "pre-commit").exists())
+        self.assertFalse((repo / "package.json.patch").exists())
+
+    def test_python_repos_do_not_get_husky(self):
+        p = bootstrap.propose(make(PY), report("TRG-01"))
+        self.assertNotIn(".husky/pre-commit", [x["path"] for x in p["files"]])
+
+
 class CliTests(unittest.TestCase):
     def run_cli(self, repo, rep, *extra):
         out = Path(tempfile.mkdtemp())
