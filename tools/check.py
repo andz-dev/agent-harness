@@ -72,8 +72,13 @@ def demo(root):
     if "synthetic" not in document["meta"].get("source", "").lower():
         failures.append("Demo provenance must explicitly say synthetic")
     cities = document.get("cities", [])
-    if len(cities) != 3 or len({city["id"] for city in cities}) != 3:
-        failures.append("Expected three distinct synthetic demo cities")
+    if len(cities) != 4 or len({city["id"] for city in cities}) != 4:
+        failures.append("Expected four distinct synthetic demo cities")
+    tiers = {sum(city["score"] >= threshold for threshold in (45, 60, 80)) for city in cities}
+    if tiers != {0, 1, 2, 3}:
+        failures.append("Synthetic demo must show Neglected, Working, Prosperous and Thriving cities")
+    if {level for city in cities for level in city["L"]} != {0, 1, 2, 3}:
+        failures.append("Synthetic demo must include district levels L0 through L3")
     for city in cities:
         if len(city["L"]) != 7 or any(level not in (0, 1, 2, 3) for level in city["L"]):
             failures.append("Invalid demo pillar levels")

@@ -3,11 +3,77 @@
   "title": "Synthetic Harness City",
   "tool": "harness-audit 0.1.0",
   "scanDate": "2026-10-27",
-  "source": "Synthetic fixtures only; not real repository results"
+  "source": "Illustrative synthetic profiles only; not audited repository results"
  },
  "cities": [
   {
-   "id": "starter-demo",
+   "id": "thriving-demo",
+   "set": "",
+   "gut": null,
+   "score": 100,
+   "L": [
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3
+   ],
+   "comp": 1,
+   "files": 0,
+   "pen": 0.0,
+   "done": null,
+   "steps": [],
+   "ent": [],
+   "caps": []
+  },
+  {
+   "id": "prosperous-demo",
+   "set": "",
+   "gut": null,
+   "score": 67,
+   "L": [
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2
+   ],
+   "comp": 1,
+   "files": 0,
+   "pen": 0.0,
+   "done": null,
+   "steps": [],
+   "ent": [],
+   "caps": []
+  },
+  {
+   "id": "working-demo",
+   "set": "",
+   "gut": null,
+   "score": 47,
+   "L": [
+    2,
+    1,
+    1,
+    2,
+    1,
+    1,
+    1
+   ],
+   "comp": 1,
+   "files": 0,
+   "pen": 0.0,
+   "done": null,
+   "steps": [],
+   "ent": [],
+   "caps": []
+  },
+  {
+   "id": "absent-demo",
    "set": "",
    "gut": null,
    "score": 0,
@@ -21,113 +87,12 @@
     0
    ],
    "comp": 1,
-   "files": 3,
+   "files": 0,
    "pen": 0.0,
    "done": null,
-   "steps": [
-    {
-     "c": "VER-01",
-     "t": "Python tests exist",
-     "p": null
-    },
-    {
-     "c": "ORI-01",
-     "t": "README exists and has a setup or usage section",
-     "p": null
-    },
-    {
-     "c": "VER-05",
-     "t": "Python tests run in CI",
-     "p": null
-    }
-   ],
+   "steps": [],
    "ent": [],
-   "caps": [
-    "no-tests",
-    "no-ci",
-    "no-orientation"
-   ]
-  },
-  {
-   "id": "steady-demo",
-   "set": "",
-   "gut": null,
-   "score": 10,
-   "L": [
-    0,
-    0,
-    1,
-    1,
-    0,
-    0,
-    0
-   ],
-   "comp": 1,
-   "files": 5,
-   "pen": 0.0,
-   "done": null,
-   "steps": [
-    {
-     "c": "VER-01",
-     "t": "Python tests exist",
-     "p": null
-    },
-    {
-     "c": "VER-05",
-     "t": "Python tests run in CI",
-     "p": null
-    },
-    {
-     "c": "ORI-04",
-     "t": "Agent file names build, test and lint commands",
-     "p": null
-    }
-   ],
-   "ent": [],
-   "caps": [
-    "no-tests",
-    "no-ci"
-   ]
-  },
-  {
-   "id": "strong-demo",
-   "set": "",
-   "gut": null,
-   "score": 27,
-   "L": [
-    0,
-    1,
-    1,
-    1,
-    1,
-    2,
-    0
-   ],
-   "comp": 1,
-   "files": 9,
-   "pen": 0.0,
-   "done": null,
-   "steps": [
-    {
-     "c": "VER-01",
-     "t": "Python tests exist",
-     "p": null
-    },
-    {
-     "c": "ORI-04",
-     "t": "Agent file names build, test and lint commands",
-     "p": null
-    },
-    {
-     "c": "VER-08",
-     "t": "Test dependencies are declared and pinned or locked",
-     "p": null
-    }
-   ],
-   "ent": [],
-   "caps": [
-    "no-tests"
-   ]
+   "caps": []
   }
  ]
 }

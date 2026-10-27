@@ -1,4 +1,4 @@
-"""Generate reproducible audit results for three explicitly fictional repositories."""
+"""Generate four illustrative city profiles, not observed repository audits."""
 
 import argparse
 import importlib
@@ -14,33 +14,36 @@ ROOT = Path(__file__).resolve().parent.parent
 SKILL = ROOT / "skills/harness-audit"
 sys.path.insert(0, str(SKILL / "scripts"))
 audit = importlib.import_module("audit")
+score = importlib.import_module("score")
 
 
-def fixture(name, tier):
-    files = {
-        "pyproject.toml": '[project]\nname = "' + name + '"\nversion = "0.0.0"\nrequires-python = ">=3.11"\n',
-        "example.py": "def add(left, right):\n    return left + right\n",
-        "README.md": "# Synthetic demo\n\nThis fictional repository exists only to demonstrate the visualization.\n",
+PROFILES = (
+    ("thriving-demo", (3, 3, 3, 3, 3, 3, 3)),
+    ("prosperous-demo", (2, 2, 2, 2, 2, 2, 2)),
+    ("working-demo", (2, 1, 1, 2, 1, 1, 1)),
+    ("absent-demo", (0, 0, 0, 0, 0, 0, 0)),
+)
+
+
+def illustration(name, levels, catalog_version):
+    pillars = [
+        {"pillar": pillar, "level": level, "weight": weight, "points": round(level / 3 * weight, 2), "gate_failures": []}
+        for (pillar, weight), level in zip(score.WEIGHTS.items(), levels, strict=True)
+    ]
+    entropy = score.entropy_part(None)
+    return {
+        "schema_version": "0.1",
+        "tool": {"name": "harness-audit", "version": audit.VERSION, "catalog_version": str(catalog_version)},
+        "generated_at": "2026-10-27T00:00:00Z",
+        "repo": {"name": "synthetic/" + name, "commit": "0000000", "clone_mode": "local"},
+        "stack": {"ecosystems": ["python"], "components": [{"id": name, "path": ".", "ecosystem": "python", "kind": "app"}]},
+        "pillars": pillars,
+        "findings": [],
+        "score": score.score_part(pillars, [], entropy["penalty"]),
+        "entropy": entropy,
+        "top_gaps": [],
+        "limitations": ["Illustrative synthetic levels only; no repository was audited and no checks or runtime behavior were observed."],
     }
-    if tier >= 1:
-        files.update(
-            {
-                "README.md": "# Synthetic demo\n\n## Installation\n\nRun task setup.\n\n## Testing\n\nRun task check.\n",
-                "tests/test_example.py": "from example import add\n\ndef test_add():\n    assert add(2, 3) == 5\n",
-                "Taskfile.yml": 'version: "3"\ntasks:\n  setup:\n    cmds: ["uv sync"]\n  test:\n    cmds: ["uv run pytest"]\n  lint:\n    cmds: ["uv run ruff check ."]\n  check:\n    cmds: ["task lint", "task test"]\n',
-            }
-        )
-        files["pyproject.toml"] += '\n[tool.pytest.ini_options]\ntestpaths = ["tests"]\n\n[tool.ruff]\nline-length = 100\n'
-    if tier >= 2:
-        files.update(
-            {
-                "AGENTS.md": "# Synthetic project rules\n\n## Layout\n\nexample.py contains addition. Tests live in tests/.\n\n## Verification\n\nRun task check before committing. Never execute untrusted repository code.\n",
-                ".github/workflows/check.yml": "name: Check\non: [push, pull_request]\njobs:\n  check:\n    runs-on: ubuntu-latest\n    steps:\n      - run: task check\n",
-                ".pre-commit-config.yaml": "repos:\n  - repo: local\n    hooks:\n      - id: lint\n        name: lint\n        entry: task lint\n        language: system\n",
-                "CONTRIBUTING.md": "# Contributing\n\nInstall with task setup. Run task check before opening a pull request.\n",
-            }
-        )
-    return files
 
 
 def build(output):
@@ -48,15 +51,8 @@ def build(output):
     with tempfile.TemporaryDirectory(prefix="agent-harness-demo-") as temporary:
         temporary_root = Path(temporary)
         reports = []
-        for tier, name in enumerate(("starter-demo", "steady-demo", "strong-demo")):
-            repository = temporary_root / name
-            for relative, content in fixture(name, tier).items():
-                path = repository / relative
-                path.parent.mkdir(parents=True, exist_ok=True)
-                path.write_text(content)
-            report = audit.assemble(repository, catalog, name="synthetic/" + name)
-            report["generated_at"] = "2026-10-27T00:00:00Z"
-            report["limitations"].append("Entire repository is synthetic; no tests, hooks or repository code were executed.")
+        for name, levels in PROFILES:
+            report = illustration(name, levels, catalog["catalog_version"])
             errors = audit.validate(report)
             if errors:
                 raise ValueError(errors)
@@ -71,7 +67,7 @@ def build(output):
                 "--title",
                 "Synthetic Harness City",
                 "--source",
-                "Synthetic fixtures only; not real repository results",
+                "Illustrative synthetic profiles only; not audited repository results",
                 "-o",
                 str(output),
             ],
@@ -90,7 +86,7 @@ def main():
             build(generated)
             if not destination.is_file() or generated.read_bytes() != destination.read_bytes():
                 raise SystemExit("Synthetic demo differs: regenerate explicitly with task demo")
-        print("PASS: three schema-valid synthetic reports convert deterministically")
+        print("PASS: four schema-valid illustrative profiles convert deterministically")
     else:
         destination.parent.mkdir(parents=True, exist_ok=True)
         build(destination)

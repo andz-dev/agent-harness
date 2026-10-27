@@ -24,6 +24,11 @@ plan, and explore the results in Harness City.
   and its limitations. [Next steps](docs/0003/Repo%20Harness%20Next%20Steps.md)
   remain proposals, not implemented capabilities.
 
+The demo includes four illustrative cities: Absent/Neglected, Working,
+Prosperous, and Thriving. Together they show district levels L0 through L3;
+Thriving is the default view. Their scores follow the existing pillar weights,
+but their levels are deliberately authored examples, not detector findings.
+
 The audit never runs the audited repository's code. A static score or its
 "Enforced" level is not proof of actual test execution, hook activation, CI
 success, security, or agent compliance. Bootstrap is separate and proposal-first;
@@ -39,7 +44,7 @@ task check
 task serve
 ```
 
-`task serve` opens the static app at http://localhost:8001. Set `PORT` to use
+`task serve` opens the static app at <http://localhost:8001>. Set `PORT` to use
 another available port. No cloud service or API key is required for the demo.
 
 Audit a local repository using the unchanged skill's own task runner:
