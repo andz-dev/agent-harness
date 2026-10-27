@@ -107,34 +107,6 @@ def from_export_repo(r, warn):
     }
 
 
-MAX_INFRA_ROWS = 10
-
-
-def infra_block(d):
-    """Overlay data for the infrastructure harbor: levels per area and the failing checks. Never part of the score."""
-    infra = d.get("infra") or {}
-    lv = infra.get("levels") or {}
-    areas = lv.get("areas") or {}
-    if not areas:
-        return None
-    wide = set(lv.get("repo_wide") or {})
-    return {
-        "l": lv.get("overall"),
-        "w": lv.get("weakest_area"),
-        "n": sum(1 for x in infra.get("detected", []) if not x.get("sample")),
-        "tools": sorted(infra.get("tools") or []),
-        "a": [
-            {"k": k, "l": v["level"], "b": v.get("blocked_by", []), "wide": k in wide}
-            for k, v in sorted(areas.items(), key=lambda kv: (kv[0] in wide, kv[0]))
-        ],
-        "r": [
-            {"c": r["check_id"], "t": short(r["title"]), "a": r["area"], "f": r["failed"], "p": r["passed"], "x": r["failing"][:3]}
-            for r in infra.get("rollup", [])
-            if r["failed"]
-        ][:MAX_INFRA_ROWS],
-    }
-
-
 def from_report(d, warn):
     name = d["repo"]["name"]
     by = {p["pillar"]: p["level"] for p in d["pillars"]}
@@ -151,7 +123,6 @@ def from_report(d, warn):
         "caps": [cap.get("id", "") if isinstance(cap, dict) else str(cap) for cap in sc.get("caps_applied", [])],
         "G": [gates.get(p, []) for p in PILLARS], "f": findings(d.get("findings")),
         "lim": d.get("limitations", []),
-        **({"infra": ib} if (ib := infra_block(d)) else {}),
     }
 
 

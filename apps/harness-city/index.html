@@ -500,39 +500,6 @@ function buildOutskirts(par,rep){const g=new THREE.Group();par.add(g);const t=ti
  const conf=rep.ent.filter(e=>e.c==="ENR-02");if(conf.length){const b=DIST.static_guardrails;const w=graffitiWall(conf.length);w.position.set(b.x1+.36,0,b.z0+1.6);w.rotation.y=Math.PI/2;w.userData.pick={kind:"ENR-02"};g.add(w);tags.push({pos:new THREE.Vector3(b.x1+.36,.9,b.z0+1.6),text:`${conf.length} conflicting config${conf.length>1?"s":""}`,color:"#b0377f",kind:"ENR-02"})}
  return g}
 
-
-/* ================= infrastructure harbor (overlay, never part of the score) ================= */
-const INFRA_NAME={dockerfile:"Dockerfile",compose:"Compose",devcontainer:"Devcontainer",terraform:"Terraform",bicep:"Bicep",kubernetes:"Kubernetes",ansible:"Ansible",cloudformation:"CloudFormation",pulumi:"Pulumi","cross-cutting":"Cross-cutting","agent-guidance":"Agent guidance","infra-entropy":"Infra entropy"};
-const INFRA_COL=["#b3402e","#c4821a","#2a7a66","#1d5ca6"];
-const INFRA_PAD=[["Empty, fenced yard behind a closed barrier: a must-have check fails or too few basics pass."],["One crate on the apron: the basics exist."],["Stacked crates and a generator: checks run and dependencies are pinned."],["Crates, generator and a monitoring dish: scanners, health checks and CI builds are in place."]];
-let harborRoads=[];
-function syncHarbor(rep){for(const k of harborRoads)ROADS.delete(k);harborRoads=[];BOUNDS.x1=33.5;if(!rep.infra)return;BOUNDS.x1=43.5;for(let x=34;x<=42;x++){const k=rk(x,8);if(!ROADS.has(k)){ROADS.add(k);harborRoads.push(k)}}}
-function harborPad(par,cx,cz,lvl,seed){const g=new THREE.Group();g.position.set(cx,0,cz);par.add(g);const r=rng(seed);
- groundPlane(g,-1.4,-.8,1.4,.8,"#cfd3d7",.02);box(g,2.8,.05,.07,INFRA_COL[lvl],0,.02,.78);
- if(lvl===0){put(g,"fence",-.6,-.7,0,1.3);put(g,"fence",.6,-.7,0,1.3);barrier(g,0,.55,0,.9);cone(g,-.9,.5);cone(g,.9,.5);put(g,"rock",.8,-.1,r()*360,.7)}
- if(lvl>=1)put(g,"crate",-.7,-.1,0,1.7);
- if(lvl>=2){put(g,"crate",-.2,-.1,0,1.7);put(g,"crate",-.45,-.1,0,1.7,.3);put(g,"generator",.7,-.2,180,1.2)}
- if(lvl>=3){put(g,"crate",-1.0,.3,90,1.5);put(g,"dish",.1,.35,0,1.0)}
- return g}
-function buildHarbor(par,rep){const I=rep.infra;if(!I)return;const g=new THREE.Group();par.add(g);
- groundPlane(g,34,.6,43,15.4,"#aeb5bb",.012);
- const order=[...I.a.filter(a=>!a.wide),...I.a.filter(a=>a.wide)].slice(0,12);
- const cols=[36,39.6],rows=[2.1,4,5.9,10.1,12,13.9];
- order.forEach((a,i)=>{const cx=cols[i%2],cz=rows[Math.floor(i/2)];harborPad(g,cx,cz,a.l,hash(rep.id+a.k));
-  tags.push({pos:new THREE.Vector3(cx,.75,cz+.35),text:(INFRA_NAME[a.k]||a.k)+" L"+a.l,color:INFRA_COL[a.l],kind:"INFRA"})});
- const lv=I.l==null?0:I.l;const pole=new THREE.Group();pole.position.set(34.4,0,7.3);cyl(pole,.02,.03,1.5,"#59636b",0,0,0,8);box(pole,.5,.28,.02,INFRA_COL[lv],.27,1.15,0);g.add(pole);
- const sign=textSprite("harbor-"+(I.l==null?"x":I.l),["Infrastructure",I.l==null?"no tool level":"L"+I.l+" · not in the score"],{bg:"#fff",fg:"#14181f",scale:1.15});sign.position.set(35.2,1.9,7.3);g.add(sign);
- const pick=new THREE.Mesh(bg(9.2,1.2,15),new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false}));pick.position.set(38.6,.6,8);pick.userData.pick={kind:"INFRA"};g.add(pick);
- return g}
-function infraRows(I){return I.a.map(a=>`<tr><td><span class="sw" style="background:${INFRA_COL[a.l]}"></span>${esc(INFRA_NAME[a.k]||a.k)}${a.wide?' <span class="meta">repo-wide</span>':""}</td><td class="lv">L${a.l}</td><td class="num meta">${a.b.length?esc(a.b.slice(0,2).join(", ")):""}</td></tr>`).join("")}
-function infraCard(rep){const I=rep.infra;return `<div><div class="eyebrow">Infrastructure harbor · not in the score</div><p class="meta" style="margin:4px 0 6px">${I.l==null?"No tool-level infrastructure found.":`Own level <b>L${I.l}</b> (weakest tool area: ${esc(INFRA_NAME[I.w]||I.w)}) · ${I.n} location${I.n===1?"":"s"}.`}</p><table class="dtab">${infraRows(I)}</table><button class="btnlink" data-kind="INFRA">Open the harbor</button></div>`}
-function infraFocus(rep){const I=rep.infra;return `<div class="focus" style="--pc:${INFRA_COL[I.l==null?0:I.l]}"><div><div class="eyebrow">East of the districts · overlay, never part of the score</div><h3>Infrastructure: ${I.l==null?"no tool level":"L"+I.l}</h3><p class="meta">One pad per infrastructure area. The harbor's own level is the weakest tool area${I.w?" ("+esc(INFRA_NAME[I.w]||I.w)+")":""}; cross-cutting, agent guidance and entropy are shown beside it. A level needs its must-have checks and 60% of the checks at each level up to it.</p></div>
- <table class="dtab">${infraRows(I)}</table>
- <div class="eyebrow">What a pad looks like</div><ul class="plain">${INFRA_PAD.map((t,i)=>`<li>L${i} · ${esc(t[0])}</li>`).join("")}</ul>
- ${I.r.length?`<div class="eyebrow">Most failing checks</div><ul class="plain">${I.r.map(x=>`<li class="wi"><span class="tag">${esc(x.c)}</span><span>${esc(x.t)} <span class="meta">fails in ${x.f} of ${x.f+x.p}${x.x.length?" · "+esc(x.x[0]):""}</span></span></li>`).join("")}</ul>`:""}
- <p class="meta">Infrastructure levels are not calibrated against many raters yet; treat them as leads.</p>
- <button class="btnlink" id="clr">Show the whole city</button></div>`}
-
 /* ================= scene ================= */
 const stage=document.getElementById("stage"),canvas=document.getElementById("city"),labelsEl=document.getElementById("labels");
 let renderer,scene,camera,sun,city=null,dyn=null,tags=[],plates=[],current=null,sel=null;
@@ -547,14 +514,13 @@ function fitSize(aspect){// half-height in world units so the whole city (incl. 
  const c0=new THREE.Vector3(14.5,0,7.5);let mx=0,my=0;for(const x of [BOUNDS.x0+1,BOUNDS.x1])for(const z of [BOUNDS.z0+.5,BOUNDS.z1-1])for(const y of [0,2.2]){const v=new THREE.Vector3(x,y,z).sub(c0);mx=Math.max(mx,Math.abs(v.dot(right)));my=Math.max(my,Math.abs(v.dot(up)))}
  return Math.max(my,mx/aspect)*1.0}
 function resize(){const w=stage.clientWidth,h=stage.clientHeight;renderer.setSize(w,h,false);placeCamera()}
-function build(rep){if(city){scene.remove(city)}tags=[];city=new THREE.Group();scene.add(city);syncHarbor(rep);
+function build(rep){if(city){scene.remove(city)}tags=[];city=new THREE.Group();scene.add(city);
  buildOutskirts(city,rep);buildRoads(city,rep);const rail=buildRail(city,rep);const grid=buildGrid(city,rep);const transit=buildTransit(city,rep);
  const districts={},traffic=[];
  for(const p of PILLARS){const lvl=rep.L[PI[p.k]];const st=stepsFor(rep,p);const cap=p.k==="verification"&&rep.caps.length?rep.caps[0]:null;
   const d=buildDistrict(city,p.k,lvl,DIST[p.k],rep,hash(rep.id+p.k),{steps:st,cap});districts[p.k]=d;
   traffic.push(buildTraffic(city,p.k,lvl,DIST[p.k],hash(rep.id+p.k+"t")));
   const b=DIST[p.k];const pick=new THREE.Mesh(bg(b.x1-b.x0+1,1.2,b.z1-b.z0+1),new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false}));pick.position.set((b.x0+b.x1)/2,.6,(b.z0+b.z1)/2);pick.userData.pick={kind:"district",k:p.k};city.add(pick)}
- buildHarbor(city,rep);
  const selLine=new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(),new THREE.Vector3(.1,0,0),new THREE.Vector3(0,0,.1)]),new THREE.LineBasicMaterial({color:"#111"}));selLine.visible=false;city.add(selLine);
  dyn={rail,grid,transit,districts,traffic,selLine,t0:performance.now(),signs:[]};
  makePlates(rep);updateSelection()}
@@ -596,7 +562,7 @@ canvas.addEventListener("wheel",e=>{e.preventDefault();zoomBy(e.deltaY<0?1.12:1/
 let pinch=null;canvas.addEventListener("touchstart",e=>{if(e.touches.length===2){pinch=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);drag=null}},{passive:true});
 canvas.addEventListener("touchmove",e=>{if(pinch&&e.touches.length===2){const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);zoomBy(d/pinch);pinch=d}},{passive:true});
 canvas.addEventListener("touchend",()=>{pinch=null});
-function clampTarget(){view.target.x=Math.max(-2,Math.min(Math.max(31,BOUNDS.x1-4),view.target.x));view.target.z=Math.max(-3,Math.min(18,view.target.z))}
+function clampTarget(){view.target.x=Math.max(-2,Math.min(31,view.target.x));view.target.z=Math.max(-3,Math.min(18,view.target.z))}
 function zoomBy(f){view.zoom=Math.max(.7,Math.min(4,view.zoom*f));placeCamera()}
 let rotAnim=null;function rotate(d){const from=view.az,to=view.az+d;const t0=performance.now();cancelAnimationFrame(rotAnim);const step=now=>{const u=Math.min(1,(now-t0)/450);const e=u<.5?2*u*u:1-Math.pow(-2*u+2,2)/2;view.az=from+(to-from)*(reduce?1:e);placeCamera();if(u<1&&!reduce)rotAnim=requestAnimationFrame(step)};rotAnim=requestAnimationFrame(step)}
 document.getElementById("rotL").onclick=()=>rotate(-90);document.getElementById("rotR").onclick=()=>rotate(90);
@@ -606,7 +572,7 @@ document.getElementById("lbl").onclick=e=>{const on=stage.classList.toggle("hide
 document.getElementById("cityplate").onclick=()=>select(null,"city");
 function focusDistrict(k){const b=DIST[k];view.target.set((b.x0+b.x1)/2,0,(b.z0+b.z1)/2+.5);view.zoom=Math.max(view.zoom,1.7);placeCamera()}
 let selKind=null,about=null;const KIND_PILLAR={rail:"workflow_entry_points",grid:"pipeline_parity"};
-function select(k,kind){if(KIND_PILLAR[kind])k=KIND_PILLAR[kind];sel=k||null;selKind=kind&&(kind.startsWith("ENR")||kind==="INFRA")?kind:null;about=sel&&kind&&kind!=="district"?kind:null;if(sel&&!KIND_PILLAR[kind])focusDistrict(sel);updateSelection();renderPanel()}
+function select(k,kind){if(KIND_PILLAR[kind])k=KIND_PILLAR[kind];sel=k||null;selKind=kind&&kind.startsWith("ENR")?kind:null;about=sel&&kind&&kind!=="district"?kind:null;if(sel&&!KIND_PILLAR[kind])focusDistrict(sel);updateSelection();renderPanel()}
 
 /* ================= panel, picker, table ================= */
 const fmt=n=>n==null?"":`+${n.toFixed(1)}`;
@@ -653,11 +619,9 @@ function renderPanel(){const rep=current,pn=document.getElementById("panel");con
   <div class="eyebrow">Level ladder · checks per level</div>${ladderHTML(rep,i)}
   ${st.length?`<div class="eyebrow">Next fixes here</div><ul class="plain">${st.map(s=>`<li class="wi"><span class="tag">${esc(s.c)}</span><span>${esc(s.t)} <span class="meta">${fmt(s.p)}</span></span></li>`).join("")}</ul>`:""}
   <button class="btnlink" id="clr">Show the whole city</button></div>`}
- if(selKind==="INFRA"&&rep.infra)h+=infraFocus(rep);
- else if(selKind){const items=rep.ent.filter(e=>e.c===selKind);h+=`<div class="focus" style="--pc:#b0377f"><div><div class="eyebrow">${ENR[selKind].where}</div><h3>${items.length} ${ENR[selKind].t}${items.length>1?"s":""}</h3></div><ul class="plain">${items.map(e=>`<li class="path">${esc(e.p)}</li>`).join("")}</ul><p class="meta">The tool only reports; a person decides whether to delete or wire it up.</p><button class="btnlink" id="clr">Show the whole city</button></div>`}
+ if(selKind){const items=rep.ent.filter(e=>e.c===selKind);h+=`<div class="focus" style="--pc:#b0377f"><div><div class="eyebrow">${ENR[selKind].where}</div><h3>${items.length} ${ENR[selKind].t}${items.length>1?"s":""}</h3></div><ul class="plain">${items.map(e=>`<li class="path">${esc(e.p)}</li>`).join("")}</ul><p class="meta">The tool only reports; a person decides whether to delete or wire it up.</p><button class="btnlink" id="clr">Show the whole city</button></div>`}
  if(!sel&&!selKind)h+=cityHTML(rep);
  const hasF=rep.f.length>0;
- if(rep.infra&&selKind!=="INFRA")h+=infraCard(rep);
  h+=`<div><div class="eyebrow">Districts${hasF?" · open issues":""}</div><table class="dtab">${PILLARS.map((p,i)=>{const n=issuesOf(rep,i).length;return `<tr data-k="${p.k}" class="${sel===p.k?"sel":""}"><td><span class="sw" style="background:${p.c}"></span>${p.n}</td><td class="lv">L${rep.L[i]}</td>${hasF?`<td class="num" style="color:var(--bad)">${n?n+" ✗":""}</td>`:""}<td class="num">${pts[i].toFixed(1)}/${p.w}</td></tr>`}).join("")}</table></div>`;
  const groups={};for(const e of rep.ent)(groups[e.c]=groups[e.c]||[]).push(e);
  h+=`<div><div class="eyebrow">Decay · ${rep.ent.length} entropy item${rep.ent.length===1?"":"s"}</div>${rep.ent.length?`<ul class="plain" style="margin-top:6px">${Object.entries(groups).map(([c,l])=>`<li class="wi"><span class="tag ${c==="ENR-04"?"bad":"warn"}">${c}</span><span><button class="btnlink" data-kind="${c}">${l.length} ${ENR[c].t}${l.length>1?"s":""}</button><br><span class="meta">${ENR[c].where}</span></span></li>`).join("")}</ul>`:`<p class="empty">No entropy items in the export for this repository.</p>`}</div>`;

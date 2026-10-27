@@ -52,12 +52,7 @@ Rebuild it after every data change.
                     "f":     [ {"c": "ORI-04", "s": "fail", "m": "component", "n": "note",
                                 "e": [ {"k": "searched", "p": "AGENTS.md", "l": null, "x": "snippet"} ]} ],
                     "G":     [["VER-06"], [], [], [], [], [], []],      // gate failures per pillar
-                    "lim":   ["scan limitation"],                       // f, G, lim optional
-                    "infra": { "l": 2, "w": "compose", "n": 4,          // optional overlay: level, weakest area, locations
-                               "tools": ["compose"],
-                               "a": [ {"k": "compose", "l": 2, "b": ["INF-C03"], "wide": false} ],
-                               "r": [ {"c": "INF-C03", "t": "title", "a": "compose",
-                                       "f": 1, "p": 3, "x": ["path"]} ] } } ] }   // from report.infra, never scored
+                    "lim":   ["scan limitation"] } ] }                  // f, G, lim optional
 
 A fix's check id prefix (VER, ORI, STA, ENT, TRG, CIP, DOC) decides which district gets the
 construction site. Tiers: Thriving ≥ 80, Prosperous ≥ 60, Working ≥ 45, Neglected below.
@@ -97,11 +92,3 @@ train plus buses (L3).
   `score.caps_applied` and are used as is.
 * Decay kinds other than ENR-01, ENR-02 and ENR-04 are skipped with a warning.
 * Deep links: `index.html#repo-id` opens that city.
-
-## Infrastructure harbor
-
-A report with an `infra` block gets a harbor east of the districts: one pad per infrastructure
-area (tool areas first, then repo-wide areas), a flag with the overall infra level and a card
-in the side panel. It is an overlay: it never changes the score, the tier or the districts.
-Pad level L0 is a fenced yard, L3 a finished yard. `tools/report_to_city.py` builds the block
-from `report.json`; `tools/make_demo.py` adds synthetic infra to the demo cities.
