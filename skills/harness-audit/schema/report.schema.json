@@ -290,7 +290,8 @@
                   "cloudformation",
                   "pulumi",
                   "cross-cutting",
-                  "agent-guidance"
+                  "agent-guidance",
+                  "infra-entropy"
                 ]
               },
               "level": {
@@ -469,6 +470,14 @@
                     }
                   }
                 }
+              }
+            },
+            "repo_wide": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 3
               }
             }
           }

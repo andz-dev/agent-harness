@@ -279,3 +279,22 @@ class InfraJudgementTests(unittest.TestCase):
         bad = {"path": "AGENTS.md", "line": 3, "snippet": "Never deploy on Fridays"}
         out = llm_layer.apply_answers(root, plan, [ans("INF-J01", ev=[bad])])
         self.assertEqual({f["check_id"]: f["status"] for f in out["infra_findings"]}["INF-J01"], "unknown")
+
+    def test_long_agent_file_sends_windows_around_infrastructure_words(self):
+        filler = "".join(f"filler line {i}\n" for i in range(600))
+        agents = "# Agents\n" + filler + "Never run `terraform apply` without review.\n" + filler
+        root, plan = prepared({**INFRA_TREE, "AGENTS.md": agents})
+        ex = task(plan, "INF-J01")["excerpts"][0]
+        self.assertIn("terraform apply", ex["text"])
+        self.assertIn("omitted", ex["text"])
+        line = next(i for i, ln in enumerate(agents.splitlines(), 1) if "terraform apply" in ln)
+        quote = {"path": "AGENTS.md", "line": line, "snippet": "Never run `terraform apply` without review."}
+        out = llm_layer.apply_answers(root, plan, [ans("INF-J01", ev=[quote])])
+        self.assertEqual({f["check_id"]: f["status"] for f in out["infra_findings"]}["INF-J01"], "pass")
+
+    def test_environment_question_only_for_deployable_iac(self):
+        docker_only = {k: v for k, v in INFRA_TREE.items() if k != "infra/main.tf"}
+        _, plan = prepared(docker_only)
+        self.assertEqual([t["task_id"] for t in plan["tasks"] if t["pillar"] == "infra"], ["INF-J01", "INF-J03", "INF-J04"])
+        _, plan = prepared(INFRA_TREE)
+        self.assertIn("INF-J02", [t["task_id"] for t in plan["tasks"]])

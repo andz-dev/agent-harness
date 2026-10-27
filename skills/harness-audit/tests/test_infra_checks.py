@@ -171,7 +171,7 @@ class SummaryTests(unittest.TestCase):
     def test_no_infra_no_findings(self):
         self.assertEqual(
             run({"app.py": "x=1\n"}),
-            {"findings": [], "summary": {}, "rollup": [], "levels": {"overall": None, "weakest_area": None, "areas": {}}},
+            {"findings": [], "summary": {}, "rollup": [], "levels": {"overall": None, "weakest_area": None, "repo_wide": {}, "areas": {}}},
         )
 
 
@@ -223,14 +223,23 @@ class LevelTests(unittest.TestCase):
         self.assertEqual(a["level"], 1)  # L1 met by both locations; INF-D02 is a level-2 gate and fails in b/
         self.assertEqual(a["blocked_by"], ["INF-D02"])
 
-    def test_overall_is_the_weakest_area(self):
+    def test_overall_is_the_weakest_tool_area_and_repo_wide_areas_are_separate(self):
         r = run({"Dockerfile": GOOD_DOCKERFILE, ".dockerignore": "x\n", "main.tf": self.GOOD_TF})
         lv = r["levels"]
-        self.assertEqual(lv["overall"], min(a["level"] for a in lv["areas"].values()))
+        tools = {a: v["level"] for a, v in lv["areas"].items() if a not in ("cross-cutting", "agent-guidance")}
+        self.assertEqual(lv["overall"], min(tools.values()))
         self.assertEqual(lv["areas"][lv["weakest_area"]]["level"], lv["overall"])
+        self.assertEqual(lv["repo_wide"], {k: lv["areas"][k]["level"] for k in lv["repo_wide"]})
+
+    def test_a_missing_secret_scanner_does_not_pull_down_the_tool_level(self):
+        ci = ".github/workflows/ci.yml"
+        tree = {"Dockerfile": GOOD_DOCKERFILE, ".dockerignore": "x\n", ci: "run: hadolint Dockerfile\nrun: docker build .\n"}
+        lv = run(tree)["levels"]
+        self.assertEqual(lv["overall"], 3)
+        self.assertEqual(lv["repo_wide"]["cross-cutting"], 1)  # the L1 gate INF-X05 passes; the L2 checks (scanner, CODEOWNERS ...) fail
 
     def test_no_infra_has_no_level(self):
-        self.assertEqual(run({"app.py": "x=1\n"})["levels"], {"overall": None, "weakest_area": None, "areas": {}})
+        self.assertEqual(run({"app.py": "x=1\n"})["levels"], {"overall": None, "weakest_area": None, "repo_wide": {}, "areas": {}})
 
 
 class BicepTests(unittest.TestCase):
@@ -385,6 +394,42 @@ class CrossCuttingTests(unittest.TestCase):
 
     def test_not_run_without_infra(self):
         self.assertEqual([f for f in run({"app.py": "x=1\n"})["findings"]], [])
+
+
+class InfraEntropyTests(unittest.TestCase):
+    def test_unreferenced_dockerfile_is_flagged(self):
+        tree = {
+            "web/Dockerfile": "FROM x:1\n",
+            "misc/Dockerfile": "FROM x:1\n",
+            "compose.yaml": "services:\n  web:\n    build:\n      context: ./web\n",
+        }
+        r = run(tree)
+        f = next(x for x in r["findings"] if x["check_id"] == "INF-E01")
+        self.assertEqual(f["status"], "fail")
+        self.assertEqual([e["path"] for e in f["evidence"]], ["misc/Dockerfile"])
+
+    def test_root_dockerfile_used_by_ci_build(self):
+        r = run({"Dockerfile": "FROM x:1\n", ".github/workflows/b.yml": "run: docker build .\n"})
+        self.assertEqual(status(r, "INF-E01"), "pass")
+
+    def test_unused_terraform_variable_and_loose_module(self):
+        tree = {
+            "main.tf": 'variable "used" {}\nvariable "dead" {}\nmodule "a" { source = "./modules/a" }\nresource "x" "y" { n = var.used }\n',
+            "modules/a/main.tf": "",
+            "modules/b/main.tf": "",
+        }
+        r = run(tree)
+        e2 = next(x for x in r["findings"] if x["check_id"] == "INF-E02")
+        self.assertEqual(e2["status"], "fail")
+        self.assertIn("dead", e2["evidence"][0]["snippet"])
+        e3 = next(x for x in r["findings"] if x["check_id"] == "INF-E03")
+        self.assertEqual([e["path"] for e in e3["evidence"]], ["modules/b/"])
+
+    def test_entropy_is_reported_beside_not_inside_the_tool_level(self):
+        tree = {"misc/Dockerfile": "FROM x:1\n"}
+        lv = run(tree)["levels"]
+        self.assertIn("infra-entropy", lv["repo_wide"])
+        self.assertNotEqual(lv["weakest_area"], "infra-entropy")
 
 
 if __name__ == "__main__":

@@ -334,7 +334,7 @@ Full map: `docs/0005/Infrastructure-Coverage-Map.md`. Today the catalog has no i
 - B-176: Docker Compose checks (healthchecks, pinned images, env example, config validation, profiles).
 - B-177: Devcontainer checks (valid config, pinned image/features, postCreate = runner setup, tool versions match CI, agent file mentions it).
 - B-178: Cross-cutting infra checks (path-filtered CI, CODEOWNERS, Dependabot ecosystems, secrets scanning).
-- B-179: Infra entropy (unused variables/modules/services, unbuilt Dockerfiles, stale lockfile, env drift).
+- B-179: Done in part: INF-E01 (Dockerfile referenced by Compose, CI, script or doc), INF-E02 (Terraform variable used), INF-E03 (local module referenced), reported as the repo-wide area `infra-entropy`. Open: unused Compose services, stale lockfile, env drift.
 - B-180: Judgement prompt `infra_quality.md` (safe plan/apply workflow, environments, forbidden commands).
 - B-181: `infra` block in report.json and scan export; schema version bump.
 - B-182: Harness City adapter: infra district or layer.
@@ -386,12 +386,12 @@ Full map: `docs/0005/Infrastructure-Coverage-Map.md`. Today the catalog has no i
 - B-207: INF-X01 treats any Renovate config as full coverage and does not read its package rules.
 - B-208: INF-X03 is a text heuristic (a `paths:` filter plus an infra word in the same workflow); it does not map the filter to the infra directories.
 - B-209: Pulumi and CloudFormation checks have only synthetic tests; none of the 18 calibration repos use them. Run on real examples before relying on them.
-- B-210: Cross-cutting counts as its own area, so a repo without a secret scanner has overall overlay level 0 even when every Docker/Terraform check passes. Reconsider weighting cross-cutting separately from the tool areas (see B-201).
+- B-210: Done. Overall overlay level is the weakest tool area; `cross-cutting`, `agent-guidance` and `infra-entropy` are reported separately in `levels.repo_wide`.
 
 ### 5a. Infrastructure judgement (2026-10-27)
 - B-180 (first version done): `prompts/infra_quality.md` and tasks INF-J01..J04 (area `agent-guidance`), created when infrastructure and an agent file exist; infrastructure without an agent file fails by script. Answers are quote-verified like the other judgement tasks and are kept out of the score. `unknown` counts as neither pass nor fail. Each task carries at most 350 lines of the shared agent files.
 - B-211: Not yet measured: agreement between two blind runs for INF-J01..J04 (see B-164 for the method). Run `scripts/agreement.py` on a set of repos with infrastructure and agent files; few of the 18 calibration repos qualify (n8n, home-assistant-core).
-- B-212: INF-J tasks are asked even for repos whose only infrastructure is a Dockerfile; some questions (environments, credential source) may then be `unknown` by design. Consider asking only the questions that fit the detected tools.
+- B-212: Done. INF-J02 is asked only when deployable IaC (Terraform, Bicep, Kubernetes, etc.) is detected.
 - B-213: The excerpt text of the agent files is repeated in each of the four tasks; merge into one task with four answers to cut the size of `llm_tasks.json`.
 - B-180 real-repo check (one judge run, not blind-compared): n8n INF-J01 fail, J02 fail, J03 pass (environment variables named as the secret source), J04 fail; home-assistant-core fails all four (agent files cover Python development only). Both reports validate, `agent-guidance` shows as an area (L1 in each), and the 0-100 scores are unchanged.
-- B-214: The infrastructure tasks see at most 350 lines of the agent files (n8n's AGENTS.md is longer), so a `fail` can mean "not in the first 350 lines". The judge noted this. Raise the cap for agent files only, or search the full file for infrastructure words first and send those regions.
+- B-214: Done. Agent files over 300 lines are sent as head (40 lines) plus windows around infrastructure words, with omission markers.

@@ -55,6 +55,7 @@ GATES = {
     "INF-T02",
     "INF-T06",
 }
+REPO_WIDE = ("cross-cutting", "agent-guidance", "infra-entropy")  # reported next to the tool areas, not part of the overall level (B-210)
 AREAS = {"D": "dockerfile", "C": "compose", "V": "devcontainer", "T": "terraform"}
 
 CHECKS = {
@@ -118,6 +119,9 @@ CHECKS = {
     "INF-J02": ("agent-guidance", 2, "Agent files name the environments and which are off limits or need approval"),
     "INF-J03": ("agent-guidance", 2, "Agent files say where credentials come from and that they must not be committed or printed"),
     "INF-J04": ("agent-guidance", 3, "Agent files say how to run and check infrastructure locally"),
+    "INF-E01": ("infra-entropy", 2, "Every Dockerfile is used by Compose, CI, a script or a doc"),
+    "INF-E02": ("infra-entropy", 2, "Every Terraform variable is used in its module"),
+    "INF-E03": ("infra-entropy", 2, "Every local Terraform module under modules/ is referenced"),
     "INF-T07": ("terraform", 3, "A remote backend or cloud block is declared"),
 }
 
@@ -865,6 +869,90 @@ def cross_cutting_checks(repo: Repo, detected: list[dict]) -> list[dict]:
     return out
 
 
+# ---- Infrastructure entropy (B-179) ----------------------------------------------------------------
+
+TEXT_SUFFIX = (
+    ".yml",
+    ".yaml",
+    ".json",
+    ".sh",
+    ".md",
+    ".toml",
+    ".mk",
+    ".py",
+    ".js",
+    ".ts",
+    ".mjs",
+    ".tf",
+    "Makefile",
+    "justfile",
+    "Taskfile",
+)
+
+
+def entropy_checks(repo: Repo, detected: list[dict]) -> list[dict]:
+    real = [d for d in detected if not d["sample"]]
+    out: list[dict] = []
+    dockerfiles = [p for d in real if d["tool"] == "docker" for p in d["files"] if PurePosixPath(p).name.lower() != ".dockerignore"]
+    if dockerfiles:
+        corpus = {f: repo.text(f) for f in repo.files if f.endswith(TEXT_SUFFIX) and f not in dockerfiles and f.count("/") < 8}
+        orphans = []
+        for df in dockerfiles:
+            d = str(PurePosixPath(df).parent)
+            name = PurePosixPath(df).name
+            used = False
+            for text in corpus.values():
+                if df in text or (name != "Dockerfile" and name in text):
+                    used = True
+                    break
+                if d != "." and re.search(rf"(context|build|-f|--file|working-directory|path)\W+\S*{re.escape(d)}(/|\b)", text):
+                    used = True
+                    break
+                if d == "." and re.search(r"docker(\s+buildx)?\s+build|build-push-action|compose\s+build|build:\s*(\.|\{)", text):
+                    used = True
+                    break
+            if not used:
+                orphans.append(ev(df, "no Compose, CI, script or doc refers to this Dockerfile"))
+        out.append(
+            finding(
+                "INF-E01", "repository", "fail" if orphans else "pass", orphans or [ev(dockerfiles[0], "all Dockerfiles are referenced")]
+            )
+        )
+    tf_dirs = {d["scope"]: d["files"] for d in real if d["tool"] in ("terraform", "opentofu")}
+    if tf_dirs:
+        unused = []
+        for files in (tf_dirs[k] for k in sorted(tf_dirs)):
+            tf = [f for f in files if f.endswith(".tf")]
+            text = "\n".join(repo.text(f) for f in tf)
+            for f in tf:
+                for i, ln in enumerate(repo.text(f).splitlines(), 1):
+                    m = re.match(r'\s*variable\s+"([^"]+)"', ln)
+                    if m and not re.search(rf"\bvar\.{re.escape(m.group(1))}\b", text):
+                        unused.append(ev(f, f'variable "{m.group(1)}" is never used', i))
+        out.append(
+            finding(
+                "INF-E02",
+                "repository",
+                "fail" if unused else "pass",
+                unused[:5] or [ev(next(iter(tf_dirs.values()))[0], "all variables used")],
+            )
+        )
+        modules = [s for s in tf_dirs if re.search(r"(^|/)modules/[^/]+$", s)]
+        if modules:
+            alltf = "\n".join(repo.text(f) for fs in tf_dirs.values() for f in fs if f.endswith(".tf"))
+            loose = [
+                ev(f"{m}/", "no `source` refers to this module")
+                for m in modules
+                if not re.search(rf'source\s*=\s*"[^"]*{re.escape(PurePosixPath(m).name)}"', alltf)
+            ]
+            out.append(
+                finding(
+                    "INF-E03", "repository", "fail" if loose else "pass", loose or [ev(modules[0] + "/", "all local modules referenced")]
+                )
+            )
+    return out
+
+
 # ---- entry point ---------------------------------------------------------------------------------
 
 
@@ -909,6 +997,7 @@ def run(root: Path, files: list[str], detected: list[dict]) -> dict:
             findings += terraform_checks(repo, d["scope"], d["files"])
     if any(not d["sample"] for d in detected):
         findings += cross_cutting_checks(repo, detected)
+        findings += entropy_checks(repo, detected)
     return {"findings": findings, **summarize(findings)}
 
 
@@ -950,7 +1039,7 @@ def rollup(findings: list[dict]) -> list[dict]:
 
 
 def levels(rows: list[dict]) -> dict:
-    """Overlay level per area (L0-L3) and overall (weakest area). Same rule as the pillars (B-198).
+    """Overlay level per area (L0-L3) and overall (weakest tool area; repo-wide areas are listed separately). Same rule as the pillars (B-198).
 
     A check passes in an area only when it fails nowhere and passes somewhere; one failing location fails
     the check. Level N needs every gate check up to N to pass and 60% of the applicable checks at each level up to N.
@@ -970,6 +1059,10 @@ def levels(rows: list[dict]) -> dict:
             reached = lvl
         areas[area] = {"level": reached, "blocked_by": blocked, "pass_ratio_by_level": ratios}
     if not areas:
-        return {"overall": None, "weakest_area": None, "areas": {}}
-    weakest = min(areas, key=lambda a: (areas[a]["level"], a))
-    return {"overall": areas[weakest]["level"], "weakest_area": weakest, "areas": areas}
+        return {"overall": None, "weakest_area": None, "repo_wide": {}, "areas": {}}
+    tools = [a for a in areas if a not in REPO_WIDE]
+    repo_wide = {a: areas[a]["level"] for a in REPO_WIDE if a in areas}
+    if not tools:
+        return {"overall": None, "weakest_area": None, "repo_wide": repo_wide, "areas": areas}
+    weakest = min(tools, key=lambda a: (areas[a]["level"], a))
+    return {"overall": areas[weakest]["level"], "weakest_area": weakest, "repo_wide": repo_wide, "areas": areas}

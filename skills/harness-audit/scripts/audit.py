@@ -226,7 +226,12 @@ def render_md(r: dict, titles: dict[str, str]) -> str:
             lv = r["infra"]["levels"]
             lines += [
                 "### Infrastructure checks (overlay, "
-                + (f"own level: L{lv['overall']}, weakest area: {lv['weakest_area']}" if lv["overall"] is not None else "no level yet")
+                + (
+                    f"own level: L{lv['overall']}, weakest tool area: {lv['weakest_area']}"
+                    if lv["overall"] is not None
+                    else "no tool level yet"
+                )
+                + "".join(f"; {k}: L{v}" for k, v in sorted(lv.get("repo_wide", {}).items()))
                 + "; not in the score)",
                 "",
                 "| Area | Level | Passed | Failed | Pass rate | Blocked by |",

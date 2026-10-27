@@ -132,6 +132,50 @@ INFRA_QUESTIONS = {
 }
 INFRA_PROMPT = "prompts/infra_quality.md"
 INFRA_TASK_LINES = 350  # four tasks share the same files, so keep each one small
+INFRA_FILE_LINES = 300  # a file up to this long is sent whole; longer files send the head plus windows around infrastructure words
+INFRA_HEAD_LINES = 40
+INFRA_WINDOW = 12
+INFRA_WORDS = re.compile(
+    r"terraform|tofu|bicep|pulumi|cloudformation|ansible|kubectl|kubernetes|helm|kustomize|docker|compose|devcontainer|container|"
+    r"infrastructure|deploy|environment|staging|production|\bprod\b|secret|credential|token|vault|apply|destroy|\bplan\b",
+    re.I,
+)
+DEPLOYABLE_IAC = {
+    "terraform",
+    "opentofu",
+    "terragrunt",
+    "bicep",
+    "kubernetes",
+    "helm",
+    "kustomize",
+    "pulumi",
+    "cloudformation",
+    "ansible",
+    "arm",
+    "cdk",
+}
+
+
+def infra_excerpt(ctx: Ctx, rel: str) -> dict | None:
+    """Whole file if short; otherwise the head plus windows around infrastructure words (B-214)."""
+    text = ctx.text(rel)
+    if text is None:
+        return None
+    lines = text.splitlines()
+    if len(lines) <= INFRA_FILE_LINES:
+        return excerpt(ctx, rel, INFRA_FILE_LINES)
+    keep = set(range(1, min(INFRA_HEAD_LINES, len(lines)) + 1))
+    for i, ln in enumerate(lines, 1):
+        if INFRA_WORDS.search(ln):
+            keep.update(range(max(1, i - INFRA_WINDOW), min(len(lines), i + INFRA_WINDOW) + 1))
+    chosen = sorted(keep)[:INFRA_FILE_LINES]
+    out, prev = [], 0
+    for n in chosen:
+        if prev and n != prev + 1:
+            out.append(f"   …| (lines {prev + 1}-{n - 1} omitted)")
+        out.append(f"{n:>4}| {lines[n - 1]}")
+        prev = n
+    return {"path": rel, "start_line": 1, "end_line": len(out), "text": "\n".join(out)}
 
 
 def infra_tasks(ctx: Ctx, root: Path, agent: list[str], targets: list[str]) -> tuple[list[dict], list[dict]]:
@@ -150,9 +194,10 @@ def infra_tasks(ctx: Ctx, root: Path, agent: list[str], targets: list[str]) -> t
                 "Nothing to judge: no agent instruction file.",
             )
             for cid in INFRA_QUESTIONS
+            if cid != "INF-J02" or any(d["tool"] in DEPLOYABLE_IAC for d in real)
         ]
     files = list(dict.fromkeys(agent + _files(ctx, ["CONTRIBUTING*", ".github/CONTRIBUTING*"])))
-    ex = _budget([e for f in files if (e := excerpt(ctx, f))], INFRA_TASK_LINES)
+    ex = _budget([e for f in files if (e := infra_excerpt(ctx, f))], INFRA_TASK_LINES)
     if not ex:
         return [], []
     facts = {
@@ -160,7 +205,10 @@ def infra_tasks(ctx: Ctx, root: Path, agent: list[str], targets: list[str]) -> t
         "runner_targets": targets[:200],
     }
     tasks = []
+    deployable = any(d["tool"] in DEPLOYABLE_IAC for d in real)
     for cid, question in INFRA_QUESTIONS.items():
+        if cid == "INF-J02" and not deployable:
+            continue  # environments only matter when the repository holds deployable infrastructure code
         _, level, title = infra_checks.CHECKS[cid]
         tasks.append(
             {
