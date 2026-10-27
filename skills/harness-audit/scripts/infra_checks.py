@@ -45,12 +45,10 @@ GATES = {
     "INF-P03",
     "INF-B01",
     "INF-K06",
-    "INF-D01",
     "INF-D02",
     "INF-C01",
     "INF-C03",
     "INF-V01",
-    "INF-V03",
     "INF-T01",
     "INF-T02",
     "INF-T06",
@@ -59,7 +57,7 @@ REPO_WIDE = ("cross-cutting", "agent-guidance", "infra-entropy")  # reported nex
 AREAS = {"D": "dockerfile", "C": "compose", "V": "devcontainer", "T": "terraform"}
 
 CHECKS = {
-    "INF-D01": ("dockerfile", 1, ".dockerignore exists (next to the Dockerfile or at the repo root)"),
+    "INF-D01": ("dockerfile", 2, ".dockerignore exists (next to the Dockerfile or at the repo root)"),
     "INF-D02": ("dockerfile", 2, "Base images are pinned to a tag or digest (no latest, no bare name)"),
     "INF-D03": ("dockerfile", 2, "The image runs as a non-root USER"),
     "INF-D04": ("dockerfile", 3, "HEALTHCHECK is defined"),
@@ -73,7 +71,7 @@ CHECKS = {
     "INF-C05": ("compose", 3, "`compose config` validates the file in CI or a hook"),
     "INF-V01": ("devcontainer", 1, "devcontainer.json parses (JSON with comments)"),
     "INF-V02": ("devcontainer", 2, "Image and features are pinned"),
-    "INF-V03": ("devcontainer", 1, "A create or post-create command prepares the environment"),
+    "INF-V03": ("devcontainer", 2, "A create or post-create command prepares the environment"),
     "INF-V04": ("devcontainer", 2, "The setup command calls the repository's own runner or installer"),
     "INF-V05": ("devcontainer", 2, "Editor extensions or settings are declared"),
     "INF-V06": ("devcontainer", 3, "CI builds the devcontainer"),
@@ -96,7 +94,7 @@ CHECKS = {
     "INF-K05": ("kubernetes", 2, "Manifests are validated in CI (kubeconform, helm lint, kustomize build, conftest, dry-run)"),
     "INF-K06": ("kubernetes", 1, "No Secret manifest with literal data"),
     "INF-K07": ("kubernetes", 3, "Helm chart has values.schema.json"),
-    "INF-A01": ("ansible", 1, "Collections and roles are pinned (requirements.yml with versions)"),
+    "INF-A01": ("ansible", 2, "Collections and roles are pinned (requirements.yml with versions)"),
     "INF-A02": ("ansible", 2, "ansible-lint is configured or runs in CI or a hook"),
     "INF-A03": ("ansible", 2, "No plaintext secrets in variables (use ansible-vault)"),
     "INF-A04": ("ansible", 3, "Syntax check, check mode or Molecule runs in CI"),
@@ -1197,11 +1195,24 @@ def rollup(findings: list[dict]) -> list[dict]:
     return sorted(rows.values(), key=lambda r: (-r["failed"], r["check_id"]))
 
 
+# Gates about secrets stay all-or-nothing: one location with a leaked secret fails the check everywhere.
+STRICT = {"INF-X05", "INF-F03", "INF-P03", "INF-K06", "INF-C03", "INF-T06"}
+
+
+def check_ok(row: dict) -> bool:
+    """A check holds for the area when all locations pass (secret checks) or at least PASS_RATIO of them do (B-215)."""
+    total = row["passed"] + row["failed"]
+    if row["failed"] == 0:
+        return True
+    return row["check_id"] not in STRICT and total > 0 and row["passed"] / total >= PASS_RATIO
+
+
 def levels(rows: list[dict]) -> dict:
     """Overlay level per area (L0-L3) and overall (weakest tool area; repo-wide areas are listed separately). Same rule as the pillars (B-198).
 
-    A check passes in an area only when it fails nowhere and passes somewhere; one failing location fails
-    the check. Level N needs every gate check up to N to pass and 60% of the applicable checks at each level up to N.
+    A check holds for an area when at least 60% of its locations pass (all of them for the secret checks in STRICT;
+    the worst locations stay visible in the roll-up). Level N needs every gate check up to N to hold and 60% of the
+    applicable checks at each level up to N.
     """
     areas: dict[str, dict] = {}
     for area in sorted({r["area"] for r in rows}):
@@ -1209,11 +1220,11 @@ def levels(rows: list[dict]) -> dict:
         reached, blocked, ratios = 0, [], {}
         for lvl in (1, 2, 3):
             at = [r for r in mine if r["level"] == lvl]
-            passed = [r for r in at if r["failed"] == 0]
+            passed = [r for r in at if check_ok(r)]
             ratios[str(lvl)] = round(len(passed) / len(at), 2) if at else None
-            gates = [r["check_id"] for r in mine if r["level"] <= lvl and r["check_id"] in GATES and r["failed"] > 0]
+            gates = [r["check_id"] for r in mine if r["level"] <= lvl and r["check_id"] in GATES and not check_ok(r)]
             if gates or (at and len(passed) / len(at) < PASS_RATIO):
-                blocked = gates or [r["check_id"] for r in at if r["failed"]][:3]
+                blocked = gates or [r["check_id"] for r in at if not check_ok(r)][:3]
                 break
             reached = lvl
         areas[area] = {"level": reached, "blocked_by": blocked, "pass_ratio_by_level": ratios}

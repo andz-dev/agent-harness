@@ -81,9 +81,9 @@ Bicep, Kubernetes/Helm, Ansible, CloudFormation and Pulumi, plus five cross-cutt
 - Per-check roll-up (`infra.rollup`) shows in how many locations each check fails; per-area pass rates are in
   `infra.summary`.
 - The overlay has its own level, L0 to L3, per area and overall (`infra.levels`). Same rule as the pillars: level N
-  needs every gate check up to N and 60% of the checks at each level up to N. A check passes only if it fails in no
-  location, so one weak Dockerfile in a monorepo holds the area back. The overall level is the weakest tool area; cross-cutting, agent-guidance and infra-entropy are reported separately as repo-wide levels. Gates:
-  INF-D01, D02, C01, C03, V01, V03, T01, T02, T06, B01, K06, X05, F03, P03. The level is not a score and is not added to it.
+  needs every gate check up to N and 60% of the checks at each level up to N. A check holds for an area when at least 60% of its
+  locations pass (secret checks need all of them), so one weak Dockerfile does not decide a monorepo, and the roll-up still lists it. The overall level is the weakest tool area; cross-cutting, agent-guidance and infra-entropy are reported separately as repo-wide levels. Gates:
+  INF-D02, C01, C03, V01, T01, T02, T06, B01, K06, X05, F03, P03. The level is not a score and is not added to it.
 
 ## Files
 

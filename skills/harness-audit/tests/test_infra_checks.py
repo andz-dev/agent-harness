@@ -197,14 +197,19 @@ class LevelTests(unittest.TestCase):
         return run(tree)["levels"]["areas"][area]
 
     def test_failed_gate_keeps_area_at_level_zero(self):
-        a = self.lvl({"Dockerfile": "FROM node\nUSER app\nHEALTHCHECK CMD true\n"}, "dockerfile")
+        a = self.lvl({"main.tf": ""}, "terraform")
         self.assertEqual(a["level"], 0)
-        self.assertEqual(a["blocked_by"], ["INF-D01"])  # the level-2 gate INF-D02 is not looked at before L1 is met
+        self.assertEqual(a["blocked_by"], ["INF-T01", "INF-T02"])
+
+    def test_missing_dockerignore_is_no_longer_a_gate(self):
+        a = self.lvl({"Dockerfile": "FROM python:3.12\nUSER app\n"}, "dockerfile")
+        self.assertEqual(a["level"], 2)  # pinned, non-root, no secrets: 3 of 5 level-2 checks hold
+        self.assertNotIn("INF-D01", infra_checks.GATES)
 
     def test_gates_pass_but_ratio_too_low_stays_below(self):
-        a = self.lvl({"Dockerfile": "FROM python:3.12\n", ".dockerignore": "x\n"}, "dockerfile")
+        a = self.lvl({"Dockerfile": "FROM python:3.12\n"}, "dockerfile")
         self.assertEqual(a["level"], 1)
-        self.assertEqual(a["pass_ratio_by_level"]["1"], 1.0)
+        self.assertEqual(a["pass_ratio_by_level"]["2"], 0.4)
 
     def test_full_marks_reach_level_three(self):
         ci = ".github/workflows/ci.yml"
@@ -217,11 +222,27 @@ class LevelTests(unittest.TestCase):
         self.assertEqual(a["level"], 3)
         self.assertEqual(a["blocked_by"], [])
 
-    def test_one_failing_location_fails_the_check(self):
-        tree = {"a/Dockerfile": "FROM python:3.12\n", "b/Dockerfile": "FROM node\n", "a/.dockerignore": "x\n", "b/.dockerignore": "x\n"}
+    def test_half_the_locations_failing_fails_the_check(self):
+        tree = {"a/Dockerfile": "FROM python:3.12\n", "b/Dockerfile": "FROM node\n"}
         a = self.lvl(tree, "dockerfile")
-        self.assertEqual(a["level"], 1)  # L1 met by both locations; INF-D02 is a level-2 gate and fails in b/
+        self.assertEqual(a["level"], 1)
         self.assertEqual(a["blocked_by"], ["INF-D02"])
+
+    def test_a_clear_majority_of_locations_is_enough(self):
+        tree = {f"{d}/Dockerfile": "FROM python:3.12\n" for d in "abc"} | {
+            "d/Dockerfile": "FROM node\n",
+            "e/Dockerfile": "FROM python:3.12\n",
+        }
+        r = run(tree)
+        row = next(x for x in r["rollup"] if x["check_id"] == "INF-D02")
+        self.assertEqual((row["passed"], row["failed"]), (4, 1))
+        self.assertNotIn("INF-D02", r["levels"]["areas"]["dockerfile"]["blocked_by"])
+        self.assertEqual(row["failing"], ["d/Dockerfile"])  # the worst location stays visible
+
+    def test_secret_checks_stay_all_or_nothing(self):
+        tree = {f"{d}/main.tf": "" for d in "abcde"} | {"e/terraform.tfstate": "{}"}
+        row = next(x for x in run(tree)["rollup"] if x["check_id"] == "INF-T06")
+        self.assertFalse(infra_checks.check_ok(row))
 
     def test_overall_is_the_weakest_tool_area_and_repo_wide_areas_are_separate(self):
         r = run({"Dockerfile": GOOD_DOCKERFILE, ".dockerignore": "x\n", "main.tf": self.GOOD_TF})
