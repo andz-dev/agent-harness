@@ -23,7 +23,9 @@ import sys
 from pathlib import Path, PurePosixPath
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import detect_infra  # noqa: E402
 import detect_stack  # noqa: E402
+import infra_checks  # noqa: E402
 import run_checks  # noqa: E402
 import yaml  # noqa: E402
 from run_checks import Ctx, Scope, found, searched  # noqa: E402
@@ -55,12 +57,12 @@ def _files(ctx: Ctx, globs: list[str]) -> list[str]:
     return sorted(found, key=lambda f: (f.count("/"), not PurePosixPath(f).name.lower().startswith("readme.md"), f))
 
 
-def _budget(excerpts: list[dict]) -> list[dict]:
+def _budget(excerpts: list[dict], limit: int = MAX_TASK_LINES) -> list[dict]:
     out, used = [], 0
     for e in excerpts:
         n = e["end_line"]
-        if used + n > MAX_TASK_LINES:
-            keep = max(0, MAX_TASK_LINES - used)
+        if used + n > limit:
+            keep = max(0, limit - used)
             if keep < 20:
                 break
             lines = e["text"].splitlines()[:keep]
@@ -120,6 +122,62 @@ def missing_commands(ctx: Ctx, files: list[str], targets: list[str]) -> tuple[li
 
 def run_checks_generated() -> tuple[str, ...]:
     return ("dist/", "build/", "out/", "node_modules/", "target/", "coverage/", "tmp/", ".venv/", "venv/", "site/", "htmlcov/")
+
+
+INFRA_QUESTIONS = {
+    "INF-J01": "Do the agent files say how an agent must change infrastructure safely: plan, preview or validate first, and no apply, destroy, deploy or image push without a human?",
+    "INF-J02": "Do the agent files name the environments (for example dev, staging, prod) and say which are off limits or need approval?",
+    "INF-J03": "Do the agent files say where credentials and secrets come from (secret manager, environment, vault) and that they must not be committed or printed?",
+    "INF-J04": "Do the agent files say how to run and check the infrastructure locally (for example compose up, devcontainer, terraform validate, lint commands)?",
+}
+INFRA_PROMPT = "prompts/infra_quality.md"
+INFRA_TASK_LINES = 350  # four tasks share the same files, so keep each one small
+
+
+def infra_tasks(ctx: Ctx, root: Path, agent: list[str], targets: list[str]) -> tuple[list[dict], list[dict]]:
+    """Judgement tasks for the infrastructure overlay (B-180). Returns (tasks, findings resolved by script)."""
+    infra = detect_infra.detect(root)
+    real = [d for d in infra["detected"] if not d["sample"]]
+    if not real:
+        return [], []
+    if not agent:
+        return [], [
+            infra_checks.finding(
+                cid,
+                "agent files",
+                "fail",
+                [{"path": "AGENTS.md", "snippet": "no agent instruction file found"}],
+                "Nothing to judge: no agent instruction file.",
+            )
+            for cid in INFRA_QUESTIONS
+        ]
+    files = list(dict.fromkeys(agent + _files(ctx, ["CONTRIBUTING*", ".github/CONTRIBUTING*"])))
+    ex = _budget([e for f in files if (e := excerpt(ctx, f))], INFRA_TASK_LINES)
+    if not ex:
+        return [], []
+    facts = {
+        "infrastructure": [{"tool": d["tool"], "scope": d["scope"], "files": d["file_count"]} for d in real[:40]],
+        "runner_targets": targets[:200],
+    }
+    tasks = []
+    for cid, question in INFRA_QUESTIONS.items():
+        _, level, title = infra_checks.CHECKS[cid]
+        tasks.append(
+            {
+                "task_id": cid,
+                "check_id": cid,
+                "pillar": "infra",
+                "level": level,
+                "gate": False,
+                "question": question,
+                "title": title,
+                "prompt": INFRA_PROMPT,
+                "facts": facts,
+                "candidates": [],
+                "excerpts": ex,
+            }
+        )
+    return tasks, []
 
 
 def plan(root: Path, catalog: dict) -> dict:
@@ -232,10 +290,12 @@ def plan(root: Path, catalog: dict) -> dict:
                 "excerpts": ex,
             }
         )
+    extra_tasks, infra_resolved = infra_tasks(ctx, root, agent, targets)
     return {
         "schema": "llm-tasks/0.1",
-        "tasks": tasks,
+        "tasks": tasks + extra_tasks,
         "resolved": resolved,
+        "infra_resolved": infra_resolved,
         "instructions": "Read each task's prompt file, then answer every task. See prompts/*.md for the answer format.",
     }
 
@@ -320,6 +380,15 @@ def apply_answers(root: Path, tasks_doc: dict, answers: list) -> dict:
                     "note": "no answer provided",
                 }
             )
+    infra_findings = []
+    for f in [x for x in findings if x["pillar"] == "infra"]:
+        quotes = [
+            {"path": e["path"], "snippet": e["snippet"], **({"line": e["line"]} if e.get("line") else {})}
+            for e in f["evidence"]
+            if e.get("path") and e.get("snippet")
+        ]
+        infra_findings.append(infra_checks.finding(f["check_id"], "agent files", f["status"], quotes, f.get("note", "")))
+    findings = [x for x in findings if x["pillar"] != "infra"]
     items = []
     for f in findings:
         verdict = {"DOC-06": ("ENR-03", "stale"), "ORI-09": ("ENR-05", "conflicting")}.get(f["check_id"])
@@ -333,7 +402,7 @@ def apply_answers(root: Path, tasks_doc: dict, answers: list) -> dict:
                         "evidence": [e] + ([{"kind": "searched", "path": e["path"], "snippet": f["note"][:300]}] if f.get("note") else []),
                     }
                 )
-    return {"findings": findings, "entropy_items": items, "rejected": rejected}
+    return {"findings": findings, "entropy_items": items, "rejected": rejected, "infra_findings": infra_findings}
 
 
 def main(argv: list[str] | None = None) -> int:

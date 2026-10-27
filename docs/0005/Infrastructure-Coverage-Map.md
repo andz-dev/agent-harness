@@ -46,7 +46,9 @@ Status key: `todo` = nothing built; `partly done` = some items built. Done so fa
 - Track B, first set of checks for Dockerfile, Compose, devcontainer, Terraform/OpenTofu, Bicep, Kubernetes/Helm, Ansible, CloudFormation, Pulumi and the cross-cutting set: `scripts/infra_checks.py`, 56 checks (B-171 to B-178), with a per-check roll-up (B-194) and the overlay's own level per area and overall (B-198, uncalibrated: B-202).
 - Track E, the `infra` block in `report.json` and the Infrastructure section in `report.md` (B-181).
 
-Still `todo`: the component model (B-170), infra entropy (B-179), the judgement prompt (B-180), the city adapter (B-182, B-183), the adoption skill (Track F), fixtures and calibration (Track G).
+- Track D, the judgement prompt and four tasks: `prompts/infra_quality.md`, INF-J01..J04 (B-180); agreement between runs not measured yet (B-211).
+
+Still `todo`: the component model (B-170), infra entropy (B-179), the city adapter (B-182, B-183), the adoption skill (Track F), fixtures and calibration (Track G).
 
 ### Track A: Detection (prerequisite for everything)
 

@@ -289,7 +289,8 @@
                   "ansible",
                   "cloudformation",
                   "pulumi",
-                  "cross-cutting"
+                  "cross-cutting",
+                  "agent-guidance"
                 ]
               },
               "level": {
@@ -305,7 +306,8 @@
                 "enum": [
                   "pass",
                   "fail",
-                  "not_applicable"
+                  "not_applicable",
+                  "unknown"
                 ]
               },
               "note": {

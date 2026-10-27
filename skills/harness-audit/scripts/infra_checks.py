@@ -110,6 +110,14 @@ CHECKS = {
     "INF-X03": ("cross-cutting", 2, "CI has a path-filtered or dedicated workflow for infrastructure changes"),
     "INF-X04": ("cross-cutting", 2, "Secret scanning is configured (gitleaks, trufflehog, detect-secrets)"),
     "INF-X05": ("cross-cutting", 1, "No private keys, .env files or credential files are tracked"),
+    "INF-J01": (
+        "agent-guidance",
+        2,
+        "Agent files say how to change infrastructure safely (plan or preview first, no apply or destroy without a human)",
+    ),
+    "INF-J02": ("agent-guidance", 2, "Agent files name the environments and which are off limits or need approval"),
+    "INF-J03": ("agent-guidance", 2, "Agent files say where credentials come from and that they must not be committed or printed"),
+    "INF-J04": ("agent-guidance", 3, "Agent files say how to run and check infrastructure locally"),
     "INF-T07": ("terraform", 3, "A remote backend or cloud block is declared"),
 }
 
@@ -901,6 +909,11 @@ def run(root: Path, files: list[str], detected: list[dict]) -> dict:
             findings += terraform_checks(repo, d["scope"], d["files"])
     if any(not d["sample"] for d in detected):
         findings += cross_cutting_checks(repo, detected)
+    return {"findings": findings, **summarize(findings)}
+
+
+def summarize(findings: list[dict]) -> dict:
+    """Per-area summary, per-check roll-up and levels for a list of infra findings."""
     summary: dict[str, dict] = {}
     for f in findings:
         s = summary.setdefault(f["area"], {"passed": 0, "failed": 0, "not_applicable": 0})
@@ -909,7 +922,7 @@ def run(root: Path, files: list[str], detected: list[dict]) -> dict:
         total = s["passed"] + s["failed"]
         s["pass_rate"] = round(s["passed"] / total, 2) if total else None
     rows = rollup(findings)
-    return {"findings": findings, "summary": summary, "rollup": rows, "levels": levels(rows)}
+    return {"summary": summary, "rollup": rows, "levels": levels(rows)}
 
 
 def rollup(findings: list[dict]) -> list[dict]:

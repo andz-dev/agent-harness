@@ -125,6 +125,10 @@ def assemble(root: Path, catalog: dict, name=None, url=None, weight=None, llm_an
     infra = detect_infra.detect(root)
     extra = infra_checks.run(root, detect_stack.list_files(root), infra["detected"])
     infra = {**infra, "checks": extra["findings"], "summary": extra["summary"], "rollup": extra["rollup"], "levels": extra["levels"]}
+    merged = infra["checks"] + plan.get("infra_resolved", [])
+    if llm_answers is not None:
+        merged += applied["infra_findings"]
+    infra = {**infra, "checks": merged, **infra_checks.summarize(merged)}
     stack_out = dict(stack)
     stack_out["ecosystems"] = sorted({c["ecosystem"] for c in stack["components"]})
     return {

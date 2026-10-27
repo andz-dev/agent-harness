@@ -387,3 +387,9 @@ Full map: `docs/0005/Infrastructure-Coverage-Map.md`. Today the catalog has no i
 - B-208: INF-X03 is a text heuristic (a `paths:` filter plus an infra word in the same workflow); it does not map the filter to the infra directories.
 - B-209: Pulumi and CloudFormation checks have only synthetic tests; none of the 18 calibration repos use them. Run on real examples before relying on them.
 - B-210: Cross-cutting counts as its own area, so a repo without a secret scanner has overall overlay level 0 even when every Docker/Terraform check passes. Reconsider weighting cross-cutting separately from the tool areas (see B-201).
+
+### 5a. Infrastructure judgement (2026-10-27)
+- B-180 (first version done): `prompts/infra_quality.md` and tasks INF-J01..J04 (area `agent-guidance`), created when infrastructure and an agent file exist; infrastructure without an agent file fails by script. Answers are quote-verified like the other judgement tasks and are kept out of the score. `unknown` counts as neither pass nor fail. Each task carries at most 350 lines of the shared agent files.
+- B-211: Not yet measured: agreement between two blind runs for INF-J01..J04 (see B-164 for the method). Run `scripts/agreement.py` on a set of repos with infrastructure and agent files; few of the 18 calibration repos qualify (n8n, home-assistant-core).
+- B-212: INF-J tasks are asked even for repos whose only infrastructure is a Dockerfile; some questions (environments, credential source) may then be `unknown` by design. Consider asking only the questions that fit the detected tools.
+- B-213: The excerpt text of the agent files is repeated in each of the four tasks; merge into one task with four answers to cut the size of `llm_tasks.json`.

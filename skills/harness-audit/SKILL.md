@@ -66,8 +66,13 @@ project rules. Python and Node only; monorepos get root-level files for the domi
 Besides the score, every report has an `infra` block and an "Infrastructure" section. It lists the infrastructure
 files found (Terraform/OpenTofu, Bicep/ARM, Kubernetes/Helm/Kustomize, Pulumi, CloudFormation/CDK, Ansible,
 Dockerfile, Compose, devcontainers, gitpod, nix, mise) and, for Dockerfile, Compose, devcontainer, Terraform,
-Bicep, Kubernetes/Helm, Ansible, CloudFormation and Pulumi, plus five cross-cutting checks (dependency bot, CODEOWNERS, path-filtered CI, secret scanning, tracked keys), 56 checks (`INF-D*`, `C*`, `V*`, `T*`, `B*`, `K*`, `A*`, `F*`, `P*`, `X*`) with pass, fail or not applicable and quoted evidence.
+Bicep, Kubernetes/Helm, Ansible, CloudFormation and Pulumi, plus five cross-cutting checks (dependency bot, CODEOWNERS, path-filtered CI, secret scanning, tracked keys), 56 script checks (`INF-D*`, `C*`, `V*`, `T*`, `B*`, `K*`, `A*`, `F*`, `P*`, `X*`) and 4 judgement checks (`INF-J*`) with pass, fail or not applicable and quoted evidence.
 
+- Judgement (area `agent-guidance`, `INF-J01..J04`): when infrastructure exists and an agent file exists, `llm_tasks.json`
+  also holds four infrastructure tasks (safe plan/apply workflow, environments, credential source, local checks) with
+  `prompts/infra_quality.md`. Answers go through the same `--llm-answers` pass and the same quote re-check; they land in
+  `infra.checks`, never in the score. Without an agent file the four fail by script; unanswered or unverifiable ones are `unknown`
+  and count as neither pass nor fail.
 - It is an overlay: it never changes the 0-100 score or the pillar levels. A repo with a perfect score can still have
   weak infrastructure, and the report says so under Limitations. Do not add the two together.
 - CDK apps, Kustomize overlays and Helm templates are detected or ignored but not checked yet. Pulumi, CloudFormation and Ansible checks are tested on synthetic repos only.
