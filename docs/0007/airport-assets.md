@@ -34,8 +34,15 @@ with its own level. Repos without real infrastructure get no airport.
 |---|---|---|---|
 | L0 | Fenced airstrip, closed barrier, wind sock limp, no buildings | none | none |
 | L1 | Small airfield: short runway, one hangar, wind sock | 1 propeller plane | rare take-off/landing |
-| L2 | Regional: runway, terminal, tower, 2 gates, apron, station | 1 jet, 1 propeller plane | arrivals and departures with taxiing |
+| L2 | Regional: runway, terminal, tower, up to 4 gates, apron, station | 1 jet, 1 propeller plane | arrivals and departures with taxiing |
 | L3 | Enterprise hub: 2 runways, large terminal with jet bridges, cargo hangar, business jets, holiday charter planes | 5-6 mixed | constant arrivals and departures, ground vehicles |
+
+## Prototype
+
+`apps/harness-city/prototypes/airport.html` is a clickable prototype of all tiers and the three
+station-link variants (A/B/C, underground toggle, per-area gate levels, container count, presets).
+It is standalone and not part of the real city yet. Capacity: L1 2 stands, L2 4 gates, L3 6 gates;
+more areas are summarised on a sign. At L3 the second runway extends the plot beyond two fields.
 
 ## Gates
 
