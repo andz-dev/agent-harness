@@ -55,6 +55,22 @@ def run_one(tree, *checks):
     return run_checks.run(root, catalog)["findings"]
 
 
+class Sta09MechanicalTests(unittest.TestCase):
+    """B-128: STA-09 is mechanical. Linters that print rule ids count; formatters do not."""
+
+    def status(self, tree):
+        sta09 = next(c for c in REAL_CATALOG["checks"] if c["id"] == "STA-09")
+        return run_one(tree, sta09)[0]["status"]
+
+    def test_ruff_and_oxlint_pass(self):
+        self.assertEqual(self.status({"pyproject.toml": PYPROJECT + "[tool.ruff]\nline-length = 100\n"}), "pass")
+        self.assertEqual(self.status({"package.json": "{}", "oxlint.config.ts": "export default {}\n"}), "pass")
+
+    def test_formatter_only_fails(self):
+        self.assertEqual(self.status({"pyproject.toml": PYPROJECT + "[tool.black]\nline-length = 100\n"}), "fail")
+        self.assertEqual(self.status({"package.json": "{}", ".prettierrc": "{}"}), "fail")
+
+
 class DjangoRegressionTests(unittest.TestCase):
     """Holdout (B-139): unittest-based repos with tests/runtests.py have a configured test framework."""
 

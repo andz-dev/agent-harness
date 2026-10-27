@@ -39,7 +39,8 @@ class AuditTests(unittest.TestCase):
         return r, out
 
     def test_end_to_end_report_is_valid_and_consistent(self):
-        r, out = self.run_audit(FILES, "--name", "demo/x", "--weight", "low")
+        files = {**FILES, "AGENTS.md": "# Agents\n\nRun `pytest` before committing.\n"}
+        r, out = self.run_audit(files, "--name", "demo/x", "--weight", "low")
         self.assertEqual(r.returncode, 0, r.stderr)
         report = json.loads((out / "report.json").read_text())
         self.assertEqual(audit.validate(report), [])

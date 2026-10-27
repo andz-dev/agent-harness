@@ -186,25 +186,6 @@ def plan(root: Path, catalog: dict) -> dict:
                     c, "pass", [found(first, f"all path references in {len(docs + agent)} doc files resolve", 1)], "Resolved by script."
                 )
                 continue
-        elif cid == "STA-09":
-            files = _files(
-                ctx,
-                [
-                    "pyproject.toml",
-                    "ruff.toml",
-                    ".ruff.toml",
-                    ".eslintrc*",
-                    "eslint.config.*",
-                    "biome.json*",
-                    ".pre-commit-config.yaml",
-                    ".flake8",
-                    "setup.cfg",
-                    "package.json",
-                ],
-            )[:6]
-            if not files:
-                resolve(c, "fail", [searched("linter configs", "no linter config found")], "Nothing to judge.")
-                continue
         else:
             continue
         ex = _budget([e for f in dict.fromkeys(files) if (e := excerpt(ctx, f))])
