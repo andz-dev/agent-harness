@@ -369,3 +369,12 @@ Full map: `docs/0005/Infrastructure-Coverage-Map.md`. Today the catalog has no i
 - B-198 (done): Decided by the owner on 2026-10-27: the overlay gets its own level. `infra.levels` has L0-L3 per area and overall (weakest area), gates INF-D01, D02, C01, C03, V01, V03, T01, T02, T06, 60% pass ratio per level, a check passes only when it fails in no location. Smoke test: immich L0 (devcontainer has no setup command), n8n L0 (terraform lock file and provider versions), home-assistant-core L2.
 - B-201: The overall level is the weakest area; one missing devcontainer command puts immich at L0 although Docker is L1. Revisit after more repos (alternatives: median, or a level per area only).
 - B-202: Levels are uncalibrated: no human rated any repo's infrastructure. Do not compare them across tool versions or treat them as audited truth (see B-190).
+
+### 4y. Bicep and Kubernetes checks (2026-10-27)
+- B-172 (first version done): Bicep INF-B01..B06 (bicepconfig, parameter files, build/lint in CI, what-if/validate, @secure() secrets, no preview API versions).
+- B-173 (first version done): Kubernetes/Helm INF-K01..K07 (pinned images, resource limits, non-root, probes, validation in CI, no literal Secret, values.schema.json). Gates: INF-B01, INF-K06.
+- Smoke test on public repos (not part of the calibration set): Azure-Samples/todo-nodejs-mongo (Bicep, Docker, devcontainer) overall L0; kubernetes/examples (37 manifest files) Kubernetes L1. None of the 18 calibration repos has Bicep or Kubernetes, so the checks have only synthetic and these two real tests.
+- B-203 (done): Kubernetes manifests are detected anywhere in repos with at most 600 YAML files (marker `apiVersion:` + `kind:`); larger repos only in k8s-like directories. Archive directories (`_archived`, `legacy`, ...) count as samples.
+- B-204: Helm templates are Go-templated YAML and are not parsed; Helm checks cover Chart.yaml and values.schema.json only. Kustomize overlays are not rendered, so patches are not seen.
+- B-205: Argo CD / Flux manifests, Skaffold, Tilt and Docker Swarm stacks are not detected.
+- B-206: Bicep modules are checked per directory; shared `bicepconfig.json` in a parent directory (not the repo root) is missed.

@@ -43,10 +43,10 @@ Confirmed by the owner on 2026-10-27: D1 overlay, and the overlay has its own le
 Status key: `todo` = nothing built; `partly done` = some items built. Done so far (all as an overlay that never changes the score):
 
 - Track A, detection of all listed tools: `scripts/detect_infra.py` (B-166 to B-169, B-184).
-- Track B, first set of checks for Dockerfile, Compose, devcontainer and Terraform/OpenTofu: `scripts/infra_checks.py`, 25 checks (B-171, B-175 to B-177), with a per-check roll-up (B-194) and the overlay's own level per area and overall (B-198, uncalibrated: B-202).
+- Track B, first set of checks for Dockerfile, Compose, devcontainer, Terraform/OpenTofu, Bicep and Kubernetes/Helm: `scripts/infra_checks.py`, 38 checks (B-171 to B-173, B-175 to B-177), with a per-check roll-up (B-194) and the overlay's own level per area and overall (B-198, uncalibrated: B-202).
 - Track E, the `infra` block in `report.json` and the Infrastructure section in `report.md` (B-181).
 
-Still `todo`: the component model (B-170), Bicep, Kubernetes/Helm and the other IaC checks (B-172 to B-174), cross-cutting checks (B-178), infra entropy (B-179), the judgement prompt (B-180), the city adapter (B-182, B-183), the adoption skill (Track F), fixtures and calibration (Track G).
+Still `todo`: the component model (B-170), the Pulumi, CloudFormation/CDK and Ansible checks (B-174), cross-cutting checks (B-178), infra entropy (B-179), the judgement prompt (B-180), the city adapter (B-182, B-183), the adoption skill (Track F), fixtures and calibration (Track G).
 
 ### Track A: Detection (prerequisite for everything)
 

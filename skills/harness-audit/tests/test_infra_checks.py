@@ -233,5 +233,62 @@ class LevelTests(unittest.TestCase):
         self.assertEqual(run({"app.py": "x=1\n"})["levels"], {"overall": None, "weakest_area": None, "areas": {}})
 
 
+class BicepTests(unittest.TestCase):
+    MAIN = "@secure()\nparam adminPassword string\nparam location string\nresource sa 'Microsoft.Storage/storageAccounts@2023-01-01' = {}\n"
+
+    def test_good_bicep(self):
+        ci = ".github/workflows/infra.yml"
+        r = run(
+            {
+                "infra/main.bicep": self.MAIN,
+                "infra/bicepconfig.json": "{}",
+                "infra/main.bicepparam": "using './main.bicep'\n",
+                ci: "run: az bicep build --file infra/main.bicep\nrun: az deployment group what-if\n",
+            }
+        )
+        for cid in ("INF-B01", "INF-B02", "INF-B03", "INF-B04", "INF-B05", "INF-B06"):
+            self.assertEqual(status(r, cid), "pass", cid)
+
+    def test_bad_bicep(self):
+        main = "param adminPassword string\nresource x 'Microsoft.Web/sites@2022-09-01-preview' = {}\n"
+        r = run({"main.bicep": main})
+        for cid in ("INF-B01", "INF-B02", "INF-B03", "INF-B04", "INF-B05", "INF-B06"):
+            self.assertEqual(status(r, cid), "fail", cid)
+
+
+class KubernetesTests(unittest.TestCase):
+    GOOD = (
+        "apiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: web\nspec:\n  template:\n    spec:\n      securityContext:\n        runAsNonRoot: true\n"
+        "      containers:\n        - name: web\n          image: nginx:1.27\n          resources:\n            limits: {cpu: 1}\n"
+        "          readinessProbe: {httpGet: {path: /, port: 80}}\n"
+    )
+
+    def test_good_manifest(self):
+        r = run({"k8s/web.yaml": self.GOOD, ".github/workflows/k.yml": "run: kubeconform k8s/\n"})
+        for cid in ("INF-K01", "INF-K02", "INF-K03", "INF-K04", "INF-K05", "INF-K06"):
+            self.assertEqual(status(r, cid), "pass", cid)
+
+    def test_bad_manifest(self):
+        bad = (
+            "apiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: web\nspec:\n  template:\n    spec:\n"
+            "      containers:\n        - name: web\n          image: nginx\n"
+            "---\napiVersion: v1\nkind: Secret\nmetadata:\n  name: s\nstringData:\n  pw: hunter2\n"
+        )
+        r = run({"k8s/web.yaml": bad})
+        for cid in ("INF-K01", "INF-K02", "INF-K03", "INF-K04", "INF-K05", "INF-K06"):
+            self.assertEqual(status(r, cid), "fail", cid)
+
+    def test_helm_chart_needs_values_schema(self):
+        r = run({"chart/Chart.yaml": "apiVersion: v2\nname: x\nversion: 0.1.0\n"})
+        self.assertEqual(status(r, "INF-K07"), "fail")
+        r = run({"chart/Chart.yaml": "apiVersion: v2\nname: x\nversion: 0.1.0\n", "chart/values.schema.json": "{}"})
+        self.assertEqual(status(r, "INF-K07"), "pass")
+
+    def test_levels_include_new_areas(self):
+        r = run({"k8s/web.yaml": self.GOOD, "main.bicep": "param location string\n"})
+        self.assertIn("kubernetes", r["levels"]["areas"])
+        self.assertIn("bicep", r["levels"]["areas"])
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -39,7 +39,7 @@ HOOK_FILES = (
 SECRET_NAME = re.compile(r"(PASSWORD|PASSWD|SECRET|TOKEN|API_?KEY|PRIVATE_?KEY|CREDENTIAL)", re.I)
 RUNNER_WORDS = re.compile(r"\b(task|make|just|npm|pnpm|yarn|uv|pip|poetry|pdm|nox|tox|bun)\b")
 PASS_RATIO = 0.6  # same rule as the pillars: a level needs 60% of its checks
-GATES = {"INF-D01", "INF-D02", "INF-C01", "INF-C03", "INF-V01", "INF-V03", "INF-T01", "INF-T02", "INF-T06"}
+GATES = {"INF-B01", "INF-K06", "INF-D01", "INF-D02", "INF-C01", "INF-C03", "INF-V01", "INF-V03", "INF-T01", "INF-T02", "INF-T06"}
 AREAS = {"D": "dockerfile", "C": "compose", "V": "devcontainer", "T": "terraform"}
 
 CHECKS = {
@@ -67,6 +67,19 @@ CHECKS = {
     "INF-T04": ("terraform", 2, "A plan runs in CI"),
     "INF-T05": ("terraform", 3, "A security scanner (tflint, trivy, tfsec, checkov) is configured or runs in CI"),
     "INF-T06": ("terraform", 1, "No state files or tfvars with values are tracked"),
+    "INF-B01": ("bicep", 1, "bicepconfig.json configures the linter"),
+    "INF-B02": ("bicep", 1, "Parameter files exist (.bicepparam or parameters.json)"),
+    "INF-B03": ("bicep", 2, "bicep build or lint runs in CI or a hook"),
+    "INF-B04": ("bicep", 2, "A what-if or validate step runs in CI"),
+    "INF-B05": ("bicep", 2, "Secret-like parameters are marked @secure()"),
+    "INF-B06": ("bicep", 3, "No preview API versions"),
+    "INF-K01": ("kubernetes", 2, "Container images are pinned to a tag or digest"),
+    "INF-K02": ("kubernetes", 2, "Containers set resource limits"),
+    "INF-K03": ("kubernetes", 3, "Containers run non-root (securityContext)"),
+    "INF-K04": ("kubernetes", 3, "Readiness and liveness probes are defined"),
+    "INF-K05": ("kubernetes", 2, "Manifests are validated in CI (kubeconform, helm lint, kustomize build, conftest, dry-run)"),
+    "INF-K06": ("kubernetes", 1, "No Secret manifest with literal data"),
+    "INF-K07": ("kubernetes", 3, "Helm chart has values.schema.json"),
     "INF-T07": ("terraform", 3, "A remote backend or cloud block is declared"),
 }
 
@@ -402,12 +415,185 @@ def terraform_checks(repo: Repo, scope: str, files: list[str]) -> list[dict]:
     return out
 
 
+# ---- Bicep ---------------------------------------------------------------------------------------
+
+
+def bicep_checks(repo: Repo, scope: str, files: list[str]) -> list[dict]:
+    templates = [f for f in files if f.endswith(".bicep")]
+    if not templates:
+        return []
+    first = templates[0]
+    base = scope if scope != "." else ""
+    near = lambda name: any(f == (f"{base}/{name}" if base else name) or f == name for f in repo.files)  # noqa: E731
+    cfg = near("bicepconfig.json")
+    out = [
+        finding(
+            "INF-B01", scope, "pass" if cfg else "fail", [ev("bicepconfig.json", "present")] if cfg else [ev(first, "no bicepconfig.json")]
+        )
+    ]
+    params = [
+        f
+        for f in repo.files
+        if f.endswith(".bicepparam") or re.search(r"\.parameters(\.[\w-]+)?\.json$", f) or f.endswith("/parameters.json")
+    ]
+    out.append(
+        finding(
+            "INF-B02",
+            scope,
+            "pass" if params else "fail",
+            [ev(params[0], "parameter file")] if params else [ev(first, "no parameter files")],
+        )
+    )
+    built = repo.has(r"az\s+bicep\s+(build|lint)|bicep\s+(build|lint)|bicep-build|azure/bicep")
+    out.append(
+        finding(
+            "INF-B03",
+            scope,
+            "pass" if built else "fail",
+            [ev("CI/hooks", "bicep build or lint")] if built else [ev(first, "no build or lint step")],
+        )
+    )
+    whatif = repo.has(r"what-?if|az\s+deployment\s+\w+\s+validate|azure/arm-deploy")
+    out.append(
+        finding(
+            "INF-B04",
+            scope,
+            "pass" if whatif else "fail",
+            [ev("CI/hooks", "what-if or validate")] if whatif else [ev(first, "no what-if or validate step")],
+        )
+    )
+    bad = []
+    for f in templates:
+        lines = repo.text(f).splitlines()
+        for i, ln in enumerate(lines, 1):
+            m = re.match(r"\s*param\s+(\w+)\s+string", ln)
+            if m and SECRET_NAME.search(m.group(1)) and not any("@secure()" in x for x in lines[max(0, i - 4) : i - 1]):
+                bad.append(ev(f, ln.strip(), i))
+    out.append(finding("INF-B05", scope, "fail" if bad else "pass", bad or [ev(first, "secret-like params are @secure()")]))
+    preview = []
+    for f in templates:
+        for i, ln in enumerate(repo.text(f).splitlines(), 1):
+            if re.search(r"@\d{4}-\d{2}-\d{2}-preview", ln):
+                preview.append(ev(f, ln.strip(), i))
+    out.append(finding("INF-B06", scope, "fail" if preview else "pass", preview or [ev(first, "no preview API versions")]))
+    return out
+
+
+# ---- Kubernetes ----------------------------------------------------------------------------------
+
+
+def _documents(text: str) -> list[dict]:
+    if not yaml:
+        return []
+    try:
+        return [d for d in yaml.safe_load_all(text) if isinstance(d, dict) and d.get("kind") and d.get("apiVersion")]
+    except Exception:  # noqa: BLE001
+        return []
+
+
+def _pod_spec(doc: dict) -> dict | None:
+    kind = doc.get("kind")
+    spec = doc.get("spec") or {}
+    if kind == "Pod":
+        return spec
+    if kind in ("Deployment", "StatefulSet", "DaemonSet", "ReplicaSet", "Job"):
+        return (spec.get("template") or {}).get("spec")
+    if kind == "CronJob":
+        return (((spec.get("jobTemplate") or {}).get("spec") or {}).get("template") or {}).get("spec")
+    return None
+
+
+def kubernetes_checks(repo: Repo, scope: str, files: list[str]) -> list[dict]:
+    manifests = [
+        f
+        for f in files
+        if f.endswith((".yaml", ".yml")) and not f.endswith(("Chart.yaml", "Chart.yml", "kustomization.yaml", "kustomization.yml"))
+    ]
+    containers, secrets = [], []
+    for f in manifests:
+        text = repo.text(f)
+        for doc in _documents(text):
+            if doc["kind"] == "Secret" and (doc.get("data") or doc.get("stringData")):
+                secrets.append(
+                    ev(
+                        f,
+                        "Secret " + str((doc.get("metadata") or {}).get("name", "")) + " has literal data",
+                        line_of(text, r"kind:\s*Secret")[0],
+                    )
+                )
+            pod = _pod_spec(doc)
+            if pod:
+                for c in (pod.get("containers") or []) + (pod.get("initContainers") or []):
+                    if isinstance(c, dict):
+                        containers.append((f, text, pod, c))
+    out = []
+    if containers:
+        unpinned = [
+            ev(f, f"{c.get('name')}: {c.get('image')}", line_of(t, re.escape(str(c.get("image"))))[0])
+            for f, t, _, c in containers
+            if isinstance(c.get("image"), str)
+            and "$" not in c["image"]
+            and "{{" not in c["image"]
+            and "@sha256:" not in c["image"]
+            and (":" not in c["image"].rsplit("/", 1)[-1] or c["image"].endswith(":latest"))
+        ]
+        out.append(finding("INF-K01", scope, "fail" if unpinned else "pass", unpinned or [ev(containers[0][0], "all images pinned")]))
+        nolimit = [
+            ev(f, f"container {c.get('name')} has no resource limits", line_of(t, rf"name:\s*{re.escape(str(c.get('name')))}")[0])
+            for f, t, _, c in containers
+            if not (c.get("resources") or {}).get("limits")
+        ]
+        out.append(finding("INF-K02", scope, "fail" if nolimit else "pass", nolimit or [ev(containers[0][0], "limits set")]))
+        root = [
+            ev(f, f"container {c.get('name')} may run as root", line_of(t, rf"name:\s*{re.escape(str(c.get('name')))}")[0])
+            for f, t, pod, c in containers
+            if not (
+                (c.get("securityContext") or {}).get("runAsNonRoot")
+                or (pod.get("securityContext") or {}).get("runAsNonRoot")
+                or (c.get("securityContext") or {}).get("runAsUser")
+            )
+        ]
+        out.append(finding("INF-K03", scope, "fail" if root else "pass", root or [ev(containers[0][0], "runAsNonRoot set")]))
+        noprobe = [
+            ev(f, f"container {c.get('name')} has no readiness/liveness probe", line_of(t, rf"name:\s*{re.escape(str(c.get('name')))}")[0])
+            for f, t, _, c in containers
+            if not (c.get("readinessProbe") or c.get("livenessProbe") or c.get("startupProbe"))
+        ]
+        out.append(finding("INF-K04", scope, "fail" if noprobe else "pass", noprobe or [ev(containers[0][0], "probes set")]))
+    validated = repo.has(
+        r"kubeconform|kubeval|kubectl\s+.*--dry-run|helm\s+(lint|template)|kustomize\s+build|conftest|kube-linter|kubescape"
+    )
+    out.append(
+        finding(
+            "INF-K05",
+            scope,
+            "pass" if validated else "fail",
+            [ev("CI/hooks", "manifest validation")] if validated else [ev(files[0], "no validation step")],
+        )
+    )
+    out.append(finding("INF-K06", scope, "fail" if secrets else "pass", secrets or [ev(files[0], "no Secret with literal data")]))
+    charts = [f for f in files if f.endswith(("Chart.yaml", "Chart.yml"))]
+    for chart in charts:
+        d = str(PurePosixPath(chart).parent)
+        has_schema = (f"{d}/values.schema.json" if d != "." else "values.schema.json") in repo.fileset
+        out.append(
+            finding(
+                "INF-K07",
+                d,
+                "pass" if has_schema else "fail",
+                [ev(chart, "values.schema.json present" if has_schema else "no values.schema.json")],
+            )
+        )
+    return out
+
+
 # ---- entry point ---------------------------------------------------------------------------------
 
 
 def run(root: Path, files: list[str], detected: list[dict]) -> dict:
     repo = Repo(root, files)
     findings: list[dict] = []
+    seen: set[tuple[str, str]] = set()
     for d in detected:
         if d["sample"]:
             continue
@@ -417,6 +603,22 @@ def run(root: Path, files: list[str], detected: list[dict]) -> dict:
             findings += [x for p in d["files"] for x in compose_checks(repo, p)]
         elif d["tool"] == "devcontainer":
             findings += [x for p in d["files"] for x in devcontainer_checks(repo, p)]
+        elif d["tool"] == "bicep":
+            findings += bicep_checks(repo, d["scope"], d["files"])
+        elif d["tool"] in ("kubernetes", "helm", "kustomize"):
+            key = ("k8s", d["scope"])
+            if key not in seen:
+                seen.add(key)
+                findings += kubernetes_checks(
+                    repo,
+                    d["scope"],
+                    [
+                        f
+                        for x in detected
+                        if x["scope"] == d["scope"] and x["tool"] in ("kubernetes", "helm", "kustomize")
+                        for f in x["files"]
+                    ],
+                )
         elif d["tool"] in ("terraform", "opentofu"):
             findings += terraform_checks(repo, d["scope"], d["files"])
     summary: dict[str, dict] = {}

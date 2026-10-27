@@ -44,8 +44,8 @@ gut scores: mean error about 5 points. Known gaps and next steps are in `BACKLOG
 ## Infrastructure overlay
 
 `scripts/detect_infra.py` finds infrastructure-as-code, container and dev-environment files. `scripts/infra_checks.py`
-runs 25 checks on Dockerfiles (`INF-D01..D07`), Compose files (`INF-C01..C05`), devcontainers (`INF-V01..V06`) and
-Terraform/OpenTofu directories (`INF-T01..T07`). The report shows the result under "Infrastructure" and in the `infra`
+runs 38 checks on Dockerfiles (`INF-D01..D07`), Compose files (`INF-C01..C05`), devcontainers (`INF-V01..V06`),
+Terraform/OpenTofu directories (`INF-T01..T07`), Bicep (`INF-B01..B06`) and Kubernetes/Helm (`INF-K01..K07`). The report shows the result under "Infrastructure" and in the `infra`
 block of `report.json` (`checks`, `summary`, `rollup`, `levels`). The overlay has its own level L0 to L3 per area and overall (weakest area), computed with the pillar rule; see `SKILL.md`.
 
 It never changes the score (decision D1; a test pins it). Other IaC tools are detected but not checked yet. Plan and

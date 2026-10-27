@@ -283,7 +283,9 @@
                   "dockerfile",
                   "compose",
                   "devcontainer",
-                  "terraform"
+                  "terraform",
+                  "bicep",
+                  "kubernetes"
                 ]
               },
               "level": {

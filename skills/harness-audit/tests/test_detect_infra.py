@@ -52,7 +52,7 @@ class DetectInfraTests(unittest.TestCase):
         r = detect({".terraform/modules/x/main.tf": "", "main.tf": ""})
         self.assertEqual(tools(r), {("terraform", ".")})
 
-    def test_kubernetes_manifest_needs_marker_and_directory(self):
+    def test_kubernetes_manifest_needs_the_marker(self):
         r = detect(
             {
                 "k8s/app.yaml": "apiVersion: apps/v1\nkind: Deployment\n",
@@ -60,6 +60,21 @@ class DetectInfraTests(unittest.TestCase):
                 "config/app.yaml": "apiVersion: v1\nkind: Pod\n",
             }
         )
+        self.assertEqual(tools(r), {("kubernetes", "k8s"), ("kubernetes", "config")})
+
+    def test_large_repos_only_sniff_kubernetes_directories(self):
+        old = detect_infra.SNIFF_ALL_YAML_LIMIT
+        detect_infra.SNIFF_ALL_YAML_LIMIT = 1
+        try:
+            r = detect(
+                {
+                    "k8s/app.yaml": "apiVersion: apps/v1\nkind: Deployment\n",
+                    "config/app.yaml": "apiVersion: v1\nkind: Pod\n",
+                    "other/x.yaml": "a: 1\n",
+                }
+            )
+        finally:
+            detect_infra.SNIFF_ALL_YAML_LIMIT = old
         self.assertEqual(tools(r), {("kubernetes", "k8s")})
 
     def test_cloudformation_and_arm_need_content_marker(self):
@@ -76,6 +91,14 @@ class DetectInfraTests(unittest.TestCase):
         r = detect({"examples/demo/main.tf": "", "Dockerfile": ""})
         self.assertEqual(r["tools"], ["docker"])
         self.assertTrue(next(x for x in r["detected"] if x["tool"] == "terraform")["sample"])
+
+    def test_kubernetes_manifest_anywhere_in_a_small_repo(self):
+        r = detect({"guestbook/frontend.yaml": "apiVersion: apps/v1\nkind: Deployment\n", "guestbook/notes.yaml": "a: 1\n"})
+        self.assertEqual(tools(r), {("kubernetes", "guestbook")})
+
+    def test_archived_directories_are_samples(self):
+        r = detect({"_archived/old/main.tf": "", "main.tf": ""})
+        self.assertEqual(tools(r), {("terraform", ".")})
 
     def test_ansible_site_needs_hosts(self):
         r = detect(

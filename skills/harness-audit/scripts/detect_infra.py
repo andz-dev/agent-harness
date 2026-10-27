@@ -23,6 +23,8 @@ import detect_stack  # noqa: E402
 
 NOT_INFRA_DIRS = {".terraform", ".terragrunt-cache", ".pulumi", "cdk.out", ".serverless"}
 MAX_FILES_PER_ENTRY = 20
+ARCHIVE_DIRS = {"_archived", "archived", "archive", "legacy", "deprecated", "old"}
+SNIFF_ALL_YAML_LIMIT = 600  # sniff every YAML file for Kubernetes markers only in repos with at most this many
 SNIFF_BYTES = 4096
 
 # (kind, tool, basename globs). Matched case-insensitively on the file's basename.
@@ -73,7 +75,7 @@ def _head(root: Path, rel: str) -> str:
         return ""
 
 
-def classify(root: Path, rel: str) -> tuple[str, str] | None:
+def classify(root: Path, rel: str, sniff_all: bool = False) -> tuple[str, str] | None:
     """(kind, tool) for one file, or None."""
     parts = rel.split("/")
     if any(p in NOT_INFRA_DIRS for p in parts):
@@ -89,7 +91,7 @@ def classify(root: Path, rel: str) -> tuple[str, str] | None:
     for kind, tool, globs, markers in SNIFF:
         if _match(name, globs) and any(m.lower() in _head(root, rel).lower() for m in markers):
             return kind, tool
-    if name.endswith((".yaml", ".yml")) and any(p.lower() in K8S_DIRS for p in parts[:-1]):
+    if name.endswith((".yaml", ".yml")) and parts[0] != ".github" and (sniff_all or any(p.lower() in K8S_DIRS for p in parts[:-1])):
         head = _head(root, rel)
         if "apiVersion:" in head and "kind:" in head:
             return "iac", "kubernetes"
@@ -100,8 +102,10 @@ def classify(root: Path, rel: str) -> tuple[str, str] | None:
 
 def detect(root: Path) -> dict:
     entries: dict[tuple[str, str, str], list[str]] = {}
-    for rel in detect_stack.list_files(root):
-        hit = classify(root, rel)
+    files = detect_stack.list_files(root)
+    sniff_all = sum(f.endswith((".yaml", ".yml")) for f in files) <= SNIFF_ALL_YAML_LIMIT
+    for rel in files:
+        hit = classify(root, rel, sniff_all)
         if not hit:
             continue
         scope = str(PurePosixPath(rel).parent)
@@ -110,7 +114,7 @@ def detect(root: Path) -> dict:
     for (kind, tool, scope), files in sorted(entries.items()):
         sample = detect_stack.is_sample_location(scope)
         # hidden directories are normal for .devcontainer/.github; only sample directories mark examples
-        is_sample = sample == "sample directory"
+        is_sample = sample == "sample directory" or any(seg.lower() in ARCHIVE_DIRS for seg in scope.split("/"))
         detected.append(
             {
                 "kind": kind,
