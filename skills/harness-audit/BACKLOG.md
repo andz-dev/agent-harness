@@ -390,7 +390,7 @@ Full map: `docs/0005/Infrastructure-Coverage-Map.md`. Today the catalog has no i
 
 ### 5a. Infrastructure judgement (2026-10-27)
 - B-180 (first version done): `prompts/infra_quality.md` and tasks INF-J01..J04 (area `agent-guidance`), created when infrastructure and an agent file exist; infrastructure without an agent file fails by script. Answers are quote-verified like the other judgement tasks and are kept out of the score. `unknown` counts as neither pass nor fail. Each task carries at most 350 lines of the shared agent files.
-- B-211: Not yet measured: agreement between two blind runs for INF-J01..J04 (see B-164 for the method). Run `scripts/agreement.py` on a set of repos with infrastructure and agent files; few of the 18 calibration repos qualify (n8n, home-assistant-core).
+- B-211: Measured on n8n, home-assistant-core and opencode (the only calibration repos with both infrastructure and agent files): two blind runs agree on 10 of 10 answers (kappa 1.0), and every quote verified. Weak evidence: 8 of the 10 answers are `fail`, only n8n has passes (J03, J04), and n=10. Re-measure when more repos with infrastructure guidance exist.
 - B-212: Done. INF-J02 is asked only when deployable IaC (Terraform, Bicep, Kubernetes, etc.) is detected.
 - B-213: Done. The agent-file excerpts are stored once in `shared_excerpts.infra`; the four tasks point to them with `excerpts_ref`.
 - B-180 real-repo check (one judge run, not blind-compared): n8n INF-J01 fail, J02 fail, J03 pass (environment variables named as the secret source), J04 fail; home-assistant-core fails all four (agent files cover Python development only). Both reports validate, `agent-guidance` shows as an area (L1 in each), and the 0-100 scores are unchanged.
