@@ -283,6 +283,15 @@ Experiment: express copy, audit 33, `--apply` of 4 files (AGENTS.md, CLAUDE.md, 
 - B-155: No Azure DevOps pipeline proposal yet (original request mentioned Azure DevOps); add `azure-pipelines.yml` generator.
 - B-156: Go support (v2) still open: detection, checks and templates.
 
+## 4s. Phase 1 trust fixes (done)
+
+- B-150 resolved: any passing script check whose evidence file still contains `TODO(human)` becomes a fail with a note (`run_checks.downgrade_placeholders`). Express copy with unfilled bootstrap stubs: 45 -> 38 (the Taskfile still counts, correctly).
+- B-127 resolved in part: DOC-06 is resolved by script (pass) when every backticked path in README, docs and agent files exists; history files (changelog, release notes, news) are no longer searched for dead paths (fastapi regression). 8 of 12 calibration repos and 2 of 6 holdout repos now have a script verdict; the rest still go to the model and are mostly `unknown`.
+- B-129 resolved in part: judgement excerpts raised to 400 lines per file and 1000 per task; runner target list 80 -> 200. n8n ORI-09 and nextjs ENT-05 need fresh answers to benefit.
+- Scores unchanged on all 18 repos (DOC-06 is a level-3 check in a 5-point pillar). Tests: 141 pass.
+- B-157: The script DOC-06 pass only knows backticked relative paths with a file extension. Markdown links and commands are not checked; extend before treating it as full coverage.
+- B-158: Re-answer the 12 judgement tasks that grew with the bigger excerpts (n8n ORI-09, nextjs ORI-09/ENT-05, django ORI-09) in the next blind second-opinion round.
+
 ## 5. Risks carried forward
 
 - Stack-neutral detection is the hard part; the catalog will grow after P1.
@@ -298,3 +307,8 @@ Experiment: express copy, audit 33, `--apply` of 4 files (AGENTS.md, CLAUDE.md, 
 
 Changes (2026-10-26): open-webui and immich were hand-checked during P1/P2 development, so both moved from Holdout/unlisted to Calibration (B-76 resolved). vllm (Python, mid, untouched) replaces open-webui in Holdout.
 Holdout was run once on 2026-10-26 after the weight freeze (section 4o). Do not tune weights on it.
+
+## 4t. Phase 2 start (B-159..B-161)
+- B-159 (done): `scripts/agreement.py` compares two independent answer sets (agreement rate, Cohen's kappa, disagreement list). Tests in `tests/test_agreement.py`.
+- B-160: First agreement run on the 12 calibration repos: 33/49 agree (67%), kappa 0.36. Most disagreements are `unknown` vs a verdict (11 of 16), not pass vs fail. DOC-06 accounts for 6 of them and is now script-resolved, so the figure is stale for that task; re-run after B-158 re-answers.
+- B-161: Real pass-vs-fail splits: home-assistant-core ORI-08, vite ENT-05. Review these two prompts for ambiguity.

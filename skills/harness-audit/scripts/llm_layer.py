@@ -29,8 +29,8 @@ import yaml  # noqa: E402
 from run_checks import Ctx, Scope, found, searched  # noqa: E402
 
 HERE = Path(__file__).resolve().parent.parent
-MAX_FILE_LINES = 250
-MAX_TASK_LINES = 700
+MAX_FILE_LINES = 400
+MAX_TASK_LINES = 1000
 DOC_GLOBS = ["README*", "CONTRIBUTING*", ".github/CONTRIBUTING*", "docs/*.md", "docs/**/*.md"]
 PATH_IN_DOC = re.compile(r"`((?:\./)?(?:[\w.-]+/)+[\w.-]+\.[A-Za-z0-9]{1,5})`")
 STATUS = {"pass", "fail", "unknown"}
@@ -71,10 +71,15 @@ def _budget(excerpts: list[dict]) -> list[dict]:
     return out
 
 
+HISTORY_DOC = re.compile(r"(^|/)(changelog|changes|history|release[-_ ]?notes?|news|releases)[^/]*\.(md|rst|txt)$", re.I)
+
+
 def missing_paths(ctx: Ctx, docs: list[str]) -> list[dict]:
     tracked = set(ctx.files)
     out = []
     for d in docs:
+        if HISTORY_DOC.search(d):
+            continue  # history files name things that no longer exist, on purpose
         for i, ln in enumerate((ctx.text(d) or "").splitlines(), 1):
             for m in PATH_IN_DOC.finditer(ln):
                 rel = m.group(1)[2:] if m.group(1).startswith("./") else m.group(1)
@@ -124,7 +129,7 @@ def plan(root: Path, catalog: dict) -> dict:
         if cid in ("ORI-05", "ORI-06", "ENT-05"):
             files = agent
             if cid == "ENT-05":
-                facts["runner_targets"] = targets[:80]
+                facts["runner_targets"] = targets[:200]
         elif cid == "VER-11":
             files = agent + contributing
         elif cid == "ORI-08":
@@ -148,7 +153,7 @@ def plan(root: Path, catalog: dict) -> dict:
             files = ["AGENTS.md"] + others
         elif cid == "ORI-09":
             files = agent + _files(ctx, ["README*"])[:1]
-            facts["runner_targets"] = targets[:80]
+            facts["runner_targets"] = targets[:200]
         elif cid == "TRG-06":
             hook_files = sorted({h["path"] for h in hooks})
             if not hook_files:
@@ -164,16 +169,22 @@ def plan(root: Path, catalog: dict) -> dict:
                 resolve(c, "not_applicable", [], "Needs both agent hooks and Git hooks; only one kind exists.")
                 continue
             files = hook_files
-            facts["runner_targets"] = targets[:80]
+            facts["runner_targets"] = targets[:200]
             facts["hook_commands"] = [
                 {"path": h["path"], "line": h["line"], "stage": h["stage"], "text": h["text"][:160]} for h in hooks[:40]
             ]
         elif cid == "DOC-06":
             files = docs[:6] + agent
-            facts["runner_targets"] = targets[:80]
+            facts["runner_targets"] = targets[:200]
             candidates = missing_paths(ctx, docs + agent)
             if not docs and not agent:
                 resolve(c, "fail", [searched(", ".join(DOC_GLOBS[:3]), "no documentation files found")], "Nothing to check.")
+                continue
+            if not candidates:  # every path named in backticks resolves: no judgement needed
+                first = (docs + agent)[0]
+                resolve(
+                    c, "pass", [found(first, f"all path references in {len(docs + agent)} doc files resolve", 1)], "Resolved by script."
+                )
                 continue
         elif cid == "STA-09":
             files = _files(

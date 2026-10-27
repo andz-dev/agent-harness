@@ -18,6 +18,7 @@ AGENTS = (
     "# Agents\n\n## Layout\n\n- `src/x/` holds the library\n- `tests/` mirrors it\n\n"
     "## Commands\n\nRun `task check` before every commit.\nSee `docs/guide.md` and `docs/gone.md`.\n"
 )
+CLEAN_AGENTS = AGENTS.replace(" and `docs/gone.md`", "")
 TREE = {
     "pyproject.toml": PYPROJECT,
     "src/x/a.py": "",
@@ -105,6 +106,20 @@ class PlanTests(unittest.TestCase):
         _, plan = prepared(TREE)
         got = [c["text"] for c in task(plan, "DOC-06")["candidates"]]
         self.assertEqual(got, ["docs/gone.md"])
+
+    def test_doc06_is_resolved_by_script_when_every_path_exists(self):
+        tree = {**TREE, "AGENTS.md": CLEAN_AGENTS, "README.md": "# x\n\nSee `docs/guide.md`.\n", "docs/guide.md": "# g\n"}
+        _, plan = prepared(tree)
+        self.assertNotIn("DOC-06", [t["task_id"] for t in plan["tasks"]])
+        done = next(f for f in plan["resolved"] if f["check_id"] == "DOC-06")
+        self.assertEqual(done["status"], "pass")
+        self.assertEqual(done["evidence"][0]["kind"], "found")
+
+    def test_history_files_are_not_checked_for_dead_paths(self):
+        """Regression (fastapi): release notes name files that were removed on purpose."""
+        tree = {**TREE, "AGENTS.md": CLEAN_AGENTS, "README.md": "# x\n", "docs/release-notes.md": "Removed `scripts/people.py` in 0.9.\n"}
+        _, plan = prepared(tree)
+        self.assertEqual([t for t in plan["tasks"] if t["task_id"] == "DOC-06"], [])
 
     def test_excerpt_budget(self):
         big = "\n".join(f"line {i}" for i in range(2000))

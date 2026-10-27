@@ -845,6 +845,28 @@ DEFERRED = {"git_signal": "needs git history (later phase)", "llm": "needs the L
 # --------------------------------------------------------------------------
 # Orchestration
 # --------------------------------------------------------------------------
+PLACEHOLDER = "TODO(human)"
+
+
+def downgrade_placeholders(ctx: Ctx, findings: list[dict]) -> None:
+    """A check does not pass on a file that still holds `TODO(human)` placeholders (bootstrap stubs, B-150)."""
+    cache: dict[str, int] = {}
+    for f in findings:
+        if f["status"] != "pass":
+            continue
+        for ev in f["evidence"]:
+            if ev.get("kind") != "found":
+                continue
+            path = ev["path"]
+            if path not in cache:
+                cache[path] = (ctx.text(path) or "").count(PLACEHOLDER)
+            if cache[path]:
+                f["status"] = "fail"
+                f["evidence"].append(searched(path, f"{cache[path]} {PLACEHOLDER} placeholder(s); fill them in"))
+                f["note"] = f"{path} still contains {PLACEHOLDER} placeholders"
+                break
+
+
 def make_finding(check: dict, status: str, evidence: list, component: str | None = None, note: str | None = None) -> dict:
     f = {
         "check_id": check["id"],
@@ -918,6 +940,7 @@ def run(root: Path, catalog: dict, only: set[str] | None = None) -> dict:
                 status, ev, note = "error", [], f"{type(exc).__name__}: {exc}"
             findings.append(make_finding(check, status, ev, comp_id, note))
 
+    downgrade_placeholders(ctx, findings)
     counts: dict[str, int] = {}
     for f in findings:
         counts[f["status"]] = counts.get(f["status"], 0) + 1

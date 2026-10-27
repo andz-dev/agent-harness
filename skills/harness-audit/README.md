@@ -32,10 +32,10 @@ python3 -I scripts/bootstrap.py path/to/repo --report build/report/report.json -
 Proposes the missing harness files into `build/bootstrap/proposed/`. Add `--apply` to write the new ones into the repository
 (existing files are never overwritten).
 
-## Status (v1)
+## Status (v1.2)
 
 Weights are frozen (see `calibration/WEIGHTS-FROZEN.md`). Validated on 18 public repositories against one rater's
-gut scores: mean error about 5 points. Known gaps and next steps are in `BACKLOG.md` (B-1 to B-145).
+gut scores: mean error about 5 points. Known gaps and next steps are in `BACKLOG.md` (B-1 to B-158).
 
 ## Development
 

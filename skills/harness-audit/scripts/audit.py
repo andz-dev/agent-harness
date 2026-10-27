@@ -28,7 +28,7 @@ import yaml  # noqa: E402
 from jsonschema import Draft202012Validator  # noqa: E402
 
 HERE = Path(__file__).resolve().parent.parent
-VERSION = "0.1.0"
+VERSION = "1.2.0"
 PILLAR_LABEL = {
     "orientation": "Orientation",
     "verification": "Verification",

@@ -65,6 +65,23 @@ class DjangoRegressionTests(unittest.TestCase):
         self.assertEqual([f["status"] for f in findings if f["check_id"] == "VER-03"], ["pass"])
 
 
+class PlaceholderTests(unittest.TestCase):
+    """Bootstrap stubs (B-150): a file with TODO(human) placeholders does not earn a pass."""
+
+    def test_pass_on_file_with_placeholder_becomes_fail(self):
+        chk = check("file_exists", {"globs": ["AGENTS.md"]}, cid="TST-02", pillar="orientation")
+        done = run_one({"pyproject.toml": PYPROJECT, "AGENTS.md": "# a\nTODO(human): fill\n"}, chk)
+        f = [x for x in done if x["check_id"] == "TST-02"][0]
+        self.assertEqual(f["status"], "fail")
+        self.assertIn("TODO(human)", f["note"])
+        self.assertEqual(f["evidence"][-1]["kind"], "searched")
+
+    def test_finished_file_still_passes(self):
+        chk = check("file_exists", {"globs": ["AGENTS.md"]}, cid="TST-02", pillar="orientation")
+        done = run_one({"pyproject.toml": PYPROJECT, "AGENTS.md": "# a\nreal rules\n"}, chk)
+        self.assertEqual([x["status"] for x in done if x["check_id"] == "TST-02"], ["pass"])
+
+
 class GlobTests(unittest.TestCase):
     def test_brace_expansion(self):
         self.assertEqual(sorted(run_checks.expand_braces("a.{js,ts}")), ["a.js", "a.ts"])

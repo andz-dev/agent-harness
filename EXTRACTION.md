@@ -80,3 +80,11 @@ Structural inspection found 62 GLB files with embedded resources. The source
 roadmap body was preserved, and 0001 contains an empty .gitkeep. Integrity and
 publication-pattern checks pass; these do not constitute a security guarantee.
 Remote CI results are verified separately after the first push.
+
+## Reviewed Updates
+
+Records with kind `reviewed-update` in [extraction-manifest.json](extraction-manifest.json)
+differ from the imported snapshot on purpose. The first baseline update brings in
+harness-audit v1.2 (placeholder downgrade, DOC-06 script check, larger excerpt
+budgets, agreement tool); see [v1.2 records](docs/0004/README.md). Their checksums
+are the new baseline; `task integrity` verifies only `unchanged-source` records.
