@@ -378,3 +378,12 @@ Full map: `docs/0005/Infrastructure-Coverage-Map.md`. Today the catalog has no i
 - B-204: Helm templates are Go-templated YAML and are not parsed; Helm checks cover Chart.yaml and values.schema.json only. Kustomize overlays are not rendered, so patches are not seen.
 - B-205: Argo CD / Flux manifests, Skaffold, Tilt and Docker Swarm stacks are not detected.
 - B-206: Bicep modules are checked per directory; shared `bicepconfig.json` in a parent directory (not the repo root) is missed.
+
+### 4z. Pulumi, CloudFormation, Ansible and cross-cutting checks (2026-10-27)
+- B-174 (first version done): Ansible INF-A01..A04, CloudFormation INF-F01..F03, Pulumi INF-P01..P03.
+- B-178 (first version done): cross-cutting INF-X01..X05 (Dependabot/Renovate cover the ecosystems in use, CODEOWNERS covers infra paths, path-filtered infra workflow, secret scanning, no tracked keys or .env). 56 checks in total. Gates added: INF-X05, INF-F03, INF-P03.
+- Smoke test: immich (Renovate, CODEOWNERS and a path filter present; no secret scanning), n8n (no dependency bot, no CODEOWNERS, no secret scanning), home-assistant-core (no path-filtered infra workflow, no secret scanning). A tracked `.env` that only holds `op://` references (immich) is not counted as a leak.
+- B-207: INF-X01 treats any Renovate config as full coverage and does not read its package rules.
+- B-208: INF-X03 is a text heuristic (a `paths:` filter plus an infra word in the same workflow); it does not map the filter to the infra directories.
+- B-209: Pulumi and CloudFormation checks have only synthetic tests; none of the 18 calibration repos use them. Run on real examples before relying on them.
+- B-210: Cross-cutting counts as its own area, so a repo without a secret scanner has overall overlay level 0 even when every Docker/Terraform check passes. Reconsider weighting cross-cutting separately from the tool areas (see B-201).

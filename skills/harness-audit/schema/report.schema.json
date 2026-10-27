@@ -285,7 +285,11 @@
                   "devcontainer",
                   "terraform",
                   "bicep",
-                  "kubernetes"
+                  "kubernetes",
+                  "ansible",
+                  "cloudformation",
+                  "pulumi",
+                  "cross-cutting"
                 ]
               },
               "level": {

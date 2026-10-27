@@ -39,7 +39,22 @@ HOOK_FILES = (
 SECRET_NAME = re.compile(r"(PASSWORD|PASSWD|SECRET|TOKEN|API_?KEY|PRIVATE_?KEY|CREDENTIAL)", re.I)
 RUNNER_WORDS = re.compile(r"\b(task|make|just|npm|pnpm|yarn|uv|pip|poetry|pdm|nox|tox|bun)\b")
 PASS_RATIO = 0.6  # same rule as the pillars: a level needs 60% of its checks
-GATES = {"INF-B01", "INF-K06", "INF-D01", "INF-D02", "INF-C01", "INF-C03", "INF-V01", "INF-V03", "INF-T01", "INF-T02", "INF-T06"}
+GATES = {
+    "INF-X05",
+    "INF-F03",
+    "INF-P03",
+    "INF-B01",
+    "INF-K06",
+    "INF-D01",
+    "INF-D02",
+    "INF-C01",
+    "INF-C03",
+    "INF-V01",
+    "INF-V03",
+    "INF-T01",
+    "INF-T02",
+    "INF-T06",
+}
 AREAS = {"D": "dockerfile", "C": "compose", "V": "devcontainer", "T": "terraform"}
 
 CHECKS = {
@@ -80,6 +95,21 @@ CHECKS = {
     "INF-K05": ("kubernetes", 2, "Manifests are validated in CI (kubeconform, helm lint, kustomize build, conftest, dry-run)"),
     "INF-K06": ("kubernetes", 1, "No Secret manifest with literal data"),
     "INF-K07": ("kubernetes", 3, "Helm chart has values.schema.json"),
+    "INF-A01": ("ansible", 1, "Collections and roles are pinned (requirements.yml with versions)"),
+    "INF-A02": ("ansible", 2, "ansible-lint is configured or runs in CI or a hook"),
+    "INF-A03": ("ansible", 2, "No plaintext secrets in variables (use ansible-vault)"),
+    "INF-A04": ("ansible", 3, "Syntax check, check mode or Molecule runs in CI"),
+    "INF-F01": ("cloudformation", 2, "cfn-lint or cfn-guard is configured or runs in CI"),
+    "INF-F02": ("cloudformation", 2, "A change set or template validation runs in CI"),
+    "INF-F03": ("cloudformation", 1, "Secret-like parameters use NoEcho"),
+    "INF-P01": ("pulumi", 1, "A dependency lock file exists for the Pulumi program"),
+    "INF-P02": ("pulumi", 2, "pulumi preview runs in CI"),
+    "INF-P03": ("pulumi", 1, "Secret config values are encrypted (secure:), not plaintext"),
+    "INF-X01": ("cross-cutting", 2, "Dependabot or Renovate covers the infrastructure ecosystems in use"),
+    "INF-X02": ("cross-cutting", 2, "CODEOWNERS covers the infrastructure paths"),
+    "INF-X03": ("cross-cutting", 2, "CI has a path-filtered or dedicated workflow for infrastructure changes"),
+    "INF-X04": ("cross-cutting", 2, "Secret scanning is configured (gitleaks, trufflehog, detect-secrets)"),
+    "INF-X05": ("cross-cutting", 1, "No private keys, .env files or credential files are tracked"),
     "INF-T07": ("terraform", 3, "A remote backend or cloud block is declared"),
 }
 
@@ -587,6 +617,246 @@ def kubernetes_checks(repo: Repo, scope: str, files: list[str]) -> list[dict]:
     return out
 
 
+# ---- Ansible, CloudFormation, Pulumi ---------------------------------------------------------------
+
+
+def ansible_checks(repo: Repo, scope: str, files: list[str]) -> list[dict]:
+    first = files[0]
+    yml = [f for f in files if f.endswith((".yml", ".yaml"))]
+    req = [f for f in repo.files if re.search(r"(^|/)(requirements|collections/requirements)\.ya?ml$", f)]
+    versioned = bool(req) and any(re.search(r"version:|==|>=", repo.text(f)) for f in req)
+    out = [
+        finding(
+            "INF-A01",
+            scope,
+            "pass" if versioned else "fail",
+            [ev(req[0], "versions declared")] if versioned else [ev(first, "no requirements.yml with versions")],
+        )
+    ]
+    cfg = [f for f in repo.files if re.search(r"(^|/)\.ansible-lint(\.ya?ml)?$", f)]
+    ran = repo.has(r"ansible-lint")
+    out.append(
+        finding(
+            "INF-A02",
+            scope,
+            "pass" if cfg or ran else "fail",
+            [ev(cfg[0], "ansible-lint config")] if cfg else [ev("CI/hooks", "ansible-lint")] if ran else [ev(first, "no ansible-lint")],
+        )
+    )
+    leaks = []
+    for f in yml:
+        for i, ln in enumerate(repo.text(f).splitlines(), 1):
+            m = re.match(r"\s*([A-Za-z0-9_]*(password|passwd|secret|token|api_?key)[A-Za-z0-9_]*)\s*:\s*(\S.*)$", ln, re.I)
+            if m and not re.match(r"(!vault|\||>|\{\{|\"\{\{|'\{\{|\$)", m.group(3).strip()):
+                leaks.append(ev(f, m.group(1) + ": …", i))
+    out.append(finding("INF-A03", scope, "fail" if leaks else "pass", leaks or [ev(first, "no plaintext secret variables")]))
+    tested = repo.has(r"molecule|--syntax-check|ansible-playbook\s+.*--check")
+    out.append(
+        finding(
+            "INF-A04",
+            scope,
+            "pass" if tested else "fail",
+            [ev("CI/hooks", "syntax check, check mode or molecule")] if tested else [ev(first, "no syntax check or molecule")],
+        )
+    )
+    return out
+
+
+def cloudformation_checks(repo: Repo, scope: str, files: list[str]) -> list[dict]:
+    first = files[0]
+    cfg = [f for f in repo.files if re.search(r"(^|/)\.cfnlintrc(\.ya?ml)?$", f)]
+    ran = repo.has(r"cfn-lint|cfn_lint|cfn-guard|cfn_nag")
+    out = [
+        finding(
+            "INF-F01",
+            scope,
+            "pass" if cfg or ran else "fail",
+            [ev(cfg[0], "cfn-lint config")] if cfg else [ev("CI/hooks", "cfn-lint")] if ran else [ev(first, "no cfn-lint or cfn-guard")],
+        )
+    ]
+    chg = repo.has(r"validate-template|create-change-set|--no-execute-changeset|cloudformation-deploy|aws-actions/aws-cloudformation")
+    out.append(
+        finding(
+            "INF-F02",
+            scope,
+            "pass" if chg else "fail",
+            [ev("CI/hooks", "change set or validate-template")] if chg else [ev(first, "no change set or validation step")],
+        )
+    )
+    bad = []
+    for f in files:
+        lines = repo.text(f).splitlines()
+        for i, ln in enumerate(lines, 1):
+            m = re.match(r"\s{2,}([A-Za-z0-9]*(Password|Secret|Token|ApiKey|PrivateKey)[A-Za-z0-9]*):\s*$", ln)
+            if m and "NoEcho" not in "\n".join(lines[i : i + 6]) and i > 1 and "Parameters" in "\n".join(lines[max(0, i - 40) : i]):
+                bad.append(ev(f, m.group(1) + " without NoEcho", i))
+    out.append(finding("INF-F03", scope, "fail" if bad else "pass", bad or [ev(first, "secret-like parameters use NoEcho")]))
+    return out
+
+
+def pulumi_checks(repo: Repo, scope: str, files: list[str]) -> list[dict]:
+    first = files[0]
+    base = "" if scope == "." else scope + "/"
+    locks = [
+        f
+        for f in repo.files
+        if f.startswith(base)
+        and re.search(
+            r"(package-lock\.json|yarn\.lock|pnpm-lock\.yaml|requirements\.txt|poetry\.lock|uv\.lock|Pipfile\.lock|go\.sum|packages\.lock\.json)$",
+            f,
+        )
+    ]
+    out = [
+        finding(
+            "INF-P01",
+            scope,
+            "pass" if locks else "fail",
+            [ev(locks[0], "lock file")] if locks else [ev(first, "no lock file next to the program")],
+        )
+    ]
+    prev = repo.has(r"pulumi\s+preview|pulumi/actions|pulumi-preview")
+    out.append(
+        finding(
+            "INF-P02",
+            scope,
+            "pass" if prev else "fail",
+            [ev("CI/hooks", "pulumi preview")] if prev else [ev(first, "no pulumi preview in CI")],
+        )
+    )
+    plain = []
+    for f in [x for x in repo.files if x.startswith(base) and re.search(r"(^|/)Pulumi\.[^/]+\.ya?ml$", x)]:
+        for i, ln in enumerate(repo.text(f).splitlines(), 1):
+            m = re.match(r"\s*([\w:.-]*(password|secret|token|apikey|api_key)[\w:.-]*)\s*:\s*(\S.*)$", ln, re.I)
+            if (
+                m
+                and not m.group(3).strip().startswith(("secure:", "{", "|", ">"))
+                and "secure" not in repo.text(f).splitlines()[i : i + 2].__str__()
+            ):
+                plain.append(ev(f, m.group(1) + ": …", i))
+    out.append(finding("INF-P03", scope, "fail" if plain else "pass", plain or [ev(first, "no plaintext secret config")]))
+    return out
+
+
+# ---- Cross-cutting -------------------------------------------------------------------------------
+
+ECOSYSTEM_FOR = {
+    "terraform": "terraform",
+    "opentofu": "terraform",
+    "docker": "docker",
+    "compose": "docker-compose",
+    "helm": "helm",
+    "devcontainer": "devcontainers",
+}
+KEY_FILES = re.compile(r"(^|/)(\.env|id_rsa|id_ed25519|credentials\.json|service-account[\w.-]*\.json|[\w.-]+\.(pem|pfx|p12|key|jks))$")
+
+
+def _only_references(repo: Repo, rel: str) -> bool:
+    """A tracked .env that only holds secret-manager references (op://, ${VAR}) is not a leaked secret."""
+    if not rel.endswith(".env"):
+        return False
+    values = []
+    for ln in repo.text(rel).splitlines():
+        ln = ln.strip()
+        if ln and not ln.startswith("#") and "=" in ln:
+            values.append(ln.split("=", 1)[1].strip().strip("\"'"))
+    return bool(values) and all(not v or v.startswith(("op://", "${", "$(", "vault:", "ref+")) for v in values)
+
+
+def cross_cutting_checks(repo: Repo, detected: list[dict]) -> list[dict]:
+    real = [d for d in detected if not d["sample"]]
+    scopes = sorted({d["scope"] for d in real})
+    label = "repository"
+    needed = sorted({ECOSYSTEM_FOR[d["tool"]] for d in real if d["tool"] in ECOSYSTEM_FOR})
+    out = []
+    dep = [f for f in repo.files if f in (".github/dependabot.yml", ".github/dependabot.yaml")]
+    ren = [f for f in repo.files if re.search(r"(^|/)(renovate\.json5?|\.renovaterc(\.json)?|\.github/renovate\.json5?)$", f)]
+    if not needed:
+        out.append(finding("INF-X01", label, "not_applicable", [], "no dependabot-supported infrastructure ecosystem"))
+    elif ren:
+        out.append(finding("INF-X01", label, "pass", [ev(ren[0], "Renovate config present")]))
+    elif dep:
+        text = repo.text(dep[0])
+        missing = [e for e in needed if not re.search(rf"package-ecosystem:\s*[\"']?{re.escape(e)}[\"']?\s*$", text, re.M)]
+        out.append(
+            finding(
+                "INF-X01",
+                label,
+                "fail" if missing else "pass",
+                [ev(dep[0], "missing ecosystem: " + e) for e in missing] or [ev(dep[0], "all ecosystems listed")],
+            )
+        )
+    else:
+        out.append(finding("INF-X01", label, "fail", [ev(".github/dependabot.yml", "no Dependabot or Renovate config")]))
+    co = [f for f in repo.files if f in ("CODEOWNERS", ".github/CODEOWNERS", "docs/CODEOWNERS")]
+    if not co:
+        out.append(finding("INF-X02", label, "fail", [ev("CODEOWNERS", "no CODEOWNERS file")]))
+    else:
+        text = repo.text(co[0])
+        rules = [ln.split()[0] for ln in text.splitlines() if ln.strip() and not ln.lstrip().startswith("#") and len(ln.split()) > 1]
+        hit = [
+            r for r in rules if r == "*" or any(sc != "." and sc.strip("/").startswith(r.strip("/*")) and r.strip("/*") for sc in scopes)
+        ]
+        out.append(
+            finding(
+                "INF-X02",
+                label,
+                "pass" if hit else "fail",
+                [ev(co[0], "rule " + hit[0])] if hit else [ev(co[0], "no rule matches infrastructure paths")],
+            )
+        )
+    filtered = False
+    for f in repo.files:
+        if f.startswith(".github/workflows/") and f.endswith((".yml", ".yaml")):
+            t = repo.text(f)
+            if re.search(r"^\s+paths:", t, re.M) and re.search(
+                r"(\*\.tf|\.bicep|Dockerfile|compose|devcontainer|helm|k8s|kubernetes|terraform|infra|deploy|ansible|\.tf)", t, re.I
+            ):
+                filtered = True
+                break
+    out.append(
+        finding(
+            "INF-X03",
+            label,
+            "pass" if filtered else "fail",
+            [ev(f, "paths filter for infrastructure")]
+            if filtered
+            else [ev(".github/workflows/", "no path-filtered infrastructure workflow")],
+        )
+    )
+    cfg = [
+        f
+        for f in repo.files
+        if re.search(r"(^|/)(\.gitleaks\.toml|gitleaks\.toml|\.trufflehog\.ya?ml|\.secrets\.baseline|\.github/secret_scanning\.ya?ml)$", f)
+    ]
+    ran = repo.has(r"gitleaks|trufflehog|detect-secrets|secret-scanning|ggshield")
+    out.append(
+        finding(
+            "INF-X04",
+            label,
+            "pass" if cfg or ran else "fail",
+            [ev(cfg[0], "secret scanner config")]
+            if cfg
+            else [ev("CI/hooks", "secret scanner")]
+            if ran
+            else [ev(".github/", "no secret scanning configured")],
+        )
+    )
+    tracked = [
+        f
+        for f in repo.files
+        if KEY_FILES.search(f) and not re.search(r"(example|sample|template|test|fixture)", f, re.I) and not _only_references(repo, f)
+    ]
+    out.append(
+        finding(
+            "INF-X05",
+            label,
+            "fail" if tracked else "pass",
+            [ev(t, "tracked sensitive file") for t in tracked[:3]] or [ev(".", "none tracked")],
+        )
+    )
+    return out
+
+
 # ---- entry point ---------------------------------------------------------------------------------
 
 
@@ -619,8 +889,18 @@ def run(root: Path, files: list[str], detected: list[dict]) -> dict:
                         for f in x["files"]
                     ],
                 )
+        elif d["tool"] == "ansible":
+            if ("ansible", d["scope"]) not in seen:
+                seen.add(("ansible", d["scope"]))
+                findings += ansible_checks(repo, d["scope"], d["files"])
+        elif d["tool"] == "cloudformation":
+            findings += cloudformation_checks(repo, d["scope"], d["files"])
+        elif d["tool"] == "pulumi":
+            findings += pulumi_checks(repo, d["scope"], d["files"])
         elif d["tool"] in ("terraform", "opentofu"):
             findings += terraform_checks(repo, d["scope"], d["files"])
+    if any(not d["sample"] for d in detected):
+        findings += cross_cutting_checks(repo, detected)
     summary: dict[str, dict] = {}
     for f in findings:
         s = summary.setdefault(f["area"], {"passed": 0, "failed": 0, "not_applicable": 0})

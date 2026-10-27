@@ -66,11 +66,11 @@ project rules. Python and Node only; monorepos get root-level files for the domi
 Besides the score, every report has an `infra` block and an "Infrastructure" section. It lists the infrastructure
 files found (Terraform/OpenTofu, Bicep/ARM, Kubernetes/Helm/Kustomize, Pulumi, CloudFormation/CDK, Ansible,
 Dockerfile, Compose, devcontainers, gitpod, nix, mise) and, for Dockerfile, Compose, devcontainer, Terraform,
-Bicep and Kubernetes/Helm, 38 checks (`INF-D*`, `INF-C*`, `INF-V*`, `INF-T*`, `INF-B*`, `INF-K*`) with pass, fail or not applicable and quoted evidence.
+Bicep, Kubernetes/Helm, Ansible, CloudFormation and Pulumi, plus five cross-cutting checks (dependency bot, CODEOWNERS, path-filtered CI, secret scanning, tracked keys), 56 checks (`INF-D*`, `C*`, `V*`, `T*`, `B*`, `K*`, `A*`, `F*`, `P*`, `X*`) with pass, fail or not applicable and quoted evidence.
 
 - It is an overlay: it never changes the 0-100 score or the pillar levels. A repo with a perfect score can still have
   weak infrastructure, and the report says so under Limitations. Do not add the two together.
-- Pulumi, CloudFormation/CDK, Ansible, Kustomize overlays and Helm templates are detected and listed, but not checked yet.
+- CDK apps, Kustomize overlays and Helm templates are detected or ignored but not checked yet. Pulumi, CloudFormation and Ansible checks are tested on synthetic repos only.
 - Files are only read. Nothing is built, planned, validated or started.
 - Checks use text matching and look at all CI text, not the job for one directory; use them as a list of leads.
 - Per-check roll-up (`infra.rollup`) shows in how many locations each check fails; per-area pass rates are in
@@ -78,7 +78,7 @@ Bicep and Kubernetes/Helm, 38 checks (`INF-D*`, `INF-C*`, `INF-V*`, `INF-T*`, `I
 - The overlay has its own level, L0 to L3, per area and overall (`infra.levels`). Same rule as the pillars: level N
   needs every gate check up to N and 60% of the checks at each level up to N. A check passes only if it fails in no
   location, so one weak Dockerfile in a monorepo holds the area back. The overall level is the weakest area. Gates:
-  INF-D01, D02, C01, C03, V01, V03, T01, T02, T06, B01, K06. The level is not a score and is not added to it.
+  INF-D01, D02, C01, C03, V01, V03, T01, T02, T06, B01, K06, X05, F03, P03. The level is not a score and is not added to it.
 
 ## Files
 

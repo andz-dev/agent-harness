@@ -87,7 +87,7 @@ class ComposeTests(unittest.TestCase):
 
     def test_file_without_services_is_not_applicable(self):
         r = run({"compose.override.yaml": "x-common: {}\n"})
-        self.assertEqual({f["status"] for f in r["findings"]}, {"not_applicable"})
+        self.assertEqual({f["status"] for f in r["findings"] if f["area"] == "compose"}, {"not_applicable"})
 
 
 class DevcontainerTests(unittest.TestCase):
@@ -288,6 +288,103 @@ class KubernetesTests(unittest.TestCase):
         r = run({"k8s/web.yaml": self.GOOD, "main.bicep": "param location string\n"})
         self.assertIn("kubernetes", r["levels"]["areas"])
         self.assertIn("bicep", r["levels"]["areas"])
+
+
+class AnsibleTests(unittest.TestCase):
+    def test_good_ansible(self):
+        r = run(
+            {
+                "ansible.cfg": "[defaults]\n",
+                "requirements.yml": "collections:\n  - name: community.general\n    version: 8.0.0\n",
+                "site.yml": "- hosts: all\n  vars:\n    db_password: !vault |\n      $ANSIBLE_VAULT\n",
+                ".ansible-lint": "profile: production\n",
+                ".github/workflows/a.yml": "run: ansible-playbook site.yml --syntax-check\n",
+            }
+        )
+        for cid in ("INF-A01", "INF-A02", "INF-A03", "INF-A04"):
+            self.assertEqual(status(r, cid), "pass", cid)
+
+    def test_bad_ansible(self):
+        r = run({"site.yml": "- hosts: all\n  vars:\n    api_token: abc123\n"})
+        for cid in ("INF-A01", "INF-A02", "INF-A03", "INF-A04"):
+            self.assertEqual(status(r, cid), "fail", cid)
+
+
+class CloudFormationTests(unittest.TestCase):
+    CF = "AWSTemplateFormatVersion: '2010-09-09'\nParameters:\n  DbPassword:\n    Type: String\n"
+
+    def test_missing_noecho_fails(self):
+        r = run({"cf/template.yaml": self.CF})
+        self.assertEqual(status(r, "INF-F03"), "fail")
+        self.assertEqual(status(r, "INF-F01"), "fail")
+        self.assertEqual(status(r, "INF-F02"), "fail")
+
+    def test_good_cloudformation(self):
+        cf = self.CF + "    NoEcho: true\n"
+        r = run({"cf/template.yaml": cf, ".cfnlintrc": "", ".github/workflows/c.yml": "run: aws cloudformation validate-template\n"})
+        for cid in ("INF-F01", "INF-F02", "INF-F03"):
+            self.assertEqual(status(r, cid), "pass", cid)
+
+
+class PulumiTests(unittest.TestCase):
+    def test_plaintext_secret_and_missing_lock_fail(self):
+        r = run({"Pulumi.yaml": "name: x\nruntime: nodejs\n", "Pulumi.dev.yaml": "config:\n  app:dbPassword: hunter2\n"})
+        self.assertEqual(status(r, "INF-P01"), "fail")
+        self.assertEqual(status(r, "INF-P02"), "fail")
+        self.assertEqual(status(r, "INF-P03"), "fail")
+
+    def test_encrypted_secret_passes(self):
+        r = run(
+            {
+                "Pulumi.yaml": "name: x\nruntime: nodejs\n",
+                "package-lock.json": "{}",
+                "Pulumi.dev.yaml": "config:\n  app:dbPassword:\n    secure: AAABB\n",
+                ".github/workflows/p.yml": "uses: pulumi/actions@v5\n",
+            }
+        )
+        for cid in ("INF-P01", "INF-P02", "INF-P03"):
+            self.assertEqual(status(r, cid), "pass", cid)
+
+
+class CrossCuttingTests(unittest.TestCase):
+    def test_nothing_configured_fails(self):
+        r = run({"main.tf": "", "Dockerfile": "FROM x:1\n"})
+        self.assertEqual(status(r, "INF-X01"), "fail")
+        self.assertEqual(status(r, "INF-X02"), "fail")
+        self.assertEqual(status(r, "INF-X03"), "fail")
+        self.assertEqual(status(r, "INF-X04"), "fail")
+        self.assertEqual(status(r, "INF-X05"), "pass")
+
+    def test_dependabot_must_list_each_ecosystem(self):
+        dep = 'updates:\n  - package-ecosystem: "docker"\n    directory: /\n'
+        r = run({"main.tf": "", "Dockerfile": "FROM x:1\n", ".github/dependabot.yml": dep})
+        f = next(x for x in r["findings"] if x["check_id"] == "INF-X01")
+        self.assertEqual(f["status"], "fail")
+        self.assertEqual([e["snippet"] for e in f["evidence"]], ["missing ecosystem: terraform"])
+        dep += "  - package-ecosystem: terraform\n    directory: /\n"
+        self.assertEqual(status(run({"main.tf": "", "Dockerfile": "FROM x:1\n", ".github/dependabot.yml": dep}), "INF-X01"), "pass")
+
+    def test_codeowners_path_filter_scanner_and_tracked_keys(self):
+        tree = {
+            "infra/main.tf": "",
+            ".github/CODEOWNERS": "/infra/ @platform-team\n",
+            ".github/workflows/tf.yml": "on:\n  push:\n    paths:\n      - 'infra/**'\n",
+            ".gitleaks.toml": "",
+            "deploy/server.pem": "x",
+        }
+        r = run(tree)
+        self.assertEqual(status(r, "INF-X02"), "pass")
+        self.assertEqual(status(r, "INF-X03"), "pass")
+        self.assertEqual(status(r, "INF-X04"), "pass")
+        self.assertEqual(status(r, "INF-X05"), "fail")
+
+    def test_env_with_only_secret_manager_references_is_not_a_leak(self):
+        refs = 'export TOKEN="op://vault/item/field"\nDB=${DB_URL}\n'
+        self.assertEqual(status(run({"main.tf": "", "deploy/.env": refs}), "INF-X05"), "pass")
+        self.assertEqual(status(run({"main.tf": "", "deploy/.env": "TOKEN=abc123\n"}), "INF-X05"), "fail")
+
+    def test_not_run_without_infra(self):
+        self.assertEqual([f for f in run({"app.py": "x=1\n"})["findings"]], [])
 
 
 if __name__ == "__main__":
