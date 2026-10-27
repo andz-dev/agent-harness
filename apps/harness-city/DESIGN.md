@@ -95,6 +95,10 @@ Status: **prototype**, not final. Definition and variants in
 
 Add a row when you add an asset.
 
+## Camera
+
+Isometric: orthographic camera, azimuth 45 degrees, fixed elevation (height 0.82 x distance), drag pans, wheel or pinch zooms, rotation in 90 degree steps. Prototypes and new views must use the same camera, not a perspective one.
+
 ## Animation
 
 Moving objects use the `shuttle` model (route, speed, dwell, phase) or the rail loop.

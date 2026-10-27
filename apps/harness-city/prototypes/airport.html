@@ -55,7 +55,7 @@ input[type=range]{width:100%}
  <h2>Camera</h2>
  <div class="btns" id="cams"></div>
 </aside>
-<div id="stage"><canvas id="c"></canvas><div id="hint">drag: rotate · right-drag: move · wheel or pinch: zoom · click an object</div></div>
+<div id="stage"><canvas id="c"></canvas><div id="hint">drag: move · wheel or pinch: zoom · rotate buttons: turn 90° · click an object</div></div>
 <aside class="r" id="panel"></aside>
 </div>
 <script type="module">
@@ -81,10 +81,10 @@ const RW1=-2.8,RW2=-4.2,TAXI=-1.4,STAND=0.25,ROAD_Z=5.4;
 const canvas=document.getElementById("c");
 let R;try{R=new THREE.WebGLRenderer({canvas,antialias:true})}catch(e){document.getElementById('hint').textContent='WebGL is not available in this viewer. Open the file in a normal browser (Safari or Chrome).';document.getElementById('hint').style.display='block';throw e}
 R.shadowMap.enabled=true;R.shadowMap.type=THREE.PCFSoftShadowMap;
-const scene=new THREE.Scene();scene.background=new THREE.Color("#cfe4f2");scene.fog=new THREE.Fog("#cfe4f2",120,260);
-const cam=new THREE.PerspectiveCamera(38,1,.5,500);
+const scene=new THREE.Scene();scene.background=new THREE.Color("#cfe4f2");
+const cam=new THREE.OrthographicCamera(-1,1,1,-1,-200,400);
 scene.add(new THREE.HemisphereLight("#ffffff","#9bb08a",.85));
-const sun=new THREE.DirectionalLight("#fff4e0",1.4);sun.position.set(20,50,25);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);
+const sun=new THREE.DirectionalLight("#fff4e0",1.4);sun.position.set(20,50,25);sun.castShadow=true;sun.shadow.mapSize.set(4096,4096);
 Object.assign(sun.shadow.camera,{left:-50,right:50,top:40,bottom:-40,near:1,far:140});sun.target.position.set(32,0,0);scene.add(sun,sun.target);
 const mat=(c,o={})=>new THREE.MeshStandardMaterial({color:c,roughness:.85,metalness:0,...o});
 function box(g,w,h,d,c,x,y,z,o){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat(c,o));m.position.set(x,y+h/2,z);m.castShadow=true;m.receiveShadow=true;g.add(m);return m}
@@ -237,7 +237,7 @@ function rebuild(){if(dyn)surface.remove(dyn);dyn=new THREE.Group();surface.add(
  if(overall===null){const s=label("no infrastructure: no airport","#586660",1);s.position.set(AP.x,1.6,0);dyn.add(s)}
  applyDim();updateUI(list,tool,overall,q)}
 function applyDim(){const on=S.under;surface.traverse(o=>{if(!o.isMesh)return;const ms=Array.isArray(o.material)?o.material:[o.material];for(const m of ms){if(m.userData.o===undefined){m.userData.o=m.opacity;m.userData.t=m.transparent;m.userData.w=m.depthWrite}
-  if(o.material.type==="MeshBasicMaterial")continue;m.transparent=on||m.userData.t;m.opacity=on?Math.min(m.userData.o,.22):m.userData.o;m.depthWrite=on?false:m.userData.w;m.needsUpdate=true}});scene.background.set(on?"#9db4c4":"#cfe4f2");scene.fog.color.set(on?"#9db4c4":"#cfe4f2")}
+  if(o.material.type==="MeshBasicMaterial")continue;m.transparent=on||m.userData.t;m.opacity=on?Math.min(m.userData.o,.22):m.userData.o;m.depthWrite=on?false:m.userData.w;m.needsUpdate=true}});scene.background.set(on?"#9db4c4":"#cfe4f2");0}
 /* ---------- UI ---------- */
 const $=id=>document.getElementById(id);
 function seg(el,items,get,set){el.innerHTML="";items.forEach(([v,t])=>{const b=document.createElement("button");b.textContent=t;b.className=get()===v?"on":"";b.onclick=()=>{set(v);rebuild()};el.appendChild(b)})}
@@ -250,7 +250,7 @@ function buildUI(){
   [[null,"–"],[0,"0"],[1,"1"],[2,"2"],[3,"3"]].forEach(([v,t])=>{const b=document.createElement("button");b.textContent=t;b.className=(S.areas[a.k]??null)===v?"on":"";b.onclick=()=>{S.areas[a.k]=v;rebuild()};s.appendChild(b)});r.appendChild(s);el.appendChild(r)}
  $("cont").value=S.cont;
  const pr=$("presets");pr.innerHTML="";for(const [n,p] of Object.entries(PRESETS)){const b=document.createElement("button");b.className="b";b.textContent=n;b.onclick=()=>{for(const a of AREAS)S.areas[a.k]=p[a.k];S.cont=p.cont;rebuild()};pr.appendChild(b)}
- const cm=$("cams");cm.innerHTML="";for(const [n,v] of Object.entries(CAMS)){const b=document.createElement("button");b.className="b";b.textContent=n;b.onclick=()=>goto(v);cm.appendChild(b)}}
+ const cm=$("cams");cm.innerHTML="";for(const [n,d] of [["⟲ rotate",-1],["rotate ⟳",1]]){const b=document.createElement("button");b.className="b";b.textContent=n;b.onclick=()=>{T.a+=d*Math.PI/2};cm.appendChild(b)}for(const [n,v] of Object.entries(CAMS)){const b=document.createElement("button");b.className="b";b.textContent=n;b.onclick=()=>goto(v);cm.appendChild(b)}}
 function updateUI(list,tool,overall,q){buildUI();
  const weak=tool.length?tool.reduce((m,a)=>a.lv<m.lv?a:m):null;
  const lines=["Line quality = lower of station and airport: "+(overall===null?"no airport, no line":"min(L"+S.hub+", L"+overall+") = <b>L"+q+"</b> · "+LINE[q])];
@@ -272,29 +272,30 @@ function show(p){sel=p;const {overall}=compute();let h="";const lvl=overall===nu
  else if(p.kind==="district")h=`<h3>${p.n}</h3><p>A district of the city: one pillar of the score, level L${p.lv}.</p>`;
  $("panel").innerHTML=h||"";}
 /* ---------- camera + picking ---------- */
-const CAMS={City:{t:[14,0,0],d:50,a:-.55,p:.95},Airport:{t:[54,0,0],d:26,a:-.5,p:.9},"Both (link)":{t:[30,0,1],d:78,a:-.35,p:1.0},"Top":{t:[30,0,0],d:95,a:0,p:.2}};
-const V={t:new THREE.Vector3(30,0,1),d:78,a:-.35,p:1.0},T={t:V.t.clone(),d:V.d,a:V.a,p:V.p};
-function goto(c){T.t.set(...c.t);T.d=c.d;T.a=c.a;T.p=c.p}
-function place(){cam.position.set(V.t.x+V.d*Math.sin(V.p)*Math.sin(V.a),V.t.y+V.d*Math.cos(V.p),V.t.z+V.d*Math.sin(V.p)*Math.cos(V.a));cam.lookAt(V.t)}
+const D2R=Math.PI/180;
+const CAMS={City:{t:[14,0,0],s:22,a:45*D2R},Airport:{t:[54,0,0],s:9,a:45*D2R},"Both (link)":{t:[30,0,1],s:34,a:45*D2R}};
+const V={t:new THREE.Vector3(30,0,1),s:34,a:45*D2R},T={t:V.t.clone(),s:V.s,a:V.a};
+function goto(c){T.t.set(...c.t);T.s=c.s;T.a=c.a}
+function place(){const d=60,w=canvas.clientWidth||1,h=canvas.clientHeight||1;cam.position.set(V.t.x+Math.sin(V.a)*d,V.t.y+d*.82,V.t.z+Math.cos(V.a)*d);cam.lookAt(V.t);cam.left=-V.s*w/h;cam.right=V.s*w/h;cam.top=V.s;cam.bottom=-V.s;cam.updateProjectionMatrix()}
 const ptr=new Map();let moved=0,pinch=0;
 canvas.addEventListener("pointerdown",e=>{ptr.set(e.pointerId,{x:e.clientX,y:e.clientY,b:e.button});moved=0;pinch=0;canvas.setPointerCapture(e.pointerId)});
 canvas.addEventListener("pointermove",e=>{const d=ptr.get(e.pointerId);if(!d)return;const dx=e.clientX-d.x,dy=e.clientY-d.y;d.x=e.clientX;d.y=e.clientY;moved+=Math.abs(dx)+Math.abs(dy);
- if(ptr.size>=2){const [a,b]=[...ptr.values()];const dist=Math.hypot(a.x-b.x,a.y-b.y);if(pinch)T.d=Math.min(160,Math.max(8,T.d*pinch/dist));pinch=dist;return}
- if(d.b===2||e.shiftKey){const k=T.d*.0016;T.t.x-=(dx*Math.cos(T.a)+dy*Math.sin(T.a))*k;T.t.z+=(dx*Math.sin(T.a)-dy*Math.cos(T.a))*k}else{T.a-=dx*.006;T.p=Math.min(1.45,Math.max(.12,T.p-dy*.006))}});
+ if(ptr.size>=2){const [a,b]=[...ptr.values()];const dist=Math.hypot(a.x-b.x,a.y-b.y);if(pinch)T.s=Math.min(45,Math.max(4,T.s*pinch/dist));pinch=dist;return}
+ const k=2*V.s/canvas.clientHeight;T.t.x+=(-dx*Math.cos(T.a)-dy*1.22*Math.sin(T.a))*k;T.t.z+=(dx*Math.sin(T.a)-dy*1.22*Math.cos(T.a))*k});
 const up=e=>{if(ptr.has(e.pointerId)&&moved<5&&ptr.size===1)pick(e);ptr.delete(e.pointerId);pinch=0};
 canvas.addEventListener("pointerup",up);canvas.addEventListener("pointercancel",e=>{ptr.delete(e.pointerId);pinch=0});
 canvas.addEventListener("contextmenu",e=>e.preventDefault());
-canvas.addEventListener("wheel",e=>{e.preventDefault();T.d=Math.min(160,Math.max(8,T.d*(1+Math.sign(e.deltaY)*.1)))},{passive:false});
+canvas.addEventListener("wheel",e=>{e.preventDefault();T.s=Math.min(45,Math.max(4,T.s*(1+Math.sign(e.deltaY)*.1)))},{passive:false});
 const ray=new THREE.Raycaster(),mouse=new THREE.Vector2();
 function pick(e){const r=canvas.getBoundingClientRect();mouse.set((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1);ray.setFromCamera(mouse,cam);
  const hits=ray.intersectObjects(surface.children,true);for(const h of hits){let o=h.object;while(o){if(o.userData.pick){sel=null;show(o.userData.pick);sel=o.userData.pick;return}o=o.parent}}
  for(const P of PILL){if(Math.abs(P.x-ray.ray.origin.x)>200){}}
  sel=null;showDefault()}
-function resize(){const r=canvas.parentElement.getBoundingClientRect();R.setPixelRatio(Math.min(2,devicePixelRatio));R.setSize(r.width,r.height,false);cam.aspect=r.width/r.height;cam.updateProjectionMatrix()}
+function resize(){const r=canvas.parentElement.getBoundingClientRect();R.setPixelRatio(Math.min(2,devicePixelRatio));R.setSize(r.width,r.height,false);place()}
 addEventListener("resize",resize);
 const clock=new THREE.Clock();let hidden=false;document.addEventListener("visibilitychange",()=>hidden=document.hidden);
 function loop(){requestAnimationFrame(loop);if(hidden)return;const t=performance.now()/1000;
- V.t.lerp(T.t,.12);V.d+=(T.d-V.d)*.12;V.a+=(T.a-V.a)*.12;V.p+=(T.p-V.p)*.12;place();for(const f of anim)f(t);R.render(scene,cam);window.__ready=true}
+ V.t.lerp(T.t,.12);V.s+=(T.s-V.s)*.12;V.a+=(T.a-V.a)*.12;place();for(const f of anim)f(t);R.render(scene,cam);window.__ready=true}
 for(const a of AREAS)S.areas[a.k]=PRESETS["n8n-like (Compose + Docker)"][a.k];S.cont=6;
 resize();rebuild();loop();
 window.__t={S,rebuild,goto,CAMS,show,T,V};
