@@ -207,5 +207,29 @@ class ApplyTests(unittest.TestCase):
             v.validate(f)
 
 
+class MissingCommandsTests(unittest.TestCase):
+    """B-165: ORI-09 gets mechanical candidates for documented runner commands that do not exist."""
+
+    def run_plan(self, files):
+        _, plan = prepared({**TREE, **files})
+        return next((t for t in plan["tasks"] if t["task_id"] == "ORI-09"), None)
+
+    def test_missing_target_is_a_candidate(self):
+        task = self.run_plan(
+            {
+                "AGENTS.md": "# a\n\nRun `make verify` and `make test`.\n",
+                "Makefile": "test:\n\tpytest\n",
+            }
+        )
+        self.assertIsNotNone(task)
+        self.assertEqual([c["text"] for c in task["candidates"]], ["make verify"])
+        self.assertEqual(task["facts"]["command_references_checked"], 2)
+
+    def test_existing_targets_leave_no_candidates(self):
+        task = self.run_plan({"AGENTS.md": "# a\n\nRun `make test`.\n", "Makefile": "test:\n\tpytest\n"})
+        self.assertEqual(task["candidates"], [])
+        self.assertEqual(task["facts"]["command_references_checked"], 1)
+
+
 if __name__ == "__main__":
     unittest.main()

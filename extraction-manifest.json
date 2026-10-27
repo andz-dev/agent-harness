@@ -20,7 +20,7 @@
       "source": "agents/skills/engineering/harness-audit/BACKLOG.md",
       "target": "skills/harness-audit/BACKLOG.md",
       "source_sha256": "e6585aecc04e06097ac13de92215c0f31635c848af6e49cf681782c72657d17d",
-      "sha256": "3ce2f6e22775061d8821eca9cd6af2a978b9291e910b4a59020ff2229c6b00c3",
+      "sha256": "f2fe4654709025354d20fefec5c8e8be39d8b8b0f9478aa12a92298d44efe1e8",
       "kind": "reviewed-update"
     },
     {
@@ -62,7 +62,7 @@
       "source": "agents/skills/engineering/harness-audit/prompts/instruction_drift.md",
       "target": "skills/harness-audit/prompts/instruction_drift.md",
       "source_sha256": "26897cb81a330e7ffbd94aa445c11e037491a24e84ef25de8b152c866d09b808",
-      "sha256": "7dce5e8c6a43180d75ff7242cc9fde780b74055cab19349f9f363be542c9be2f",
+      "sha256": "b74bc0db04e2f0f6f658954bbf33ded95089cdfa9f1cdca5603d8fbf20734511",
       "kind": "reviewed-update"
     },
     {
@@ -83,7 +83,7 @@
       "source": "agents/skills/engineering/harness-audit/references/FROZEN.sha256",
       "target": "skills/harness-audit/references/FROZEN.sha256",
       "source_sha256": "d71e457e83138af74b785be300148ee3b9e2ba55ec5dc9ac9c3f1b5c037d76b6",
-      "sha256": "f80fdacd1451654e3d43de1bc62e69bc671df7475b4b86753c95adf653d0bbf4",
+      "sha256": "b1cca8d5150bc703a1cd49081006fc288a8dae9449434e16e0371d6501151c44",
       "kind": "reviewed-update"
     },
     {
@@ -153,7 +153,7 @@
       "source": "agents/skills/engineering/harness-audit/scripts/llm_layer.py",
       "target": "skills/harness-audit/scripts/llm_layer.py",
       "source_sha256": "8885f6867bd7f7f0a9ed14a3a972f7bb6c6b1de8b520b413b739a89e3a586dd1",
-      "sha256": "e3d5fa74b7425e9c45f79db1459c1599c15f7aaa67421f4eda835331f5dedfb6",
+      "sha256": "548e265ae11fa621c5944dd48a7112c3c94933153dddaaf7b24b9e369885aec4",
       "kind": "reviewed-update"
     },
     {
@@ -209,7 +209,7 @@
       "source": "agents/skills/engineering/harness-audit/tests/test_llm_layer.py",
       "target": "skills/harness-audit/tests/test_llm_layer.py",
       "source_sha256": "ac2386baa3a1422081eb7fd79fc2d0080bd6ca767f1a7a880054c85bd67dc8b5",
-      "sha256": "54f11ced86200ffb0fa7dfe135077a640f9c73c560e3d1de6e5330996372db95",
+      "sha256": "ecc009cc9e94d24770769e065320c2066abacfe45c962f1e3d171993b231b430",
       "kind": "reviewed-update"
     },
     {
@@ -1134,6 +1134,20 @@
       "target": "docs/0004/Agreement-Report-v1.2.md",
       "source_sha256": "d14f693ed84480c1e0c3d07565edfa769950af7754f95a54a5904a730d305ec8",
       "sha256": "d14f693ed84480c1e0c3d07565edfa769950af7754f95a54a5904a730d305ec8",
+      "kind": "reviewed-update"
+    },
+    {
+      "source": "session:harness-audit-v1.2",
+      "target": "docs/0005/README.md",
+      "source_sha256": "03ff5191e2b419dc87eefcb0e5067ee5a091d8accdf986cc8714687f598be702",
+      "sha256": "03ff5191e2b419dc87eefcb0e5067ee5a091d8accdf986cc8714687f598be702",
+      "kind": "reviewed-update"
+    },
+    {
+      "source": "session:harness-audit-v1.2",
+      "target": "docs/0005/Infrastructure-Coverage-Map.md",
+      "source_sha256": "6b1219ce8030f471828456d178f760249283d863e3b87b6ef78304fa0a8965c4",
+      "sha256": "7a2806f273ee152412bf121528486e7a4d7c155ecdc4cf3f1e601cc7b8da20d9",
       "kind": "reviewed-update"
     }
   ]

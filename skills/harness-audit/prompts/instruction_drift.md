@@ -30,6 +30,11 @@ some checks, `candidates` (mechanically found suspects you must confirm or dismi
    generated from it by a script ("automatically generated ... do not edit"). A full hand-written duplicate with
    no such marker is `fail`. Quote the marker or the import line; "identical content" without a quote is
    `unknown`.
+9. Drift question ORI-09: `candidates` are documented runner commands (`task X`, `make X`, `npm run X`) that no
+   runner defines, and `facts.command_references_checked` counts the commands the script verified. No
+   candidates and a count above zero mean the documented commands exist; then judge only whether the prose of
+   the agent file and README conflicts (for example different test commands for the same job) and quote the
+   lines. Answer `unknown` only when there are no commands to compare and no overlapping instructions.
 
 ## Answer format
 

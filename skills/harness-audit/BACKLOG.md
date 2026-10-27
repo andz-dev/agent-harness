@@ -318,3 +318,32 @@ Holdout was run once on 2026-10-26 after the weight freeze (section 4o). Do not 
 - B-163: These prompt changes alter what judgement runs return, so the existing 12 answer sets are not comparable. Re-answer ORI-08 and ENT-05 on all repos (part of B-158), then re-run `scripts/agreement.py`.
 - B-164 (done): Second agreement run after the prompt fixes: 47/54 agree (87%), kappa 0.77 (was 67%, 0.36). ENT-05 agrees 7/7. Scoring with A vs B answers: 13 of 15 repos identical, n8n 78 vs 85, opencode 42 vs 48. Report: docs/0004/Agreement-Report-v1.2.md.
 - B-165: Remaining real splits: immich-public-proxy VER-11 and opencode ORI-05 (pass vs fail); n8n ORI-09 and home-assistant-core ORI-08/ORI-09 (verdict vs unknown). ORI-09 (drift) is the least stable judgement; consider a mechanical sub-check or a stricter unknown rule. Gut-score check: n8n 80 and opencode 50 fall between the two runs' scores.
+
+## 4v. Infrastructure coverage (B-166..B-190)
+Full map: `docs/0005/Infrastructure-Coverage-Map.md`. Today the catalog has no infra check; nothing below is built.
+- B-166: Detect Terraform/OpenTofu/Terragrunt, Bicep/ARM, Kubernetes/Helm/Kustomize (Track A).
+- B-167: Detect Pulumi, CloudFormation/CDK, Ansible.
+- B-168: Detect Dockerfile/Containerfile and Docker Compose files.
+- B-169: Detect devcontainers and other dev environments (gitpod, codespaces, nix, mise).
+- B-170: Infra component type in `detect_stack` so monorepos score per component.
+- B-171: Terraform checks (pinning, lock file, fmt/validate/plan in CI, tflint/trivy, state hygiene, docs, agent workflow).
+- B-172: Bicep/ARM checks.
+- B-173: Kubernetes/Helm/Kustomize checks.
+- B-174: Pulumi, CloudFormation/CDK, Ansible checks.
+- B-175: Dockerfile checks (dockerignore, hadolint, pinned base, non-root, healthcheck, secrets, CI build).
+- B-176: Docker Compose checks (healthchecks, pinned images, env example, config validation, profiles).
+- B-177: Devcontainer checks (valid config, pinned image/features, postCreate = runner setup, tool versions match CI, agent file mentions it).
+- B-178: Cross-cutting infra checks (path-filtered CI, CODEOWNERS, Dependabot ecosystems, secrets scanning).
+- B-179: Infra entropy (unused variables/modules/services, unbuilt Dockerfiles, stale lockfile, env drift).
+- B-180: Judgement prompt `infra_quality.md` (safe plan/apply workflow, environments, forbidden commands).
+- B-181: `infra` block in report.json and scan export; schema version bump.
+- B-182: Harness City adapter: infra district or layer.
+- B-183: Synthetic infra fixtures for demo cities.
+- B-184: Report limitations list unsupported or unscored infra so a score never implies infra is fine.
+- B-185: Harness adoption skill shell (`harness-adopt`) reading report.json and triage.json. NOT STARTED.
+- B-186: Infra proposals in adoption (devcontainer, dockerignore, hadolint, Compose healthchecks, Terraform CI job, tflint, Dependabot).
+- B-187: Adoption safety rules (dry run default, reviewable diff, never apply/destroy/deploy).
+- B-188: Diff-based merge mode for existing files (supersedes B-151..B-156 scope).
+- B-189: Synthetic repos per tool and per pass/fail case in tests.
+- B-190: Infra calibration set with two raters; test that infra files never change the frozen 0-100 score until decision D1 is made.
+- B-191 (done): ORI-09 gets mechanical candidates (documented `task/make/just/npm run X` commands that no runner defines) and `command_references_checked`; prompt rule 9. Needs a re-answer run to measure the effect on agreement (B-165).

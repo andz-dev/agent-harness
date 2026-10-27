@@ -93,6 +93,31 @@ def missing_paths(ctx: Ctx, docs: list[str]) -> list[dict]:
     return out[:60]
 
 
+COMMAND_REF = re.compile(r"`[^`\n]*?\b(task|make|just|npm run|pnpm run|yarn run|bun run)\s+([A-Za-z0-9][A-Za-z0-9_:.-]*)[^`\n]*`")
+PLACEHOLDER_TARGET = {"<target>", "target", "name", "x", "foo", "xxx"}
+
+
+def missing_commands(ctx: Ctx, files: list[str], targets: list[str]) -> tuple[list[dict], int]:
+    """Documented runner commands (`task X`, `make X`, `npm run X`) whose target no runner defines (ORI-09 candidates).
+
+    Returns (candidates, number of references checked).
+    """
+    known = set(targets)
+    out, checked = [], 0
+    for d in files:
+        if HISTORY_DOC.search(d):
+            continue
+        for i, ln in enumerate((ctx.text(d) or "").splitlines(), 1):
+            for m in COMMAND_REF.finditer(ln):
+                name = m.group(2).rstrip(".:")
+                if name in PLACEHOLDER_TARGET or name.startswith("-"):
+                    continue
+                checked += 1
+                if name not in known:
+                    out.append({"path": d, "line": i, "text": f"{m.group(1)} {name}"})
+    return out[:60], checked
+
+
 def run_checks_generated() -> tuple[str, ...]:
     return ("dist/", "build/", "out/", "node_modules/", "target/", "coverage/", "tmp/", ".venv/", "venv/", "site/", "htmlcov/")
 
@@ -154,6 +179,7 @@ def plan(root: Path, catalog: dict) -> dict:
         elif cid == "ORI-09":
             files = agent + _files(ctx, ["README*"])[:1]
             facts["runner_targets"] = targets[:200]
+            candidates, facts["command_references_checked"] = missing_commands(ctx, files, targets)
         elif cid == "TRG-06":
             hook_files = sorted({h["path"] for h in hooks})
             if not hook_files:
