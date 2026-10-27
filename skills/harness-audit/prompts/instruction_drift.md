@@ -25,6 +25,11 @@ some checks, `candidates` (mechanically found suspects you must confirm or dismi
    every quote; unmatched quotes are discarded and an answer with no verified quote becomes `unknown`.
 7. `confidence`: `high` for direct textual contradictions or confirmed-missing targets, `medium` for
    semantic disagreement, `low` for inference.
+8. Canonical-source questions (is AGENTS.md the single source?): a tool-specific file counts as pointing to
+   AGENTS.md when it is a symlink or identical copy of it, imports or links it, or carries a marker that it is
+   generated from it by a script ("automatically generated ... do not edit"). A full hand-written duplicate with
+   no such marker is `fail`. Quote the marker or the import line; "identical content" without a quote is
+   `unknown`.
 
 ## Answer format
 

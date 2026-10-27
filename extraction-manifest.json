@@ -20,7 +20,7 @@
       "source": "agents/skills/engineering/harness-audit/BACKLOG.md",
       "target": "skills/harness-audit/BACKLOG.md",
       "source_sha256": "e6585aecc04e06097ac13de92215c0f31635c848af6e49cf681782c72657d17d",
-      "sha256": "0d4c93ef2938890884c94cca308dbd0ff218f99dbf70da04d23cd53ebf3af1b4",
+      "sha256": "7de6084ef2298e5391c32548bc347556448d089235fe32d2c89a00b344c575a4",
       "kind": "reviewed-update"
     },
     {
@@ -62,15 +62,15 @@
       "source": "agents/skills/engineering/harness-audit/prompts/instruction_drift.md",
       "target": "skills/harness-audit/prompts/instruction_drift.md",
       "source_sha256": "26897cb81a330e7ffbd94aa445c11e037491a24e84ef25de8b152c866d09b808",
-      "sha256": "26897cb81a330e7ffbd94aa445c11e037491a24e84ef25de8b152c866d09b808",
-      "kind": "unchanged-source"
+      "sha256": "7dce5e8c6a43180d75ff7242cc9fde780b74055cab19349f9f363be542c9be2f",
+      "kind": "reviewed-update"
     },
     {
       "source": "agents/skills/engineering/harness-audit/prompts/orientation_quality.md",
       "target": "skills/harness-audit/prompts/orientation_quality.md",
       "source_sha256": "fadf1fcabc5489a4bf5713e23881ccd16d4df4aaa69ce3c5e8b7d33dba69c081",
-      "sha256": "fadf1fcabc5489a4bf5713e23881ccd16d4df4aaa69ce3c5e8b7d33dba69c081",
-      "kind": "unchanged-source"
+      "sha256": "953b0d147ad87e1578e63de787dc21178563e9de6d4db030e5b01f591977a860",
+      "kind": "reviewed-update"
     },
     {
       "source": "agents/skills/engineering/harness-audit/pyproject.toml",
@@ -83,7 +83,7 @@
       "source": "agents/skills/engineering/harness-audit/references/FROZEN.sha256",
       "target": "skills/harness-audit/references/FROZEN.sha256",
       "source_sha256": "d71e457e83138af74b785be300148ee3b9e2ba55ec5dc9ac9c3f1b5c037d76b6",
-      "sha256": "0c0acb2b1754299dd61e97da2a397cf8d5beafdb1ca501e29f2274e03c2ce0b0",
+      "sha256": "f80fdacd1451654e3d43de1bc62e69bc671df7475b4b86753c95adf653d0bbf4",
       "kind": "reviewed-update"
     },
     {

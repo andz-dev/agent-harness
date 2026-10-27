@@ -312,3 +312,7 @@ Holdout was run once on 2026-10-26 after the weight freeze (section 4o). Do not 
 - B-159 (done): `scripts/agreement.py` compares two independent answer sets (agreement rate, Cohen's kappa, disagreement list). Tests in `tests/test_agreement.py`.
 - B-160: First agreement run on the 12 calibration repos: 33/49 agree (67%), kappa 0.36. Most disagreements are `unknown` vs a verdict (11 of 16), not pass vs fail. DOC-06 accounts for 6 of them and is now script-resolved, so the figure is stale for that task; re-run after B-158 re-answers.
 - B-161: Real pass-vs-fail splits: home-assistant-core ORI-08, vite ENT-05. Review these two prompts for ambiguity.
+
+## 4u. Phase 2 judgement prompts (B-162..B-163)
+- B-162 (done): B-161 review. vite ENT-05 run B passed while its own note said no aggregate command exists; orientation_quality.md rule 7 now requires status to match the note. home-assistant-core ORI-08 split on whether a script-generated copilot file counts; instruction_drift.md rule 8 defines it (symlink, identical copy, import or generated marker pass; hand-written duplicate fails).
+- B-163: These prompt changes alter what judgement runs return, so the existing 12 answer sets are not comparable. Re-answer ORI-08 and ENT-05 on all repos (part of B-158), then re-run `scripts/agreement.py`.
