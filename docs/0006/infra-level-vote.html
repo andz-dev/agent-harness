@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Infrastructure Level Vote</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: sticky level legend on top, area index on the left, one scrolling column per area with reference grid and vote rows. */
+:root{
+  --bg:#f5f6f8; --surface:#ffffff; --ink:#14181f; --muted:#5b6472; --line:#d9dde4; --accent:#0e6f79; --accent-ink:#ffffff;
+  --l0:#b3402e; --l1:#a8680f; --l2:#2a7a66; --l3:#1d5ca6; --code:#eef0f4; --sel:#e3f1f2;
+  --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif; --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f1318; --surface:#171c23; --ink:#e8ecf2; --muted:#9aa4b2; --line:#2a313b; --accent:#4fb6c0; --accent-ink:#06191c;
+  --l0:#ef8a78; --l1:#e0a94e; --l2:#5fc3a8; --l3:#7fb2ee; --code:#1f252e; --sel:#18343a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1318; --surface:#171c23; --ink:#e8ecf2; --muted:#9aa4b2; --line:#2a313b; --accent:#4fb6c0; --accent-ink:#06191c;
+  --l0:#ef8a78; --l1:#e0a94e; --l2:#5fc3a8; --l3:#7fb2ee; --code:#1f252e; --sel:#18343a; color-scheme:dark}
+*{box-sizing:border-box}
+html{scroll-padding-top:150px}
+body{background:var(--bg);color:var(--ink);font:14px/1.5 var(--sans);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 48px}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:12px 10px;border-bottom:1px solid var(--line)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:10}
+.bar{display:flex;gap:12px;align-items:baseline;flex-wrap:wrap;justify-content:space-between}
+h1{font-size:18px;margin:0;font-weight:600;letter-spacing:-.01em}
+.progress{font:500 12px var(--mono);color:var(--muted)}
+.progress b{color:var(--ink)}
+.legend{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:10px}
+.lv{border:1px solid var(--line);border-left:4px solid var(--c);border-radius:4px;padding:6px 8px;background:var(--surface);min-width:0}
+.lv b{font:600 12px var(--mono);color:var(--c)}
+.lv span{display:block;font-size:12px;color:var(--muted)}
+.layout{display:grid;grid-template-columns:200px minmax(0,1fr);gap:28px;margin-top:20px}
+nav.index{position:sticky;top:150px;align-self:start;display:flex;flex-direction:column;gap:2px;max-height:calc(100vh - 170px);overflow:auto}
+nav.index a{display:flex;justify-content:space-between;gap:8px;padding:5px 8px;border-radius:4px;color:var(--ink);text-decoration:none;font-size:13px}
+nav.index a:hover{background:var(--sel)}
+nav.index a span{font:12px var(--mono);color:var(--muted)}
+nav.index a.done span{color:var(--l2)}
+nav.index small{margin:10px 8px 2px;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+section.area{margin-bottom:44px;min-width:0}
+section.area h2{font-size:17px;margin:0 0 2px;font-weight:600}
+section.area .sub{color:var(--muted);margin:0 0 12px;font-size:13px}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.col{background:var(--surface);border:1px solid var(--line);border-top:3px solid var(--c);border-radius:4px;padding:10px;min-width:0;display:flex;flex-direction:column;gap:8px}
+.col h3{margin:0;font:600 12px var(--mono);color:var(--c);letter-spacing:.02em}
+.col h3 span{color:var(--muted);font-weight:400}
+.col ul{margin:0;padding-left:16px;font-size:12.5px}
+.col li{margin-bottom:3px}
+.col li.gate::marker{content:"◆ ";color:var(--c)}
+.col .none{font-size:12.5px;color:var(--muted);margin:0}
+pre{margin:0;background:var(--code);border-radius:3px;padding:7px 8px;font:11.5px/1.45 var(--mono);white-space:pre-wrap;overflow-wrap:anywhere}
+.why{font-size:12px;color:var(--muted);margin:0}
+.keynote{font-size:12px;color:var(--muted);margin:8px 0 14px}
+.votes{margin-top:16px;border:1px solid var(--line);border-radius:4px;background:var(--surface)}
+.votes h3{margin:0;padding:8px 12px;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);border-bottom:1px solid var(--line)}
+.row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 16px;padding:10px 12px;border-bottom:1px solid var(--line);align-items:center}
+.row:last-child{border-bottom:0}
+.who b{font-weight:600}
+.who .facts{font:11.5px var(--mono);color:var(--muted);overflow-wrap:anywhere}
+.pick{display:flex;gap:4px}
+.pick button{font:500 13px var(--mono);min-width:38px;height:34px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:4px;cursor:pointer}
+.pick button:hover{border-color:var(--accent)}
+.pick button[aria-pressed="true"]{background:var(--c);border-color:var(--c);color:var(--accent-ink)}
+.pick button.skip{min-width:auto;padding:0 8px;font:12px var(--sans);color:var(--muted)}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.note{font-size:12px;color:var(--muted);margin-top:6px}
+#status{font:12px var(--mono);color:var(--muted)}
+@media (max-width:900px){
+  .layout{grid-template-columns:minmax(0,1fr)}
+  nav.index{position:static;flex-direction:row;flex-wrap:wrap;max-height:none;gap:4px}
+  nav.index small{display:none}
+  nav.index a{border:1px solid var(--line);background:var(--surface)}
+  .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  html{scroll-padding-top:200px}
+}
+@media (max-width:520px){
+  .legend{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .grid{grid-template-columns:minmax(0,1fr)}
+  .row{grid-template-columns:minmax(0,1fr)}
+}
+@media (prefers-reduced-motion:no-preference){button{transition:background .12s,border-color .12s}}
+.tool{font:12px var(--sans);border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:4px;padding:2px 8px;cursor:pointer}
+.tool-chip{font:500 12px var(--mono);color:var(--muted);align-self:center;padding:0 6px}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="bar">
+    <h1>Infrastructure level vote</h1>
+    <div class="progress"><b id="done">0</b> of <b id="total">0</b> cells rated · <span id="status">loading</span></div>
+  </div>
+  <div class="legend" id="legend"></div>
+</header>
+<div class="layout">
+  <nav class="index" id="index" aria-label="Areas"></nav>
+  <main id="main"></main>
+</div>
+
+<script>
+const DATA = {"areas":[{"key":"dockerfile","name":"Dockerfile","levels":[{"level":1,"checks":[{"id":"INF-D01","gate":true,"title":".dockerignore exists (next to the Dockerfile or at the repo root)"}]},{"level":2,"checks":[{"id":"INF-D02","gate":true,"title":"Base images are pinned to a tag or digest (no latest, no bare name)"},{"id":"INF-D03","gate":false,"title":"The image runs as a non-root USER"},{"id":"INF-D05","gate":false,"title":"hadolint is configured or runs in CI or a hook"},{"id":"INF-D06","gate":false,"title":"No literal secrets in ENV or ARG"}]},{"level":3,"checks":[{"id":"INF-D04","gate":false,"title":"HEALTHCHECK is defined"},{"id":"INF-D07","gate":false,"title":"An image build runs in CI"}]}],"examples":[{"level":0,"code":"FROM node\nCOPY . .\nRUN npm install\nCMD [\"node\", \"server.js\"]","why":"No .dockerignore: .git and node_modules end up in the image."},{"level":1,"code":"Dockerfile\n.dockerignore   (.git, node_modules, .env)","why":"Gate passes. Still unpinned and root, but nothing dangerous is committed."},{"level":2,"code":"FROM node:20.11-slim\nRUN useradd -m app\nUSER app\nENV NODE_ENV=production\n# hadolint in CI or pre-commit","why":"Pinned base, non-root, no secrets in ENV, linter runs."},{"level":3,"code":"HEALTHCHECK CMD curl -f http://localhost:3000/health || exit 1\n# CI job: docker build on every change","why":"Health check plus a CI build."}]},{"key":"compose","name":"Docker Compose","levels":[{"level":1,"checks":[]},{"level":2,"checks":[{"id":"INF-C01","gate":true,"title":"Service images are pinned to a tag or digest"},{"id":"INF-C03","gate":true,"title":"No literal secrets in environment"},{"id":"INF-C04","gate":false,"title":"A .env.example exists and .env is not tracked"}]},{"level":3,"checks":[{"id":"INF-C02","gate":false,"title":"Every service defines a healthcheck"},{"id":"INF-C05","gate":false,"title":"`compose config` validates the file in CI or a hook"}]}],"examples":[{"level":0,"code":"(not reachable)","why":"Compose has no level-1 check, so any Compose file counts at least L1."},{"level":1,"code":"services:\n  db:\n    image: postgres\n    environment:\n      POSTGRES_PASSWORD: hunter2","why":"Starting point: a working file, but unpinned and with a literal secret (blocks L2)."},{"level":2,"code":"image: postgres:16.3\nenvironment:\n  POSTGRES_PASSWORD: ${DB_PASSWORD}\n.env.example committed, .env ignored","why":"Pinned images, no literal secrets, env example present."},{"level":3,"code":"healthcheck:\n  test: [\"CMD\", \"pg_isready\"]\n# CI: docker compose config","why":"Every service has a healthcheck and the file is validated in CI."}]},{"key":"devcontainer","name":"Devcontainer","levels":[{"level":1,"checks":[{"id":"INF-V01","gate":true,"title":"devcontainer.json parses (JSON with comments)"},{"id":"INF-V03","gate":true,"title":"A create or post-create command prepares the environment"}]},{"level":2,"checks":[{"id":"INF-V02","gate":false,"title":"Image and features are pinned"},{"id":"INF-V04","gate":false,"title":"The setup command calls the repository's own runner or installer"},{"id":"INF-V05","gate":false,"title":"Editor extensions or settings are declared"}]},{"level":3,"checks":[{"id":"INF-V06","gate":false,"title":"CI builds the devcontainer"}]}],"examples":[{"level":0,"code":"{ \"image\": \"ubuntu\" }   // broken JSON or no setup","why":"devcontainer.json does not parse, or nothing prepares the environment."},{"level":1,"code":"{ \"image\": \"mcr.microsoft.com/devcontainers/base:ubuntu\",\n  \"postCreateCommand\": \"npm ci\" }","why":"Parses and a create command prepares the environment."},{"level":2,"code":"\"image\": \"...base:1-ubuntu-22.04\"  // pinned\n\"features\": { \".../node:1\": {} }\n\"postCreateCommand\": \"task setup\"\n\"customizations\": { \"vscode\": { \"extensions\": [...] } }","why":"Pinned image and features, calls the repo's own runner, editor settings declared."},{"level":3,"code":"# CI: devcontainers/ci builds the devcontainer","why":"The devcontainer is built in CI, so it cannot rot unnoticed."}]},{"key":"terraform","name":"Terraform","levels":[{"level":1,"checks":[{"id":"INF-T01","gate":true,"title":"Provider lock file (.terraform.lock.hcl) is committed"},{"id":"INF-T02","gate":true,"title":"required_providers declares version constraints"},{"id":"INF-T06","gate":true,"title":"No state files or tfvars with values are tracked"}]},{"level":2,"checks":[{"id":"INF-T03","gate":false,"title":"fmt, validate or tflint runs in CI or a hook"},{"id":"INF-T04","gate":false,"title":"A plan runs in CI"}]},{"level":3,"checks":[{"id":"INF-T05","gate":false,"title":"A security scanner (tflint, trivy, tfsec, checkov) is configured or runs in CI"},{"id":"INF-T07","gate":false,"title":"A remote backend or cloud block is declared"}]}],"examples":[{"level":0,"code":"main.tf   (no .terraform.lock.hcl)\nterraform.tfstate tracked in git","why":"Any failed gate (lock file, version constraints, state or tfvars with values) keeps the area at L0."},{"level":1,"code":".terraform.lock.hcl committed\nrequired_providers { aws = { version = \"~> 5.0\" } }\nno state files tracked","why":"Reproducible and clean; nothing runs automatically yet."},{"level":2,"code":"# CI\nterraform fmt -check && terraform validate\nterraform plan   # on every pull request","why":"fmt, validate or tflint plus a plan run in CI."},{"level":3,"code":"# CI: trivy / tfsec / checkov\nbackend \"s3\" { ... }","why":"Security scanner in CI and a remote backend or cloud block."}]},{"key":"bicep","name":"Bicep","levels":[{"level":1,"checks":[{"id":"INF-B01","gate":true,"title":"bicepconfig.json configures the linter"},{"id":"INF-B02","gate":false,"title":"Parameter files exist (.bicepparam or parameters.json)"}]},{"level":2,"checks":[{"id":"INF-B03","gate":false,"title":"bicep build or lint runs in CI or a hook"},{"id":"INF-B04","gate":false,"title":"A what-if or validate step runs in CI"},{"id":"INF-B05","gate":false,"title":"Secret-like parameters are marked @secure()"}]},{"level":3,"checks":[{"id":"INF-B06","gate":false,"title":"No preview API versions"}]}],"examples":[{"level":0,"code":"main.bicep   (no bicepconfig.json)","why":"The gate needs a bicepconfig.json that configures the linter."},{"level":1,"code":"bicepconfig.json   (linter rules)\nmain.bicepparam","why":"Linter configured and parameter files exist."},{"level":2,"code":"# CI: az bicep build\n# CI: az deployment group what-if\n@secure() param adminPassword string","why":"Build or lint, what-if or validate, secrets marked @secure()."},{"level":3,"code":"resource x 'Microsoft.Web/sites@2023-12-01'   // stable API versions only","why":"No preview API versions in use."}]},{"key":"kubernetes","name":"Kubernetes / Helm","levels":[{"level":1,"checks":[{"id":"INF-K06","gate":true,"title":"No Secret manifest with literal data"}]},{"level":2,"checks":[{"id":"INF-K01","gate":false,"title":"Container images are pinned to a tag or digest"},{"id":"INF-K02","gate":false,"title":"Containers set resource limits"},{"id":"INF-K05","gate":false,"title":"Manifests are validated in CI (kubeconform, helm lint, kustomize build, conftest, dry-run)"}]},{"level":3,"checks":[{"id":"INF-K03","gate":false,"title":"Containers run non-root (securityContext)"},{"id":"INF-K04","gate":false,"title":"Readiness and liveness probes are defined"},{"id":"INF-K07","gate":false,"title":"Helm chart has values.schema.json"}]}],"examples":[{"level":0,"code":"kind: Secret\ndata:\n  password: c2VjcmV0","why":"A Secret manifest with literal data fails the level-1 gate."},{"level":1,"code":"Secrets come from an external store or sealed secrets","why":"Gate passes. Images may be unpinned and have no limits."},{"level":2,"code":"image: app:1.4.2\nresources:\n  limits: { cpu: 500m, memory: 256Mi }\n# CI: kubeconform or helm lint","why":"Pinned images, limits, manifests validated in CI."},{"level":3,"code":"securityContext:\n  runAsNonRoot: true\nreadinessProbe / livenessProbe set\nvalues.schema.json (Helm chart)","why":"Non-root, probes and a values schema."}]},{"key":"ansible","name":"Ansible","levels":[{"level":1,"checks":[{"id":"INF-A01","gate":false,"title":"Collections and roles are pinned (requirements.yml with versions)"}]},{"level":2,"checks":[{"id":"INF-A02","gate":false,"title":"ansible-lint is configured or runs in CI or a hook"},{"id":"INF-A03","gate":false,"title":"No plaintext secrets in variables (use ansible-vault)"}]},{"level":3,"checks":[{"id":"INF-A04","gate":false,"title":"Syntax check, check mode or Molecule runs in CI"}]}],"examples":[{"level":0,"code":"playbook.yml\nroles/web   (no requirements.yml)","why":"Collections and roles are not pinned."},{"level":1,"code":"requirements.yml\ncollections:\n  - name: community.general\n    version: 8.3.0","why":"Dependencies are pinned."},{"level":2,"code":"# CI or pre-commit: ansible-lint\ndb_password: !vault |\n  $ANSIBLE_VAULT;1.1;AES256 ...","why":"ansible-lint runs and no plaintext secrets in variables."},{"level":3,"code":"# CI: ansible-playbook --syntax-check\n# or molecule test","why":"Syntax check, check mode or Molecule runs in CI."}]},{"key":"cloudformation","name":"CloudFormation","levels":[{"level":1,"checks":[{"id":"INF-F03","gate":true,"title":"Secret-like parameters use NoEcho"}]},{"level":2,"checks":[{"id":"INF-F01","gate":false,"title":"cfn-lint or cfn-guard is configured or runs in CI"},{"id":"INF-F02","gate":false,"title":"A change set or template validation runs in CI"}]},{"level":3,"checks":[]}],"examples":[{"level":0,"code":"Parameters:\n  DBPassword:\n    Type: String      # no NoEcho","why":"A secret-like parameter without NoEcho fails the gate."},{"level":1,"code":"Parameters:\n  DBPassword:\n    Type: String\n    NoEcho: true","why":"Gate passes."},{"level":2,"code":"# CI: cfn-lint template.yaml\n# CI: aws cloudformation validate-template / create-change-set","why":"Linter and change set or validation run in CI."},{"level":3,"code":"(no level-3 check yet)","why":"CloudFormation tops out at L2 with the current checks."}]},{"key":"pulumi","name":"Pulumi","levels":[{"level":1,"checks":[{"id":"INF-P01","gate":false,"title":"A dependency lock file exists for the Pulumi program"},{"id":"INF-P03","gate":true,"title":"Secret config values are encrypted (secure:), not plaintext"}]},{"level":2,"checks":[{"id":"INF-P02","gate":false,"title":"pulumi preview runs in CI"}]},{"level":3,"checks":[]}],"examples":[{"level":0,"code":"Pulumi.dev.yaml\nconfig:\n  app:dbPassword: hunter2     # plaintext","why":"Plaintext secret config fails the gate."},{"level":1,"code":"Pulumi.dev.yaml:  app:dbPassword:\n  secure: AAABB...\npackage-lock.json","why":"Secrets encrypted and a lock file next to the program."},{"level":2,"code":"# CI: pulumi preview   (or pulumi/actions)","why":"pulumi preview runs in CI."},{"level":3,"code":"(no level-3 check yet)","why":"Pulumi tops out at L2 with the current checks."}]}],"cells":[{"repo":"ansible-for-devops","area":"dockerfile","locations":4,"files":4,"examples":["docker-flask/provisioning/data/Dockerfile","docker-flask/provisioning/db/Dockerfile","docker-flask/provisioning/www/Dockerfile","docker/test/Dockerfile"]},{"repo":"ansible-for-devops","area":"kubernetes","locations":1,"files":1,"examples":["kubernetes/files/manifests/kube-system/kube-flannel-vagrant.yml"]},{"repo":"ansible-for-devops","area":"ansible","locations":17,"files":18,"examples":["deployments-rolling/ansible.cfg","docker-flask/provisioning/www/playbook.yml","docker-hubot/roles/hubot-slack/tasks/main.yml","drupal/provisioning/playbook.yml"]},{"repo":"aws-cloudformation-templates","area":"kubernetes","locations":1,"files":1,"examples":["EKS/manifest.yml"]},{"repo":"aws-cloudformation-templates","area":"cloudformation","locations":54,"files":224,"examples":["APIGateway/apigateway_lambda_integration.json","APIGateway/apigateway_lambda_integration.yaml","AWSSupplyChain/SapPrivateLink/SapPrivateLink.json","AWSSupplyChain/SapPrivateLink/SapPrivateLink.yaml"]},{"repo":"examples","area":"dockerfile","locations":52,"files":70,"examples":["aws-cs-fargate/App/.dockerignore","aws-cs-fargate/App/Dockerfile","aws-cs-langserve/.dockerignore","aws-cs-langserve/Dockerfile"]},{"repo":"examples","area":"devcontainer","locations":1,"files":1,"examples":[".devcontainer/devcontainer.json"]},{"repo":"examples","area":"terraform","locations":4,"files":4,"examples":["aws-hcl-s3-folder/main.tf","azure-hcl-static-website/main.tf","gcp-hcl-webserver/main.tf","kubernetes-hcl-guestbook/main.tf"]},{"repo":"examples","area":"kubernetes","locations":2,"files":3,"examples":["aws-ts-eks-distro/eksdistro/aws-iam-authenticator.yaml","aws-ts-eks-distro/eksdistro/cluster.yaml","crd2pulumi-crontabs/crontab.yaml"]},{"repo":"examples","area":"ansible","locations":6,"files":6,"examples":["aws-cs-ansible-wordpress/playbook.yml","aws-go-ansible-wordpress/playbook.yml","aws-java-ansible-wordpress/playbook.yml","aws-py-ansible-wordpress/playbook.yml"]},{"repo":"examples","area":"pulumi","locations":364,"files":364,"examples":["alicloud-ts-ecs/Pulumi.yaml","aws-apigateway-go-routes/Pulumi.yaml","aws-apigateway-py-routes/Pulumi.yaml","aws-apigateway-ts-routes/Pulumi.yaml"]},{"repo":"flask","area":"devcontainer","locations":1,"files":1,"examples":[".devcontainer/devcontainer.json"]},{"repo":"home-assistant-core","area":"dockerfile","locations":2,"files":5,"examples":[".dockerignore","Dockerfile","Dockerfile.dev","script/hassfest/docker/Dockerfile"]},{"repo":"home-assistant-core","area":"devcontainer","locations":1,"files":1,"examples":[".devcontainer/devcontainer.json"]},{"repo":"httpie-cli","area":"dockerfile","locations":1,"files":1,"examples":["extras/packaging/linux/Dockerfile"]},{"repo":"immich","area":"dockerfile","locations":6,"files":8,"examples":[".dockerignore","machine-learning/.dockerignore","machine-learning/Dockerfile","packages/cli/Dockerfile"]},{"repo":"immich","area":"compose","locations":2,"files":6,"examples":["docker/docker-compose.dev.yml","docker/docker-compose.prod.yml","docker/docker-compose.rootless.yml","docker/docker-compose.yml"]},{"repo":"immich","area":"devcontainer","locations":2,"files":2,"examples":[".devcontainer/devcontainer.json",".devcontainer/mobile/devcontainer.json"]},{"repo":"immich","area":"terraform","locations":2,"files":13,"examples":["deployment/modules/cloudflare/docs/.terraform.lock.hcl","deployment/modules/cloudflare/docs/config.tf","deployment/modules/cloudflare/docs/domain.tf","deployment/modules/cloudflare/docs/locals.tf"]},{"repo":"immich-public-proxy","area":"dockerfile","locations":1,"files":3,"examples":[".dockerignore","Dockerfile","Dockerfile.upload"]},{"repo":"immich-public-proxy","area":"compose","locations":1,"files":1,"examples":["docker-compose.yml"]},{"repo":"n8n","area":"dockerfile","locations":13,"files":14,"examples":[".dockerignore",".agents/skills/testmax-n8n-ai/sandbox/Dockerfile",".devcontainer/Dockerfile",".devcontainer/codespaces/Dockerfile"]},{"repo":"n8n","area":"compose","locations":7,"files":7,"examples":[".devcontainer/docker-compose.yml",".devcontainer/codespaces/docker-compose.yml",".github/docker-compose.yml","packages/quality/efficiency/scale/benchmark/scripts/n8n-setups/postgres/docker-compose.yml"]},{"repo":"n8n","area":"devcontainer","locations":3,"files":3,"examples":[".devcontainer/devcontainer.json",".devcontainer/codespaces/devcontainer.json",".devcontainer/preview/devcontainer.json"]},{"repo":"n8n","area":"terraform","locations":2,"files":9,"examples":["packages/quality/efficiency/scale/benchmark/infra/.terraform.lock.hcl","packages/quality/efficiency/scale/benchmark/infra/benchmark-env.tf","packages/quality/efficiency/scale/benchmark/infra/output.tf","packages/quality/efficiency/scale/benchmark/infra/providers.tf"]},{"repo":"nestjs","area":"compose","locations":1,"files":1,"examples":["integration/docker-compose.yml"]},{"repo":"nextjs","area":"dockerfile","locations":1,"files":2,"examples":["scripts/native-builder.Dockerfile","scripts/wasi-builder.Dockerfile"]},{"repo":"nextjs","area":"devcontainer","locations":1,"files":1,"examples":[".devcontainer/devcontainer.json"]},{"repo":"open-webui","area":"dockerfile","locations":2,"files":3,"examples":[".dockerignore","Dockerfile","backend/.dockerignore"]},{"repo":"open-webui","area":"compose","locations":1,"files":8,"examples":["docker-compose.a1111-test.yaml","docker-compose.amdgpu.yaml","docker-compose.api.yaml","docker-compose.data.yaml"]},{"repo":"opencode","area":"dockerfile","locations":3,"files":3,"examples":[".dockerignore","packages/cli/Dockerfile","packages/stats/server/Dockerfile"]},{"repo":"paperless-ngx","area":"dockerfile","locations":2,"files":3,"examples":[".dockerignore","Dockerfile",".devcontainer/Dockerfile"]},{"repo":"paperless-ngx","area":"compose","locations":2,"files":9,"examples":[".devcontainer/docker-compose.devcontainer.sqlite-tika.yml","docker/compose/docker-compose.ci-test.yml","docker/compose/docker-compose.mariadb-tika.yml","docker/compose/docker-compose.mariadb.yml"]},{"repo":"paperless-ngx","area":"devcontainer","locations":1,"files":1,"examples":[".devcontainer/devcontainer.json"]},{"repo":"vllm","area":"dockerfile","locations":3,"files":15,"examples":[".dockerignore","docker/Dockerfile","docker/Dockerfile.cpu","docker/Dockerfile.efa"]}]};
+const LEVELS = [
+  {l:0, c:'var(--l0)', t:'None', d:'A must-have check fails, or too few basics pass.'},
+  {l:1, c:'var(--l1)', t:'Basics', d:'Nothing dangerous committed; files are reproducible.'},
+  {l:2, c:'var(--l2)', t:'Checked', d:'Pinned, and a check or linter runs in CI or a hook.'},
+  {l:3, c:'var(--l3)', t:'Automated', d:'Scanners, health checks and CI builds or plans.'}
+];
+const AREA = Object.fromEntries(DATA.areas.map(a => [a.key, a]));
+const votes = {};            // "repo|area" -> 0..3
+let store = null;            // db collection, or null for browser storage
+const el = (tag, attrs = {}, ...kids) => {
+  const n = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) k === 'class' ? n.className = v : k === 'style' ? n.setAttribute('style', v) : n.setAttribute(k, v);
+  for (const c of kids) n.append(c);
+  return n;
+};
+const key = (r, a) => r + '|' + a;
+const lsGet = () => { try { return JSON.parse(localStorage.getItem('infra-votes') || '{}'); } catch (e) { return {}; } };
+const lsSet = () => { try { localStorage.setItem('infra-votes', JSON.stringify(votes)); } catch (e) {} };
+
+function build() {
+  const legend = document.getElementById('legend');
+  LEVELS.forEach(v => legend.append(el('div', {class:'lv', style:'--c:' + v.c}, el('b', {}, 'L' + v.l + ' · ' + v.t), el('span', {}, v.d))));
+  const index = document.getElementById('index');
+  const main = document.getElementById('main');
+  index.append(el('small', {}, 'Areas'));
+  DATA.areas.forEach(a => {
+    const cells = DATA.cells.filter(c => c.area === a.key);
+    const link = el('a', {href:'#' + a.key, 'data-area':a.key}, a.name, el('span', {}, cells.length ? '0/' + cells.length : 'ref'));
+    index.append(link);
+    const sec = el('section', {class:'area', id:a.key}, el('h2', {}, a.name),
+      el('p', {class:'sub'}, cells.length + (cells.length === 1 ? ' repository to rate' : ' repositories to rate') + (cells.length ? '' : ' (reference only)')));
+    const grid = el('div', {class:'grid'});
+    [0, 1, 2, 3].forEach(l => {
+      const lvl = LEVELS[l];
+      const checks = l === 0 ? [] : (a.levels.find(x => x.level === l) || {checks:[]}).checks;
+      const ex = a.examples.find(x => x.level === l);
+      const col = el('div', {class:'col', style:'--c:' + lvl.c}, el('h3', {}, 'L' + l + ' ', el('span', {}, lvl.t)));
+      if (l === 0) col.append(el('p', {class:'none'}, 'A level-1 gate fails.'));
+      else if (!checks.length) col.append(el('p', {class:'none'}, 'No checks at this level.'));
+      else { const ul = el('ul'); checks.forEach(c => ul.append(el('li', {class:c.gate ? 'gate' : ''}, c.title))); col.append(ul); }
+      col.append(el('pre', {}, ex.code), el('p', {class:'why'}, ex.why));
+      grid.append(col);
+    });
+    sec.append(grid, el('p', {class:'keynote'}, '◆ marks a gate: it must pass or the area cannot reach that level. A level also needs everything below it.'));
+    if (cells.length) {
+      const box = el('div', {class:'votes'}, el('h3', {}, 'Your rating'));
+      cells.forEach(c => {
+        const pick = el('div', {class:'pick', role:'group', 'aria-label':'Rating for ' + c.repo + ' ' + a.name});
+        LEVELS.forEach(v => {
+          const b = el('button', {type:'button', 'data-k':key(c.repo, a.key), 'data-v':v.l, style:'--c:' + v.c, 'aria-pressed':'false', title:'L' + v.l + ' ' + v.t}, String(v.l));
+          b.onclick = () => vote(c.repo, a.key, v.l);
+          pick.append(b);
+        });
+        const skip = el('button', {type:'button', class:'skip', 'data-k':key(c.repo, a.key), 'data-v':'clear', title:'Clear this rating'}, 'clear');
+        skip.onclick = () => vote(c.repo, a.key, null);
+        pick.append(skip);
+        const facts = c.locations + (c.locations === 1 ? ' location' : ' locations') + ' · ' + c.files + (c.files === 1 ? ' file' : ' files') + ' · ' + c.examples.join(', ');
+        box.append(el('div', {class:'row'}, el('div', {class:'who'}, el('b', {}, c.repo), el('div', {class:'facts'}, facts)), pick));
+      });
+      sec.append(box);
+    }
+    main.append(sec);
+  });
+  document.getElementById('total').textContent = DATA.cells.length;
+}
+
+function paint() {
+  document.querySelectorAll('.pick button[data-v]').forEach(b => {
+    if (b.dataset.v === 'clear') return;
+    b.setAttribute('aria-pressed', String(votes[b.dataset.k] === Number(b.dataset.v)));
+  });
+  let done = 0;
+  DATA.areas.forEach(a => {
+    const cells = DATA.cells.filter(c => c.area === a.key);
+    const n = cells.filter(c => votes[key(c.repo, c.area)] !== undefined).length;
+    done += n;
+    const link = document.querySelector('#index a[data-area="' + a.key + '"] span');
+    if (cells.length) { link.textContent = n + '/' + cells.length; link.parentElement.classList.toggle('done', n === cells.length); }
+  });
+  document.getElementById('done').textContent = done;
+}
+
+const status = t => { document.getElementById('status').textContent = t; };
+let SIDE = {"schema":"infra-level-evaluation/0.1","tool":"harness-audit 1.2.0 infrastructure overlay","rater":"Andreas Elser","date":"2026-10-27","scale":{"0":"None","1":"Basics","2":"Checked","3":"Automated"},"ratings":[{"repo":"ansible-for-devops","area":"ansible","level":2},{"repo":"ansible-for-devops","area":"dockerfile","level":2},{"repo":"ansible-for-devops","area":"kubernetes","level":2},{"repo":"aws-cloudformation-templates","area":"cloudformation","level":2},{"repo":"aws-cloudformation-templates","area":"kubernetes","level":1},{"repo":"examples","area":"ansible","level":2},{"repo":"examples","area":"devcontainer","level":1},{"repo":"examples","area":"dockerfile","level":2},{"repo":"examples","area":"kubernetes","level":2},{"repo":"examples","area":"pulumi","level":2},{"repo":"examples","area":"terraform","level":2},{"repo":"flask","area":"devcontainer","level":1},{"repo":"home-assistant-core","area":"devcontainer","level":1},{"repo":"home-assistant-core","area":"dockerfile","level":2},{"repo":"httpie-cli","area":"dockerfile","level":1},{"repo":"immich","area":"compose","level":2},{"repo":"immich","area":"devcontainer","level":2},{"repo":"immich","area":"dockerfile","level":2},{"repo":"immich","area":"terraform","level":2},{"repo":"immich-public-proxy","area":"compose","level":1},{"repo":"immich-public-proxy","area":"dockerfile","level":2},{"repo":"n8n","area":"compose","level":2},{"repo":"n8n","area":"devcontainer","level":2},{"repo":"n8n","area":"dockerfile","level":2},{"repo":"n8n","area":"terraform","level":2},{"repo":"nestjs","area":"compose","level":1},{"repo":"nextjs","area":"devcontainer","level":1},{"repo":"nextjs","area":"dockerfile","level":1},{"repo":"open-webui","area":"compose","level":2},{"repo":"open-webui","area":"dockerfile","level":2},{"repo":"opencode","area":"dockerfile","level":1},{"repo":"paperless-ngx","area":"compose","level":2},{"repo":"paperless-ngx","area":"devcontainer","level":1},{"repo":"paperless-ngx","area":"dockerfile","level":2},{"repo":"vllm","area":"dockerfile","level":2}],"comparison":{"note":"Tool levels before and after the changes of 2026-10-27 (B-215). Rated blind to these values.","tool_before":[{"repo":"ansible-for-devops","area":"ansible","level":0},{"repo":"ansible-for-devops","area":"dockerfile","level":0},{"repo":"ansible-for-devops","area":"kubernetes","level":1},{"repo":"aws-cloudformation-templates","area":"cloudformation","level":1},{"repo":"aws-cloudformation-templates","area":"kubernetes","level":1},{"repo":"examples","area":"ansible","level":0},{"repo":"examples","area":"devcontainer","level":2},{"repo":"examples","area":"dockerfile","level":0},{"repo":"examples","area":"kubernetes","level":1},{"repo":"examples","area":"pulumi","level":0},{"repo":"examples","area":"terraform","level":0},{"repo":"flask","area":"devcontainer","level":2},{"repo":"home-assistant-core","area":"devcontainer","level":2},{"repo":"home-assistant-core","area":"dockerfile","level":2},{"repo":"httpie-cli","area":"dockerfile","level":0},{"repo":"immich","area":"compose","level":1},{"repo":"immich","area":"devcontainer","level":0},{"repo":"immich","area":"dockerfile","level":1},{"repo":"immich","area":"terraform","level":1},{"repo":"immich-public-proxy","area":"compose","level":1},{"repo":"immich-public-proxy","area":"dockerfile","level":2},{"repo":"n8n","area":"compose","level":1},{"repo":"n8n","area":"devcontainer","level":2},{"repo":"n8n","area":"dockerfile","level":1},{"repo":"n8n","area":"terraform","level":0},{"repo":"nestjs","area":"compose","level":1},{"repo":"nextjs","area":"devcontainer","level":0},{"repo":"nextjs","area":"dockerfile","level":0},{"repo":"open-webui","area":"compose","level":1},{"repo":"open-webui","area":"dockerfile","level":1},{"repo":"opencode","area":"dockerfile","level":1},{"repo":"paperless-ngx","area":"compose","level":1},{"repo":"paperless-ngx","area":"devcontainer","level":2},{"repo":"paperless-ngx","area":"dockerfile","level":2},{"repo":"vllm","area":"dockerfile","level":1}],"tool_after":[{"repo":"ansible-for-devops","area":"ansible","level":3},{"repo":"ansible-for-devops","area":"dockerfile","level":1},{"repo":"ansible-for-devops","area":"kubernetes","level":1},{"repo":"aws-cloudformation-templates","area":"cloudformation","level":1},{"repo":"aws-cloudformation-templates","area":"kubernetes","level":1},{"repo":"examples","area":"ansible","level":1},{"repo":"examples","area":"devcontainer","level":2},{"repo":"examples","area":"dockerfile","level":1},{"repo":"examples","area":"kubernetes","level":1},{"repo":"examples","area":"pulumi","level":0},{"repo":"examples","area":"terraform","level":0},{"repo":"flask","area":"devcontainer","level":2},{"repo":"home-assistant-core","area":"devcontainer","level":2},{"repo":"home-assistant-core","area":"dockerfile","level":2},{"repo":"httpie-cli","area":"dockerfile","level":1},{"repo":"immich","area":"compose","level":1},{"repo":"immich","area":"devcontainer","level":2},{"repo":"immich","area":"dockerfile","level":2},{"repo":"immich","area":"terraform","level":1},{"repo":"immich-public-proxy","area":"compose","level":1},{"repo":"immich-public-proxy","area":"dockerfile","level":2},{"repo":"n8n","area":"compose","level":1},{"repo":"n8n","area":"devcontainer","level":2},{"repo":"n8n","area":"dockerfile","level":2},{"repo":"n8n","area":"terraform","level":0},{"repo":"nestjs","area":"compose","level":1},{"repo":"nextjs","area":"devcontainer","level":1},{"repo":"nextjs","area":"dockerfile","level":1},{"repo":"open-webui","area":"compose","level":2},{"repo":"open-webui","area":"dockerfile","level":3},{"repo":"opencode","area":"dockerfile","level":1},{"repo":"paperless-ngx","area":"compose","level":1},{"repo":"paperless-ngx","area":"devcontainer","level":2},{"repo":"paperless-ngx","area":"dockerfile","level":2},{"repo":"vllm","area":"dockerfile","level":1}]}};
+let showTool = false;
+
+function toolLevel(repo, area) {
+  const f = (SIDE.comparison && SIDE.comparison.tool_after || []).find(x => x.repo === repo && x.area === area);
+  return f ? f.level : null;
+}
+function paintTool() {
+  document.querySelectorAll('.tool-chip').forEach(n => { n.hidden = !showTool; });
+}
+function vote(repo, area, level) {
+  const k = key(repo, area);
+  if (level === null) delete votes[k]; else votes[k] = level;
+  paint(); lsSet(); status('saved in this browser');
+}
+function sidecar() {
+  return JSON.stringify({...SIDE, ratings: Object.entries(votes).map(([k, v]) => { const [repo, area] = k.split('|'); return {repo, area, level: v}; }).sort((a, b) => (a.repo + a.area).localeCompare(b.repo + b.area))}, null, 2) + '\n';
+}
+function adopt(doc) {
+  if (!doc || !Array.isArray(doc.ratings)) { status('not a sidecar file'); return; }
+  SIDE = doc;
+  Object.keys(votes).forEach(k => delete votes[k]);
+  doc.ratings.forEach(r => { if (Number.isInteger(r.level)) votes[key(r.repo, r.area)] = r.level; });
+  paint(); lsSet(); status('sidecar loaded');
+}
+function tools() {
+  const bar = document.querySelector('.progress');
+  const load = el('input', {type:'file', accept:'application/json,.json', hidden:'hidden', id:'file'});
+  load.onchange = () => { const f = load.files[0]; if (!f) return; f.text().then(x => adopt(JSON.parse(x))).catch(() => status('could not read file')); };
+  const mk = (label, fn) => { const b = el('button', {type:'button', class:'tool'}, label); b.onclick = fn; return b; };
+  bar.append(' · ', mk('Load sidecar', () => load.click()), ' ', mk('Save sidecar', () => {
+    const a = el('a', {href:URL.createObjectURL(new Blob([sidecar()], {type:'application/json'})), download:'infra-levels-evaluation.json'});
+    document.body.append(a); a.click(); a.remove();
+  }), ' ', mk('Show tool levels', function () { showTool = !showTool; this.textContent = showTool ? 'Hide tool levels' : 'Show tool levels'; paintTool(); }), load);
+}
+function init() {
+  build();
+  document.querySelectorAll('.pick').forEach(p => {
+    const first = p.querySelector('button[data-k]'); if (!first) return;
+    const [repo, area] = first.dataset.k.split('|');
+    const lv = toolLevel(repo, area);
+    if (lv !== null) { const chip = el('span', {class:'tool-chip', hidden:'hidden'}, 'tool L' + lv); p.append(chip); }
+  });
+  tools();
+  if (SIDE.ratings) SIDE.ratings.forEach(r => { if (Number.isInteger(r.level)) votes[key(r.repo, r.area)] = r.level; });
+  Object.assign(votes, lsGet());
+  paint();
+  status(SIDE.ratings && SIDE.ratings.length ? 'loaded the saved evaluation' : 'in this browser only');
+}
+init();
+</script>
+</body>
+</html>

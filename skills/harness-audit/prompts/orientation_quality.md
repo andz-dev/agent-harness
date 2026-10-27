@@ -23,6 +23,9 @@ the question, the check id, and numbered excerpts of repository files.
    paths, or sentences naming concrete paths do. A single vague sentence is not enough for `pass`.
 6. `confidence`: `high` when a quote answers the question unambiguously, `medium` when it needs mild
    interpretation, `low` when you are inferring.
+7. Your `status` must match your `note`. If the note says the requested element is missing ("no single aggregate
+   command", "does not name"), the status is `fail`, not `pass`. Do not pass a check because something
+   adjacent exists; the question asks for exactly what it names.
 
 ## Answer format
 

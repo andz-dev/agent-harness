@@ -55,6 +55,22 @@ def run_one(tree, *checks):
     return run_checks.run(root, catalog)["findings"]
 
 
+class Sta09MechanicalTests(unittest.TestCase):
+    """B-128: STA-09 is mechanical. Linters that print rule ids count; formatters do not."""
+
+    def status(self, tree):
+        sta09 = next(c for c in REAL_CATALOG["checks"] if c["id"] == "STA-09")
+        return run_one(tree, sta09)[0]["status"]
+
+    def test_ruff_and_oxlint_pass(self):
+        self.assertEqual(self.status({"pyproject.toml": PYPROJECT + "[tool.ruff]\nline-length = 100\n"}), "pass")
+        self.assertEqual(self.status({"package.json": "{}", "oxlint.config.ts": "export default {}\n"}), "pass")
+
+    def test_formatter_only_fails(self):
+        self.assertEqual(self.status({"pyproject.toml": PYPROJECT + "[tool.black]\nline-length = 100\n"}), "fail")
+        self.assertEqual(self.status({"package.json": "{}", ".prettierrc": "{}"}), "fail")
+
+
 class DjangoRegressionTests(unittest.TestCase):
     """Holdout (B-139): unittest-based repos with tests/runtests.py have a configured test framework."""
 
@@ -63,6 +79,23 @@ class DjangoRegressionTests(unittest.TestCase):
         tree = {"pyproject.toml": PYPROJECT, "tests/runtests.py": "import unittest\n"}
         findings = run_one(tree, ver03)
         self.assertEqual([f["status"] for f in findings if f["check_id"] == "VER-03"], ["pass"])
+
+
+class PlaceholderTests(unittest.TestCase):
+    """Bootstrap stubs (B-150): a file with TODO(human) placeholders does not earn a pass."""
+
+    def test_pass_on_file_with_placeholder_becomes_fail(self):
+        chk = check("file_exists", {"globs": ["AGENTS.md"]}, cid="TST-02", pillar="orientation")
+        done = run_one({"pyproject.toml": PYPROJECT, "AGENTS.md": "# a\nTODO(human): fill\n"}, chk)
+        f = [x for x in done if x["check_id"] == "TST-02"][0]
+        self.assertEqual(f["status"], "fail")
+        self.assertIn("TODO(human)", f["note"])
+        self.assertEqual(f["evidence"][-1]["kind"], "searched")
+
+    def test_finished_file_still_passes(self):
+        chk = check("file_exists", {"globs": ["AGENTS.md"]}, cid="TST-02", pillar="orientation")
+        done = run_one({"pyproject.toml": PYPROJECT, "AGENTS.md": "# a\nreal rules\n"}, chk)
+        self.assertEqual([x["status"] for x in done if x["check_id"] == "TST-02"], ["pass"])
 
 
 class GlobTests(unittest.TestCase):

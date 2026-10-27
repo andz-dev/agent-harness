@@ -1,0 +1,546 @@
+{
+  "schema": "infra-level-evaluation/0.1",
+  "tool": "harness-audit 1.2.0 infrastructure overlay",
+  "rater": "Andreas Elser",
+  "date": "2026-10-27",
+  "scale": {
+    "0": "None",
+    "1": "Basics",
+    "2": "Checked",
+    "3": "Automated"
+  },
+  "ratings": [
+    {
+      "repo": "ansible-for-devops",
+      "area": "ansible",
+      "level": 2
+    },
+    {
+      "repo": "ansible-for-devops",
+      "area": "dockerfile",
+      "level": 2
+    },
+    {
+      "repo": "ansible-for-devops",
+      "area": "kubernetes",
+      "level": 2
+    },
+    {
+      "repo": "aws-cloudformation-templates",
+      "area": "cloudformation",
+      "level": 2
+    },
+    {
+      "repo": "aws-cloudformation-templates",
+      "area": "kubernetes",
+      "level": 1
+    },
+    {
+      "repo": "examples",
+      "area": "ansible",
+      "level": 2
+    },
+    {
+      "repo": "examples",
+      "area": "devcontainer",
+      "level": 1
+    },
+    {
+      "repo": "examples",
+      "area": "dockerfile",
+      "level": 2
+    },
+    {
+      "repo": "examples",
+      "area": "kubernetes",
+      "level": 2
+    },
+    {
+      "repo": "examples",
+      "area": "pulumi",
+      "level": 2
+    },
+    {
+      "repo": "examples",
+      "area": "terraform",
+      "level": 2
+    },
+    {
+      "repo": "flask",
+      "area": "devcontainer",
+      "level": 1
+    },
+    {
+      "repo": "home-assistant-core",
+      "area": "devcontainer",
+      "level": 1
+    },
+    {
+      "repo": "home-assistant-core",
+      "area": "dockerfile",
+      "level": 2
+    },
+    {
+      "repo": "httpie-cli",
+      "area": "dockerfile",
+      "level": 1
+    },
+    {
+      "repo": "immich",
+      "area": "compose",
+      "level": 2
+    },
+    {
+      "repo": "immich",
+      "area": "devcontainer",
+      "level": 2
+    },
+    {
+      "repo": "immich",
+      "area": "dockerfile",
+      "level": 2
+    },
+    {
+      "repo": "immich",
+      "area": "terraform",
+      "level": 2
+    },
+    {
+      "repo": "immich-public-proxy",
+      "area": "compose",
+      "level": 1
+    },
+    {
+      "repo": "immich-public-proxy",
+      "area": "dockerfile",
+      "level": 2
+    },
+    {
+      "repo": "n8n",
+      "area": "compose",
+      "level": 2
+    },
+    {
+      "repo": "n8n",
+      "area": "devcontainer",
+      "level": 2
+    },
+    {
+      "repo": "n8n",
+      "area": "dockerfile",
+      "level": 2
+    },
+    {
+      "repo": "n8n",
+      "area": "terraform",
+      "level": 2
+    },
+    {
+      "repo": "nestjs",
+      "area": "compose",
+      "level": 1
+    },
+    {
+      "repo": "nextjs",
+      "area": "devcontainer",
+      "level": 1
+    },
+    {
+      "repo": "nextjs",
+      "area": "dockerfile",
+      "level": 1
+    },
+    {
+      "repo": "open-webui",
+      "area": "compose",
+      "level": 2
+    },
+    {
+      "repo": "open-webui",
+      "area": "dockerfile",
+      "level": 2
+    },
+    {
+      "repo": "opencode",
+      "area": "dockerfile",
+      "level": 1
+    },
+    {
+      "repo": "paperless-ngx",
+      "area": "compose",
+      "level": 2
+    },
+    {
+      "repo": "paperless-ngx",
+      "area": "devcontainer",
+      "level": 1
+    },
+    {
+      "repo": "paperless-ngx",
+      "area": "dockerfile",
+      "level": 2
+    },
+    {
+      "repo": "vllm",
+      "area": "dockerfile",
+      "level": 2
+    }
+  ],
+  "comparison": {
+    "note": "Tool levels before and after the changes of 2026-10-27 (B-215). Rated blind to these values.",
+    "tool_before": [
+      {
+        "repo": "ansible-for-devops",
+        "area": "ansible",
+        "level": 0
+      },
+      {
+        "repo": "ansible-for-devops",
+        "area": "dockerfile",
+        "level": 0
+      },
+      {
+        "repo": "ansible-for-devops",
+        "area": "kubernetes",
+        "level": 1
+      },
+      {
+        "repo": "aws-cloudformation-templates",
+        "area": "cloudformation",
+        "level": 1
+      },
+      {
+        "repo": "aws-cloudformation-templates",
+        "area": "kubernetes",
+        "level": 1
+      },
+      {
+        "repo": "examples",
+        "area": "ansible",
+        "level": 0
+      },
+      {
+        "repo": "examples",
+        "area": "devcontainer",
+        "level": 2
+      },
+      {
+        "repo": "examples",
+        "area": "dockerfile",
+        "level": 0
+      },
+      {
+        "repo": "examples",
+        "area": "kubernetes",
+        "level": 1
+      },
+      {
+        "repo": "examples",
+        "area": "pulumi",
+        "level": 0
+      },
+      {
+        "repo": "examples",
+        "area": "terraform",
+        "level": 0
+      },
+      {
+        "repo": "flask",
+        "area": "devcontainer",
+        "level": 2
+      },
+      {
+        "repo": "home-assistant-core",
+        "area": "devcontainer",
+        "level": 2
+      },
+      {
+        "repo": "home-assistant-core",
+        "area": "dockerfile",
+        "level": 2
+      },
+      {
+        "repo": "httpie-cli",
+        "area": "dockerfile",
+        "level": 0
+      },
+      {
+        "repo": "immich",
+        "area": "compose",
+        "level": 1
+      },
+      {
+        "repo": "immich",
+        "area": "devcontainer",
+        "level": 0
+      },
+      {
+        "repo": "immich",
+        "area": "dockerfile",
+        "level": 1
+      },
+      {
+        "repo": "immich",
+        "area": "terraform",
+        "level": 1
+      },
+      {
+        "repo": "immich-public-proxy",
+        "area": "compose",
+        "level": 1
+      },
+      {
+        "repo": "immich-public-proxy",
+        "area": "dockerfile",
+        "level": 2
+      },
+      {
+        "repo": "n8n",
+        "area": "compose",
+        "level": 1
+      },
+      {
+        "repo": "n8n",
+        "area": "devcontainer",
+        "level": 2
+      },
+      {
+        "repo": "n8n",
+        "area": "dockerfile",
+        "level": 1
+      },
+      {
+        "repo": "n8n",
+        "area": "terraform",
+        "level": 0
+      },
+      {
+        "repo": "nestjs",
+        "area": "compose",
+        "level": 1
+      },
+      {
+        "repo": "nextjs",
+        "area": "devcontainer",
+        "level": 0
+      },
+      {
+        "repo": "nextjs",
+        "area": "dockerfile",
+        "level": 0
+      },
+      {
+        "repo": "open-webui",
+        "area": "compose",
+        "level": 1
+      },
+      {
+        "repo": "open-webui",
+        "area": "dockerfile",
+        "level": 1
+      },
+      {
+        "repo": "opencode",
+        "area": "dockerfile",
+        "level": 1
+      },
+      {
+        "repo": "paperless-ngx",
+        "area": "compose",
+        "level": 1
+      },
+      {
+        "repo": "paperless-ngx",
+        "area": "devcontainer",
+        "level": 2
+      },
+      {
+        "repo": "paperless-ngx",
+        "area": "dockerfile",
+        "level": 2
+      },
+      {
+        "repo": "vllm",
+        "area": "dockerfile",
+        "level": 1
+      }
+    ],
+    "tool_after": [
+      {
+        "repo": "ansible-for-devops",
+        "area": "ansible",
+        "level": 3
+      },
+      {
+        "repo": "ansible-for-devops",
+        "area": "dockerfile",
+        "level": 1
+      },
+      {
+        "repo": "ansible-for-devops",
+        "area": "kubernetes",
+        "level": 1
+      },
+      {
+        "repo": "aws-cloudformation-templates",
+        "area": "cloudformation",
+        "level": 1
+      },
+      {
+        "repo": "aws-cloudformation-templates",
+        "area": "kubernetes",
+        "level": 1
+      },
+      {
+        "repo": "examples",
+        "area": "ansible",
+        "level": 1
+      },
+      {
+        "repo": "examples",
+        "area": "devcontainer",
+        "level": 2
+      },
+      {
+        "repo": "examples",
+        "area": "dockerfile",
+        "level": 1
+      },
+      {
+        "repo": "examples",
+        "area": "kubernetes",
+        "level": 1
+      },
+      {
+        "repo": "examples",
+        "area": "pulumi",
+        "level": 0
+      },
+      {
+        "repo": "examples",
+        "area": "terraform",
+        "level": 0
+      },
+      {
+        "repo": "flask",
+        "area": "devcontainer",
+        "level": 2
+      },
+      {
+        "repo": "home-assistant-core",
+        "area": "devcontainer",
+        "level": 2
+      },
+      {
+        "repo": "home-assistant-core",
+        "area": "dockerfile",
+        "level": 2
+      },
+      {
+        "repo": "httpie-cli",
+        "area": "dockerfile",
+        "level": 1
+      },
+      {
+        "repo": "immich",
+        "area": "compose",
+        "level": 1
+      },
+      {
+        "repo": "immich",
+        "area": "devcontainer",
+        "level": 2
+      },
+      {
+        "repo": "immich",
+        "area": "dockerfile",
+        "level": 2
+      },
+      {
+        "repo": "immich",
+        "area": "terraform",
+        "level": 1
+      },
+      {
+        "repo": "immich-public-proxy",
+        "area": "compose",
+        "level": 1
+      },
+      {
+        "repo": "immich-public-proxy",
+        "area": "dockerfile",
+        "level": 2
+      },
+      {
+        "repo": "n8n",
+        "area": "compose",
+        "level": 1
+      },
+      {
+        "repo": "n8n",
+        "area": "devcontainer",
+        "level": 2
+      },
+      {
+        "repo": "n8n",
+        "area": "dockerfile",
+        "level": 2
+      },
+      {
+        "repo": "n8n",
+        "area": "terraform",
+        "level": 0
+      },
+      {
+        "repo": "nestjs",
+        "area": "compose",
+        "level": 1
+      },
+      {
+        "repo": "nextjs",
+        "area": "devcontainer",
+        "level": 1
+      },
+      {
+        "repo": "nextjs",
+        "area": "dockerfile",
+        "level": 1
+      },
+      {
+        "repo": "open-webui",
+        "area": "compose",
+        "level": 2
+      },
+      {
+        "repo": "open-webui",
+        "area": "dockerfile",
+        "level": 3
+      },
+      {
+        "repo": "opencode",
+        "area": "dockerfile",
+        "level": 1
+      },
+      {
+        "repo": "paperless-ngx",
+        "area": "compose",
+        "level": 1
+      },
+      {
+        "repo": "paperless-ngx",
+        "area": "devcontainer",
+        "level": 2
+      },
+      {
+        "repo": "paperless-ngx",
+        "area": "dockerfile",
+        "level": 2
+      },
+      {
+        "repo": "vllm",
+        "area": "dockerfile",
+        "level": 1
+      }
+    ]
+  }
+}

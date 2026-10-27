@@ -18,6 +18,7 @@ AGENTS = (
     "# Agents\n\n## Layout\n\n- `src/x/` holds the library\n- `tests/` mirrors it\n\n"
     "## Commands\n\nRun `task check` before every commit.\nSee `docs/guide.md` and `docs/gone.md`.\n"
 )
+CLEAN_AGENTS = AGENTS.replace(" and `docs/gone.md`", "")
 TREE = {
     "pyproject.toml": PYPROJECT,
     "src/x/a.py": "",
@@ -106,6 +107,20 @@ class PlanTests(unittest.TestCase):
         got = [c["text"] for c in task(plan, "DOC-06")["candidates"]]
         self.assertEqual(got, ["docs/gone.md"])
 
+    def test_doc06_is_resolved_by_script_when_every_path_exists(self):
+        tree = {**TREE, "AGENTS.md": CLEAN_AGENTS, "README.md": "# x\n\nSee `docs/guide.md`.\n", "docs/guide.md": "# g\n"}
+        _, plan = prepared(tree)
+        self.assertNotIn("DOC-06", [t["task_id"] for t in plan["tasks"]])
+        done = next(f for f in plan["resolved"] if f["check_id"] == "DOC-06")
+        self.assertEqual(done["status"], "pass")
+        self.assertEqual(done["evidence"][0]["kind"], "found")
+
+    def test_history_files_are_not_checked_for_dead_paths(self):
+        """Regression (fastapi): release notes name files that were removed on purpose."""
+        tree = {**TREE, "AGENTS.md": CLEAN_AGENTS, "README.md": "# x\n", "docs/release-notes.md": "Removed `scripts/people.py` in 0.9.\n"}
+        _, plan = prepared(tree)
+        self.assertEqual([t for t in plan["tasks"] if t["task_id"] == "DOC-06"], [])
+
     def test_excerpt_budget(self):
         big = "\n".join(f"line {i}" for i in range(2000))
         _, plan = prepared({**TREE, "AGENTS.md": big, "README.md": big})
@@ -192,5 +207,96 @@ class ApplyTests(unittest.TestCase):
             v.validate(f)
 
 
+class MissingCommandsTests(unittest.TestCase):
+    """B-165: ORI-09 gets mechanical candidates for documented runner commands that do not exist."""
+
+    def run_plan(self, files):
+        _, plan = prepared({**TREE, **files})
+        return next((t for t in plan["tasks"] if t["task_id"] == "ORI-09"), None)
+
+    def test_missing_target_is_a_candidate(self):
+        task = self.run_plan(
+            {
+                "AGENTS.md": "# a\n\nRun `make verify` and `make test`.\n",
+                "Makefile": "test:\n\tpytest\n",
+            }
+        )
+        self.assertIsNotNone(task)
+        self.assertEqual([c["text"] for c in task["candidates"]], ["make verify"])
+        self.assertEqual(task["facts"]["command_references_checked"], 2)
+
+    def test_existing_targets_leave_no_candidates(self):
+        task = self.run_plan({"AGENTS.md": "# a\n\nRun `make test`.\n", "Makefile": "test:\n\tpytest\n"})
+        self.assertEqual(task["candidates"], [])
+        self.assertEqual(task["facts"]["command_references_checked"], 1)
+
+
 if __name__ == "__main__":
     unittest.main()
+
+
+INFRA_AGENTS = CLEAN_AGENTS + "\n## Infrastructure\n\nRun `terraform plan` only. Never run `terraform apply` or `terraform destroy`.\n"
+INFRA_TREE = {**TREE, "AGENTS.md": INFRA_AGENTS, "infra/main.tf": "", "Dockerfile": "FROM python:3.12\n"}
+
+
+class InfraJudgementTests(unittest.TestCase):
+    """B-180: judgement tasks for the infrastructure overlay."""
+
+    def test_tasks_exist_only_when_infrastructure_and_agent_file_exist(self):
+        _, plan = prepared(INFRA_TREE)
+        ids = [t["task_id"] for t in plan["tasks"] if t["pillar"] == "infra"]
+        self.assertEqual(ids, ["INF-J01", "INF-J02", "INF-J03", "INF-J04"])
+        facts = task(plan, "INF-J01")["facts"]
+        self.assertEqual({d["tool"] for d in facts["infrastructure"]}, {"docker", "terraform"})
+        _, plan = prepared(TREE)
+        self.assertEqual([t for t in plan["tasks"] if t["pillar"] == "infra"], [])
+        self.assertEqual(plan["infra_resolved"], [])
+
+    def test_infrastructure_without_agent_file_fails_by_script(self):
+        t = {k: v for k, v in INFRA_TREE.items() if k != "AGENTS.md"}
+        _, plan = prepared(t)
+        self.assertEqual([f["status"] for f in plan["infra_resolved"]], ["fail"] * 4)
+        self.assertEqual({f["area"] for f in plan["infra_resolved"]}, {"agent-guidance"})
+
+    def test_verified_answer_becomes_an_infra_finding_and_stays_out_of_the_score(self):
+        root, plan = prepared(INFRA_TREE)
+        line = next(i for i, ln in enumerate(INFRA_AGENTS.splitlines(), 1) if "terraform plan" in ln)
+        quote = {
+            "path": "AGENTS.md",
+            "line": line,
+            "snippet": "Run `terraform plan` only. Never run `terraform apply` or `terraform destroy`.",
+        }
+        out = llm_layer.apply_answers(root, plan, [ans("INF-J01", ev=[quote]), ans("INF-J02", "fail", ev=[quote])])
+        by = {f["check_id"]: f for f in out["infra_findings"]}
+        self.assertEqual(by["INF-J01"]["status"], "pass")
+        self.assertEqual(by["INF-J01"]["evidence"][0]["path"], "AGENTS.md")
+        self.assertEqual(by["INF-J02"]["status"], "fail")
+        self.assertEqual(by["INF-J03"]["status"], "unknown")  # not answered
+        self.assertNotIn("INF-J01", [f["check_id"] for f in out["findings"]])
+
+    def test_unverifiable_quote_becomes_unknown(self):
+        root, plan = prepared(INFRA_TREE)
+        bad = {"path": "AGENTS.md", "line": 3, "snippet": "Never deploy on Fridays"}
+        out = llm_layer.apply_answers(root, plan, [ans("INF-J01", ev=[bad])])
+        self.assertEqual({f["check_id"]: f["status"] for f in out["infra_findings"]}["INF-J01"], "unknown")
+
+    def test_long_agent_file_sends_windows_around_infrastructure_words(self):
+        filler = "".join(f"filler line {i}\n" for i in range(600))
+        agents = "# Agents\n" + filler + "Never run `terraform apply` without review.\n" + filler
+        root, plan = prepared({**INFRA_TREE, "AGENTS.md": agents})
+        ex = plan["shared_excerpts"]["infra"][0]
+        self.assertEqual(task(plan, "INF-J01")["excerpts_ref"], "infra")
+        self.assertEqual(task(plan, "INF-J01")["excerpts"], [])
+        self.assertIn("terraform apply", ex["text"])
+        self.assertIn("omitted", ex["text"])
+        line = next(i for i, ln in enumerate(agents.splitlines(), 1) if "terraform apply" in ln)
+        quote = {"path": "AGENTS.md", "line": line, "snippet": "Never run `terraform apply` without review."}
+        out = llm_layer.apply_answers(root, plan, [ans("INF-J01", ev=[quote])])
+        self.assertEqual({f["check_id"]: f["status"] for f in out["infra_findings"]}["INF-J01"], "pass")
+
+    def test_environment_question_only_for_deployable_iac(self):
+        docker_only = {k: v for k, v in INFRA_TREE.items() if k != "infra/main.tf"}
+        _, plan = prepared(docker_only)
+        self.assertEqual([t["task_id"] for t in plan["tasks"] if t["pillar"] == "infra"], ["INF-J01", "INF-J03", "INF-J04"])
+        _, plan = prepared(INFRA_TREE)
+        self.assertIn("INF-J02", [t["task_id"] for t in plan["tasks"]])

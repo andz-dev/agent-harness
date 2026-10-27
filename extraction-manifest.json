@@ -20,22 +20,22 @@
       "source": "agents/skills/engineering/harness-audit/BACKLOG.md",
       "target": "skills/harness-audit/BACKLOG.md",
       "source_sha256": "e6585aecc04e06097ac13de92215c0f31635c848af6e49cf681782c72657d17d",
-      "sha256": "e6585aecc04e06097ac13de92215c0f31635c848af6e49cf681782c72657d17d",
-      "kind": "unchanged-source"
+      "sha256": "60edb7d7dd0b7e797f82c8488d1681905f8a9956af6ce026de34e21e7f0e42e6",
+      "kind": "adapted-runtime"
     },
     {
       "source": "agents/skills/engineering/harness-audit/README.md",
       "target": "skills/harness-audit/README.md",
       "source_sha256": "3594260f92aa199367737493a11f6789e266c6a23218cef96b3da465514be810",
-      "sha256": "3594260f92aa199367737493a11f6789e266c6a23218cef96b3da465514be810",
-      "kind": "unchanged-source"
+      "sha256": "868f2e87f3c2821ceec751a5d21199abe68e8de6a741e4cbc0b35d09f0750afc",
+      "kind": "adapted-runtime"
     },
     {
       "source": "agents/skills/engineering/harness-audit/SKILL.md",
       "target": "skills/harness-audit/SKILL.md",
       "source_sha256": "d9899e2e4c8328c7b781a55caefc2459b0192651c6de06feb3dd53dc5c49aa57",
-      "sha256": "d9899e2e4c8328c7b781a55caefc2459b0192651c6de06feb3dd53dc5c49aa57",
-      "kind": "unchanged-source"
+      "sha256": "676b639e24862af388c923c557c86980a66d145e26b9c30004fd3ebf2e65714a",
+      "kind": "adapted-runtime"
     },
     {
       "source": "agents/skills/engineering/harness-audit/Taskfile.yml",
@@ -48,8 +48,8 @@
       "source": "agents/skills/engineering/harness-audit/checks/catalog.yaml",
       "target": "skills/harness-audit/checks/catalog.yaml",
       "source_sha256": "8c0dc5beefb6fb0b94ce3c6ed0184926439c8e165617e34c8c801c99f87cadec",
-      "sha256": "8c0dc5beefb6fb0b94ce3c6ed0184926439c8e165617e34c8c801c99f87cadec",
-      "kind": "unchanged-source"
+      "sha256": "da2ca9a92606b8a8d96e312bb6c69ea09d82f98b36cc84e457a38872468cf26b",
+      "kind": "adapted-runtime"
     },
     {
       "source": "agents/skills/engineering/harness-audit/checks/fixes.yaml",
@@ -62,29 +62,29 @@
       "source": "agents/skills/engineering/harness-audit/prompts/instruction_drift.md",
       "target": "skills/harness-audit/prompts/instruction_drift.md",
       "source_sha256": "26897cb81a330e7ffbd94aa445c11e037491a24e84ef25de8b152c866d09b808",
-      "sha256": "26897cb81a330e7ffbd94aa445c11e037491a24e84ef25de8b152c866d09b808",
-      "kind": "unchanged-source"
+      "sha256": "b74bc0db04e2f0f6f658954bbf33ded95089cdfa9f1cdca5603d8fbf20734511",
+      "kind": "adapted-runtime"
     },
     {
       "source": "agents/skills/engineering/harness-audit/prompts/orientation_quality.md",
       "target": "skills/harness-audit/prompts/orientation_quality.md",
       "source_sha256": "fadf1fcabc5489a4bf5713e23881ccd16d4df4aaa69ce3c5e8b7d33dba69c081",
-      "sha256": "fadf1fcabc5489a4bf5713e23881ccd16d4df4aaa69ce3c5e8b7d33dba69c081",
-      "kind": "unchanged-source"
+      "sha256": "953b0d147ad87e1578e63de787dc21178563e9de6d4db030e5b01f591977a860",
+      "kind": "adapted-runtime"
     },
     {
       "source": "agents/skills/engineering/harness-audit/pyproject.toml",
       "target": "skills/harness-audit/pyproject.toml",
       "source_sha256": "780bf7d6640733fc0b5ca2051b8d0b055774690b0dcf909cbe3f74dca9adf8e1",
-      "sha256": "780bf7d6640733fc0b5ca2051b8d0b055774690b0dcf909cbe3f74dca9adf8e1",
-      "kind": "unchanged-source"
+      "sha256": "5dcf2873f2dd84e16fea55faeaa72949d91d494b179c03cb07403e7f01e6184c",
+      "kind": "adapted-runtime"
     },
     {
       "source": "agents/skills/engineering/harness-audit/references/FROZEN.sha256",
       "target": "skills/harness-audit/references/FROZEN.sha256",
       "source_sha256": "d71e457e83138af74b785be300148ee3b9e2ba55ec5dc9ac9c3f1b5c037d76b6",
-      "sha256": "d71e457e83138af74b785be300148ee3b9e2ba55ec5dc9ac9c3f1b5c037d76b6",
-      "kind": "unchanged-source"
+      "sha256": "f786def8cd0089c3a622ac1160ab37bae0725645d3254c0b78891bba4fa74acd",
+      "kind": "adapted-runtime"
     },
     {
       "source": "agents/skills/engineering/harness-audit/references/WEIGHTS-FROZEN.md",
@@ -111,22 +111,22 @@
       "source": "agents/skills/engineering/harness-audit/schema/report.schema.json",
       "target": "skills/harness-audit/schema/report.schema.json",
       "source_sha256": "303bb0a324331f1bb0541ec15eccfd2a070f1d0a8e8368e255fa0f30c47eb135",
-      "sha256": "303bb0a324331f1bb0541ec15eccfd2a070f1d0a8e8368e255fa0f30c47eb135",
-      "kind": "unchanged-source"
+      "sha256": "b57d4080093c093fa5afabe5cd8d447d61ec57314c6c3e3a295329af179b0baf",
+      "kind": "adapted-runtime"
     },
     {
       "source": "agents/skills/engineering/harness-audit/scripts/audit.py",
       "target": "skills/harness-audit/scripts/audit.py",
       "source_sha256": "329a9623db89b1a76e8f23202c69ad54a05ac141c1b3aba56eff855743042d6f",
-      "sha256": "329a9623db89b1a76e8f23202c69ad54a05ac141c1b3aba56eff855743042d6f",
-      "kind": "unchanged-source"
+      "sha256": "7e05ae4d786806804ca0007940cdbee99004a7aafced49e9b12980e75f7d888a",
+      "kind": "adapted-runtime"
     },
     {
       "source": "agents/skills/engineering/harness-audit/scripts/bootstrap.py",
       "target": "skills/harness-audit/scripts/bootstrap.py",
       "source_sha256": "a38bf46c23eb297a5067aedcfe8f05b0240afc58b55ea939f69733d6bcb35695",
-      "sha256": "a38bf46c23eb297a5067aedcfe8f05b0240afc58b55ea939f69733d6bcb35695",
-      "kind": "unchanged-source"
+      "sha256": "4489b43df3573ca1b191868cc2d798386d5f3c89189bb1aa10cfa72777b4ba30",
+      "kind": "adapted-runtime"
     },
     {
       "source": "agents/skills/engineering/harness-audit/scripts/calibrate.py",
@@ -153,15 +153,15 @@
       "source": "agents/skills/engineering/harness-audit/scripts/llm_layer.py",
       "target": "skills/harness-audit/scripts/llm_layer.py",
       "source_sha256": "8885f6867bd7f7f0a9ed14a3a972f7bb6c6b1de8b520b413b739a89e3a586dd1",
-      "sha256": "8885f6867bd7f7f0a9ed14a3a972f7bb6c6b1de8b520b413b739a89e3a586dd1",
-      "kind": "unchanged-source"
+      "sha256": "11c29b864c77f91c67d2b8085d1236ac1ca7973488ef0020b4e2c285838e38d4",
+      "kind": "adapted-runtime"
     },
     {
       "source": "agents/skills/engineering/harness-audit/scripts/run_checks.py",
       "target": "skills/harness-audit/scripts/run_checks.py",
       "source_sha256": "9c159c9b8bd96c7702d6688cc5e4fe2e1a6425994adf1de206330ab70e680e09",
-      "sha256": "9c159c9b8bd96c7702d6688cc5e4fe2e1a6425994adf1de206330ab70e680e09",
-      "kind": "unchanged-source"
+      "sha256": "38c6fb77065815931b11221a5f2622718e008fe6d96c6fe567fb7c26153f84b2",
+      "kind": "adapted-runtime"
     },
     {
       "source": "agents/skills/engineering/harness-audit/scripts/score.py",
@@ -181,15 +181,15 @@
       "source": "agents/skills/engineering/harness-audit/tests/test_audit.py",
       "target": "skills/harness-audit/tests/test_audit.py",
       "source_sha256": "11978f0a26c23edf222521061d297b0abfc0008a86b9c88100fa060a6216d6ca",
-      "sha256": "11978f0a26c23edf222521061d297b0abfc0008a86b9c88100fa060a6216d6ca",
-      "kind": "unchanged-source"
+      "sha256": "f92a45c0e405b00a9cae0b6a4ecfe8fc4d983911369d2a74e2e0fe1284611570",
+      "kind": "adapted-runtime"
     },
     {
       "source": "agents/skills/engineering/harness-audit/tests/test_bootstrap.py",
       "target": "skills/harness-audit/tests/test_bootstrap.py",
       "source_sha256": "7c4a8c6ce1f5b86b970449596c376e12bb4e8eb41d813b2ef7d565d189e70bfd",
-      "sha256": "7c4a8c6ce1f5b86b970449596c376e12bb4e8eb41d813b2ef7d565d189e70bfd",
-      "kind": "unchanged-source"
+      "sha256": "e6662f08e120d96018b5cef30d06625d3c705561f0ebaacaddda74be4019efe1",
+      "kind": "adapted-runtime"
     },
     {
       "source": "agents/skills/engineering/harness-audit/tests/test_detect_stack.py",
@@ -209,15 +209,15 @@
       "source": "agents/skills/engineering/harness-audit/tests/test_llm_layer.py",
       "target": "skills/harness-audit/tests/test_llm_layer.py",
       "source_sha256": "ac2386baa3a1422081eb7fd79fc2d0080bd6ca767f1a7a880054c85bd67dc8b5",
-      "sha256": "ac2386baa3a1422081eb7fd79fc2d0080bd6ca767f1a7a880054c85bd67dc8b5",
-      "kind": "unchanged-source"
+      "sha256": "8a5d4dff64aa3ae1af20c0e17a6247ccf60372dd7fec3738d1a9df122be525ea",
+      "kind": "adapted-runtime"
     },
     {
       "source": "agents/skills/engineering/harness-audit/tests/test_run_checks.py",
       "target": "skills/harness-audit/tests/test_run_checks.py",
       "source_sha256": "6a1a806ee95620ae724eaaf77401276f9c1e229b6db7eeba451f5529646f0fd8",
-      "sha256": "6a1a806ee95620ae724eaaf77401276f9c1e229b6db7eeba451f5529646f0fd8",
-      "kind": "unchanged-source"
+      "sha256": "496c35320ca425025002a07cfc1d83cfe9eec544de9d5c7d016266e7e69ea052",
+      "kind": "adapted-runtime"
     },
     {
       "source": "agents/skills/engineering/harness-audit/tests/test_score.py",
@@ -237,8 +237,8 @@
       "source": "agents/skills/engineering/harness-audit/uv.lock",
       "target": "skills/harness-audit/uv.lock",
       "source_sha256": "2c467060ed2c1f30cde6b5254c5685e24b92f439da75b11d493b3eea016f4b17",
-      "sha256": "2c467060ed2c1f30cde6b5254c5685e24b92f439da75b11d493b3eea016f4b17",
-      "kind": "unchanged-source"
+      "sha256": "5f5a9b10fb5a69a3ba3a9da19caab142952aa87bbe2378713a65ca4e3db0a5d1",
+      "kind": "adapted-runtime"
     },
     {
       "source": "apps/harness-city/NOTICE.md",
@@ -763,231 +763,231 @@
       "target": "docs/0002/Architecture.md",
       "source_sha256": "f17527ffa9e07f875f8fb49b44c1cf69b587d04b50a82169d1198a54e01ee248",
       "sha256": "9db7a10cf466cdf11db098af34c46e5bc11f7fd4c12d8b05787517b5b65529bf",
-      "kind": "adapted-documentation"
+      "kind": "adapted-runtime"
     },
     {
       "source": "docs/skills/0039-v0.2-agent-harness-setup/Golden-Dataset/artifact-meta.jsonc",
       "target": "docs/0002/Golden-Dataset/artifact-meta.jsonc",
       "source_sha256": "e41e89ba1ec7d1e757e28c48e346343648cf346faa237ac237f59a7f3debbb80",
-      "sha256": "d25ed0592c8991d5326d2840996fb3cef5d543bb214127a923d3be2a789313cf",
-      "kind": "adapted-documentation"
+      "sha256": "19e916d289a62f41b1adf3fe1029a0d3402cc5e5d6bb490da5042acdbe667f10",
+      "kind": "adapted-runtime"
     },
     {
       "source": "docs/skills/0039-v0.2-agent-harness-setup/Golden-Dataset/dataset-guide.md",
       "target": "docs/0002/Golden-Dataset/dataset-guide.md",
       "source_sha256": "26577b69f05fe034cee38225699347e4a944bf62f54c82541b057ce08f281045",
       "sha256": "dd0a8565b4357ce471db5dd2033964f73fdd6a5b167b97b38e4d912bdc91c5ff",
-      "kind": "adapted-documentation"
+      "kind": "adapted-runtime"
     },
     {
       "source": "docs/skills/0039-v0.2-agent-harness-setup/Golden-Dataset/dataset.json",
       "target": "docs/0002/Golden-Dataset/dataset.json",
       "source_sha256": "9c109be9a64a8c8690f183b6ce4ac107ba070847dc62e563649316fe3dfbe0d2",
       "sha256": "66f6d3f4df55b18226ef987d377f9a8e85d42aa980e61a7464de93edec1ecd3c",
-      "kind": "adapted-documentation"
+      "kind": "adapted-runtime"
     },
     {
       "source": "docs/skills/0039-v0.2-agent-harness-setup/Ideation-Book.md",
       "target": "docs/0002/Ideation-Book.md",
       "source_sha256": "f7e9ed1c728f77d40b44bbe221af0297af02fe7848fe1f1e649b94543adeabf9",
       "sha256": "82b65a7766154ef1e7330c7e46de8d2f0c52f1004399a7e8dcff8605809b3b0c",
-      "kind": "adapted-documentation"
+      "kind": "adapted-runtime"
     },
     {
       "source": "docs/skills/0039-v0.2-agent-harness-setup/Implementation.md",
       "target": "docs/0002/Implementation.md",
       "source_sha256": "24805a60113f7f59347f2adc838b0fe76f5cac9bbe707a341737238f2967a8de",
       "sha256": "91c82d74eac650577ab35fec3e06b0baced5d406ef2cda65320dae7bba23c30d",
-      "kind": "adapted-documentation"
+      "kind": "adapted-runtime"
     },
     {
       "source": "docs/skills/0039-v0.2-agent-harness-setup/Map.md",
       "target": "docs/0002/Map.md",
       "source_sha256": "99826736ae4eef98dd64e07196b36d2d622d4f0259cd7bb01d095a57b206290e",
       "sha256": "7748597750a50f4ca21f559742e021e872b9f9ce51f8d8c01edc475f44948d45",
-      "kind": "adapted-documentation"
+      "kind": "adapted-runtime"
     },
     {
       "source": "docs/skills/0039-v0.2-agent-harness-setup/Mocking-Plan.md",
       "target": "docs/0002/Mocking-Plan.md",
       "source_sha256": "d6cc04b53581dce29f568f7ad045260f3755a3e89156b1654e0045f1b9aa462e",
       "sha256": "45e9634df07d3590c8b54f1b987a524f12960f1a5dc16b55dbcc277f76ed443c",
-      "kind": "adapted-documentation"
+      "kind": "adapted-runtime"
     },
     {
       "source": "docs/skills/0039-v0.2-agent-harness-setup/Plan.md",
       "target": "docs/0002/Plan.md",
       "source_sha256": "bcead08e58c97211eaaec7bdbb82ad299816b39ebef0564bb336c6cbc09453bc",
       "sha256": "f9d476812accc81b3a055b7ad6c895f25b1c1942433204ebcc89fc2021aada11",
-      "kind": "adapted-documentation"
+      "kind": "adapted-runtime"
     },
     {
       "source": "docs/skills/0039-v0.2-agent-harness-setup/Prototype-Decision.md",
       "target": "docs/0002/Prototype-Decision.md",
       "source_sha256": "6dca099045911185b049bb9f4d912858b461a1acdfeb352b317b63efa1034156",
       "sha256": "5a0c89dba7ccf3be91ff8c3ac7ddc8eb55a7ad93825d92b2fea66ed13d5f98cc",
-      "kind": "adapted-documentation"
+      "kind": "adapted-runtime"
     },
     {
       "source": "docs/skills/0039-v0.2-agent-harness-setup/Research-Paper.md",
       "target": "docs/0002/Research-Paper.md",
       "source_sha256": "6e6afc5b7d47e42e1796b24663bd75c9a7ba30c6fe90e418de9dd8b28f4c3ed0",
       "sha256": "09483881a1a9da735d1eeee8b61ca843d6329a869ee83120d602a6832e24583d",
-      "kind": "adapted-documentation"
+      "kind": "adapted-runtime"
     },
     {
       "source": "docs/skills/0039-v0.2-agent-harness-setup/Test-Plan.md",
       "target": "docs/0002/Test-Plan.md",
       "source_sha256": "4e27b471d666e12be0cde17ccebf502d230a8c4c7b8dfefa0d8126bb52a4a530",
       "sha256": "d45a40289743b31297e38cd656817a997430c9fc9c18e624040c2a9d115af40e",
-      "kind": "adapted-documentation"
+      "kind": "adapted-runtime"
     },
     {
       "source": "docs/skills/0039-v0.2-agent-harness-setup/Tracker.md",
       "target": "docs/0002/Tracker.md",
       "source_sha256": "994b89eceaf7a36a971aff652e3d55ad9d08fc385d0dd1ad62c3d790e59b5b1a",
       "sha256": "8023b2fe9508459ef02f2b689cc49b8430344742031b6c603e0c2f61dbe05de3",
-      "kind": "adapted-documentation"
+      "kind": "adapted-runtime"
     },
     {
       "source": "docs/skills/0039-v0.2-agent-harness-setup/Whitepaper.md",
       "target": "docs/0002/Whitepaper.md",
       "source_sha256": "3dada6d17850bac6c81bc7ce89e26639f6f1560bb06bff2e3dab7eef6da4d7f8",
       "sha256": "d4668102af8dc6c122dd9fc9102820a761ba45e4ce8b7226b665b51e961dd603",
-      "kind": "adapted-documentation"
+      "kind": "adapted-runtime"
     },
     {
       "source": "docs/skills/0039-v0.2-agent-harness-setup/Workflow-Report.md",
       "target": "docs/0002/Workflow-Report.md",
       "source_sha256": "42b13d17777fa59bd7582066226efa80b9bf5b9d874743f726d7b75fefbe21e9",
       "sha256": "5880968fd33e04f2cd0e705dd1968671ec2b57150fcd31e2d93ea471d9ba03aa",
-      "kind": "adapted-documentation"
+      "kind": "adapted-runtime"
     },
     {
       "source": "docs/skills/0039-v0.2-agent-harness-setup/architecture-model.jsonc",
       "target": "docs/0002/architecture-model.jsonc",
       "source_sha256": "9dc421b9f658731181ce689c877741973392b25e85c095288d7f22da6ca80529",
-      "sha256": "b9bca1cbb90de915cad65f02a0531891f0c8a9a0eb58d122d01a4c8df98874f5",
-      "kind": "adapted-documentation"
+      "sha256": "e028cb5c10f5e9e50068307b7fa6e0d36142ab21987e34d4942e212d3e4c308b",
+      "kind": "adapted-runtime"
     },
     {
       "source": "docs/skills/0039-v0.2-agent-harness-setup/artifact-meta-architecture.jsonc",
       "target": "docs/0002/artifact-meta-architecture.jsonc",
       "source_sha256": "22b27834b7c0377a48bc42226812e00a0a85fcad29d4adb30143c46c021453cf",
-      "sha256": "969831fb8a799847ec3e97e02c975cee5c5a7cebda4fca2c0a16c4f9eb3d3bd6",
-      "kind": "adapted-documentation"
+      "sha256": "5253edd61e4f8bc026767da052a10de89346a3ef82ba6b2c3c053e58f00c271f",
+      "kind": "adapted-runtime"
     },
     {
       "source": "docs/skills/0039-v0.2-agent-harness-setup/artifact-meta-ideation.jsonc",
       "target": "docs/0002/artifact-meta-ideation.jsonc",
       "source_sha256": "7881497591f8059496a897c0843c62b137f81066b75f00444a0770da3bd804b3",
-      "sha256": "d8efc3f1faa406cef4231ec0bb1eb2795e40545e409a6a9b3222743b2638caed",
-      "kind": "adapted-documentation"
+      "sha256": "b9dc79e2aa14fbb07426edc768e877d786002d1fadb417a6c1b03211163adcc9",
+      "kind": "adapted-runtime"
     },
     {
       "source": "docs/skills/0039-v0.2-agent-harness-setup/artifact-meta-implementation.jsonc",
       "target": "docs/0002/artifact-meta-implementation.jsonc",
       "source_sha256": "fe00fb739715a99d64b109d3f06f8a7618168309323cbf353115e308304c4656",
-      "sha256": "60d1bb4a8addbfc987193787b7640c68f1cdcd9384fd427652612469853b0b29",
-      "kind": "adapted-documentation"
+      "sha256": "404e9e30814cf0061fc430f983b373df06f202801c0d21d48c29bb1c99a60591",
+      "kind": "adapted-runtime"
     },
     {
       "source": "docs/skills/0039-v0.2-agent-harness-setup/artifact-meta-mocking.jsonc",
       "target": "docs/0002/artifact-meta-mocking.jsonc",
       "source_sha256": "42696a099b5ddab1e03e336675efaab103543e88c384f3eca423796b764645ca",
-      "sha256": "3e71b0420191786fb44bbbe09c2271821f91a68bca7aa971242403560ef87b13",
-      "kind": "adapted-documentation"
+      "sha256": "5ef61c8cd70664baef9507a6364dc6d32d363b0605eec8c848e2a3e6d42d9106",
+      "kind": "adapted-runtime"
     },
     {
       "source": "docs/skills/0039-v0.2-agent-harness-setup/artifact-meta-plan.jsonc",
       "target": "docs/0002/artifact-meta-plan.jsonc",
       "source_sha256": "23db53aff331c89847945ad23832b4cbb3c147220f8d7780846633c61a6b7267",
-      "sha256": "55b0c3223dd5118c75f9d9dd074970352f82f020abb48cbf28886a27e146af67",
-      "kind": "adapted-documentation"
+      "sha256": "6ad252003d335d869717e917fc248770c7a87e3d9dd271450b049fb652b54c6a",
+      "kind": "adapted-runtime"
     },
     {
       "source": "docs/skills/0039-v0.2-agent-harness-setup/artifact-meta-prototype.jsonc",
       "target": "docs/0002/artifact-meta-prototype.jsonc",
       "source_sha256": "98dfb4624f1d470e3f107a88117b186f548fe14797fd72ac0842a9a18d83a11d",
-      "sha256": "d0330e27521ad93c7c6d6a8c9942e8a0e8c673bf395a9f2a20b08e73dcee37e0",
-      "kind": "adapted-documentation"
+      "sha256": "715bbaee87fc26ea1a3f05e6b78e1ab78a5ac68d27884d7736c04e8b3aeaf7cb",
+      "kind": "adapted-runtime"
     },
     {
       "source": "docs/skills/0039-v0.2-agent-harness-setup/artifact-meta-research.jsonc",
       "target": "docs/0002/artifact-meta-research.jsonc",
       "source_sha256": "ef69905092cd346377cd8f029053cec1a40ae06c4d1f5a4083f182c79dde828f",
-      "sha256": "beb8a097b12362608c08da7048bc4d962ec6269c7d314ca5d54173a6970aa0cb",
-      "kind": "adapted-documentation"
+      "sha256": "9ea56a6587267dcaf56761bcaf0ff6082955ac04e9ad28d4eb5a0bc5e7cb1c48",
+      "kind": "adapted-runtime"
     },
     {
       "source": "docs/skills/0039-v0.2-agent-harness-setup/artifact-meta-testing.jsonc",
       "target": "docs/0002/artifact-meta-testing.jsonc",
       "source_sha256": "22a6d4b2002904997aadcd24dcea8cd8686a227283a33d7af04c8cb0d3c1befd",
-      "sha256": "cbfebe5224bd48a3895fcd76613c81fd89c60f438ad35646aa9cc17c90fe5fde",
-      "kind": "adapted-documentation"
+      "sha256": "bb6344e9d295f57bbbe63ea34f3282ee0cb094b114c5ad221230815b4a4aff84",
+      "kind": "adapted-runtime"
     },
     {
       "source": "docs/skills/0039-v0.2-agent-harness-setup/artifact-meta-wayfinder.jsonc",
       "target": "docs/0002/artifact-meta-wayfinder.jsonc",
       "source_sha256": "217d7b4be661363ade973efe802845c5727a4bd993e27ae27d7745cc69ff274f",
-      "sha256": "35543adab6ec72c71dd630cab019a8ac4bac1b51263162643095f60a64fb3d22",
-      "kind": "adapted-documentation"
+      "sha256": "18a7bffaa56dfac2cd74db26558ba8bd307353a7d3f863d2bdd3d171eb08ba0a",
+      "kind": "adapted-runtime"
     },
     {
       "source": "docs/skills/0039-v0.2-agent-harness-setup/artifact-meta-whitepaper.jsonc",
       "target": "docs/0002/artifact-meta-whitepaper.jsonc",
       "source_sha256": "55c0f09ef09d180b0e2d4a86cf9f366a5b25fc80bc3ec2874dc9974a8428a994",
-      "sha256": "d1cfe71064979e41d1a5e682335657b4203b5a435fa7060e81c031844082baca",
-      "kind": "adapted-documentation"
+      "sha256": "c5f1ff7b746693cdb92f2d869bdbc3b3c7fc4cc6c86ab3ffc6d230aca2103ff6",
+      "kind": "adapted-runtime"
     },
     {
       "source": "docs/skills/0039-v0.2-agent-harness-setup/change-set.jsonc",
       "target": "docs/0002/change-set.jsonc",
       "source_sha256": "80203f3446ef33c9f853467c448eede4beedba55f5387a0be673f40603c5b41c",
-      "sha256": "5141a2e4b9146712b160f1d40aab80cda8258370c6b0a2143b40543569980a43",
-      "kind": "adapted-documentation"
+      "sha256": "77d526035a75218d21d5bbe12cd9daad4bfd8f76cee5a1b4ebcc410215049a88",
+      "kind": "adapted-runtime"
     },
     {
       "source": "docs/skills/0039-v0.2-agent-harness-setup/citation-qa.jsonc",
       "target": "docs/0002/citation-qa.jsonc",
       "source_sha256": "8f65879eb6c144ef5e8648cd0e96e0fcc3dbb0dc113a1984dd8bd6627cc2058c",
       "sha256": "239a0de0d68baf2c37358d790e1d54cc29ef2ff1fd7622b74d08553cd276f433",
-      "kind": "adapted-documentation"
+      "kind": "adapted-runtime"
     },
     {
       "source": "docs/skills/0039-v0.2-agent-harness-setup/ontology/Ontology.md",
       "target": "docs/0002/ontology/Ontology.md",
       "source_sha256": "ef630307b41e0ab270e13eac43d3bcefa1ae6682e60bbc4c400e085605745cf0",
       "sha256": "c7ce0f72c766c79d711cd6e96a589e5d750421a393ef437f03200a3240c53500",
-      "kind": "adapted-documentation"
+      "kind": "adapted-runtime"
     },
     {
       "source": "docs/skills/0039-v0.2-agent-harness-setup/ontology/artifact-meta.jsonc",
       "target": "docs/0002/ontology/artifact-meta.jsonc",
       "source_sha256": "96a454a2b252064e3a79218a2c53a0c275309f42f123ad720ffd8125387f3005",
-      "sha256": "9e8f8b5f0f62ee2ed25781ac40da024f484e0e228583e37a44b33edfb574734b",
-      "kind": "adapted-documentation"
+      "sha256": "6f26966d182b288988a12495a1b3d25393b5506ec14edaf37483a88ba9f0c840",
+      "kind": "adapted-runtime"
     },
     {
       "source": "docs/skills/0039-v0.2-agent-harness-setup/ontology/ontology.json",
       "target": "docs/0002/ontology/ontology.json",
       "source_sha256": "7e4a513b2504a0b78c13868c2c69711d46702297708336fe2ffc2c98c1285357",
       "sha256": "c4c55fec5463472b454e616908f5cc81c6eff9adb55907986dbf85bbca06a582",
-      "kind": "adapted-documentation"
+      "kind": "adapted-runtime"
     },
     {
       "source": "docs/skills/0039-v0.2-agent-harness-setup/prototype/contract-probe.sh",
       "target": "docs/0002/prototype/contract-probe.sh",
       "source_sha256": "59c5130c8c66260598e3f898e2d29d15567e427b9cdea208c44a44032204c5ab",
-      "sha256": "59c5130c8c66260598e3f898e2d29d15567e427b9cdea208c44a44032204c5ab",
-      "kind": "adapted-documentation"
+      "sha256": "c05c45c48899526dd11f32a0ee118b6784089361f9645bc5db1cb62bf68e57cd",
+      "kind": "adapted-runtime"
     },
     {
       "source": "docs/skills/0039-v0.2-agent-harness-setup/research/As-Built-Findings.md",
       "target": "docs/0002/research/As-Built-Findings.md",
       "source_sha256": "45025171857d82c1960a931dff160843464d8cdfdbce429e4318959397fd8b02",
       "sha256": "632c169b2ec9283407762e5eaa95b38cfa52907537d03eb04c0db72ddfaa5eb4",
-      "kind": "adapted-documentation"
+      "kind": "adapted-runtime"
     },
     {
       "source": "docs/skills/0039-v0.2-agent-harness-setup/research/BACKLOG.md",
@@ -1043,49 +1043,49 @@
       "target": "docs/0002/wayfinder-tickets/01-dual-evaluation-and-reconciliation.md",
       "source_sha256": "bdbc69654865e832c1bcf329fd9f5dee6d209da8c1169e43b632db3a67b714ef",
       "sha256": "42ab91f24f157685b71240f323fa1b4f0d1b82f82c2e081fb0526a37491a1442",
-      "kind": "adapted-documentation"
+      "kind": "adapted-runtime"
     },
     {
       "source": "docs/skills/0039-v0.2-agent-harness-setup/wayfinder-tickets/02-approved-creation-and-activation.md",
       "target": "docs/0002/wayfinder-tickets/02-approved-creation-and-activation.md",
       "source_sha256": "612f452b065d1b4d8fb4e5da43eb5abfad97b971834eacd581fba793c9d70a43",
       "sha256": "d2f97254fc43647e6e8aa8eb49a3e3dadaf5a43f318f55ebc1eda57cf9e22547",
-      "kind": "adapted-documentation"
+      "kind": "adapted-runtime"
     },
     {
       "source": "docs/skills/0039-v0.2-agent-harness-setup/wayfinder-tickets/03-enforcement-and-qualification-evidence.md",
       "target": "docs/0002/wayfinder-tickets/03-enforcement-and-qualification-evidence.md",
       "source_sha256": "88f46ce3a8cbbd1f40eeca2cdb699b1838ee06a47daf068fedb9615b9d7536a0",
       "sha256": "bf47f8a50ea28de45adcf6fb0f4480ce9e3af47e8181452adfd64c48421c4967",
-      "kind": "adapted-documentation"
+      "kind": "adapted-runtime"
     },
     {
       "source": "docs/skills/0039-v0.2-agent-harness-setup/wayfinder-tickets/04-specification-readiness-and-handoff.md",
       "target": "docs/0002/wayfinder-tickets/04-specification-readiness-and-handoff.md",
       "source_sha256": "b132792e7afc20e4ee6c2e5b46187010eaa4f10abab6ce491efdfc157121f544",
       "sha256": "9f517ec09a982d7f3ac413e8051354762b3046d83f5b3e7bb63b04521a690afe",
-      "kind": "adapted-documentation"
+      "kind": "adapted-runtime"
     },
     {
       "source": "docs/skills/0039-v0.2-agent-harness-setup/wayfinder-tickets/05-frozen-source-and-history.md",
       "target": "docs/0002/wayfinder-tickets/05-frozen-source-and-history.md",
       "source_sha256": "648a324ecbae4c5a08ea31f4d0efa80a9d439c04b69e9fd90471383ed15a53c6",
       "sha256": "177b17ad5c688315975a8c21e5f81e24fb13acab99f61d20e00725f43958a89f",
-      "kind": "adapted-documentation"
+      "kind": "adapted-runtime"
     },
     {
       "source": "docs/skills/0039-v0.2-agent-harness-setup/wayfinder-tickets/06-as-built-evaluation-and-scoring.md",
       "target": "docs/0002/wayfinder-tickets/06-as-built-evaluation-and-scoring.md",
       "source_sha256": "0e59d5cadabe6912e12d35c90de132a3bb56736d4799f0469207441013a90231",
       "sha256": "06966ad41c21455eb3436481a601ccce67220477b2c849bd6948ca66d602ebec",
-      "kind": "adapted-documentation"
+      "kind": "adapted-runtime"
     },
     {
       "source": "docs/skills/0039-v0.2-agent-harness-setup/wayfinder-tickets/07-bootstrap-and-documentation-handoff.md",
       "target": "docs/0002/wayfinder-tickets/07-bootstrap-and-documentation-handoff.md",
       "source_sha256": "d4de4a16d1230f412b7c3bf2ea07c43a116752b43af49870c8a184ad164876c7",
       "sha256": "293c33abe664745d64fcef2357c5d3c0f6ca029e85e4a79abcbc6a2be98aae59",
-      "kind": "adapted-documentation"
+      "kind": "adapted-runtime"
     },
     {
       "source": "LICENSE",
@@ -1098,8 +1098,92 @@
       "source": "Repo Harness Next Steps.md",
       "target": "docs/0003/Repo Harness Next Steps.md",
       "source_sha256": "62887afdedc22e074a951bb294b3abe6d200719423477fa07cd95ae6cf0a77f8",
-      "sha256": "62887afdedc22e074a951bb294b3abe6d200719423477fa07cd95ae6cf0a77f8",
-      "kind": "adapted-documentation"
+      "sha256": "ab9f95cb57c770fac8fbaf31115095a9c63e7e2c0cf711d9878a55c781bb714f",
+      "kind": "adapted-runtime"
+    },
+    {
+      "source": "session:harness-audit-v1.2",
+      "target": "skills/harness-audit/scripts/agreement.py",
+      "source_sha256": "11940fcfeee10d3370636eecb95cb9aff32f427af0291fa6d5020b2075c53919",
+      "sha256": "11940fcfeee10d3370636eecb95cb9aff32f427af0291fa6d5020b2075c53919",
+      "kind": "adapted-runtime"
+    },
+    {
+      "source": "session:harness-audit-v1.2",
+      "target": "skills/harness-audit/tests/test_agreement.py",
+      "source_sha256": "6b4c9d2a5a3eb4a299c304875df2df01de21df2f4c96a56ec4aa9d5c8f58f615",
+      "sha256": "6b4c9d2a5a3eb4a299c304875df2df01de21df2f4c96a56ec4aa9d5c8f58f615",
+      "kind": "adapted-runtime"
+    },
+    {
+      "source": "session:harness-audit-v1.2",
+      "target": "docs/0004/README.md",
+      "source_sha256": "a0d5ef45bc05c2a5eb381e63aaecc5cd7dc659eefba5bd06c4dd6e6ff2c68c44",
+      "sha256": "a0d5ef45bc05c2a5eb381e63aaecc5cd7dc659eefba5bd06c4dd6e6ff2c68c44",
+      "kind": "adapted-runtime"
+    },
+    {
+      "source": "session:harness-audit-v1.2",
+      "target": "docs/0004/Release-Notes-v1.2.md",
+      "source_sha256": "3cf5c098c530059372b52d214e8a47e97585f6205e25813905a00757efbfaae7",
+      "sha256": "3cf5c098c530059372b52d214e8a47e97585f6205e25813905a00757efbfaae7",
+      "kind": "adapted-runtime"
+    },
+    {
+      "source": "session:harness-audit-v1.2",
+      "target": "docs/0004/Agreement-Report-v1.2.md",
+      "source_sha256": "d14f693ed84480c1e0c3d07565edfa769950af7754f95a54a5904a730d305ec8",
+      "sha256": "d14f693ed84480c1e0c3d07565edfa769950af7754f95a54a5904a730d305ec8",
+      "kind": "adapted-runtime"
+    },
+    {
+      "source": "session:harness-audit-v1.2",
+      "target": "docs/0005/README.md",
+      "source_sha256": "03ff5191e2b419dc87eefcb0e5067ee5a091d8accdf986cc8714687f598be702",
+      "sha256": "03ff5191e2b419dc87eefcb0e5067ee5a091d8accdf986cc8714687f598be702",
+      "kind": "adapted-runtime"
+    },
+    {
+      "source": "session:harness-audit-v1.2",
+      "target": "docs/0005/Infrastructure-Coverage-Map.md",
+      "source_sha256": "66c6d7288ab89e05bdca61c79c70299c1067818dd3f22e58d4c92f77b8d1ae61",
+      "sha256": "12ab0fdcc817d718575f7d48acb50301711d54b36d2ef9989e1c6a5c19b12634",
+      "kind": "adapted-runtime"
+    },
+    {
+      "source": "session:harness-audit-v1.2",
+      "target": "skills/harness-audit/scripts/detect_infra.py",
+      "source_sha256": "e641070abdf28cfcd0730db7ade0b6574f7c44fa01826e10d82bef931b62ee74",
+      "sha256": "f3eea91fd70198884953d8235493db25ae71f1d05bb2f6de393edc561c664b85",
+      "kind": "adapted-runtime"
+    },
+    {
+      "source": "session:harness-audit-v1.2",
+      "target": "skills/harness-audit/tests/test_detect_infra.py",
+      "source_sha256": "f29157db825b1caf3195defebac8ca859de8ede671cbee80020a576292b14070",
+      "sha256": "44310aad3f74ded92514fa81aa0c98d78d9b325d970d42464bdb37ef7450dcdc",
+      "kind": "adapted-runtime"
+    },
+    {
+      "source": "session:harness-audit-v1.2",
+      "target": "skills/harness-audit/scripts/infra_checks.py",
+      "source_sha256": "c61688b62c784d257175906a544c7b66c56d965ce451b1008c53e98f243068e6",
+      "sha256": "4dae5500d747381220e04c5bc792e375cf4e48a51568e4fd8653ae66129603c9",
+      "kind": "adapted-runtime"
+    },
+    {
+      "source": "session:harness-audit-v1.2",
+      "target": "skills/harness-audit/tests/test_infra_checks.py",
+      "source_sha256": "5f92c11e90811426c8f40aa4a787d5710596fc8d12290b1827dead705bac31e0",
+      "sha256": "bd5c9912a43577d5c57a1cb3da9ca9e013b345f2dbe578ef5c972c9848200f36",
+      "kind": "adapted-runtime"
+    },
+    {
+      "source": "session:harness-audit-v1.2",
+      "target": "skills/harness-audit/prompts/infra_quality.md",
+      "source_sha256": "d1d141615f99d4d6025c001d00f5678775939591741a37c920fa2d8f5c1809ff",
+      "sha256": "8bc5cd6cf17a03904bf5f21e5799aebfa9a400b500ff9665f701688f7f4fdb9b",
+      "kind": "adapted-runtime"
     }
   ]
 }

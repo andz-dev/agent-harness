@@ -39,7 +39,8 @@ class AuditTests(unittest.TestCase):
         return r, out
 
     def test_end_to_end_report_is_valid_and_consistent(self):
-        r, out = self.run_audit(FILES, "--name", "demo/x", "--weight", "low")
+        files = {**FILES, "AGENTS.md": "# Agents\n\nRun `pytest` before committing.\n"}
+        r, out = self.run_audit(files, "--name", "demo/x", "--weight", "low")
         self.assertEqual(r.returncode, 0, r.stderr)
         report = json.loads((out / "report.json").read_text())
         self.assertEqual(audit.validate(report), [])
@@ -53,6 +54,48 @@ class AuditTests(unittest.TestCase):
         self.assertIn("## Limitations", md)
         self.assertIn("LLM judgement missing", md)
         self.assertTrue(any(i["path"] == "scripts/lonely.sh" for i in report["entropy"]["items"]))
+
+    def test_infra_files_never_change_the_score(self):
+        """D1: infrastructure is an unscored overlay; adding infra files leaves the 0-100 score unchanged."""
+        _, plain = self.run_audit(FILES)
+        r, with_infra = self.run_audit(
+            {**FILES, "Dockerfile": "FROM python:3.12\n", "infra/main.tf": "", ".devcontainer/devcontainer.json": "{}"}
+        )
+        self.assertEqual(r.returncode, 0, r.stderr)
+        a = json.loads((plain / "report.json").read_text())
+        b = json.loads((with_infra / "report.json").read_text())
+        self.assertEqual(a["score"], b["score"])
+        self.assertEqual([p["level"] for p in a["pillars"]], [p["level"] for p in b["pillars"]])
+        self.assertEqual(audit.validate(b), [])
+        self.assertEqual(b["infra"]["tools"], ["devcontainer", "docker", "terraform"])
+        self.assertTrue(any("not part of the score" in x for x in b["limitations"]))
+        self.assertIn("## Infrastructure (detected, not scored)", (with_infra / "report.md").read_text())
+
+    def test_infra_judgement_answers_reach_the_report_without_touching_the_score(self):
+        agents = "# Agents\n\nRun `pytest` before committing.\nNever run `terraform apply`.\n"
+        files = {**FILES, "AGENTS.md": agents, "infra/main.tf": ""}
+        repo, out = make(files), Path(tempfile.mkdtemp())
+        script = str(ROOT / "scripts" / "audit.py")
+        r = subprocess.run([sys.executable, "-I", script, str(repo), "--out", str(out)], capture_output=True, text=True)
+        self.assertEqual(r.returncode, 0, r.stderr)
+        tasks = json.loads((out / "llm_tasks.json").read_text())
+        self.assertIn("INF-J01", [t["task_id"] for t in tasks["tasks"]])
+        before = json.loads((out / "report.json").read_text())
+        quote = {"path": "AGENTS.md", "line": 4, "snippet": "Never run `terraform apply`."}
+        answers = out / "answers.json"
+        answers.write_text(
+            json.dumps([{"task_id": "INF-J01", "status": "pass", "confidence": "high", "evidence": [quote], "note": "forbids apply"}])
+        )
+        r2 = subprocess.run(
+            [sys.executable, "-I", script, str(repo), "--out", str(out), "--llm-answers", str(answers)], capture_output=True, text=True
+        )
+        self.assertEqual(r2.returncode, 0, r2.stderr)
+        after = json.loads((out / "report.json").read_text())
+        self.assertEqual(audit.validate(after), [])
+        j = next(c for c in after["infra"]["checks"] if c["check_id"] == "INF-J01")
+        self.assertEqual((j["area"], j["status"]), ("agent-guidance", "pass"))
+        self.assertIn("agent-guidance", after["infra"]["levels"]["areas"])
+        self.assertEqual(before["score"]["final"], after["score"]["final"])
 
     def test_second_pass_with_llm_answers(self):
         files = {**FILES, "AGENTS.md": "# Agents\n\nRun `pytest` before committing.\n"}

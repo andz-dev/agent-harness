@@ -61,7 +61,31 @@ project rules. Python and Node only; monorepos get root-level files for the domi
 - The judgement answers come from a model. For anything important, have a second, independent model answer the same tasks blind and compare (they agreed on 34 of 51 in testing; the rest were mostly `unknown` versus a verdict).
 - Static detection is heuristic: always show the evidence (path, line, snippet) rather than just the verdict.
 
+## Infrastructure overlay
+
+Besides the score, every report has an `infra` block and an "Infrastructure" section. It lists the infrastructure
+files found (Terraform/OpenTofu, Bicep/ARM, Kubernetes/Helm/Kustomize, Argo CD/Flux/Skaffold/Tilt/Swarm (listed only), Pulumi, CloudFormation/CDK, Ansible,
+Dockerfile, Compose, devcontainers, gitpod, nix, mise) and, for Dockerfile, Compose, devcontainer, Terraform,
+Bicep, Kubernetes/Helm, Ansible, CloudFormation and Pulumi, plus five cross-cutting checks (dependency bot, CODEOWNERS, path-filtered CI, secret scanning, tracked keys), 59 script checks (including three entropy checks `INF-E*`) (`INF-D*`, `C*`, `V*`, `T*`, `B*`, `K*`, `A*`, `F*`, `P*`, `X*`) and 4 judgement checks (`INF-J*`) with pass, fail or not applicable and quoted evidence.
+
+- Judgement (area `agent-guidance`, `INF-J01..J04`): when infrastructure exists and an agent file exists, `llm_tasks.json`
+  also holds four infrastructure tasks (safe plan/apply workflow, environments, credential source, local checks) with
+  `prompts/infra_quality.md`. Answers go through the same `--llm-answers` pass and the same quote re-check; they land in
+  `infra.checks`, never in the score. Without an agent file the four fail by script; unanswered or unverifiable ones are `unknown`
+  and count as neither pass nor fail.
+- It is an overlay: it never changes the 0-100 score or the pillar levels. A repo with a perfect score can still have
+  weak infrastructure, and the report says so under Limitations. Do not add the two together.
+- CDK apps, Kustomize overlays and Helm templates are detected or ignored but not checked yet. Pulumi, CloudFormation and Ansible checks are tested on synthetic repos only.
+- Files are only read. Nothing is built, planned, validated or started.
+- Checks use text matching and look at all CI text, not the job for one directory; use them as a list of leads.
+- Per-check roll-up (`infra.rollup`) shows in how many locations each check fails; per-area pass rates are in
+  `infra.summary`.
+- The overlay has its own level, L0 to L3, per area and overall (`infra.levels`). Same rule as the pillars: level N
+  needs every gate check up to N and 60% of the checks at each level up to N. A check holds for an area when at least 60% of its
+  locations pass (secret checks need all of them), so one weak Dockerfile does not decide a monorepo, and the roll-up still lists it. The overall level is the weakest tool area; cross-cutting, agent-guidance and infra-entropy are reported separately as repo-wide levels. Gates:
+  INF-D02, C01, C03, V01, T01, T02, T06, B01, K06, X05, F03, P03. The level is not a score and is not added to it.
+
 ## Files
 
-`scripts/` pipeline (`triage.py` fix plan, `bootstrap.py` file proposals), `checks/catalog.yaml` checks, `checks/fixes.yaml` effort and action per check, `schema/report.schema.json` report contract, `prompts/` LLM
+`scripts/` pipeline (`triage.py` fix plan, `bootstrap.py` file proposals, `detect_infra.py` and `infra_checks.py` infrastructure overlay, `agreement.py` compares two judgement runs), `checks/catalog.yaml` checks, `checks/fixes.yaml` effort and action per check, `schema/report.schema.json` report contract, `prompts/` LLM
 prompts, `BACKLOG.md` known gaps. Developing the skill itself: see `AGENTS.md` (`task check`).

@@ -23,14 +23,16 @@ import sys
 from pathlib import Path, PurePosixPath
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import detect_infra  # noqa: E402
 import detect_stack  # noqa: E402
+import infra_checks  # noqa: E402
 import run_checks  # noqa: E402
 import yaml  # noqa: E402
 from run_checks import Ctx, Scope, found, searched  # noqa: E402
 
 HERE = Path(__file__).resolve().parent.parent
-MAX_FILE_LINES = 250
-MAX_TASK_LINES = 700
+MAX_FILE_LINES = 400
+MAX_TASK_LINES = 1000
 DOC_GLOBS = ["README*", "CONTRIBUTING*", ".github/CONTRIBUTING*", "docs/*.md", "docs/**/*.md"]
 PATH_IN_DOC = re.compile(r"`((?:\./)?(?:[\w.-]+/)+[\w.-]+\.[A-Za-z0-9]{1,5})`")
 STATUS = {"pass", "fail", "unknown"}
@@ -55,12 +57,12 @@ def _files(ctx: Ctx, globs: list[str]) -> list[str]:
     return sorted(found, key=lambda f: (f.count("/"), not PurePosixPath(f).name.lower().startswith("readme.md"), f))
 
 
-def _budget(excerpts: list[dict]) -> list[dict]:
+def _budget(excerpts: list[dict], limit: int = MAX_TASK_LINES) -> list[dict]:
     out, used = [], 0
     for e in excerpts:
         n = e["end_line"]
-        if used + n > MAX_TASK_LINES:
-            keep = max(0, MAX_TASK_LINES - used)
+        if used + n > limit:
+            keep = max(0, limit - used)
             if keep < 20:
                 break
             lines = e["text"].splitlines()[:keep]
@@ -71,10 +73,15 @@ def _budget(excerpts: list[dict]) -> list[dict]:
     return out
 
 
+HISTORY_DOC = re.compile(r"(^|/)(changelog|changes|history|release[-_ ]?notes?|news|releases)[^/]*\.(md|rst|txt)$", re.I)
+
+
 def missing_paths(ctx: Ctx, docs: list[str]) -> list[dict]:
     tracked = set(ctx.files)
     out = []
     for d in docs:
+        if HISTORY_DOC.search(d):
+            continue  # history files name things that no longer exist, on purpose
         for i, ln in enumerate((ctx.text(d) or "").splitlines(), 1):
             for m in PATH_IN_DOC.finditer(ln):
                 rel = m.group(1)[2:] if m.group(1).startswith("./") else m.group(1)
@@ -88,8 +95,142 @@ def missing_paths(ctx: Ctx, docs: list[str]) -> list[dict]:
     return out[:60]
 
 
+COMMAND_REF = re.compile(r"`[^`\n]*?\b(task|make|just|npm run|pnpm run|yarn run|bun run)\s+([A-Za-z0-9][A-Za-z0-9_:.-]*)[^`\n]*`")
+PLACEHOLDER_TARGET = {"<target>", "target", "name", "x", "foo", "xxx"}
+
+
+def missing_commands(ctx: Ctx, files: list[str], targets: list[str]) -> tuple[list[dict], int]:
+    """Documented runner commands (`task X`, `make X`, `npm run X`) whose target no runner defines (ORI-09 candidates).
+
+    Returns (candidates, number of references checked).
+    """
+    known = set(targets)
+    out, checked = [], 0
+    for d in files:
+        if HISTORY_DOC.search(d):
+            continue
+        for i, ln in enumerate((ctx.text(d) or "").splitlines(), 1):
+            for m in COMMAND_REF.finditer(ln):
+                name = m.group(2).rstrip(".:")
+                if name in PLACEHOLDER_TARGET or name.startswith("-"):
+                    continue
+                checked += 1
+                if name not in known:
+                    out.append({"path": d, "line": i, "text": f"{m.group(1)} {name}"})
+    return out[:60], checked
+
+
 def run_checks_generated() -> tuple[str, ...]:
     return ("dist/", "build/", "out/", "node_modules/", "target/", "coverage/", "tmp/", ".venv/", "venv/", "site/", "htmlcov/")
+
+
+INFRA_QUESTIONS = {
+    "INF-J01": "Do the agent files say how an agent must change infrastructure safely: plan, preview or validate first, and no apply, destroy, deploy or image push without a human?",
+    "INF-J02": "Do the agent files name the environments (for example dev, staging, prod) and say which are off limits or need approval?",
+    "INF-J03": "Do the agent files say where credentials and secrets come from (secret manager, environment, vault) and that they must not be committed or printed?",
+    "INF-J04": "Do the agent files say how to run and check the infrastructure locally (for example compose up, devcontainer, terraform validate, lint commands)?",
+}
+INFRA_PROMPT = "prompts/infra_quality.md"
+INFRA_TASK_LINES = 350  # four tasks share the same files, so keep each one small
+INFRA_FILE_LINES = 300  # a file up to this long is sent whole; longer files send the head plus windows around infrastructure words
+INFRA_HEAD_LINES = 40
+INFRA_WINDOW = 12
+INFRA_WORDS = re.compile(
+    r"terraform|tofu|bicep|pulumi|cloudformation|ansible|kubectl|kubernetes|helm|kustomize|docker|compose|devcontainer|container|"
+    r"infrastructure|deploy|environment|staging|production|\bprod\b|secret|credential|token|vault|apply|destroy|\bplan\b",
+    re.I,
+)
+DEPLOYABLE_IAC = {
+    "terraform",
+    "opentofu",
+    "terragrunt",
+    "bicep",
+    "kubernetes",
+    "helm",
+    "kustomize",
+    "pulumi",
+    "cloudformation",
+    "ansible",
+    "arm",
+    "cdk",
+}
+
+
+def infra_excerpt(ctx: Ctx, rel: str) -> dict | None:
+    """Whole file if short; otherwise the head plus windows around infrastructure words (B-214)."""
+    text = ctx.text(rel)
+    if text is None:
+        return None
+    lines = text.splitlines()
+    if len(lines) <= INFRA_FILE_LINES:
+        return excerpt(ctx, rel, INFRA_FILE_LINES)
+    keep = set(range(1, min(INFRA_HEAD_LINES, len(lines)) + 1))
+    for i, ln in enumerate(lines, 1):
+        if INFRA_WORDS.search(ln):
+            keep.update(range(max(1, i - INFRA_WINDOW), min(len(lines), i + INFRA_WINDOW) + 1))
+    chosen = sorted(keep)[:INFRA_FILE_LINES]
+    out, prev = [], 0
+    for n in chosen:
+        if prev and n != prev + 1:
+            out.append(f"   …| (lines {prev + 1}-{n - 1} omitted)")
+        out.append(f"{n:>4}| {lines[n - 1]}")
+        prev = n
+    return {"path": rel, "start_line": 1, "end_line": len(out), "text": "\n".join(out)}
+
+
+def infra_tasks(ctx: Ctx, root: Path, agent: list[str], targets: list[str]) -> tuple[list[dict], list[dict], dict]:
+    """Judgement tasks for the infrastructure overlay (B-180). Returns (tasks, findings resolved by script)."""
+    infra = detect_infra.detect(root)
+    real = [d for d in infra["detected"] if not d["sample"]]
+    if not real:
+        return [], [], {}
+    if not agent:
+        return (
+            [],
+            [
+                infra_checks.finding(
+                    cid,
+                    "agent files",
+                    "fail",
+                    [{"path": "AGENTS.md", "snippet": "no agent instruction file found"}],
+                    "Nothing to judge: no agent instruction file.",
+                )
+                for cid in INFRA_QUESTIONS
+                if cid != "INF-J02" or any(d["tool"] in DEPLOYABLE_IAC for d in real)
+            ],
+            {},
+        )
+    files = list(dict.fromkeys(agent + _files(ctx, ["CONTRIBUTING*", ".github/CONTRIBUTING*"])))
+    ex = _budget([e for f in files if (e := infra_excerpt(ctx, f))], INFRA_TASK_LINES)
+    if not ex:
+        return [], [], {}
+    facts = {
+        "infrastructure": [{"tool": d["tool"], "scope": d["scope"], "files": d["file_count"]} for d in real[:40]],
+        "runner_targets": targets[:200],
+    }
+    tasks = []
+    deployable = any(d["tool"] in DEPLOYABLE_IAC for d in real)
+    for cid, question in INFRA_QUESTIONS.items():
+        if cid == "INF-J02" and not deployable:
+            continue  # environments only matter when the repository holds deployable infrastructure code
+        _, level, title = infra_checks.CHECKS[cid]
+        tasks.append(
+            {
+                "task_id": cid,
+                "check_id": cid,
+                "pillar": "infra",
+                "level": level,
+                "gate": False,
+                "question": question,
+                "title": title,
+                "prompt": INFRA_PROMPT,
+                "facts": facts,
+                "candidates": [],
+                "excerpts": [],
+                "excerpts_ref": "infra",
+            }
+        )
+    return tasks, [], {"infra": ex}
 
 
 def plan(root: Path, catalog: dict) -> dict:
@@ -124,7 +265,7 @@ def plan(root: Path, catalog: dict) -> dict:
         if cid in ("ORI-05", "ORI-06", "ENT-05"):
             files = agent
             if cid == "ENT-05":
-                facts["runner_targets"] = targets[:80]
+                facts["runner_targets"] = targets[:200]
         elif cid == "VER-11":
             files = agent + contributing
         elif cid == "ORI-08":
@@ -148,7 +289,8 @@ def plan(root: Path, catalog: dict) -> dict:
             files = ["AGENTS.md"] + others
         elif cid == "ORI-09":
             files = agent + _files(ctx, ["README*"])[:1]
-            facts["runner_targets"] = targets[:80]
+            facts["runner_targets"] = targets[:200]
+            candidates, facts["command_references_checked"] = missing_commands(ctx, files, targets)
         elif cid == "TRG-06":
             hook_files = sorted({h["path"] for h in hooks})
             if not hook_files:
@@ -164,35 +306,22 @@ def plan(root: Path, catalog: dict) -> dict:
                 resolve(c, "not_applicable", [], "Needs both agent hooks and Git hooks; only one kind exists.")
                 continue
             files = hook_files
-            facts["runner_targets"] = targets[:80]
+            facts["runner_targets"] = targets[:200]
             facts["hook_commands"] = [
                 {"path": h["path"], "line": h["line"], "stage": h["stage"], "text": h["text"][:160]} for h in hooks[:40]
             ]
         elif cid == "DOC-06":
             files = docs[:6] + agent
-            facts["runner_targets"] = targets[:80]
+            facts["runner_targets"] = targets[:200]
             candidates = missing_paths(ctx, docs + agent)
             if not docs and not agent:
                 resolve(c, "fail", [searched(", ".join(DOC_GLOBS[:3]), "no documentation files found")], "Nothing to check.")
                 continue
-        elif cid == "STA-09":
-            files = _files(
-                ctx,
-                [
-                    "pyproject.toml",
-                    "ruff.toml",
-                    ".ruff.toml",
-                    ".eslintrc*",
-                    "eslint.config.*",
-                    "biome.json*",
-                    ".pre-commit-config.yaml",
-                    ".flake8",
-                    "setup.cfg",
-                    "package.json",
-                ],
-            )[:6]
-            if not files:
-                resolve(c, "fail", [searched("linter configs", "no linter config found")], "Nothing to judge.")
+            if not candidates:  # every path named in backticks resolves: no judgement needed
+                first = (docs + agent)[0]
+                resolve(
+                    c, "pass", [found(first, f"all path references in {len(docs + agent)} doc files resolve", 1)], "Resolved by script."
+                )
                 continue
         else:
             continue
@@ -214,10 +343,13 @@ def plan(root: Path, catalog: dict) -> dict:
                 "excerpts": ex,
             }
         )
+    extra_tasks, infra_resolved, shared = infra_tasks(ctx, root, agent, targets)
     return {
         "schema": "llm-tasks/0.1",
-        "tasks": tasks,
+        "tasks": tasks + extra_tasks,
         "resolved": resolved,
+        "infra_resolved": infra_resolved,
+        "shared_excerpts": shared,
         "instructions": "Read each task's prompt file, then answer every task. See prompts/*.md for the answer format.",
     }
 
@@ -226,13 +358,14 @@ def _norm(s: str) -> str:
     return " ".join(s.split()).strip("`*_ ")
 
 
-def verify_evidence(root: Path, task: dict, ev: dict) -> dict | None:
+def verify_evidence(root: Path, task: dict, ev: dict, shared: dict | None = None) -> dict | None:
     """Return a clean evidence item if the quote really is in the file near the claimed line."""
     path, snippet = ev.get("path"), ev.get("snippet")
     line = ev.get("line")
     if not isinstance(path, str) or not isinstance(snippet, str) or not isinstance(line, int) or line < 1:
         return None
-    spans = [e for e in task["excerpts"] if e["path"] == path]
+    pool = task["excerpts"] or (shared or {}).get(task.get("excerpts_ref"), [])
+    spans = [e for e in pool if e["path"] == path]
     if not spans:
         return None
     try:
@@ -266,7 +399,11 @@ def apply_answers(root: Path, tasks_doc: dict, answers: list) -> dict:
         status = a.get("status") if a.get("status") in STATUS else "unknown"
         conf = a.get("confidence") if a.get("confidence") in CONFIDENCE else "low"
         note = str(a.get("note") or "")[:300]
-        ev = [v for e in (a.get("evidence") or [])[:6] if isinstance(e, dict) and (v := verify_evidence(root, t, e))]
+        ev = [
+            v
+            for e in (a.get("evidence") or [])[:6]
+            if isinstance(e, dict) and (v := verify_evidence(root, t, e, tasks_doc.get("shared_excerpts")))
+        ]
         dropped = len(a.get("evidence") or []) - len(ev)
         if status in ("pass", "fail") and not ev:
             status, note = "unknown", (note + " " if note else "") + "[quotes could not be verified against the files]"
@@ -302,6 +439,15 @@ def apply_answers(root: Path, tasks_doc: dict, answers: list) -> dict:
                     "note": "no answer provided",
                 }
             )
+    infra_findings = []
+    for f in [x for x in findings if x["pillar"] == "infra"]:
+        quotes = [
+            {"path": e["path"], "snippet": e["snippet"], **({"line": e["line"]} if e.get("line") else {})}
+            for e in f["evidence"]
+            if e.get("path") and e.get("snippet")
+        ]
+        infra_findings.append(infra_checks.finding(f["check_id"], "agent files", f["status"], quotes, f.get("note", "")))
+    findings = [x for x in findings if x["pillar"] != "infra"]
     items = []
     for f in findings:
         verdict = {"DOC-06": ("ENR-03", "stale"), "ORI-09": ("ENR-05", "conflicting")}.get(f["check_id"])
@@ -315,7 +461,7 @@ def apply_answers(root: Path, tasks_doc: dict, answers: list) -> dict:
                         "evidence": [e] + ([{"kind": "searched", "path": e["path"], "snippet": f["note"][:300]}] if f.get("note") else []),
                     }
                 )
-    return {"findings": findings, "entropy_items": items, "rejected": rejected}
+    return {"findings": findings, "entropy_items": items, "rejected": rejected, "infra_findings": infra_findings}
 
 
 def main(argv: list[str] | None = None) -> int:

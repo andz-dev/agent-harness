@@ -214,7 +214,7 @@ Tool score after answers (human gut in brackets): n8n 86 (80), immich 57 (60), f
 - B-125: Vite is the outlier (+20). It has only a 50-line copilot-instructions file, but ORI-05/06/09, VER-11 and ENT-05 all pass, lifting Orientation and Entry points. The human "keep it" for vite was a weak signal, so re-ask before acting. Same pattern as opencode (B-121): a short, decent agent file buys too many points. Candidate fix: cap Orientation and Entry points at L2 unless the agent file exceeds a minimum substance (e.g. 80 lines or 3 of 4 sections).
 - B-126: ENT-05 is a gate with a loose reading. Vite passes because agent files use `pnpm run lint/test`, yet there is no aggregate check target. Tighten: require a single aggregate command (check/verify/ci) for pass; per-tool scripts give partial.
 - B-127: DOC-06 returned unknown for all ten new repos. Candidates are mostly illustrative output paths, release-note history and external names, and the evidence rule needs a quotable proof of absence. Consider a mechanical path-exists pass in the script and send only misses to the model.
-- B-128: STA-09 passes on configuration alone (ruff/eslint/oxlint print rule ids by default). It does not distinguish repos, so it adds no signal. Consider dropping it or making it mechanical (known tool => pass).
+- B-128 (done, unreleased): STA-09 is now a mechanical key_present check (ruff, pylint, flake8, eslint, biome, oxlint; formatters excluded). Re-scoring all 18 repos left every score unchanged. Original note: STA-09 passes on configuration alone (ruff/eslint/oxlint print rule ids by default). It does not distinguish repos, so it adds no signal. Consider dropping it or making it mechanical (known tool => pass).
 - B-129: n8n ORI-09 and TRG-06 stayed unknown because excerpts were truncated at 250 lines and the Claude hook body was not included. Raise the budget for AGENTS.md or send heading-scoped sections.
 - B-130: httpie-cli STA-09 unknown (no lint config in the sampled files) while it scored +8 over the human. Check whether a flake8/ruff config lives in `.pre-commit-config.yaml` or tox.
 - B-131: All answers were written by the same model that built the tool (see B-122). The independent second pass is still open and must happen before weights change. Weights stay unfrozen; the holdout stays untouched.
@@ -257,7 +257,7 @@ Fixes: (1) VER-03 accepts `runtests.py` / `tests/runtests.py` as a configured un
 Re-run, all 18 repos (before -> after, human): django 20 -> 41 (30), nestjs 61 -> 67 (60), vllm 39 -> 45 (40), fastapi 38 -> 43 (40), rich 35 -> 36 (35), nextjs 83 -> 84 (80), n8n 86 -> 87 (80), vite 69 -> 70 (54); the other ten unchanged.
 Holdout MAE 3.0 -> 5.2 (bias -0.7 -> +3.5): the first result was flattered by two errors that offset (django's detector bug, entropy over-penalty). The honest holdout figure is 5.2, in line with calibration MAE 5.1. Django now overshoots (+11): its Verification now reaches L2 but it has no agent file and weak orientation, so the remaining gap is a weights question, not frozen-set tuning.
 
-- B-144: rich STA-01 (formatters only, no linter) stays L0. Changing it is a check-semantics change; decide after v1 ships, using more repos.
+- B-144: Decided (user, 2026-10-27): a formatter without a linter gets no credit for STA-01; rich stays L0. Check semantics unchanged.
 - B-145: Tool is consistently 3-5 points above the human on mature OSS repos. Candidate for v1.1: a mild global recalibration or an "AI-era" bonus structure, but only with a fresh calibration set.
 
 ## 4q. v1.1 triage (done)
@@ -276,12 +276,21 @@ Holdout MAE 3.0 -> 5.2 (bias -0.7 -> +3.5): the first result was flattered by tw
 Experiment: express copy, audit 33, `--apply` of 4 files (AGENTS.md, CLAUDE.md, Taskfile.yml, CONTRIBUTING.md), re-audit 45 (+12) with placeholders unfilled.
 
 - B-150: Stubs raise the score although the TODO(human) parts are empty. Consider making the audit treat a file with `TODO(human)` markers as incomplete (ORI-05/06 judgement should already catch it, but the script checks do not).
-- B-151: Pre-commit for Node is not proposed (needs package.json changes: simple-git-hooks/husky). Add a package.json patch proposal (diff, not an edit).
+- B-151: Done (decision: Node hooks before Azure DevOps). Node repos get a proposed `.husky/pre-commit` (runs the lint and test scripts, TODO placeholders when missing) and a `package.json.patch` with the steps to install husky; the patch is never applied by `--apply`. Skipped when a hook manager already exists.
 - B-152: Monorepos: only root-level files for the dominant component. Add per-component AGENTS.md (ORI-10) and per-package runner targets.
 - B-153: `rev: v0.8.0` for ruff-pre-commit is a placeholder with a TODO; resolve the latest tag offline-safely (pin from uv.lock if present) or document.
 - B-154: The CI workflow uses fixed major versions of third-party actions (checkout@v4, setup-uv@v5, setup-task@v2); review for supply-chain pinning by SHA before use.
 - B-155: No Azure DevOps pipeline proposal yet (original request mentioned Azure DevOps); add `azure-pipelines.yml` generator.
 - B-156: Go support (v2) still open: detection, checks and templates.
+
+## 4s. Phase 1 trust fixes (done)
+
+- B-150 resolved: any passing script check whose evidence file still contains `TODO(human)` becomes a fail with a note (`run_checks.downgrade_placeholders`). Express copy with unfilled bootstrap stubs: 45 -> 38 (the Taskfile still counts, correctly).
+- B-127 resolved in part: DOC-06 is resolved by script (pass) when every backticked path in README, docs and agent files exists; history files (changelog, release notes, news) are no longer searched for dead paths (fastapi regression). 8 of 12 calibration repos and 2 of 6 holdout repos now have a script verdict; the rest still go to the model and are mostly `unknown`.
+- B-129 resolved in part: judgement excerpts raised to 400 lines per file and 1000 per task; runner target list 80 -> 200. n8n ORI-09 and nextjs ENT-05 need fresh answers to benefit.
+- Scores unchanged on all 18 repos (DOC-06 is a level-3 check in a 5-point pillar). Tests: 141 pass.
+- B-157: The script DOC-06 pass only knows backticked relative paths with a file extension. Markdown links and commands are not checked; extend before treating it as full coverage.
+- B-158: Re-answer the 12 judgement tasks that grew with the bigger excerpts (n8n ORI-09, nextjs ORI-09/ENT-05, django ORI-09) in the next blind second-opinion round.
 
 ## 5. Risks carried forward
 
@@ -298,3 +307,92 @@ Experiment: express copy, audit 33, `--apply` of 4 files (AGENTS.md, CLAUDE.md, 
 
 Changes (2026-10-26): open-webui and immich were hand-checked during P1/P2 development, so both moved from Holdout/unlisted to Calibration (B-76 resolved). vllm (Python, mid, untouched) replaces open-webui in Holdout.
 Holdout was run once on 2026-10-26 after the weight freeze (section 4o). Do not tune weights on it.
+
+## 4t. Phase 2 start (B-159..B-161)
+- B-159 (done): `scripts/agreement.py` compares two independent answer sets (agreement rate, Cohen's kappa, disagreement list). Tests in `tests/test_agreement.py`.
+- B-160: First agreement run on the 12 calibration repos: 33/49 agree (67%), kappa 0.36. Most disagreements are `unknown` vs a verdict (11 of 16), not pass vs fail. DOC-06 accounts for 6 of them and is now script-resolved, so the figure is stale for that task; re-run after B-158 re-answers.
+- B-161: Real pass-vs-fail splits: home-assistant-core ORI-08, vite ENT-05. Review these two prompts for ambiguity.
+
+## 4u. Phase 2 judgement prompts (B-162..B-163)
+- B-162 (done): B-161 review. vite ENT-05 run B passed while its own note said no aggregate command exists; orientation_quality.md rule 7 now requires status to match the note. home-assistant-core ORI-08 split on whether a script-generated copilot file counts; instruction_drift.md rule 8 defines it (symlink, identical copy, import or generated marker pass; hand-written duplicate fails).
+- B-163: These prompt changes alter what judgement runs return, so the existing 12 answer sets are not comparable. Re-answer ORI-08 and ENT-05 on all repos (part of B-158), then re-run `scripts/agreement.py`.
+- B-164 (done): Second agreement run after the prompt fixes: 47/54 agree (87%), kappa 0.77 (was 67%, 0.36). ENT-05 agrees 7/7. Scoring with A vs B answers: 13 of 15 repos identical, n8n 78 vs 85, opencode 42 vs 48. Report: docs/0004/Agreement-Report-v1.2.md.
+- B-165: Remaining real splits: immich-public-proxy VER-11 and opencode ORI-05 (pass vs fail); n8n ORI-09 and home-assistant-core ORI-08/ORI-09 (verdict vs unknown). ORI-09 (drift) is the least stable judgement; consider a mechanical sub-check or a stricter unknown rule. Gut-score check: n8n 80 and opencode 50 fall between the two runs' scores.
+
+## 4v. Infrastructure coverage (B-166..B-190)
+Full map: `docs/0005/Infrastructure-Coverage-Map.md`. Today the catalog has no infra check; nothing below is built.
+- B-166: Detect Terraform/OpenTofu/Terragrunt, Bicep/ARM, Kubernetes/Helm/Kustomize (Track A).
+- B-167: Detect Pulumi, CloudFormation/CDK, Ansible.
+- B-168: Detect Dockerfile/Containerfile and Docker Compose files.
+- B-169: Detect devcontainers and other dev environments (gitpod, codespaces, nix, mise).
+- B-170: Done in part: each detected infrastructure location carries a `component` (deepest Python/Node component that contains it, else `(repo)`), shown in the report table. Open: levels per component.
+- B-171: Terraform checks (pinning, lock file, fmt/validate/plan in CI, tflint/trivy, state hygiene, docs, agent workflow).
+- B-172: Bicep/ARM checks.
+- B-173: Kubernetes/Helm/Kustomize checks.
+- B-174: Pulumi, CloudFormation/CDK, Ansible checks.
+- B-175: Dockerfile checks (dockerignore, hadolint, pinned base, non-root, healthcheck, secrets, CI build).
+- B-176: Docker Compose checks (healthchecks, pinned images, env example, config validation, profiles).
+- B-177: Devcontainer checks (valid config, pinned image/features, postCreate = runner setup, tool versions match CI, agent file mentions it).
+- B-178: Cross-cutting infra checks (path-filtered CI, CODEOWNERS, Dependabot ecosystems, secrets scanning).
+- B-179: Done in part: INF-E01 (Dockerfile referenced by Compose, CI, script or doc), INF-E02 (Terraform variable used), INF-E03 (local module referenced), reported as the repo-wide area `infra-entropy`. Open: unused Compose services, stale lockfile, env drift.
+- B-180: Judgement prompt `infra_quality.md` (safe plan/apply workflow, environments, forbidden commands).
+- B-181: `infra` block in report.json and scan export; schema version bump.
+- B-182: Harness City adapter: infra district or layer.
+- B-183: Synthetic infra fixtures for demo cities.
+- B-184: Report limitations list unsupported or unscored infra so a score never implies infra is fine.
+- B-185: Harness adoption skill shell (`harness-adopt`) reading report.json and triage.json. NOT STARTED.
+- B-186: Infra proposals in adoption (devcontainer, dockerignore, hadolint, Compose healthchecks, Terraform CI job, tflint, Dependabot).
+- B-187: Adoption safety rules (dry run default, reviewable diff, never apply/destroy/deploy).
+- B-188: Diff-based merge mode for existing files (supersedes B-151..B-156 scope).
+- B-189: Covered by the synthetic trees in `tests/test_infra_checks.py` (a pass and a fail case per tool and gate); no separate fixture repos needed.
+- B-190: Tooling done: `scripts/infra_calibration.py template` writes a blind rating file (levels hidden) and `compare` reports exact agreement, agreement within one level, error direction and gaps of two or more levels, also between two raters. Open: the user rates the tool areas himself (decision 2026-10-27; a second human may follow, a model is not an independent rater): 15 repos, 35 cells in `infra-ratings-tool-areas.json`; no rating exists yet, so levels stay uncalibrated (B-202).
+- B-215: First infra calibration (one rater, the user, 35 cells over 15 repos, rated blind to the tool's levels; ratings are not committed). Exact match 23%, within one level 77%, mean absolute difference 1.0. The tool is lower than the rater in 23 cells and higher in 4; the tool never reached L3 and the rater never used L0 or L3. Causes of the gaps of two levels: (1) all-or-nothing per check: one weak location fails the check (examples, ansible-for-devops, pulumi/examples have dozens of locations); (2) INF-D01 (.dockerignore) is a gate and caused 5 of the L0 results, which the rater did not weigh as a basic; (3) single-check levels are brittle (INF-A01 alone is Ansible level 1); (4) gates INF-V03 (devcontainer create command) and INF-T01/T02 (terraform lock and constraints) block repos the rater rated L1 or L2. Applied the same day: a check holds when at least 60% of its locations pass (secret checks INF-X05, F03, P03, K06, C03 and T06 stay all-or-nothing; the worst locations stay in the roll-up); INF-D01 and INF-V03 are no longer gates and sit at level 2; INF-A01 moved to level 2. Re-run on the same 35 cells: exact 43%, within one level 91%, mean absolute difference 0.66 (tool below the rater in 14 cells, above in 6). Left: Terraform lock and constraint gates and the Pulumi lock file check hold three cells two levels below the rater; kept to avoid fitting one rater. Ratings, the configurator and the sidecar are in `docs/0006/`. Next: second rater.
+- B-191 (done): ORI-09 gets mechanical candidates (documented `task/make/just/npm run X` commands that no runner defines) and `command_references_checked`; prompt rule 9. Needs a re-answer run to measure the effect on agreement (B-165).
+
+### 4w. Decisions and first implementation (2026-10-27)
+- Decided: infrastructure is an unscored overlay next to the frozen 0-100 score (D1); IaC order Terraform, Bicep, Helm/Kubernetes, then the rest (D3); Go is out of scope. B-156 (Go in bootstrap) is dropped.
+- B-166..B-169 (done): `scripts/detect_infra.py` detects Terraform/OpenTofu/Terragrunt, Bicep/ARM, Helm/Kustomize/Kubernetes manifests, Pulumi, CloudFormation/CDK, Ansible, Dockerfile/Containerfile, Compose, devcontainers, gitpod, nix, mise. Content sniffing only for ambiguous names (ARM, CloudFormation, Kubernetes, Ansible site.yml). Example directories are marked `sample` and not counted.
+- B-181, B-184 (done): `report.json` has an optional `infra` block (schema updated), `report.md` has an "Infrastructure (detected, not scored)" table and a limitation line. A test pins that infra files never change the score or pillar levels (B-190 invariant); immich 57 and n8n 78 are unchanged.
+- B-192: Detection is by location; a monorepo's infra is not yet attributed to the Python/Node component that owns it (B-170).
+- B-193: Compose files inside CI folders (`.github/`) and benchmark folders are listed as normal locations; add noise filters after seeing more repos.
+
+### 4x. Infrastructure checks, first set (2026-10-27)
+- B-171, B-175, B-176, B-177 (first version done): `scripts/infra_checks.py` evaluates Dockerfile (INF-D01..D07), Compose (INF-C01..C05), devcontainer (INF-V01..V06) and Terraform/OpenTofu (INF-T01..T07) from file contents only. Results are in `report.json` under `infra.checks` and `infra.summary` and in `report.md`; none of it changes the 0-100 score or pillar levels (tests pin this).
+- Real-repo smoke test: immich 91 findings, n8n 151, home-assistant-core 34. Spot checks matched the files; a locally built compose image (`build:` plus `image:`) is no longer flagged as unpinned.
+- B-194: Findings are per file and per location, so a monorepo with many Dockerfiles gets many rows. Add per-area roll-up (worst file, count of files) in the report and the city.
+- B-195: Compose override files and files without `services` yield only not_applicable rows; consider folding them into their base file.
+- B-196: Checks use text and regex, not full parsers: Dockerfile line continuations, `ARG`-based image names and multi-document YAML are approximations. Add a small Dockerfile parser before using these checks for gating.
+- B-197: No tools-in-CI mapping to the right directory yet: INF-T03/T04/T05/D05/D07 look at all CI text, not at the job that touches the directory.
+- B-198: Overlay has pass rates per area but no level or 0-100 number yet; decide after seeing results on more repos (question open with the owner).
+- B-199: Not yet implemented: Bicep (B-172), Kubernetes/Helm (B-173), Pulumi/CloudFormation/Ansible (B-174), cross-cutting (B-178), infra entropy (B-179), infra judgement prompt (B-180).
+- B-194 (done): `infra.rollup` gives one row per check (locations passed, failed, not applicable, up to 5 failing paths); `report.md` lists the most failing checks from it.
+- B-200 (done): Overlay documented in SKILL.md, README.md and the coverage map.
+- B-198 (done): Decided by the owner on 2026-10-27: the overlay gets its own level. `infra.levels` has L0-L3 per area and overall (weakest area), gates INF-D01, D02, C01, C03, V01, V03, T01, T02, T06, 60% pass ratio per level, a check passes only when it fails in no location. Smoke test: immich L0 (devcontainer has no setup command), n8n L0 (terraform lock file and provider versions), home-assistant-core L2.
+- B-201: The overall level is the weakest area; one missing devcontainer command puts immich at L0 although Docker is L1. Revisit after more repos (alternatives: median, or a level per area only).
+- B-202: Levels are uncalibrated: no human rated any repo's infrastructure. Do not compare them across tool versions or treat them as audited truth (see B-190).
+
+### 4y. Bicep and Kubernetes checks (2026-10-27)
+- B-172 (first version done): Bicep INF-B01..B06 (bicepconfig, parameter files, build/lint in CI, what-if/validate, @secure() secrets, no preview API versions).
+- B-173 (first version done): Kubernetes/Helm INF-K01..K07 (pinned images, resource limits, non-root, probes, validation in CI, no literal Secret, values.schema.json). Gates: INF-B01, INF-K06.
+- Smoke test on public repos (not part of the calibration set): Azure-Samples/todo-nodejs-mongo (Bicep, Docker, devcontainer) overall L0; kubernetes/examples (37 manifest files) Kubernetes L1. None of the 18 calibration repos has Bicep or Kubernetes, so the checks have only synthetic and these two real tests.
+- B-203 (done): Kubernetes manifests are detected anywhere in repos with at most 600 YAML files (marker `apiVersion:` + `kind:`); larger repos only in k8s-like directories. Archive directories (`_archived`, `legacy`, ...) count as samples.
+- B-204: Helm templates are Go-templated YAML and are not parsed; Helm checks cover Chart.yaml and values.schema.json only. Kustomize overlays are not rendered, so patches are not seen.
+- B-205: Done. Argo CD, Flux, Skaffold, Tilt and Docker Swarm stack files are detected (tools `argocd`, `flux`, `skaffold`, `tilt`, `swarm`); they are listed but have no checks of their own yet.
+- B-206: Done. INF-B01 accepts a `bicepconfig.json` in any parent directory.
+
+### 4z. Pulumi, CloudFormation, Ansible and cross-cutting checks (2026-10-27)
+- B-174 (first version done): Ansible INF-A01..A04, CloudFormation INF-F01..F03, Pulumi INF-P01..P03.
+- B-178 (first version done): cross-cutting INF-X01..X05 (Dependabot/Renovate cover the ecosystems in use, CODEOWNERS covers infra paths, path-filtered infra workflow, secret scanning, no tracked keys or .env). 56 checks in total. Gates added: INF-X05, INF-F03, INF-P03.
+- Smoke test: immich (Renovate, CODEOWNERS and a path filter present; no secret scanning), n8n (no dependency bot, no CODEOWNERS, no secret scanning), home-assistant-core (no path-filtered infra workflow, no secret scanning). A tracked `.env` that only holds `op://` references (immich) is not counted as a leak.
+- B-207: Done. INF-X01 reads the Renovate config: `enabledManagers` must list the managers for the detected tools, `disabledManagers` must not remove them, and `ignorePaths` must not exclude infrastructure directories. An unparsable config gives `unknown`. Package rules are still not read.
+- B-208: Done. INF-X03 parses the workflow YAML and passes when a `paths:` filter of a push or pull_request trigger matches a detected infrastructure file (GitHub glob rules), or when a workflow file name is dedicated to infrastructure. Path filters in reusable workflows and `paths-ignore` are not evaluated.
+- B-209: Done in part. Run on pulumi/examples, aws-cloudformation-templates, ansible-for-devops and ansible-examples. Fixes: CloudFormation templates with any file name are found (AWSTemplateFormatVersion); NoEcho is checked on the Parameters block only (a Secrets Manager `GenerateSecretString` is not a parameter); Ansible roles belong to the project that holds `roles/`; collection requirements count only inside the project; Pulumi `yaml`, `hcl` and `java` runtimes need no lock file; checks that only read CI text (P02, A02, A04, F01, F02, D05, D07, C05, V06, T03 to T05, B03, B04, K05) are reported once as `repository (CI)`. Still open: CDK is detected but has no checks; Pulumi examples were not read by a human.
+- B-210: Done. Overall overlay level is the weakest tool area; `cross-cutting`, `agent-guidance` and `infra-entropy` are reported separately in `levels.repo_wide`.
+
+### 5a. Infrastructure judgement (2026-10-27)
+- B-180 (first version done): `prompts/infra_quality.md` and tasks INF-J01..J04 (area `agent-guidance`), created when infrastructure and an agent file exist; infrastructure without an agent file fails by script. Answers are quote-verified like the other judgement tasks and are kept out of the score. `unknown` counts as neither pass nor fail. Each task carries at most 350 lines of the shared agent files.
+- B-211: Measured on n8n, home-assistant-core and opencode (the only calibration repos with both infrastructure and agent files): two blind runs agree on 10 of 10 answers (kappa 1.0), and every quote verified. Weak evidence: 8 of the 10 answers are `fail`, only n8n has passes (J03, J04), and n=10. Re-measure when more repos with infrastructure guidance exist.
+- B-212: Done. INF-J02 is asked only when deployable IaC (Terraform, Bicep, Kubernetes, etc.) is detected.
+- B-213: Done. The agent-file excerpts are stored once in `shared_excerpts.infra`; the four tasks point to them with `excerpts_ref`.
+- B-180 real-repo check (one judge run, not blind-compared): n8n INF-J01 fail, J02 fail, J03 pass (environment variables named as the secret source), J04 fail; home-assistant-core fails all four (agent files cover Python development only). Both reports validate, `agent-guidance` shows as an area (L1 in each), and the 0-100 scores are unchanged.
+- B-214: Done. Agent files over 300 lines are sent as head (40 lines) plus windows around infrastructure words, with omission markers.

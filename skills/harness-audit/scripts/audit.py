@@ -18,8 +18,10 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import detect_infra  # noqa: E402
 import detect_stack  # noqa: E402
 import git_signals  # noqa: E402
+import infra_checks  # noqa: E402
 import llm_layer  # noqa: E402
 import run_checks  # noqa: E402
 import score  # noqa: E402
@@ -28,7 +30,7 @@ import yaml  # noqa: E402
 from jsonschema import Draft202012Validator  # noqa: E402
 
 HERE = Path(__file__).resolve().parent.parent
-VERSION = "0.1.0"
+VERSION = "1.2.0"
 PILLAR_LABEL = {
     "orientation": "Orientation",
     "verification": "Verification",
@@ -89,6 +91,16 @@ def limitations(root_meta: dict, stack_result: dict, run: dict, git: dict, findi
     return out
 
 
+def infra_limitations(infra: dict) -> list[str]:
+    real = [d for d in infra["detected"] if not d["sample"]]
+    if not real:
+        return []
+    return [
+        f"Infrastructure found but not part of the score: {', '.join(infra['tools'])} ({len(real)} locations). "
+        "The score says nothing about it (see the Infrastructure section)."
+    ]
+
+
 def assemble(root: Path, catalog: dict, name=None, url=None, weight=None, llm_answers=None, tasks_out=None) -> dict:
     stack_result = detect_stack.detect(root)
     stack = stack_result["stack"]
@@ -110,6 +122,14 @@ def assemble(root: Path, catalog: dict, name=None, url=None, weight=None, llm_an
     findings = [f for f in run["findings"] if f["check_id"] not in replaced] + git["findings"] + llm_findings
     parts = score.build({"findings": findings, "stack": stack}, catalog, entropy)
     meta = repo_meta(root, name, url, weight)
+    infra = detect_infra.detect(root)
+    infra["detected"] = detect_infra.attribute(infra["detected"], [c["path"] for c in stack["components"]])
+    extra = infra_checks.run(root, detect_stack.list_files(root), infra["detected"])
+    infra = {**infra, "checks": extra["findings"], "summary": extra["summary"], "rollup": extra["rollup"], "levels": extra["levels"]}
+    merged = infra["checks"] + plan.get("infra_resolved", [])
+    if llm_answers is not None:
+        merged += applied["infra_findings"]
+    infra = {**infra, "checks": merged, **infra_checks.summarize(merged)}
     stack_out = dict(stack)
     stack_out["ecosystems"] = sorted({c["ecosystem"] for c in stack["components"]})
     return {
@@ -118,12 +138,13 @@ def assemble(root: Path, catalog: dict, name=None, url=None, weight=None, llm_an
         "generated_at": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "repo": meta,
         "stack": stack_out,
+        "infra": infra,
         "pillars": parts["pillars"],
         "findings": findings,
         "score": parts["score"],
         "entropy": parts["entropy"],
         "top_gaps": parts["top_gaps"],
-        "limitations": limitations(meta, stack_result, run, git, findings),
+        "limitations": limitations(meta, stack_result, run, git, findings) + infra_limitations(infra),
     }
 
 
@@ -196,6 +217,40 @@ def render_md(r: dict, titles: dict[str, str]) -> str:
         lines.append(f"- {it['verdict']}: `{it['path']}` ({it['check_id']}) {ev['snippet']}")
     if e["items"]:
         lines.append("")
+    real = [d for d in r.get("infra", {}).get("detected", []) if not d["sample"]]
+    if real:
+        lines += ["## Infrastructure (detected, not scored)", "", "| Kind | Tool | Location | Component | Files |", "|---|---|---|---|---|"]
+        lines += [f"| {d['kind']} | {d['tool']} | `{d['scope']}` | {d.get('component', '(repo)')} | {d['file_count']} |" for d in real[:25]]
+        lines += ["", f"{len(real)} locations; the list is capped at 25 rows.", ""]
+        summary = r["infra"].get("summary", {})
+        if summary:
+            lv = r["infra"]["levels"]
+            lines += [
+                "### Infrastructure checks (overlay, "
+                + (
+                    f"own level: L{lv['overall']}, weakest tool area: {lv['weakest_area']}"
+                    if lv["overall"] is not None
+                    else "no tool level yet"
+                )
+                + "".join(f"; {k}: L{v}" for k, v in sorted(lv.get("repo_wide", {}).items()))
+                + "; not in the score)",
+                "",
+                "| Area | Level | Passed | Failed | Pass rate | Blocked by |",
+                "|---|---|---|---|---|---|",
+            ]
+            for area, s in sorted(summary.items()):
+                rate = "-" if s["pass_rate"] is None else f"{round(s['pass_rate'] * 100)}%"
+                a_lv = lv["areas"].get(area, {"level": 0, "blocked_by": []})
+                lines.append(
+                    f"| {area} | L{a_lv['level']} | {s['passed']} | {s['failed']} | {rate} | {', '.join(a_lv['blocked_by']) or '-'} |"
+                )
+            lines += [""]
+            for row in [x for x in r["infra"].get("rollup", []) if x["failed"]][:12]:
+                where = ", ".join(f"`{x}`" for x in row["failing"][:3]) + ("…" if row["failed"] > 3 else "")
+                lines.append(
+                    f"- **{row['check_id']}** {row['title']}: fails in {row['failed']} of {row['passed'] + row['failed']} locations ({where})"
+                )
+            lines += [""]
     if r["limitations"]:
         lines += ["## Limitations", ""] + [f"- {x}" for x in r["limitations"]] + [""]
     return "\n".join(lines)

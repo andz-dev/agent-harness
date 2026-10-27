@@ -469,13 +469,36 @@ checks:
     level: 3
     gate: false
     applies_to: [all]
-    title: Linter output is actionable (rule ids, file and line)
-    detector: llm
+    title: Linter prints actionable findings (rule ids, file and line)
+    detector: key_present
     params:
-      prompt: prompts/orientation_quality.md
-      question: From the configured tools and output formats, do findings carry rule ids and locations an agent can act on?
-    evidence: config lines (output format settings)
-    rationale: Agents fix what they can locate; a wall of text is skipped.
+      any_of:
+        - { file: pyproject.toml, path: tool.ruff }
+        - { file: pyproject.toml, path: tool.pylint }
+        - { file: ruff.toml }
+        - { file: .ruff.toml }
+        - { file: .flake8 }
+        - { file: setup.cfg, path: flake8 }
+        - { file: .pylintrc }
+        - { file: eslint.config.js }
+        - { file: eslint.config.mjs }
+        - { file: eslint.config.cjs }
+        - { file: eslint.config.ts }
+        - { file: .eslintrc }
+        - { file: .eslintrc.json }
+        - { file: .eslintrc.js }
+        - { file: .eslintrc.cjs }
+        - { file: .eslintrc.yml }
+        - { file: .eslintrc.yaml }
+        - { file: biome.json }
+        - { file: biome.jsonc }
+        - { file: .oxlintrc.json }
+        - { file: oxlint.config.ts }
+        - { file: oxlint.config.js }
+        - { file: oxlint.config.mjs }
+        - { file: oxlint.config.cjs }
+    evidence: linter config location
+    rationale: Agents fix what they can locate. These linters print a rule id with file and line by default; formatters such as black or prettier do not count (B-128).
 
   # ===== AUTOMATIC TRIGGERS: do checks fire without anyone remembering? =====
   - id: TRG-01

@@ -89,3 +89,10 @@ reviewed new content, which `task integrity` verifies. The Harness City page,
 adapter and app README were adapted on 2026-10-27 to explain districts, levels,
 traffic, rail, power line and a new transit network, and to show per-check
 findings and evidence. The synthetic demo still contains no findings.
+
+## Reviewed Skill Updates
+
+Skill files changed after the import are also recorded as `adapted-runtime` in
+[extraction-manifest.json](extraction-manifest.json). The first baseline update brings in
+harness-audit v1.2 (placeholder downgrade, DOC-06 script check, larger excerpt
+budgets, agreement tool); see [v1.2 records](docs/0004/README.md). Their `sha256` is the reviewed baseline that `task integrity` verifies.
