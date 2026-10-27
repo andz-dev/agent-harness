@@ -100,6 +100,22 @@ def classify(root: Path, rel: str, sniff_all: bool = False) -> tuple[str, str] |
     return None
 
 
+def owner(scope: str, component_paths: list[str]) -> str:
+    """Deepest Python or Node component whose directory contains `scope`; "(repo)" when none does (B-170)."""
+    best = ""
+    for c in component_paths:
+        c = c.strip("/")
+        if c in ("", "."):
+            continue
+        if (scope == c or scope.startswith(c + "/")) and len(c) > len(best):
+            best = c
+    return best or "(repo)"
+
+
+def attribute(detected: list[dict], component_paths: list[str]) -> list[dict]:
+    return [{**d, "component": owner(d["scope"], component_paths)} for d in detected]
+
+
 def detect(root: Path) -> dict:
     entries: dict[tuple[str, str, str], list[str]] = {}
     files = detect_stack.list_files(root)

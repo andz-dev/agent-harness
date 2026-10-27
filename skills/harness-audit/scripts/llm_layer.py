@@ -178,28 +178,32 @@ def infra_excerpt(ctx: Ctx, rel: str) -> dict | None:
     return {"path": rel, "start_line": 1, "end_line": len(out), "text": "\n".join(out)}
 
 
-def infra_tasks(ctx: Ctx, root: Path, agent: list[str], targets: list[str]) -> tuple[list[dict], list[dict]]:
+def infra_tasks(ctx: Ctx, root: Path, agent: list[str], targets: list[str]) -> tuple[list[dict], list[dict], dict]:
     """Judgement tasks for the infrastructure overlay (B-180). Returns (tasks, findings resolved by script)."""
     infra = detect_infra.detect(root)
     real = [d for d in infra["detected"] if not d["sample"]]
     if not real:
-        return [], []
+        return [], [], {}
     if not agent:
-        return [], [
-            infra_checks.finding(
-                cid,
-                "agent files",
-                "fail",
-                [{"path": "AGENTS.md", "snippet": "no agent instruction file found"}],
-                "Nothing to judge: no agent instruction file.",
-            )
-            for cid in INFRA_QUESTIONS
-            if cid != "INF-J02" or any(d["tool"] in DEPLOYABLE_IAC for d in real)
-        ]
+        return (
+            [],
+            [
+                infra_checks.finding(
+                    cid,
+                    "agent files",
+                    "fail",
+                    [{"path": "AGENTS.md", "snippet": "no agent instruction file found"}],
+                    "Nothing to judge: no agent instruction file.",
+                )
+                for cid in INFRA_QUESTIONS
+                if cid != "INF-J02" or any(d["tool"] in DEPLOYABLE_IAC for d in real)
+            ],
+            {},
+        )
     files = list(dict.fromkeys(agent + _files(ctx, ["CONTRIBUTING*", ".github/CONTRIBUTING*"])))
     ex = _budget([e for f in files if (e := infra_excerpt(ctx, f))], INFRA_TASK_LINES)
     if not ex:
-        return [], []
+        return [], [], {}
     facts = {
         "infrastructure": [{"tool": d["tool"], "scope": d["scope"], "files": d["file_count"]} for d in real[:40]],
         "runner_targets": targets[:200],
@@ -222,10 +226,11 @@ def infra_tasks(ctx: Ctx, root: Path, agent: list[str], targets: list[str]) -> t
                 "prompt": INFRA_PROMPT,
                 "facts": facts,
                 "candidates": [],
-                "excerpts": ex,
+                "excerpts": [],
+                "excerpts_ref": "infra",
             }
         )
-    return tasks, []
+    return tasks, [], {"infra": ex}
 
 
 def plan(root: Path, catalog: dict) -> dict:
@@ -338,12 +343,13 @@ def plan(root: Path, catalog: dict) -> dict:
                 "excerpts": ex,
             }
         )
-    extra_tasks, infra_resolved = infra_tasks(ctx, root, agent, targets)
+    extra_tasks, infra_resolved, shared = infra_tasks(ctx, root, agent, targets)
     return {
         "schema": "llm-tasks/0.1",
         "tasks": tasks + extra_tasks,
         "resolved": resolved,
         "infra_resolved": infra_resolved,
+        "shared_excerpts": shared,
         "instructions": "Read each task's prompt file, then answer every task. See prompts/*.md for the answer format.",
     }
 
@@ -352,13 +358,14 @@ def _norm(s: str) -> str:
     return " ".join(s.split()).strip("`*_ ")
 
 
-def verify_evidence(root: Path, task: dict, ev: dict) -> dict | None:
+def verify_evidence(root: Path, task: dict, ev: dict, shared: dict | None = None) -> dict | None:
     """Return a clean evidence item if the quote really is in the file near the claimed line."""
     path, snippet = ev.get("path"), ev.get("snippet")
     line = ev.get("line")
     if not isinstance(path, str) or not isinstance(snippet, str) or not isinstance(line, int) or line < 1:
         return None
-    spans = [e for e in task["excerpts"] if e["path"] == path]
+    pool = task["excerpts"] or (shared or {}).get(task.get("excerpts_ref"), [])
+    spans = [e for e in pool if e["path"] == path]
     if not spans:
         return None
     try:
@@ -392,7 +399,11 @@ def apply_answers(root: Path, tasks_doc: dict, answers: list) -> dict:
         status = a.get("status") if a.get("status") in STATUS else "unknown"
         conf = a.get("confidence") if a.get("confidence") in CONFIDENCE else "low"
         note = str(a.get("note") or "")[:300]
-        ev = [v for e in (a.get("evidence") or [])[:6] if isinstance(e, dict) and (v := verify_evidence(root, t, e))]
+        ev = [
+            v
+            for e in (a.get("evidence") or [])[:6]
+            if isinstance(e, dict) and (v := verify_evidence(root, t, e, tasks_doc.get("shared_excerpts")))
+        ]
         dropped = len(a.get("evidence") or []) - len(ev)
         if status in ("pass", "fail") and not ev:
             status, note = "unknown", (note + " " if note else "") + "[quotes could not be verified against the files]"

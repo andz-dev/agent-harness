@@ -255,6 +255,9 @@
                 "enum": [
                   "detected-not-scored"
                 ]
+              },
+              "component": {
+                "type": "string"
               }
             }
           }

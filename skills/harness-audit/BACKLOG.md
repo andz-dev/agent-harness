@@ -325,7 +325,7 @@ Full map: `docs/0005/Infrastructure-Coverage-Map.md`. Today the catalog has no i
 - B-167: Detect Pulumi, CloudFormation/CDK, Ansible.
 - B-168: Detect Dockerfile/Containerfile and Docker Compose files.
 - B-169: Detect devcontainers and other dev environments (gitpod, codespaces, nix, mise).
-- B-170: Infra component type in `detect_stack` so monorepos score per component.
+- B-170: Done in part: each detected infrastructure location carries a `component` (deepest Python/Node component that contains it, else `(repo)`), shown in the report table. Open: levels per component.
 - B-171: Terraform checks (pinning, lock file, fmt/validate/plan in CI, tflint/trivy, state hygiene, docs, agent workflow).
 - B-172: Bicep/ARM checks.
 - B-173: Kubernetes/Helm/Kustomize checks.
@@ -344,7 +344,7 @@ Full map: `docs/0005/Infrastructure-Coverage-Map.md`. Today the catalog has no i
 - B-186: Infra proposals in adoption (devcontainer, dockerignore, hadolint, Compose healthchecks, Terraform CI job, tflint, Dependabot).
 - B-187: Adoption safety rules (dry run default, reviewable diff, never apply/destroy/deploy).
 - B-188: Diff-based merge mode for existing files (supersedes B-151..B-156 scope).
-- B-189: Synthetic repos per tool and per pass/fail case in tests.
+- B-189: Covered by the synthetic trees in `tests/test_infra_checks.py` (a pass and a fail case per tool and gate); no separate fixture repos needed.
 - B-190: Infra calibration set with two raters; test that infra files never change the frozen 0-100 score until decision D1 is made.
 - B-191 (done): ORI-09 gets mechanical candidates (documented `task/make/just/npm run X` commands that no runner defines) and `command_references_checked`; prompt rule 9. Needs a re-answer run to measure the effect on agreement (B-165).
 
@@ -377,7 +377,7 @@ Full map: `docs/0005/Infrastructure-Coverage-Map.md`. Today the catalog has no i
 - B-203 (done): Kubernetes manifests are detected anywhere in repos with at most 600 YAML files (marker `apiVersion:` + `kind:`); larger repos only in k8s-like directories. Archive directories (`_archived`, `legacy`, ...) count as samples.
 - B-204: Helm templates are Go-templated YAML and are not parsed; Helm checks cover Chart.yaml and values.schema.json only. Kustomize overlays are not rendered, so patches are not seen.
 - B-205: Argo CD / Flux manifests, Skaffold, Tilt and Docker Swarm stacks are not detected.
-- B-206: Bicep modules are checked per directory; shared `bicepconfig.json` in a parent directory (not the repo root) is missed.
+- B-206: Done. INF-B01 accepts a `bicepconfig.json` in any parent directory.
 
 ### 4z. Pulumi, CloudFormation, Ansible and cross-cutting checks (2026-10-27)
 - B-174 (first version done): Ansible INF-A01..A04, CloudFormation INF-F01..F03, Pulumi INF-P01..P03.
@@ -392,6 +392,6 @@ Full map: `docs/0005/Infrastructure-Coverage-Map.md`. Today the catalog has no i
 - B-180 (first version done): `prompts/infra_quality.md` and tasks INF-J01..J04 (area `agent-guidance`), created when infrastructure and an agent file exist; infrastructure without an agent file fails by script. Answers are quote-verified like the other judgement tasks and are kept out of the score. `unknown` counts as neither pass nor fail. Each task carries at most 350 lines of the shared agent files.
 - B-211: Not yet measured: agreement between two blind runs for INF-J01..J04 (see B-164 for the method). Run `scripts/agreement.py` on a set of repos with infrastructure and agent files; few of the 18 calibration repos qualify (n8n, home-assistant-core).
 - B-212: Done. INF-J02 is asked only when deployable IaC (Terraform, Bicep, Kubernetes, etc.) is detected.
-- B-213: The excerpt text of the agent files is repeated in each of the four tasks; merge into one task with four answers to cut the size of `llm_tasks.json`.
+- B-213: Done. The agent-file excerpts are stored once in `shared_excerpts.infra`; the four tasks point to them with `excerpts_ref`.
 - B-180 real-repo check (one judge run, not blind-compared): n8n INF-J01 fail, J02 fail, J03 pass (environment variables named as the secret source), J04 fail; home-assistant-core fails all four (agent files cover Python development only). Both reports validate, `agent-guidance` shows as an area (L1 in each), and the 0-100 scores are unchanged.
 - B-214: Done. Agent files over 300 lines are sent as head (40 lines) plus windows around infrastructure words, with omission markers.

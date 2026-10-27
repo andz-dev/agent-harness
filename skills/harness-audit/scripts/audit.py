@@ -123,6 +123,7 @@ def assemble(root: Path, catalog: dict, name=None, url=None, weight=None, llm_an
     parts = score.build({"findings": findings, "stack": stack}, catalog, entropy)
     meta = repo_meta(root, name, url, weight)
     infra = detect_infra.detect(root)
+    infra["detected"] = detect_infra.attribute(infra["detected"], [c["path"] for c in stack["components"]])
     extra = infra_checks.run(root, detect_stack.list_files(root), infra["detected"])
     infra = {**infra, "checks": extra["findings"], "summary": extra["summary"], "rollup": extra["rollup"], "levels": extra["levels"]}
     merged = infra["checks"] + plan.get("infra_resolved", [])
@@ -218,8 +219,8 @@ def render_md(r: dict, titles: dict[str, str]) -> str:
         lines.append("")
     real = [d for d in r.get("infra", {}).get("detected", []) if not d["sample"]]
     if real:
-        lines += ["## Infrastructure (detected, not scored)", "", "| Kind | Tool | Location | Files |", "|---|---|---|---|"]
-        lines += [f"| {d['kind']} | {d['tool']} | `{d['scope']}` | {d['file_count']} |" for d in real[:25]]
+        lines += ["## Infrastructure (detected, not scored)", "", "| Kind | Tool | Location | Component | Files |", "|---|---|---|---|---|"]
+        lines += [f"| {d['kind']} | {d['tool']} | `{d['scope']}` | {d.get('component', '(repo)')} | {d['file_count']} |" for d in real[:25]]
         lines += ["", f"{len(real)} locations; the list is capped at 25 rows.", ""]
         summary = r["infra"].get("summary", {})
         if summary:

@@ -265,6 +265,12 @@ class BicepTests(unittest.TestCase):
             self.assertEqual(status(r, cid), "fail", cid)
 
 
+class BicepParentConfigTests(unittest.TestCase):
+    def test_bicepconfig_in_a_parent_directory_counts(self):
+        r = run({"infra/bicepconfig.json": "{}", "infra/app/main.bicep": "param x string\n"})
+        self.assertEqual(status(r, "INF-B01"), "pass")
+
+
 class KubernetesTests(unittest.TestCase):
     GOOD = (
         "apiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: web\nspec:\n  template:\n    spec:\n      securityContext:\n        runAsNonRoot: true\n"

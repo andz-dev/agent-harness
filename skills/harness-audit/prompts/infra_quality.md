@@ -7,7 +7,8 @@ type: 'Prompt'
 You are answering ONE yes/no question about whether a repository's agent instructions tell an agent how to
 work safely with its infrastructure (Terraform, Bicep, Kubernetes, Docker, Compose, devcontainers, Ansible and
 similar). The task file gives you the question, the check id, `facts` computed by script (which infrastructure
-tools and locations exist, which runner targets exist) and numbered excerpts of agent and contributor files.
+tools and locations exist, which runner targets exist) and numbered excerpts of agent and contributor files. The excerpts are stored once in the top-level
+`shared_excerpts` of the task file; a task with `excerpts_ref` uses the list of that name.
 
 ## Rules
 

@@ -284,7 +284,9 @@ class InfraJudgementTests(unittest.TestCase):
         filler = "".join(f"filler line {i}\n" for i in range(600))
         agents = "# Agents\n" + filler + "Never run `terraform apply` without review.\n" + filler
         root, plan = prepared({**INFRA_TREE, "AGENTS.md": agents})
-        ex = task(plan, "INF-J01")["excerpts"][0]
+        ex = plan["shared_excerpts"]["infra"][0]
+        self.assertEqual(task(plan, "INF-J01")["excerpts_ref"], "infra")
+        self.assertEqual(task(plan, "INF-J01")["excerpts"], [])
         self.assertIn("terraform apply", ex["text"])
         self.assertIn("omitted", ex["text"])
         line = next(i for i, ln in enumerate(agents.splitlines(), 1) if "terraform apply" in ln)

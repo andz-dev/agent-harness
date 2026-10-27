@@ -466,8 +466,10 @@ def bicep_checks(repo: Repo, scope: str, files: list[str]) -> list[dict]:
         return []
     first = templates[0]
     base = scope if scope != "." else ""
-    near = lambda name: any(f == (f"{base}/{name}" if base else name) or f == name for f in repo.files)  # noqa: E731
-    cfg = near("bicepconfig.json")
+    # bicepconfig.json is found by walking up from the template directory, so any ancestor directory counts (B-206)
+    parents = [base] if not base else [base, *[str(p) for p in PurePosixPath(base).parents if str(p) != "."]]
+    cfg_paths = {f"{p}/bicepconfig.json" if p else "bicepconfig.json" for p in [*parents, ""]}
+    cfg = any(f in cfg_paths for f in repo.files)
     out = [
         finding(
             "INF-B01", scope, "pass" if cfg else "fail", [ev("bicepconfig.json", "present")] if cfg else [ev(first, "no bicepconfig.json")]

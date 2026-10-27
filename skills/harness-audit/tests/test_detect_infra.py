@@ -111,5 +111,18 @@ class DetectInfraTests(unittest.TestCase):
         self.assertEqual(r["detected"], [])
 
 
+class OwnerTests(unittest.TestCase):
+    def test_deepest_component_owns_the_scope(self):
+        comps = ["apps/api", "apps/api/worker", "web"]
+        self.assertEqual(detect_infra.owner("apps/api/worker/deploy", comps), "apps/api/worker")
+        self.assertEqual(detect_infra.owner("apps/api", comps), "apps/api")
+        self.assertEqual(detect_infra.owner("apps/apix", comps), "(repo)")
+        self.assertEqual(detect_infra.owner(".", comps), "(repo)")
+
+    def test_attribute_adds_component_without_changing_other_fields(self):
+        d = [{"scope": "web/docker", "tool": "docker"}]
+        self.assertEqual(detect_infra.attribute(d, ["web"])[0], {"scope": "web/docker", "tool": "docker", "component": "web"})
+
+
 if __name__ == "__main__":
     unittest.main()
