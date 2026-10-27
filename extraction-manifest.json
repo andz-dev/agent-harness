@@ -20,7 +20,7 @@
       "source": "agents/skills/engineering/harness-audit/BACKLOG.md",
       "target": "skills/harness-audit/BACKLOG.md",
       "source_sha256": "e6585aecc04e06097ac13de92215c0f31635c848af6e49cf681782c72657d17d",
-      "sha256": "fa2521fbc425686045b21bce51ea138306921c6d40ecc64565170c84ae5fc107",
+      "sha256": "d749aad51ca489415a41b4721a36f2aebcea89b53441e14e81d9b226d428db80",
       "kind": "adapted-runtime"
     },
     {
