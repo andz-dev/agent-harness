@@ -1,0 +1,69 @@
+{
+  "documents": {
+    "Ideation-Book.md": {
+      "checks": {
+        "bareNumericGroups": 0,
+        "escapedCitationSyntax": 0,
+        "missingAnchors": [],
+        "orphanAnchors": [],
+        "placeholders": 0
+      },
+      "lastRunAt": "2026-10-27T12:53:43.225918+00:00",
+      "mode": "final",
+      "offline": false,
+      "path": "docs/0002/Ideation-Book.md",
+      "status": "pass",
+      "summary": {
+        "anchors": 0,
+        "citations": 0,
+        "errors": 0,
+        "warnings": 0
+      },
+      "urlValidation": []
+    },
+    "Research-Paper.md": {
+      "checks": {
+        "bareNumericGroups": 0,
+        "escapedCitationSyntax": 0,
+        "missingAnchors": [],
+        "orphanAnchors": [],
+        "placeholders": 0
+      },
+      "lastRunAt": "2026-10-27T12:53:43.481532+00:00",
+      "mode": "final",
+      "offline": false,
+      "path": "docs/0002/Research-Paper.md",
+      "status": "pass",
+      "summary": {
+        "anchors": 0,
+        "citations": 0,
+        "errors": 0,
+        "warnings": 0
+      },
+      "urlValidation": []
+    },
+    "Whitepaper.md": {
+      "checks": {
+        "bareNumericGroups": 0,
+        "escapedCitationSyntax": 0,
+        "missingAnchors": [],
+        "orphanAnchors": [],
+        "placeholders": 0
+      },
+      "lastRunAt": "2026-10-27T12:53:43.715300+00:00",
+      "mode": "final",
+      "offline": false,
+      "path": "docs/0002/Whitepaper.md",
+      "status": "pass",
+      "summary": {
+        "anchors": 0,
+        "citations": 0,
+        "errors": 0,
+        "warnings": 0
+      },
+      "urlValidation": []
+    }
+  },
+  "modeDefault": "final",
+  "schemaVersion": 1
+}

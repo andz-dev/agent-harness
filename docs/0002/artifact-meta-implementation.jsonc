@@ -1,0 +1,46 @@
+{
+  "artifact": "Implementation.md",
+  "generatedAt": "2026-10-27T14:06:12.250317+00:00",
+  "mode": "draft",
+  "inputs": [
+    "docs/0002/Plan.md",
+    "docs/0002/Architecture.md",
+    "docs/0002/Test-Plan.md",
+    "docs/0002/Mocking-Plan.md",
+    "docs/0002/Golden-Dataset/dataset.json",
+    "docs/0002/ontology/ontology.json"
+  ],
+  "outputs": [
+    "docs/0002/Implementation.md",
+    "docs/0002/change-set.jsonc"
+  ],
+  "validation": {
+    "status": "warn",
+    "checks": [
+      "standalone-source-integrity-and-local-doc-path-checks"
+    ]
+  },
+  "notes": [
+    "Documentation/adoption checklist only; no production implementation authorization.",
+    "Imported from original 0039; old validation is historical. New-checkout validation is recorded in EXTRACTION.md."
+  ],
+  "importedValidation": {
+    "status": "warn",
+    "checks": [
+      "change_set_draft_pass",
+      "change_set_check_pass"
+    ]
+  },
+  "importedInputs": [
+    "Plan.md",
+    "Architecture.md",
+    "Test-Plan.md",
+    "Mocking-Plan.md",
+    "Golden-Dataset/dataset.json",
+    "ontology/ontology.json"
+  ],
+  "importedOutputs": [
+    "Implementation.md",
+    "change-set.jsonc"
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "artifact": "Ideation-Book.md",
+  "generatedAt": "2026-10-27T14:06:12.250317+00:00",
+  "mode": "draft",
+  "inputs": [
+    "docs/0002/Map.md",
+    "docs/0002/research/As-Built-Findings.md"
+  ],
+  "outputs": [
+    "docs/0002/Ideation-Book.md"
+  ],
+  "validation": {
+    "status": "warn",
+    "checks": [
+      "standalone-source-integrity-and-local-doc-path-checks"
+    ]
+  },
+  "notes": [
+    "Source-only adoption; diagrams and citations checked in consolidated pass; no effectiveness experiment.",
+    "Imported from original 0039; old validation is historical. New-checkout validation is recorded in EXTRACTION.md."
+  ],
+  "importedValidation": {
+    "status": "warn",
+    "checks": [
+      "producer_structure_pass"
+    ]
+  },
+  "importedInputs": [
+    "Map.md",
+    "research/As-Built-Findings.md"
+  ],
+  "importedOutputs": [
+    "Ideation-Book.md"
+  ]
+}

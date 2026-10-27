@@ -1,0 +1,123 @@
+{
+  "@context": {
+    "concept.source_snapshot": "urn:developer-asset-manager:0039:source-snapshot",
+    "concept.component": "urn:developer-asset-manager:0039:component",
+    "concept.finding": "urn:developer-asset-manager:0039:finding",
+    "concept.agent_task": "urn:developer-asset-manager:0039:agent-task",
+    "concept.pillar_level": "urn:developer-asset-manager:0039:pillar-level",
+    "concept.triage_step": "urn:developer-asset-manager:0039:triage-step",
+    "concept.bootstrap_proposal": "urn:developer-asset-manager:0039:bootstrap-proposal",
+    "concept.implementation_type": "urn:developer-asset-manager:0039:documentation-only"
+  },
+  "version": "v0.2",
+  "concepts": [
+    {
+      "id": "concept.source_snapshot",
+      "definition": "Owner-selected immutable implementation identity.",
+      "ac": [
+        "AC-1",
+        "AC-12",
+        "AC-13"
+      ],
+      "architectureRefs": [
+        "Architecture.md section 11"
+      ]
+    },
+    {
+      "id": "concept.component",
+      "definition": "Detected audit unit, distinguished from sample/tooling and unsupported inputs.",
+      "ac": [
+        "AC-2"
+      ],
+      "architectureRefs": [
+        "Architecture.md section 4"
+      ]
+    },
+    {
+      "id": "concept.finding",
+      "definition": "Check result with evidence and provenance, not runtime proof.",
+      "ac": [
+        "AC-3",
+        "AC-4",
+        "AC-6",
+        "AC-8",
+        "AC-11"
+      ],
+      "architectureRefs": [
+        "Architecture.md section 9"
+      ]
+    },
+    {
+      "id": "concept.agent_task",
+      "definition": "Bounded selected-excerpt judgment request whose answers require verified quotes.",
+      "ac": [
+        "AC-5"
+      ],
+      "architectureRefs": [
+        "Architecture.md section 8"
+      ]
+    },
+    {
+      "id": "concept.pillar_level",
+      "definition": "Catalog/score-rule-derived static classification.",
+      "ac": [
+        "AC-7"
+      ],
+      "architectureRefs": [
+        "Architecture.md section 9"
+      ]
+    },
+    {
+      "id": "concept.triage_step",
+      "definition": "Counterfactual score improvement ranked against estimated effort.",
+      "ac": [
+        "AC-9"
+      ],
+      "architectureRefs": [
+        "Architecture.md section 4"
+      ]
+    },
+    {
+      "id": "concept.bootstrap_proposal",
+      "definition": "Missing-file proposal distinct from explicit create-only target application.",
+      "ac": [
+        "AC-10"
+      ],
+      "architectureRefs": [
+        "Architecture.md sections 5 and 10"
+      ]
+    },
+    {
+      "id": "concept.implementation_type",
+      "definition": "Documentation-only adoption with a declared throwaway source probe; no production code changes.",
+      "ac": [
+        "AC-14"
+      ],
+      "architectureRefs": [
+        "Architecture.md section 6"
+      ]
+    }
+  ],
+  "relations": [
+    {
+      "from": "concept.agent_task",
+      "relation": "supports",
+      "to": "concept.finding"
+    },
+    {
+      "from": "concept.finding",
+      "relation": "contributes-to",
+      "to": "concept.pillar_level"
+    },
+    {
+      "from": "concept.finding",
+      "relation": "motivates",
+      "to": "concept.triage_step"
+    },
+    {
+      "from": "concept.finding",
+      "relation": "motivates",
+      "to": "concept.bootstrap_proposal"
+    }
+  ]
+}

@@ -1,0 +1,307 @@
+{
+  "schema_version": "0.1",
+  "tool": {
+    "name": "harness-audit",
+    "version": "0.0.0-draft",
+    "catalog_version": "0.1"
+  },
+  "generated_at": "2026-10-26T12:00:00Z",
+  "repo": {
+    "name": "example/demo-service (illustrative, not a real audit)",
+    "commit": "0123abc",
+    "clone_mode": "blobless",
+    "weight": "low"
+  },
+  "stack": {
+    "ecosystems": [
+      "python"
+    ],
+    "components": [
+      {
+        "id": "api",
+        "path": ".",
+        "ecosystem": "python",
+        "kind": "service",
+        "tracked_files": 118,
+        "detected_by": [
+          "pyproject.toml"
+        ]
+      }
+    ]
+  },
+  "pillars": [
+    {
+      "pillar": "verification",
+      "level": 2,
+      "weight": 25,
+      "points": 16.67,
+      "gate_failures": [
+        "VER-06"
+      ]
+    },
+    {
+      "pillar": "orientation",
+      "level": 1,
+      "weight": 20,
+      "points": 6.67,
+      "gate_failures": [
+        "ORI-04"
+      ]
+    },
+    {
+      "pillar": "static_guardrails",
+      "level": 2,
+      "weight": 15,
+      "points": 10.0,
+      "gate_failures": [
+        "STA-06"
+      ]
+    },
+    {
+      "pillar": "workflow_entry_points",
+      "level": 2,
+      "weight": 15,
+      "points": 10.0,
+      "gate_failures": [
+        "ENT-05"
+      ]
+    },
+    {
+      "pillar": "automatic_triggers",
+      "level": 1,
+      "weight": 10,
+      "points": 3.33,
+      "gate_failures": [
+        "TRG-02"
+      ]
+    },
+    {
+      "pillar": "pipeline_parity",
+      "level": 2,
+      "weight": 10,
+      "points": 6.67,
+      "gate_failures": [
+        "CIP-05"
+      ]
+    },
+    {
+      "pillar": "doc_hygiene",
+      "level": 0,
+      "weight": 5,
+      "points": 0.0,
+      "gate_failures": [
+        "DOC-02"
+      ]
+    }
+  ],
+  "findings": [
+    {
+      "check_id": "ORI-01",
+      "pillar": "orientation",
+      "level": 1,
+      "status": "pass",
+      "source": "script",
+      "gate": true,
+      "evidence": [
+        {
+          "kind": "found",
+          "path": "README.md",
+          "line": 14,
+          "snippet": "## Installation"
+        }
+      ]
+    },
+    {
+      "check_id": "ORI-04",
+      "pillar": "orientation",
+      "level": 2,
+      "status": "fail",
+      "source": "script",
+      "gate": true,
+      "evidence": [
+        {
+          "kind": "searched",
+          "path": "AGENTS.md, CLAUDE.md, .github/copilot-instructions.md",
+          "snippet": "No agent file found; 0 build/test/lint commands documented"
+        }
+      ]
+    },
+    {
+      "check_id": "ORI-09",
+      "pillar": "orientation",
+      "level": 3,
+      "status": "unknown",
+      "source": "llm",
+      "confidence": "low",
+      "gate": true,
+      "evidence": [],
+      "note": "No agent files to compare against README and runner targets."
+    },
+    {
+      "check_id": "VER-01",
+      "pillar": "verification",
+      "level": 1,
+      "status": "pass",
+      "source": "script",
+      "gate": true,
+      "component": "api",
+      "evidence": [
+        {
+          "kind": "found",
+          "path": "tests/test_users.py",
+          "snippet": "42 test files under tests/"
+        }
+      ]
+    },
+    {
+      "check_id": "VER-02",
+      "pillar": "verification",
+      "level": 1,
+      "status": "not_applicable",
+      "source": "script",
+      "gate": true,
+      "component": "api",
+      "evidence": [],
+      "note": "Node check; component api is Python."
+    },
+    {
+      "check_id": "VER-05",
+      "pillar": "verification",
+      "level": 2,
+      "status": "pass",
+      "source": "script",
+      "gate": true,
+      "component": "api",
+      "evidence": [
+        {
+          "kind": "found",
+          "path": ".github/workflows/ci.yml",
+          "line": 31,
+          "snippet": "run: pytest -q"
+        }
+      ]
+    },
+    {
+      "check_id": "ENT-02",
+      "pillar": "workflow_entry_points",
+      "level": 2,
+      "status": "pass",
+      "source": "script",
+      "gate": true,
+      "evidence": [
+        {
+          "kind": "found",
+          "path": "Makefile",
+          "line": 6,
+          "snippet": "test: lint check"
+        }
+      ]
+    },
+    {
+      "check_id": "ENT-05",
+      "pillar": "workflow_entry_points",
+      "level": 3,
+      "status": "fail",
+      "source": "llm",
+      "confidence": "medium",
+      "gate": true,
+      "evidence": [
+        {
+          "kind": "searched",
+          "path": "README.md",
+          "line": 20,
+          "snippet": "README tells readers to run `pytest` directly, not a runner target"
+        }
+      ]
+    },
+    {
+      "check_id": "CIP-05",
+      "pillar": "pipeline_parity",
+      "level": 3,
+      "status": "fail",
+      "source": "script",
+      "gate": true,
+      "evidence": [
+        {
+          "kind": "found",
+          "path": ".github/workflows/ci.yml",
+          "line": 28,
+          "snippet": "run: ruff check . && pytest -q (duplicates Makefile logic)"
+        }
+      ],
+      "note": "0 of 3 run steps call a local entry point."
+    },
+    {
+      "check_id": "DOC-02",
+      "pillar": "doc_hygiene",
+      "level": 2,
+      "status": "fail",
+      "source": "script",
+      "gate": true,
+      "evidence": [
+        {
+          "kind": "searched",
+          "path": ".github/workflows/*.yml",
+          "snippet": "No mkdocs, sphinx, lychee or markdown-link-check step"
+        }
+      ]
+    }
+  ],
+  "score": {
+    "raw": 53.34,
+    "caps_applied": [],
+    "entropy_penalty": 2.0,
+    "final": 51
+  },
+  "entropy": {
+    "candidate_files": 12,
+    "flagged_files": 2,
+    "penalty": 2.0,
+    "history_available": true,
+    "items": [
+      {
+        "check_id": "ENR-01",
+        "path": "scripts/old_deploy.sh",
+        "verdict": "orphaned",
+        "last_commit": "2023-04-02",
+        "evidence": [
+          {
+            "kind": "searched",
+            "path": "Makefile, .github/workflows/*.yml, docs/**",
+            "snippet": "0 references to scripts/old_deploy.sh"
+          }
+        ]
+      },
+      {
+        "check_id": "ENR-02",
+        "path": ".flake8",
+        "verdict": "conflicting",
+        "evidence": [
+          {
+            "kind": "found",
+            "path": "pyproject.toml",
+            "line": 41,
+            "snippet": "[tool.ruff] present alongside .flake8 with different line length"
+          }
+        ]
+      }
+    ]
+  },
+  "top_gaps": [
+    {
+      "check_id": "ORI-04",
+      "fix": "Add AGENTS.md listing the test, lint and check commands."
+    },
+    {
+      "check_id": "CIP-05",
+      "fix": "Make CI call `make check` instead of repeating ruff and pytest."
+    },
+    {
+      "check_id": "DOC-02",
+      "fix": "Add a link-check step for README and docs to CI."
+    }
+  ],
+  "limitations": [
+    "LLM layer ran on 2 excerpts; confidence capped at medium."
+  ]
+}

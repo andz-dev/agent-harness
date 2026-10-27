@@ -1,0 +1,211 @@
+{
+  "@context": {
+    "subject": "urn:developer-asset-manager:0039:harness-audit",
+    "provenance": "synthetic contract scenarios; not captured target data"
+  },
+  "version": "v0.2",
+  "seed": 39,
+  "records": [
+    {
+      "id": "FX-01",
+      "class": "positive",
+      "ac": [
+        "AC-1"
+      ],
+      "scenario": "INF-01",
+      "input": {
+        "source_diff": false
+      },
+      "expected": {
+        "source_preserved": true
+      }
+    },
+    {
+      "id": "FX-02",
+      "class": "edge",
+      "ac": [
+        "AC-2"
+      ],
+      "scenario": "UNIT-02",
+      "input": {
+        "ecosystem": "unsupported-only"
+      },
+      "expected": {
+        "audit_exit": 3
+      }
+    },
+    {
+      "id": "FX-03",
+      "class": "negative",
+      "ac": [
+        "AC-3"
+      ],
+      "scenario": "INT-03",
+      "input": {
+        "lint_config": false
+      },
+      "expected": {
+        "evidence_kind": "searched",
+        "target_executed": false
+      }
+    },
+    {
+      "id": "FX-04",
+      "class": "edge",
+      "ac": [
+        "AC-4"
+      ],
+      "scenario": "INT-04",
+      "input": {
+        "clone_mode": "shallow"
+      },
+      "expected": {
+        "history_limit_visible": true
+      }
+    },
+    {
+      "id": "FX-05",
+      "class": "negative",
+      "ac": [
+        "AC-5"
+      ],
+      "scenario": "UNIT-05",
+      "input": {
+        "answer_status": "pass",
+        "quote_verifies": false
+      },
+      "expected": {
+        "status": "unknown"
+      }
+    },
+    {
+      "id": "FX-06",
+      "class": "positive",
+      "ac": [
+        "AC-6"
+      ],
+      "scenario": "E2E-06",
+      "input": {
+        "specialized_check_id": "ORI-09"
+      },
+      "expected": {
+        "reconciliation": "replace-by-check-id"
+      }
+    },
+    {
+      "id": "FX-07",
+      "class": "negative",
+      "ac": [
+        "AC-7"
+      ],
+      "scenario": "UNIT-07",
+      "input": {
+        "score_arithmetic_corrupted": true
+      },
+      "expected": {
+        "validation_errors_nonempty": true
+      }
+    },
+    {
+      "id": "FX-08",
+      "class": "negative",
+      "ac": [
+        "AC-8"
+      ],
+      "scenario": "SMOKE-08",
+      "input": {
+        "report_schema_valid": false
+      },
+      "expected": {
+        "audit_exit": 4
+      }
+    },
+    {
+      "id": "FX-09",
+      "class": "positive",
+      "ac": [
+        "AC-9"
+      ],
+      "scenario": "UNIT-09",
+      "input": {
+        "triage_requested": true
+      },
+      "expected": {
+        "forecast_is_counterfactual": true
+      }
+    },
+    {
+      "id": "FX-10",
+      "class": "edge",
+      "ac": [
+        "AC-10"
+      ],
+      "scenario": "E2E-10",
+      "input": {
+        "apply": true,
+        "target_exists": true
+      },
+      "expected": {
+        "overwritten": false
+      }
+    },
+    {
+      "id": "FX-11",
+      "class": "negative",
+      "ac": [
+        "AC-11"
+      ],
+      "scenario": "INT-11",
+      "input": {
+        "static_level": 2
+      },
+      "expected": {
+        "runtime_enforcement_proven": false
+      }
+    },
+    {
+      "id": "FX-12",
+      "class": "positive",
+      "ac": [
+        "AC-12"
+      ],
+      "scenario": "INF-12",
+      "input": {
+        "old_entry_point_present": false
+      },
+      "expected": {
+        "source_retired": true,
+        "deployment_removal_claimed": false
+      }
+    },
+    {
+      "id": "FX-13",
+      "class": "edge",
+      "ac": [
+        "AC-13"
+      ],
+      "scenario": "UNIT-13",
+      "input": {
+        "docs_version": "v0.2",
+        "tool_version": "0.1.0"
+      },
+      "expected": {
+        "versions_distinct": true
+      }
+    },
+    {
+      "id": "FX-14",
+      "class": "positive",
+      "ac": [
+        "AC-14"
+      ],
+      "scenario": "SMOKE-LOG",
+      "input": {
+        "production_code_authored": false
+      },
+      "expected": {
+        "logging_disposition": "not-applicable-docs-only"
+      }
+    }
+  ]
+}

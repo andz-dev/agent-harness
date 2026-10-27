@@ -1,0 +1,38 @@
+{
+  "artifact": "Architecture.md",
+  "generatedAt": "2026-10-27T14:06:12.250317+00:00",
+  "mode": "draft",
+  "inputs": [
+    "docs/0002/Plan.md",
+    "docs/0002/Prototype-Decision.md"
+  ],
+  "outputs": [
+    "docs/0002/Architecture.md",
+    "docs/0002/architecture-model.jsonc"
+  ],
+  "validation": {
+    "status": "warn",
+    "checks": [
+      "standalone-source-integrity-and-local-doc-path-checks"
+    ]
+  },
+  "notes": [
+    "5 layers, 10 components, 13 links; frozen implementation files are inputs, not change operations.",
+    "Imported from original 0039; old validation is historical. New-checkout validation is recorded in EXTRACTION.md."
+  ],
+  "importedValidation": {
+    "status": "warn",
+    "checks": [
+      "model_derivation_pass",
+      "model_validation_pass"
+    ]
+  },
+  "importedInputs": [
+    "Plan.md",
+    "Prototype-Decision.md"
+  ],
+  "importedOutputs": [
+    "Architecture.md",
+    "architecture-model.jsonc"
+  ]
+}

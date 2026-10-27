@@ -1,0 +1,22 @@
+{
+  "artifact": "change-set",
+  "schema": "change-set/1",
+  "created": "2026-10-27",
+  "stage": "specification",
+  "generated": "agent",
+  "verified": "unverified",
+  "based_on": [
+    {
+      "path": "docs/0002/Architecture.md",
+      "sha256": "9db7a10cf466cdf11db098af34c46e5bc11f7fd4c12d8b05787517b5b65529bf"
+    },
+    {
+      "path": "docs/0002/Plan.md",
+      "sha256": "f9d476812accc81b3a055b7ad6c895f25b1c1942433204ebcc89fc2021aada11"
+    }
+  ],
+  "slices": [],
+  "entries": [],
+  "historicalSource": "change-set.source.jsonc",
+  "note": "Frozen-source extraction has no pending runtime operations; the former source transaction is historical only."
+}

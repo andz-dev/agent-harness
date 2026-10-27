@@ -1,0 +1,44 @@
+version: '3'
+
+env:
+  UV_FROZEN: '1'
+
+tasks:
+  default:
+    cmds:
+      - task --list
+  setup:
+    desc: Install the copied skill's locked development environment
+    cmds:
+      - task --dir skills/harness-audit setup
+  check:
+    desc: Check unchanged audit code, demo conversion and standalone packaging
+    cmds:
+      - task --dir skills/harness-audit check
+      - uv run --directory skills/harness-audit ruff check ../../tools
+      - uv run --directory skills/harness-audit ruff format --check ../../tools
+      - task: app:check
+      - python3 tools/check.py
+  demo:
+    desc: Regenerate the explicitly synthetic city dataset
+    cmds:
+      - uv run --directory skills/harness-audit python ../../tools/make_demo.py
+  app:check:
+    desc: Validate deterministic synthetic report conversion
+    cmds:
+      - uv run --directory skills/harness-audit python ../../tools/make_demo.py --check
+      - task: app:build
+  app:build:
+    desc: Build online and offline standalone HTML from the current data
+    cmds:
+      - python3 apps/harness-city/tools/build_standalone.py
+      - python3 apps/harness-city/tools/build_standalone.py --offline -o apps/harness-city/dist/offline.html
+      - python3 tools/offline_fonts.py apps/harness-city/dist/offline.html
+  serve:
+    desc: Serve Harness City locally; override PORT when needed
+    cmds:
+      - python3 -m http.server ${PORT:-8001} --bind 127.0.0.1 --directory apps/harness-city
+  integrity:
+    desc: Verify copied runtime files against the extraction baseline
+    cmds:
+      - python3 tools/check.py --integrity-only

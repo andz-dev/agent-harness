@@ -1,0 +1,260 @@
+{
+  "artifact": "architecture-model",
+  "schema": "architecture-model/1",
+  "created": "2026-10-27",
+  "title": "Frozen Harness Audit Architecture",
+  "generated": "agent",
+  "verified": "unverified",
+  "states": {
+    "current": "Existing runtime copied unchanged into the standalone repository.",
+    "target": "Same runtime after documentation and packaging extraction."
+  },
+  "layers": [
+    "Interaction",
+    "Orchestration",
+    "Analysis",
+    "Proposal",
+    "Reference"
+  ],
+  "components": [
+    {
+      "id": "operator",
+      "label": "Operator",
+      "layer": "Interaction",
+      "kind": "files",
+      "path": "skills/harness-audit/SKILL.md",
+      "in": [
+        "current",
+        "target"
+      ]
+    },
+    {
+      "id": "audit",
+      "label": "Audit",
+      "layer": "Orchestration",
+      "kind": "script",
+      "path": "skills/harness-audit/scripts/audit.py",
+      "in": [
+        "current",
+        "target"
+      ]
+    },
+    {
+      "id": "detection",
+      "label": "Detection",
+      "layer": "Analysis",
+      "kind": "script",
+      "path": "skills/harness-audit/scripts/detect_stack.py",
+      "in": [
+        "current",
+        "target"
+      ]
+    },
+    {
+      "id": "checks",
+      "label": "Checks",
+      "layer": "Analysis",
+      "kind": "script",
+      "path": "skills/harness-audit/scripts/run_checks.py",
+      "in": [
+        "current",
+        "target"
+      ]
+    },
+    {
+      "id": "git",
+      "label": "Git",
+      "layer": "Analysis",
+      "kind": "script",
+      "path": "skills/harness-audit/scripts/git_signals.py",
+      "in": [
+        "current",
+        "target"
+      ]
+    },
+    {
+      "id": "agent-evidence",
+      "label": "Agent evidence",
+      "layer": "Analysis",
+      "kind": "script",
+      "path": "skills/harness-audit/scripts/llm_layer.py",
+      "in": [
+        "current",
+        "target"
+      ]
+    },
+    {
+      "id": "scoring",
+      "label": "Scoring",
+      "layer": "Analysis",
+      "kind": "script",
+      "path": "skills/harness-audit/scripts/score.py",
+      "in": [
+        "current",
+        "target"
+      ]
+    },
+    {
+      "id": "triage",
+      "label": "Triage",
+      "layer": "Analysis",
+      "kind": "script",
+      "path": "skills/harness-audit/scripts/triage.py",
+      "in": [
+        "current",
+        "target"
+      ]
+    },
+    {
+      "id": "bootstrap",
+      "label": "Bootstrap",
+      "layer": "Proposal",
+      "kind": "script",
+      "path": "skills/harness-audit/scripts/bootstrap.py",
+      "in": [
+        "current",
+        "target"
+      ]
+    },
+    {
+      "id": "catalog",
+      "label": "Catalog",
+      "layer": "Reference",
+      "kind": "files",
+      "path": "skills/harness-audit/checks/catalog.yaml",
+      "in": [
+        "current",
+        "target"
+      ]
+    }
+  ],
+  "links": [
+    {
+      "from": "operator",
+      "to": "audit",
+      "label": "uses",
+      "in": [
+        "current",
+        "target"
+      ]
+    },
+    {
+      "from": "audit",
+      "to": "detection",
+      "label": "uses",
+      "in": [
+        "current",
+        "target"
+      ]
+    },
+    {
+      "from": "audit",
+      "to": "checks",
+      "label": "uses",
+      "in": [
+        "current",
+        "target"
+      ]
+    },
+    {
+      "from": "audit",
+      "to": "git",
+      "label": "uses",
+      "in": [
+        "current",
+        "target"
+      ]
+    },
+    {
+      "from": "audit",
+      "to": "agent-evidence",
+      "label": "uses",
+      "in": [
+        "current",
+        "target"
+      ]
+    },
+    {
+      "from": "audit",
+      "to": "scoring",
+      "label": "uses",
+      "in": [
+        "current",
+        "target"
+      ]
+    },
+    {
+      "from": "audit",
+      "to": "triage",
+      "label": "uses",
+      "in": [
+        "current",
+        "target"
+      ]
+    },
+    {
+      "from": "checks",
+      "to": "catalog",
+      "label": "uses",
+      "in": [
+        "current",
+        "target"
+      ]
+    },
+    {
+      "from": "git",
+      "to": "checks",
+      "label": "uses",
+      "in": [
+        "current",
+        "target"
+      ]
+    },
+    {
+      "from": "agent-evidence",
+      "to": "checks",
+      "label": "uses",
+      "in": [
+        "current",
+        "target"
+      ]
+    },
+    {
+      "from": "scoring",
+      "to": "catalog",
+      "label": "uses",
+      "in": [
+        "current",
+        "target"
+      ]
+    },
+    {
+      "from": "triage",
+      "to": "scoring",
+      "label": "uses",
+      "in": [
+        "current",
+        "target"
+      ]
+    },
+    {
+      "from": "bootstrap",
+      "to": "detection",
+      "label": "uses",
+      "in": [
+        "current",
+        "target"
+      ]
+    }
+  ],
+  "based_on": [
+    {
+      "path": "docs/0002/Architecture.md",
+      "sha256": "9db7a10cf466cdf11db098af34c46e5bc11f7fd4c12d8b05787517b5b65529bf"
+    },
+    {
+      "path": "docs/0002/Plan.md",
+      "sha256": "f9d476812accc81b3a055b7ad6c895f25b1c1942433204ebcc89fc2021aada11"
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+version: "3"
+
+tasks:
+  default:
+    desc: List all tasks
+    cmds:
+      - task --list
+
+  setup:
+    desc: Install runtime and dev dependencies
+    cmds:
+      - uv sync
+
+  doctor:
+    desc: Check that python, uv and task are available
+    cmds:
+      - python3 --version
+      - uv --version
+      - task --version
+
+  lint:
+    desc: Ruff lint and format check (no changes)
+    cmds:
+      - uv run ruff check .
+      - uv run ruff format --check .
+
+  fix:
+    desc: Apply ruff fixes and formatting
+    cmds:
+      - uv run ruff check --fix .
+      - uv run ruff format .
+
+  test:
+    desc: Run the full test suite, or one file with `task test -- tests/test_score.py`
+    cmds:
+      - uv run pytest -q {{.CLI_ARGS}}
+
+  check:
+    desc: Everything CI runs (lint + tests). Run before every commit.
+    cmds:
+      - task: lint
+      - task: test
+
+  audit:
+    desc: Audit a repository, e.g. `task audit -- ../some-repo --out /tmp/out`
+    cmds:
+      - uv run python -I scripts/audit.py {{.CLI_ARGS}}
+
+  self-audit:
+    desc: Audit this repository with its own tool
+    cmds:
+      - uv run python -I scripts/audit.py . --name harness-audit --out build/self-audit

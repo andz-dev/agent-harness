@@ -1,0 +1,309 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/harness-audit/report.schema.json",
+  "title": "harness-audit report",
+  "description": "Machine-readable result of one harness-audit run on one repository. Draft 0.1, matches catalog_version 0.1.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "tool", "generated_at", "repo", "stack", "pillars", "findings", "score", "entropy", "top_gaps", "limitations"],
+  "properties": {
+    "schema_version": { "const": "0.1" },
+
+    "tool": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "version", "catalog_version"],
+      "properties": {
+        "name": { "const": "harness-audit" },
+        "version": { "type": "string" },
+        "catalog_version": { "type": "string" }
+      }
+    },
+
+    "generated_at": { "type": "string", "format": "date-time" },
+
+    "repo": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "commit", "clone_mode"],
+      "properties": {
+        "name": { "type": "string", "description": "owner/name or directory name" },
+        "url": { "type": "string" },
+        "commit": { "type": "string", "pattern": "^[0-9a-f]{7,40}$" },
+        "default_branch": { "type": "string" },
+        "clone_mode": {
+          "enum": ["shallow", "blobless", "full", "local"],
+          "description": "shallow = --depth 1; blobless = --filter=blob:none; local = audited in place."
+        },
+        "weight": { "enum": ["low", "mid", "high"], "description": "From example-repos.json, when known." }
+      }
+    },
+
+    "stack": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ecosystems", "components"],
+      "properties": {
+        "ecosystems": {
+          "type": "array",
+          "uniqueItems": true,
+          "minItems": 1,
+          "items": { "enum": ["python", "node"] }
+        },
+        "components": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/component" }
+        },
+        "unsupported": {
+          "type": "array",
+          "description": "Manifests of ecosystems outside v1 scope (Go, Rust, Dart, ...), reported so they are not silently missed.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["path", "language", "manifest"],
+            "properties": {
+              "path": { "type": "string" },
+              "language": { "type": "string" },
+              "manifest": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+
+    "pillars": {
+      "type": "array",
+      "minItems": 7,
+      "maxItems": 7,
+      "items": { "$ref": "#/$defs/pillar_result" }
+    },
+
+    "findings": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/finding" }
+    },
+
+    "score": { "$ref": "#/$defs/score" },
+
+    "entropy": { "$ref": "#/$defs/entropy" },
+
+    "top_gaps": {
+      "type": "array",
+      "maxItems": 5,
+      "description": "Highest-value failed checks, each with one concrete fix.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["check_id", "fix"],
+        "properties": {
+          "check_id": { "$ref": "#/$defs/check_id" },
+          "fix": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+
+    "limitations": {
+      "type": "array",
+      "description": "Anything that reduced confidence: shallow history, skipped checks, LLM layer off, unreadable files.",
+      "items": { "type": "string" }
+    }
+  },
+
+  "$defs": {
+    "pillar_name": {
+      "enum": [
+        "orientation",
+        "verification",
+        "static_guardrails",
+        "automatic_triggers",
+        "workflow_entry_points",
+        "pipeline_parity",
+        "doc_hygiene"
+      ]
+    },
+
+    "check_id": {
+      "type": "string",
+      "pattern": "^(ORI|VER|STA|TRG|ENT|CIP|DOC|ENR)-[0-9]{2}$"
+    },
+
+    "level": { "type": "integer", "minimum": 0, "maximum": 3 },
+
+    "component": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "path", "ecosystem"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$" },
+        "path": { "type": "string", "description": "Relative to the repo root; '.' for the root component." },
+        "ecosystem": { "enum": ["python", "node"] },
+        "kind": { "enum": ["app", "library", "service", "tooling", "sample", "unknown"] },
+        "tracked_files": { "type": "integer", "minimum": 0, "description": "Used as the size weight when scoring mixed repos." },
+        "detected_by": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Manifest files that identified this component (pyproject.toml, package.json)."
+        }
+      }
+    },
+
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "path", "snippet"],
+      "properties": {
+        "kind": {
+          "enum": ["found", "searched"],
+          "description": "found = something that supports the status; searched = what was looked at and not found (failed checks)."
+        },
+        "path": { "type": "string", "description": "File path, or the glob that was searched." },
+        "line": { "type": "integer", "minimum": 1 },
+        "snippet": { "type": "string", "maxLength": 400 }
+      }
+    },
+
+    "finding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["check_id", "pillar", "level", "status", "source", "evidence"],
+      "properties": {
+        "check_id": { "$ref": "#/$defs/check_id" },
+        "pillar": {
+          "oneOf": [
+            { "$ref": "#/$defs/pillar_name" },
+            { "const": "entropy" }
+          ]
+        },
+        "level": { "type": "integer", "minimum": 1, "maximum": 3 },
+        "component": { "type": "string", "description": "Component id; omitted for repo-wide checks." },
+        "status": {
+          "enum": ["pass", "fail", "not_applicable", "unknown", "error"],
+          "description": "unknown = LLM could not decide or no evidence reachable; error = the detector itself failed."
+        },
+        "source": { "enum": ["script", "llm"] },
+        "confidence": { "enum": ["low", "medium", "high"], "description": "Required for llm findings." },
+        "gate": { "type": "boolean" },
+        "evidence": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/evidence" }
+        },
+        "note": { "type": "string" }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "status": { "enum": ["pass", "fail"] } }, "required": ["status"] },
+          "then": { "properties": { "evidence": { "minItems": 1 } } }
+        },
+        {
+          "if": { "properties": { "source": { "const": "llm" } }, "required": ["source"] },
+          "then": {
+            "required": ["confidence"],
+            "properties": {
+              "evidence": {
+                "items": { "required": ["line"] }
+              }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "status": { "const": "pass" } }, "required": ["status"] },
+          "then": {
+            "properties": {
+              "evidence": { "contains": { "properties": { "kind": { "const": "found" } } } }
+            }
+          }
+        }
+      ]
+    },
+
+    "pillar_result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["pillar", "level", "weight", "points", "gate_failures"],
+      "properties": {
+        "pillar": { "$ref": "#/$defs/pillar_name" },
+        "level": { "$ref": "#/$defs/level" },
+        "weight": { "type": "number", "minimum": 0, "maximum": 100 },
+        "points": { "type": "number", "minimum": 0, "maximum": 100, "description": "level / 3 * weight" },
+        "gate_failures": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/check_id" },
+          "description": "Gate checks that blocked a higher level."
+        },
+        "capped_by": { "type": "string", "enum": ["verification"], "description": "Level reduced because Verification is more than one level lower." },
+        "by_component": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["component", "level"],
+            "properties": {
+              "component": { "type": "string" },
+              "level": { "$ref": "#/$defs/level" }
+            }
+          }
+        },
+        "weakest_component": { "type": "string" }
+      }
+    },
+
+    "score": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["raw", "caps_applied", "entropy_penalty", "final"],
+      "properties": {
+        "raw": { "type": "number", "minimum": 0, "maximum": 100, "description": "Sum of pillar points before caps and penalty." },
+        "caps_applied": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "limit", "reason"],
+            "properties": {
+              "id": { "enum": ["no-tests", "no-ci", "no-orientation"] },
+              "limit": { "type": "integer", "minimum": 0, "maximum": 100 },
+              "reason": { "type": "string" }
+            }
+          }
+        },
+        "entropy_penalty": { "type": "number", "minimum": 0, "maximum": 10 },
+        "final": { "type": "integer", "minimum": 0, "maximum": 100 }
+      }
+    },
+
+    "entropy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["candidate_files", "flagged_files", "penalty", "items"],
+      "properties": {
+        "candidate_files": { "type": "integer", "minimum": 0 },
+        "flagged_files": { "type": "integer", "minimum": 0 },
+        "penalty": { "type": "number", "minimum": 0, "maximum": 10 },
+        "history_available": {
+          "type": "boolean",
+          "description": "False when only a shallow clone was available; history-based checks were skipped."
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["check_id", "path", "verdict", "evidence"],
+            "properties": {
+              "check_id": { "type": "string", "pattern": "^ENR-[0-9]{2}$" },
+              "path": { "type": "string" },
+              "verdict": { "enum": ["active", "stale", "orphaned", "conflicting", "unknown"] },
+              "last_commit": { "type": "string", "format": "date" },
+              "evidence": {
+                "type": "array",
+                "minItems": 1,
+                "items": { "$ref": "#/$defs/evidence" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

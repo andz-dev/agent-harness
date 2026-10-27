@@ -1,0 +1,37 @@
+{
+  "artifact": "Prototype-Decision.md",
+  "generatedAt": "2026-10-27T14:06:12.250317+00:00",
+  "mode": "draft",
+  "inputs": [
+    "docs/0002/Plan.md",
+    "docs/0002/research/As-Built-Findings.md"
+  ],
+  "outputs": [
+    "docs/0002/Prototype-Decision.md",
+    "docs/0002/prototype/contract-probe.sh"
+  ],
+  "validation": {
+    "status": "warn",
+    "checks": [
+      "standalone-source-integrity-and-local-doc-path-checks"
+    ]
+  },
+  "notes": [
+    "Throwaway structural probe only; interactive design acceptance and behavioral execution unclaimed.",
+    "Imported from original 0039; old validation is historical. New-checkout validation is recorded in EXTRACTION.md."
+  ],
+  "importedValidation": {
+    "status": "warn",
+    "checks": [
+      "source_contract_probe_pass"
+    ]
+  },
+  "importedInputs": [
+    "Plan.md",
+    "research/As-Built-Findings.md"
+  ],
+  "importedOutputs": [
+    "Prototype-Decision.md",
+    "prototype/contract-probe.sh"
+  ]
+}

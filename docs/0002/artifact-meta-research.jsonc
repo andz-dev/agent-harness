@@ -1,0 +1,39 @@
+{
+  "artifact": "Research-Paper.md",
+  "generatedAt": "2026-10-27T14:06:12.250317+00:00",
+  "mode": "draft",
+  "inputs": [
+    "docs/0002/Ideation-Book.md",
+    "docs/0002/research/As-Built-Findings.md",
+    "docs/0002/research/BACKLOG.md",
+    "docs/0002/research/catalog.yaml"
+  ],
+  "outputs": [
+    "docs/0002/Research-Paper.md"
+  ],
+  "validation": {
+    "status": "warn",
+    "checks": [
+      "standalone-source-integrity-and-local-doc-path-checks"
+    ]
+  },
+  "notes": [
+    "Local source research only; historical calibration and model results not reproduced.",
+    "Imported from original 0039; old validation is historical. New-checkout validation is recorded in EXTRACTION.md."
+  ],
+  "importedValidation": {
+    "status": "warn",
+    "checks": [
+      "producer_structure_pass"
+    ]
+  },
+  "importedInputs": [
+    "Ideation-Book.md",
+    "research/As-Built-Findings.md",
+    "research/BACKLOG.md",
+    "research/catalog.yaml"
+  ],
+  "importedOutputs": [
+    "Research-Paper.md"
+  ]
+}

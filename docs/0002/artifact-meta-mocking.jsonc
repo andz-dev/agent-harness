@@ -1,0 +1,33 @@
+{
+  "artifact": "Mocking-Plan.md",
+  "generatedAt": "2026-10-27T14:06:12.250317+00:00",
+  "mode": "draft",
+  "inputs": [
+    "docs/0002/Architecture.md",
+    "docs/0002/Test-Plan.md"
+  ],
+  "outputs": [
+    "docs/0002/Mocking-Plan.md"
+  ],
+  "validation": {
+    "status": "warn",
+    "checks": [
+      "standalone-source-integrity-and-local-doc-path-checks"
+    ]
+  },
+  "notes": [
+    "Boundary fixture design only; no new mocks or source changes.",
+    "Imported from original 0039; old validation is historical. New-checkout validation is recorded in EXTRACTION.md."
+  ],
+  "importedValidation": {
+    "status": "warn",
+    "checks": []
+  },
+  "importedInputs": [
+    "Architecture.md",
+    "Test-Plan.md"
+  ],
+  "importedOutputs": [
+    "Mocking-Plan.md"
+  ]
+}

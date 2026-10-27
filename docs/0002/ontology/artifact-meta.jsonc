@@ -1,0 +1,45 @@
+{
+  "artifact": "ontology.json",
+  "generatedAt": "2026-10-27T14:06:12.250317+00:00",
+  "mode": "draft",
+  "inputs": [
+    "docs/0002/Plan.md",
+    "docs/0002/Architecture.md",
+    "docs/0002/Test-Plan.md",
+    "docs/0002/Mocking-Plan.md",
+    "docs/0002/Golden-Dataset/dataset.json"
+  ],
+  "outputs": [
+    "docs/0002/ontology/Ontology.md",
+    "docs/0002/ontology/ontology.json"
+  ],
+  "validation": {
+    "status": "warn",
+    "checks": [
+      "standalone-source-integrity-and-local-doc-path-checks"
+    ]
+  },
+  "notes": [
+    "Vocabulary only; architecture references, no OWL requested.",
+    "Imported from original 0039; old validation is historical. New-checkout validation is recorded in EXTRACTION.md."
+  ],
+  "importedValidation": {
+    "status": "pass",
+    "checks": [
+      "json_parse_pass",
+      "criterion_join_pass",
+      "relation_and_context_identifiers_pass"
+    ]
+  },
+  "importedInputs": [
+    "../Plan.md",
+    "../Architecture.md",
+    "../Test-Plan.md",
+    "../Mocking-Plan.md",
+    "../Golden-Dataset/dataset.json"
+  ],
+  "importedOutputs": [
+    "Ontology.md",
+    "ontology.json"
+  ]
+}

@@ -1,0 +1,1105 @@
+{
+  "source_repository": "andz-dev/developer-asset-manager",
+  "source_commit": "c3e1120ec7bfb9e24486865196af7211687d73e6",
+  "skill_tree": "e5c34a57bd87454c2857bb9f907aea24805b11d8",
+  "history": "clean-snapshot",
+  "exclusions": [
+    "Existing app datasets and generated bundles",
+    "Calibration/sample reports and human scoring inputs",
+    "Logs, caches, environments and all other source-repository content"
+  ],
+  "files": [
+    {
+      "source": "agents/skills/engineering/harness-audit/AGENTS.md",
+      "target": "skills/harness-audit/AGENTS.md",
+      "source_sha256": "1d46e1cd98b34f953698de2ccc0183ac76e5cc200082d92cb77f83080071a162",
+      "sha256": "1d46e1cd98b34f953698de2ccc0183ac76e5cc200082d92cb77f83080071a162",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "agents/skills/engineering/harness-audit/BACKLOG.md",
+      "target": "skills/harness-audit/BACKLOG.md",
+      "source_sha256": "e6585aecc04e06097ac13de92215c0f31635c848af6e49cf681782c72657d17d",
+      "sha256": "e6585aecc04e06097ac13de92215c0f31635c848af6e49cf681782c72657d17d",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "agents/skills/engineering/harness-audit/README.md",
+      "target": "skills/harness-audit/README.md",
+      "source_sha256": "3594260f92aa199367737493a11f6789e266c6a23218cef96b3da465514be810",
+      "sha256": "3594260f92aa199367737493a11f6789e266c6a23218cef96b3da465514be810",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "agents/skills/engineering/harness-audit/SKILL.md",
+      "target": "skills/harness-audit/SKILL.md",
+      "source_sha256": "d9899e2e4c8328c7b781a55caefc2459b0192651c6de06feb3dd53dc5c49aa57",
+      "sha256": "d9899e2e4c8328c7b781a55caefc2459b0192651c6de06feb3dd53dc5c49aa57",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "agents/skills/engineering/harness-audit/Taskfile.yml",
+      "target": "skills/harness-audit/Taskfile.yml",
+      "source_sha256": "bd881da1988331a2e0b18d448b7e3997d9f245ce0fd88b80daea611d4a6736dd",
+      "sha256": "bd881da1988331a2e0b18d448b7e3997d9f245ce0fd88b80daea611d4a6736dd",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "agents/skills/engineering/harness-audit/checks/catalog.yaml",
+      "target": "skills/harness-audit/checks/catalog.yaml",
+      "source_sha256": "8c0dc5beefb6fb0b94ce3c6ed0184926439c8e165617e34c8c801c99f87cadec",
+      "sha256": "8c0dc5beefb6fb0b94ce3c6ed0184926439c8e165617e34c8c801c99f87cadec",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "agents/skills/engineering/harness-audit/checks/fixes.yaml",
+      "target": "skills/harness-audit/checks/fixes.yaml",
+      "source_sha256": "497fa148de46b02ad228f342445c1db30b7d59c0b17de49ae2082c9a120db6f7",
+      "sha256": "497fa148de46b02ad228f342445c1db30b7d59c0b17de49ae2082c9a120db6f7",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "agents/skills/engineering/harness-audit/prompts/instruction_drift.md",
+      "target": "skills/harness-audit/prompts/instruction_drift.md",
+      "source_sha256": "26897cb81a330e7ffbd94aa445c11e037491a24e84ef25de8b152c866d09b808",
+      "sha256": "26897cb81a330e7ffbd94aa445c11e037491a24e84ef25de8b152c866d09b808",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "agents/skills/engineering/harness-audit/prompts/orientation_quality.md",
+      "target": "skills/harness-audit/prompts/orientation_quality.md",
+      "source_sha256": "fadf1fcabc5489a4bf5713e23881ccd16d4df4aaa69ce3c5e8b7d33dba69c081",
+      "sha256": "fadf1fcabc5489a4bf5713e23881ccd16d4df4aaa69ce3c5e8b7d33dba69c081",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "agents/skills/engineering/harness-audit/pyproject.toml",
+      "target": "skills/harness-audit/pyproject.toml",
+      "source_sha256": "780bf7d6640733fc0b5ca2051b8d0b055774690b0dcf909cbe3f74dca9adf8e1",
+      "sha256": "780bf7d6640733fc0b5ca2051b8d0b055774690b0dcf909cbe3f74dca9adf8e1",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "agents/skills/engineering/harness-audit/references/FROZEN.sha256",
+      "target": "skills/harness-audit/references/FROZEN.sha256",
+      "source_sha256": "d71e457e83138af74b785be300148ee3b9e2ba55ec5dc9ac9c3f1b5c037d76b6",
+      "sha256": "d71e457e83138af74b785be300148ee3b9e2ba55ec5dc9ac9c3f1b5c037d76b6",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "agents/skills/engineering/harness-audit/references/WEIGHTS-FROZEN.md",
+      "target": "skills/harness-audit/references/WEIGHTS-FROZEN.md",
+      "source_sha256": "d35bde7c5ad330843a55a5426244839a68ccac0fa5e2a67f5c7fff6b7ee1fb08",
+      "sha256": "d35bde7c5ad330843a55a5426244839a68ccac0fa5e2a67f5c7fff6b7ee1fb08",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "agents/skills/engineering/harness-audit/requirements.txt",
+      "target": "skills/harness-audit/requirements.txt",
+      "source_sha256": "9f52c10b0d399532ecac5ddc8fd5e2e24e9afba1624d3e34b6d553fb7a53d933",
+      "sha256": "9f52c10b0d399532ecac5ddc8fd5e2e24e9afba1624d3e34b6d553fb7a53d933",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "agents/skills/engineering/harness-audit/schema/example-report.json",
+      "target": "skills/harness-audit/schema/example-report.json",
+      "source_sha256": "9cdb6364ac89990bb4ea1ed58044bd23a67dc188acf2adcaa6fe4b895146b317",
+      "sha256": "9cdb6364ac89990bb4ea1ed58044bd23a67dc188acf2adcaa6fe4b895146b317",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "agents/skills/engineering/harness-audit/schema/report.schema.json",
+      "target": "skills/harness-audit/schema/report.schema.json",
+      "source_sha256": "303bb0a324331f1bb0541ec15eccfd2a070f1d0a8e8368e255fa0f30c47eb135",
+      "sha256": "303bb0a324331f1bb0541ec15eccfd2a070f1d0a8e8368e255fa0f30c47eb135",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "agents/skills/engineering/harness-audit/scripts/audit.py",
+      "target": "skills/harness-audit/scripts/audit.py",
+      "source_sha256": "329a9623db89b1a76e8f23202c69ad54a05ac141c1b3aba56eff855743042d6f",
+      "sha256": "329a9623db89b1a76e8f23202c69ad54a05ac141c1b3aba56eff855743042d6f",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "agents/skills/engineering/harness-audit/scripts/bootstrap.py",
+      "target": "skills/harness-audit/scripts/bootstrap.py",
+      "source_sha256": "a38bf46c23eb297a5067aedcfe8f05b0240afc58b55ea939f69733d6bcb35695",
+      "sha256": "a38bf46c23eb297a5067aedcfe8f05b0240afc58b55ea939f69733d6bcb35695",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "agents/skills/engineering/harness-audit/scripts/calibrate.py",
+      "target": "skills/harness-audit/scripts/calibrate.py",
+      "source_sha256": "dfad575d115e1103dab078e478ab8a12e7fc1a3a2c3669bbcd631ba4a22934bc",
+      "sha256": "dfad575d115e1103dab078e478ab8a12e7fc1a3a2c3669bbcd631ba4a22934bc",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "agents/skills/engineering/harness-audit/scripts/detect_stack.py",
+      "target": "skills/harness-audit/scripts/detect_stack.py",
+      "source_sha256": "3038074cd1326e9be297c51c3ebfd2a440a07366f8480c80160bd51df0fa9c77",
+      "sha256": "3038074cd1326e9be297c51c3ebfd2a440a07366f8480c80160bd51df0fa9c77",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "agents/skills/engineering/harness-audit/scripts/git_signals.py",
+      "target": "skills/harness-audit/scripts/git_signals.py",
+      "source_sha256": "d2c73eacc034ab3ac248e335a988d6906816a68fe7ec0e7b0c832e3ce1813fd7",
+      "sha256": "d2c73eacc034ab3ac248e335a988d6906816a68fe7ec0e7b0c832e3ce1813fd7",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "agents/skills/engineering/harness-audit/scripts/llm_layer.py",
+      "target": "skills/harness-audit/scripts/llm_layer.py",
+      "source_sha256": "8885f6867bd7f7f0a9ed14a3a972f7bb6c6b1de8b520b413b739a89e3a586dd1",
+      "sha256": "8885f6867bd7f7f0a9ed14a3a972f7bb6c6b1de8b520b413b739a89e3a586dd1",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "agents/skills/engineering/harness-audit/scripts/run_checks.py",
+      "target": "skills/harness-audit/scripts/run_checks.py",
+      "source_sha256": "9c159c9b8bd96c7702d6688cc5e4fe2e1a6425994adf1de206330ab70e680e09",
+      "sha256": "9c159c9b8bd96c7702d6688cc5e4fe2e1a6425994adf1de206330ab70e680e09",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "agents/skills/engineering/harness-audit/scripts/score.py",
+      "target": "skills/harness-audit/scripts/score.py",
+      "source_sha256": "eaa299d1fa090f3d0060cc08d9c33aaf346dda6d37b0ce0dda0d36a00080ae9d",
+      "sha256": "eaa299d1fa090f3d0060cc08d9c33aaf346dda6d37b0ce0dda0d36a00080ae9d",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "agents/skills/engineering/harness-audit/scripts/triage.py",
+      "target": "skills/harness-audit/scripts/triage.py",
+      "source_sha256": "9a614df58022d423561953f6e8dcc9e3881d0ae8df549a88554a0becfdb85b3a",
+      "sha256": "9a614df58022d423561953f6e8dcc9e3881d0ae8df549a88554a0becfdb85b3a",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "agents/skills/engineering/harness-audit/tests/test_audit.py",
+      "target": "skills/harness-audit/tests/test_audit.py",
+      "source_sha256": "11978f0a26c23edf222521061d297b0abfc0008a86b9c88100fa060a6216d6ca",
+      "sha256": "11978f0a26c23edf222521061d297b0abfc0008a86b9c88100fa060a6216d6ca",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "agents/skills/engineering/harness-audit/tests/test_bootstrap.py",
+      "target": "skills/harness-audit/tests/test_bootstrap.py",
+      "source_sha256": "7c4a8c6ce1f5b86b970449596c376e12bb4e8eb41d813b2ef7d565d189e70bfd",
+      "sha256": "7c4a8c6ce1f5b86b970449596c376e12bb4e8eb41d813b2ef7d565d189e70bfd",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "agents/skills/engineering/harness-audit/tests/test_detect_stack.py",
+      "target": "skills/harness-audit/tests/test_detect_stack.py",
+      "source_sha256": "7407380ae221121ec91000b8743bd1421ce2f51642fe375841cfb062014e1989",
+      "sha256": "7407380ae221121ec91000b8743bd1421ce2f51642fe375841cfb062014e1989",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "agents/skills/engineering/harness-audit/tests/test_git_signals.py",
+      "target": "skills/harness-audit/tests/test_git_signals.py",
+      "source_sha256": "8f0aa02808cef57e85a9daf0c8bd7bd9d0237f7adf21a74f552ec7bec22481d8",
+      "sha256": "8f0aa02808cef57e85a9daf0c8bd7bd9d0237f7adf21a74f552ec7bec22481d8",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "agents/skills/engineering/harness-audit/tests/test_llm_layer.py",
+      "target": "skills/harness-audit/tests/test_llm_layer.py",
+      "source_sha256": "ac2386baa3a1422081eb7fd79fc2d0080bd6ca767f1a7a880054c85bd67dc8b5",
+      "sha256": "ac2386baa3a1422081eb7fd79fc2d0080bd6ca767f1a7a880054c85bd67dc8b5",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "agents/skills/engineering/harness-audit/tests/test_run_checks.py",
+      "target": "skills/harness-audit/tests/test_run_checks.py",
+      "source_sha256": "6a1a806ee95620ae724eaaf77401276f9c1e229b6db7eeba451f5529646f0fd8",
+      "sha256": "6a1a806ee95620ae724eaaf77401276f9c1e229b6db7eeba451f5529646f0fd8",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "agents/skills/engineering/harness-audit/tests/test_score.py",
+      "target": "skills/harness-audit/tests/test_score.py",
+      "source_sha256": "fa66f570839a3b537da419090ba975fae1d7079ac099b1fd2ce82e68636a314f",
+      "sha256": "fa66f570839a3b537da419090ba975fae1d7079ac099b1fd2ce82e68636a314f",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "agents/skills/engineering/harness-audit/tests/test_triage.py",
+      "target": "skills/harness-audit/tests/test_triage.py",
+      "source_sha256": "db47445bf35c567df7c16e7508b77b97c77484d0611e4465ba8610a1f78e1652",
+      "sha256": "db47445bf35c567df7c16e7508b77b97c77484d0611e4465ba8610a1f78e1652",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "agents/skills/engineering/harness-audit/uv.lock",
+      "target": "skills/harness-audit/uv.lock",
+      "source_sha256": "2c467060ed2c1f30cde6b5254c5685e24b92f439da75b11d493b3eea016f4b17",
+      "sha256": "2c467060ed2c1f30cde6b5254c5685e24b92f439da75b11d493b3eea016f4b17",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/NOTICE.md",
+      "target": "apps/harness-city/NOTICE.md",
+      "source_sha256": "741b6fb9ad125810c25b47daaa0a3dfc5ced079e56987cfc59b896c464ffbacf",
+      "sha256": "741b6fb9ad125810c25b47daaa0a3dfc5ced079e56987cfc59b896c464ffbacf",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/README.md",
+      "target": "apps/harness-city/README.md",
+      "source_sha256": "db5639596c8225d1cf1ae3c5ca63ee264cc4c381d6482ef0a70f17c33ff39db9",
+      "sha256": "db5639596c8225d1cf1ae3c5ca63ee264cc4c381d6482ef0a70f17c33ff39db9",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/assets/assets.json",
+      "target": "apps/harness-city/assets/assets.json",
+      "source_sha256": "0210b8ab30d6d61039ed82899c8d946f89e1d99b1726b625a90fe25680734e89",
+      "sha256": "0210b8ab30d6d61039ed82899c8d946f89e1d99b1726b625a90fe25680734e89",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/assets/glb/ambulance.glb",
+      "target": "apps/harness-city/assets/glb/ambulance.glb",
+      "source_sha256": "7cf743ac715b669cc97a970dc2171f601aac6fe66ab245ddc46a8cf2b16ea3a0",
+      "sha256": "7cf743ac715b669cc97a970dc2171f601aac6fe66ab245ddc46a8cf2b16ea3a0",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/assets/glb/barrels.glb",
+      "target": "apps/harness-city/assets/glb/barrels.glb",
+      "source_sha256": "f4cffeda855445d5479da58c746109a9fd4c80d5227be581863aca2352bc686b",
+      "sha256": "f4cffeda855445d5479da58c746109a9fd4c80d5227be581863aca2352bc686b",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/assets/glb/bld-a.glb",
+      "target": "apps/harness-city/assets/glb/bld-a.glb",
+      "source_sha256": "921b90604b3cc112a6618971613ce56fb5fe26448318dfed56abc0bd2d30f43a",
+      "sha256": "921b90604b3cc112a6618971613ce56fb5fe26448318dfed56abc0bd2d30f43a",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/assets/glb/bld-b.glb",
+      "target": "apps/harness-city/assets/glb/bld-b.glb",
+      "source_sha256": "ddd7dd25e5e4c90bd0bd2726a217caffefb48caf54220a4541853b0a3344355a",
+      "sha256": "ddd7dd25e5e4c90bd0bd2726a217caffefb48caf54220a4541853b0a3344355a",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/assets/glb/bld-c.glb",
+      "target": "apps/harness-city/assets/glb/bld-c.glb",
+      "source_sha256": "66e96e5cd6d9a700aa626389efc875e082f4b0c3373a2944c8d8b5dc8d72bd52",
+      "sha256": "66e96e5cd6d9a700aa626389efc875e082f4b0c3373a2944c8d8b5dc8d72bd52",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/assets/glb/bld-d.glb",
+      "target": "apps/harness-city/assets/glb/bld-d.glb",
+      "source_sha256": "3d8ccd115cc417803c7ed4d4da84ebc89460f3e6e9f3f4b19b3aa7742ef5aa44",
+      "sha256": "3d8ccd115cc417803c7ed4d4da84ebc89460f3e6e9f3f4b19b3aa7742ef5aa44",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/assets/glb/bld-e.glb",
+      "target": "apps/harness-city/assets/glb/bld-e.glb",
+      "source_sha256": "ba8ed3a85bb4d9dc109c918906d4bae726857fcdadfb4b1db71481645b1edec0",
+      "sha256": "ba8ed3a85bb4d9dc109c918906d4bae726857fcdadfb4b1db71481645b1edec0",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/assets/glb/bld-f.glb",
+      "target": "apps/harness-city/assets/glb/bld-f.glb",
+      "source_sha256": "40f84184586cca1f8310209e0094b58a2138254df0fd1c1c0e4b89a47b3cccde",
+      "sha256": "40f84184586cca1f8310209e0094b58a2138254df0fd1c1c0e4b89a47b3cccde",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/assets/glb/bld-g.glb",
+      "target": "apps/harness-city/assets/glb/bld-g.glb",
+      "source_sha256": "e3da8fba2e634529342d6ae6fa5e7608a0c3b167b55a34f06e8913115c37e972",
+      "sha256": "e3da8fba2e634529342d6ae6fa5e7608a0c3b167b55a34f06e8913115c37e972",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/assets/glb/bld-h.glb",
+      "target": "apps/harness-city/assets/glb/bld-h.glb",
+      "source_sha256": "7e2a425d98319115934a5805e6f4d4fb9dcc4a5168acc9b86b128327a93463a0",
+      "sha256": "7e2a425d98319115934a5805e6f4d4fb9dcc4a5168acc9b86b128327a93463a0",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/assets/glb/bush-large.glb",
+      "target": "apps/harness-city/assets/glb/bush-large.glb",
+      "source_sha256": "9416059f59f7f2dd4f4793cf964deef08a2ed67a947636105ad590dd87001f95",
+      "sha256": "9416059f59f7f2dd4f4793cf964deef08a2ed67a947636105ad590dd87001f95",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/assets/glb/bush.glb",
+      "target": "apps/harness-city/assets/glb/bush.glb",
+      "source_sha256": "87407f677e227c35759607368c3a67f6bdfe507623e9fed48f9e071176a3b137",
+      "sha256": "87407f677e227c35759607368c3a67f6bdfe507623e9fed48f9e071176a3b137",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/assets/glb/column-broken.glb",
+      "target": "apps/harness-city/assets/glb/column-broken.glb",
+      "source_sha256": "942e627017d9458934bd4698bee5d74455158e7cd12f88c562aea2009e8589b4",
+      "sha256": "942e627017d9458934bd4698bee5d74455158e7cd12f88c562aea2009e8589b4",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/assets/glb/column.glb",
+      "target": "apps/harness-city/assets/glb/column.glb",
+      "source_sha256": "8f0600a5335a844e9a3550f682f60dd4923913210b758db283be58dfc0705cbf",
+      "sha256": "8f0600a5335a844e9a3550f682f60dd4923913210b758db283be58dfc0705cbf",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/assets/glb/crate.glb",
+      "target": "apps/harness-city/assets/glb/crate.glb",
+      "source_sha256": "517f603384fbca3dfa1f71ce8c9a888c8904161bcb668442c9118cef29d0b481",
+      "sha256": "517f603384fbca3dfa1f71ce8c9a888c8904161bcb668442c9118cef29d0b481",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/assets/glb/delivery-van.glb",
+      "target": "apps/harness-city/assets/glb/delivery-van.glb",
+      "source_sha256": "a3d072a54132ece1ee5588493abde7e5a9cc00c2d66c20d48f71cf99e6410ba0",
+      "sha256": "a3d072a54132ece1ee5588493abde7e5a9cc00c2d66c20d48f71cf99e6410ba0",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/assets/glb/digger.glb",
+      "target": "apps/harness-city/assets/glb/digger.glb",
+      "source_sha256": "a2f93c8110b5309eb7cd39e858e4833fdc647a5ca2ada29a20263d372c269db8",
+      "sha256": "a2f93c8110b5309eb7cd39e858e4833fdc647a5ca2ada29a20263d372c269db8",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/assets/glb/dish.glb",
+      "target": "apps/harness-city/assets/glb/dish.glb",
+      "source_sha256": "3baf76d729db5d839d4bbb191e1063e2e3c82dc76616c42a5bc36c5c00706c10",
+      "sha256": "3baf76d729db5d839d4bbb191e1063e2e3c82dc76616c42a5bc36c5c00706c10",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/assets/glb/fence.glb",
+      "target": "apps/harness-city/assets/glb/fence.glb",
+      "source_sha256": "b815a150d05ccb2714aeecde1101142e896bbcff9debd00f84b09ea1a66347cf",
+      "sha256": "b815a150d05ccb2714aeecde1101142e896bbcff9debd00f84b09ea1a66347cf",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/assets/glb/firetruck.glb",
+      "target": "apps/harness-city/assets/glb/firetruck.glb",
+      "source_sha256": "5d00262c5cbcf4a0b725143a9ab8f16616586f30d37fe338a5df4316b8759207",
+      "sha256": "5d00262c5cbcf4a0b725143a9ab8f16616586f30d37fe338a5df4316b8759207",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/assets/glb/flower.glb",
+      "target": "apps/harness-city/assets/glb/flower.glb",
+      "source_sha256": "9f6dfbfeae14a3e26989034cb2d157a738c0bf3dad45d59e322fdf55c0576ca9",
+      "sha256": "9f6dfbfeae14a3e26989034cb2d157a738c0bf3dad45d59e322fdf55c0576ca9",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/assets/glb/fountain.glb",
+      "target": "apps/harness-city/assets/glb/fountain.glb",
+      "source_sha256": "2925e9b4b28a770eda209f07029fce47b38a804dc019ec2636793cb1e80fc65e",
+      "sha256": "2925e9b4b28a770eda209f07029fce47b38a804dc019ec2636793cb1e80fc65e",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/assets/glb/garage.glb",
+      "target": "apps/harness-city/assets/glb/garage.glb",
+      "source_sha256": "a60981de9a144f2b11aa245e43c2f38c11af1273391954a1b7c7aaea72e24bb5",
+      "sha256": "a60981de9a144f2b11aa245e43c2f38c11af1273391954a1b7c7aaea72e24bb5",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/assets/glb/garbage-truck.glb",
+      "target": "apps/harness-city/assets/glb/garbage-truck.glb",
+      "source_sha256": "25160271987da7a5cc25748248a467fdcaa4ad0fe9e46ea4590ab5b2b4c89a03",
+      "sha256": "25160271987da7a5cc25748248a467fdcaa4ad0fe9e46ea4590ab5b2b4c89a03",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/assets/glb/generator-large.glb",
+      "target": "apps/harness-city/assets/glb/generator-large.glb",
+      "source_sha256": "7e432eb8892e1be79727d469ef0949570d09145e1a22b1e0fe988429f7c868f8",
+      "sha256": "7e432eb8892e1be79727d469ef0949570d09145e1a22b1e0fe988429f7c868f8",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/assets/glb/generator.glb",
+      "target": "apps/harness-city/assets/glb/generator.glb",
+      "source_sha256": "13484458c9da52d0a7166e091b1efd326f47bba357b56567b77233ab0c157048",
+      "sha256": "13484458c9da52d0a7166e091b1efd326f47bba357b56567b77233ab0c157048",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/assets/glb/grass-trees-tall.glb",
+      "target": "apps/harness-city/assets/glb/grass-trees-tall.glb",
+      "source_sha256": "3ae8550079d06a71ecd2f9ba8ac8a97d421c8de3d96c1ab8806bac32188a9dbd",
+      "sha256": "3ae8550079d06a71ecd2f9ba8ac8a97d421c8de3d96c1ab8806bac32188a9dbd",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/assets/glb/grass-trees.glb",
+      "target": "apps/harness-city/assets/glb/grass-trees.glb",
+      "source_sha256": "43d5c060b586e1fd34530afd91fd4b127e552984223b2e2a4cb83758c652a54c",
+      "sha256": "43d5c060b586e1fd34530afd91fd4b127e552984223b2e2a4cb83758c652a54c",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/assets/glb/grass.glb",
+      "target": "apps/harness-city/assets/glb/grass.glb",
+      "source_sha256": "a09fd7e888acc916f1cf5b3a575945d6f78e442d9950b8682e1f4bc347933a8d",
+      "sha256": "a09fd7e888acc916f1cf5b3a575945d6f78e442d9950b8682e1f4bc347933a8d",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/assets/glb/hangar.glb",
+      "target": "apps/harness-city/assets/glb/hangar.glb",
+      "source_sha256": "179320050923adaf5f9cac6260da29651d69d83a9be5264db72f188e3b763325",
+      "sha256": "179320050923adaf5f9cac6260da29651d69d83a9be5264db72f188e3b763325",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/assets/glb/house-a.glb",
+      "target": "apps/harness-city/assets/glb/house-a.glb",
+      "source_sha256": "7a0251e8c33c1ed03b2b81699cd845e5b9bc82bbe10b4cddb34a8e282a070830",
+      "sha256": "7a0251e8c33c1ed03b2b81699cd845e5b9bc82bbe10b4cddb34a8e282a070830",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/assets/glb/house-b.glb",
+      "target": "apps/harness-city/assets/glb/house-b.glb",
+      "source_sha256": "f1aa2c4d432dae9ecb6ddd90ab1917701e30d7d0af48bcdf20e9cf0caf312113",
+      "sha256": "f1aa2c4d432dae9ecb6ddd90ab1917701e30d7d0af48bcdf20e9cf0caf312113",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/assets/glb/house-c.glb",
+      "target": "apps/harness-city/assets/glb/house-c.glb",
+      "source_sha256": "5ccaabad701bd987c0b63ed7b6f495e04e8e41e2ec8e384796e62be25a0212c6",
+      "sha256": "5ccaabad701bd987c0b63ed7b6f495e04e8e41e2ec8e384796e62be25a0212c6",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/assets/glb/house-d.glb",
+      "target": "apps/harness-city/assets/glb/house-d.glb",
+      "source_sha256": "bc99b8825e9e20ea10a4bcef7bddb63e248dd4531aaad351b6f26c70d4aaa566",
+      "sha256": "bc99b8825e9e20ea10a4bcef7bddb63e248dd4531aaad351b6f26c70d4aaa566",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/assets/glb/mini-female-b.glb",
+      "target": "apps/harness-city/assets/glb/mini-female-b.glb",
+      "source_sha256": "d25f5ce3c4a160a551be0b3299a0c26abedb51401380d8bf506a01dcff08198f",
+      "sha256": "d25f5ce3c4a160a551be0b3299a0c26abedb51401380d8bf506a01dcff08198f",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/assets/glb/mini-female-d.glb",
+      "target": "apps/harness-city/assets/glb/mini-female-d.glb",
+      "source_sha256": "8f81e0be3197e7a8dd5e3be9dee41ddbbeadda1e1d880d95d0fff2e5314aef52",
+      "sha256": "8f81e0be3197e7a8dd5e3be9dee41ddbbeadda1e1d880d95d0fff2e5314aef52",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/assets/glb/mini-male-a.glb",
+      "target": "apps/harness-city/assets/glb/mini-male-a.glb",
+      "source_sha256": "42ff3c91af90152f0afee57bba766408b4f904f99b4d8bc1099a33764595e93e",
+      "sha256": "42ff3c91af90152f0afee57bba766408b4f904f99b4d8bc1099a33764595e93e",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/assets/glb/mini-male-c.glb",
+      "target": "apps/harness-city/assets/glb/mini-male-c.glb",
+      "source_sha256": "7b01a4f68cb3ce41217a610c5b0919a528bada36b717e8e92b8e90a914fa7e8f",
+      "sha256": "7b01a4f68cb3ce41217a610c5b0919a528bada36b717e8e92b8e90a914fa7e8f",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/assets/glb/obelisk.glb",
+      "target": "apps/harness-city/assets/glb/obelisk.glb",
+      "source_sha256": "4306e60330fc91acee766e727a49e75bda24bb9b5ab96fbd4d9df5e41d8418e4",
+      "sha256": "4306e60330fc91acee766e727a49e75bda24bb9b5ab96fbd4d9df5e41d8418e4",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/assets/glb/pavement.glb",
+      "target": "apps/harness-city/assets/glb/pavement.glb",
+      "source_sha256": "956934eb4d5f1e66991b089774b2b5293627b8b8eb0fc3e9a7af13575bef3ab8",
+      "sha256": "956934eb4d5f1e66991b089774b2b5293627b8b8eb0fc3e9a7af13575bef3ab8",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/assets/glb/police-car.glb",
+      "target": "apps/harness-city/assets/glb/police-car.glb",
+      "source_sha256": "aac23b894cd0d2a021cbdeadb4cfb30b0b4e5abb9cc7fa0d5c855cdab8c4055b",
+      "sha256": "aac23b894cd0d2a021cbdeadb4cfb30b0b4e5abb9cc7fa0d5c855cdab8c4055b",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/assets/glb/road-corner.glb",
+      "target": "apps/harness-city/assets/glb/road-corner.glb",
+      "source_sha256": "eafcf6d37351fa61cfb6961d66cab454ead34ffdb8bb52628dbc218dfc384de1",
+      "sha256": "eafcf6d37351fa61cfb6961d66cab454ead34ffdb8bb52628dbc218dfc384de1",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/assets/glb/road-cross.glb",
+      "target": "apps/harness-city/assets/glb/road-cross.glb",
+      "source_sha256": "f4aef9c9e5ec9810ec468c99787f457f4255cff2fc5bc6542ac96a5d3223ac16",
+      "sha256": "f4aef9c9e5ec9810ec468c99787f457f4255cff2fc5bc6542ac96a5d3223ac16",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/assets/glb/road-lamps.glb",
+      "target": "apps/harness-city/assets/glb/road-lamps.glb",
+      "source_sha256": "cc75529af4f8b8f1663c3922f72c4d968fa4b8e09430da342d5b381b140ae13f",
+      "sha256": "cc75529af4f8b8f1663c3922f72c4d968fa4b8e09430da342d5b381b140ae13f",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/assets/glb/road-straight.glb",
+      "target": "apps/harness-city/assets/glb/road-straight.glb",
+      "source_sha256": "15cc415528a0a9fc3e6750bb526114ffe040c075cc5fbd51352374339d0e5451",
+      "sha256": "15cc415528a0a9fc3e6750bb526114ffe040c075cc5fbd51352374339d0e5451",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/assets/glb/road-t.glb",
+      "target": "apps/harness-city/assets/glb/road-t.glb",
+      "source_sha256": "90e38488d6b185f4fbdab725a991b60c5e229deaa5ffbbf33be372ef28caef24",
+      "sha256": "90e38488d6b185f4fbdab725a991b60c5e229deaa5ffbbf33be372ef28caef24",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/assets/glb/rock.glb",
+      "target": "apps/harness-city/assets/glb/rock.glb",
+      "source_sha256": "01dcc4c0cb573458b42cb824e5feac03419e8f4dce28cb491fa3ed4a6af70bde",
+      "sha256": "01dcc4c0cb573458b42cb824e5feac03419e8f4dce28cb491fa3ed4a6af70bde",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/assets/glb/sedan.glb",
+      "target": "apps/harness-city/assets/glb/sedan.glb",
+      "source_sha256": "d5de44a92cc7c94660cf4aebeaea63651642ea2f8b10b515060e813b63a739fb",
+      "sha256": "d5de44a92cc7c94660cf4aebeaea63651642ea2f8b10b515060e813b63a739fb",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/assets/glb/stump.glb",
+      "target": "apps/harness-city/assets/glb/stump.glb",
+      "source_sha256": "f516d2b8fe6cd9d5e2a45eb970f7ff445f65e484ded5cfaf32cea5f0740a4938",
+      "sha256": "f516d2b8fe6cd9d5e2a45eb970f7ff445f65e484ded5cfaf32cea5f0740a4938",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/assets/glb/suv.glb",
+      "target": "apps/harness-city/assets/glb/suv.glb",
+      "source_sha256": "70a2a47f33d259693305af21a9be2b6b49c40f3effe41cfada6689000091c2c2",
+      "sha256": "70a2a47f33d259693305af21a9be2b6b49c40f3effe41cfada6689000091c2c2",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/assets/glb/taxi.glb",
+      "target": "apps/harness-city/assets/glb/taxi.glb",
+      "source_sha256": "fe30f11779f0772697b5d9d33254a7db08c3dd04fd9e4f377210c1020a9877ff",
+      "sha256": "fe30f11779f0772697b5d9d33254a7db08c3dd04fd9e4f377210c1020a9877ff",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/assets/glb/tent.glb",
+      "target": "apps/harness-city/assets/glb/tent.glb",
+      "source_sha256": "57da37e8219e1f2af1d1b28241f75c03ae7696999c0d7006a20a8756f3a58dff",
+      "sha256": "57da37e8219e1f2af1d1b28241f75c03ae7696999c0d7006a20a8756f3a58dff",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/assets/glb/tower-a.glb",
+      "target": "apps/harness-city/assets/glb/tower-a.glb",
+      "source_sha256": "3b110de7647af0b2ab02e405966aeb15696501848ff9650ccb52ade14eee4bb0",
+      "sha256": "3b110de7647af0b2ab02e405966aeb15696501848ff9650ccb52ade14eee4bb0",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/assets/glb/tower-b.glb",
+      "target": "apps/harness-city/assets/glb/tower-b.glb",
+      "source_sha256": "4a92a94331498621f6da150420be7b927002a8a6d158ba1c755e9793d91056aa",
+      "sha256": "4a92a94331498621f6da150420be7b927002a8a6d158ba1c755e9793d91056aa",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/assets/glb/tower-c.glb",
+      "target": "apps/harness-city/assets/glb/tower-c.glb",
+      "source_sha256": "63b045c3b318b6a7dd81b93bb16963cba095b1e2075e75a13ecff68f79b820cb",
+      "sha256": "63b045c3b318b6a7dd81b93bb16963cba095b1e2075e75a13ecff68f79b820cb",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/assets/glb/tractor.glb",
+      "target": "apps/harness-city/assets/glb/tractor.glb",
+      "source_sha256": "64c58a9043115ba24ad971c48fa419d220e8fabe4c2a89041cbc1cb9e956bcd3",
+      "sha256": "64c58a9043115ba24ad971c48fa419d220e8fabe4c2a89041cbc1cb9e956bcd3",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/assets/glb/tree-fat.glb",
+      "target": "apps/harness-city/assets/glb/tree-fat.glb",
+      "source_sha256": "49d7456fb0fb42c0155fbf88b9be84d6a99409f5f916186549a91a542285a145",
+      "sha256": "49d7456fb0fb42c0155fbf88b9be84d6a99409f5f916186549a91a542285a145",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/assets/glb/tree-oak.glb",
+      "target": "apps/harness-city/assets/glb/tree-oak.glb",
+      "source_sha256": "912b16a476848727366795b67122752bc53328aede576f3245ebe47633f61eea",
+      "sha256": "912b16a476848727366795b67122752bc53328aede576f3245ebe47633f61eea",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/assets/glb/tree-pine.glb",
+      "target": "apps/harness-city/assets/glb/tree-pine.glb",
+      "source_sha256": "33e0ac764c3a709239c3b5547ef0447595b7ac9a4a6b0a570151da45764fb48b",
+      "sha256": "33e0ac764c3a709239c3b5547ef0447595b7ac9a4a6b0a570151da45764fb48b",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/assets/glb/truck-flat.glb",
+      "target": "apps/harness-city/assets/glb/truck-flat.glb",
+      "source_sha256": "e4073ea54102aa94ec00e6e2c300872f7916b7f9101f584a961e255d1fd721b0",
+      "sha256": "e4073ea54102aa94ec00e6e2c300872f7916b7f9101f584a961e255d1fd721b0",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/assets/glb/truck.glb",
+      "target": "apps/harness-city/assets/glb/truck.glb",
+      "source_sha256": "9523cfc77f40097e83d904247c2d173e17b0ddd7212d43ffb31493e460c43792",
+      "sha256": "9523cfc77f40097e83d904247c2d173e17b0ddd7212d43ffb31493e460c43792",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/assets/glb/van.glb",
+      "target": "apps/harness-city/assets/glb/van.glb",
+      "source_sha256": "f3a9f39f4da34bf84be986a3cf161113f56e6fc854c4aa348177cb2e6ec2445c",
+      "sha256": "f3a9f39f4da34bf84be986a3cf161113f56e6fc854c4aa348177cb2e6ec2445c",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/assets/manifest.json",
+      "target": "apps/harness-city/assets/manifest.json",
+      "source_sha256": "c9d90f4f87a893fd5c2affa650d6f889150b37865bae099ed25fbb6249a107ee",
+      "sha256": "c9d90f4f87a893fd5c2affa650d6f889150b37865bae099ed25fbb6249a107ee",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/index.html",
+      "target": "apps/harness-city/index.html",
+      "source_sha256": "912ed4af45e312a850a68bfbcca1a2c16a6e7fa07a267ae230dcfc7388d2a322",
+      "sha256": "912ed4af45e312a850a68bfbcca1a2c16a6e7fa07a267ae230dcfc7388d2a322",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/tools/build_standalone.py",
+      "target": "apps/harness-city/tools/build_standalone.py",
+      "source_sha256": "3c2f6443ba18a92e5cc1c40f984c5061842ab7f0ed96d56fca01650082e8ec18",
+      "sha256": "3c2f6443ba18a92e5cc1c40f984c5061842ab7f0ed96d56fca01650082e8ec18",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/tools/convert_assets.mjs",
+      "target": "apps/harness-city/tools/convert_assets.mjs",
+      "source_sha256": "799cc2f624bca46f171074335c0d7fb188a216d4076627d603e0404d9a1835ae",
+      "sha256": "799cc2f624bca46f171074335c0d7fb188a216d4076627d603e0404d9a1835ae",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/tools/report_to_city.py",
+      "target": "apps/harness-city/tools/report_to_city.py",
+      "source_sha256": "77e6a935dc309bbc70d77ae0f3aa66c148ace37eacbf4ed6fd7762bcb99ef7d6",
+      "sha256": "77e6a935dc309bbc70d77ae0f3aa66c148ace37eacbf4ed6fd7762bcb99ef7d6",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/tools/serve.py",
+      "target": "apps/harness-city/tools/serve.py",
+      "source_sha256": "917dca42a2a92c50a79f389eb1cde8b8fd5e854ce58605fa5989da2f0d925fc4",
+      "sha256": "917dca42a2a92c50a79f389eb1cde8b8fd5e854ce58605fa5989da2f0d925fc4",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/vendor/jsm/loaders/GLTFLoader.js",
+      "target": "apps/harness-city/vendor/jsm/loaders/GLTFLoader.js",
+      "source_sha256": "d073b438e6a07e1359741dd5d6c76c953420cc0d4fd84eb1bdde94315540e6a3",
+      "sha256": "d073b438e6a07e1359741dd5d6c76c953420cc0d4fd84eb1bdde94315540e6a3",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/vendor/jsm/utils/BufferGeometryUtils.js",
+      "target": "apps/harness-city/vendor/jsm/utils/BufferGeometryUtils.js",
+      "source_sha256": "9be041e96308775d00e2695cc607645b9a9b64fd7c0e759dd8f7c00a8d92becb",
+      "sha256": "9be041e96308775d00e2695cc607645b9a9b64fd7c0e759dd8f7c00a8d92becb",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "apps/harness-city/vendor/three.module.js",
+      "target": "apps/harness-city/vendor/three.module.js",
+      "source_sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495",
+      "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "docs/skills/0039-v0.2-agent-harness-setup/Architecture.md",
+      "target": "docs/0002/Architecture.md",
+      "source_sha256": "f17527ffa9e07f875f8fb49b44c1cf69b587d04b50a82169d1198a54e01ee248",
+      "sha256": "9db7a10cf466cdf11db098af34c46e5bc11f7fd4c12d8b05787517b5b65529bf",
+      "kind": "adapted-documentation"
+    },
+    {
+      "source": "docs/skills/0039-v0.2-agent-harness-setup/Golden-Dataset/artifact-meta.jsonc",
+      "target": "docs/0002/Golden-Dataset/artifact-meta.jsonc",
+      "source_sha256": "e41e89ba1ec7d1e757e28c48e346343648cf346faa237ac237f59a7f3debbb80",
+      "sha256": "d25ed0592c8991d5326d2840996fb3cef5d543bb214127a923d3be2a789313cf",
+      "kind": "adapted-documentation"
+    },
+    {
+      "source": "docs/skills/0039-v0.2-agent-harness-setup/Golden-Dataset/dataset-guide.md",
+      "target": "docs/0002/Golden-Dataset/dataset-guide.md",
+      "source_sha256": "26577b69f05fe034cee38225699347e4a944bf62f54c82541b057ce08f281045",
+      "sha256": "dd0a8565b4357ce471db5dd2033964f73fdd6a5b167b97b38e4d912bdc91c5ff",
+      "kind": "adapted-documentation"
+    },
+    {
+      "source": "docs/skills/0039-v0.2-agent-harness-setup/Golden-Dataset/dataset.json",
+      "target": "docs/0002/Golden-Dataset/dataset.json",
+      "source_sha256": "9c109be9a64a8c8690f183b6ce4ac107ba070847dc62e563649316fe3dfbe0d2",
+      "sha256": "66f6d3f4df55b18226ef987d377f9a8e85d42aa980e61a7464de93edec1ecd3c",
+      "kind": "adapted-documentation"
+    },
+    {
+      "source": "docs/skills/0039-v0.2-agent-harness-setup/Ideation-Book.md",
+      "target": "docs/0002/Ideation-Book.md",
+      "source_sha256": "f7e9ed1c728f77d40b44bbe221af0297af02fe7848fe1f1e649b94543adeabf9",
+      "sha256": "82b65a7766154ef1e7330c7e46de8d2f0c52f1004399a7e8dcff8605809b3b0c",
+      "kind": "adapted-documentation"
+    },
+    {
+      "source": "docs/skills/0039-v0.2-agent-harness-setup/Implementation.md",
+      "target": "docs/0002/Implementation.md",
+      "source_sha256": "24805a60113f7f59347f2adc838b0fe76f5cac9bbe707a341737238f2967a8de",
+      "sha256": "91c82d74eac650577ab35fec3e06b0baced5d406ef2cda65320dae7bba23c30d",
+      "kind": "adapted-documentation"
+    },
+    {
+      "source": "docs/skills/0039-v0.2-agent-harness-setup/Map.md",
+      "target": "docs/0002/Map.md",
+      "source_sha256": "99826736ae4eef98dd64e07196b36d2d622d4f0259cd7bb01d095a57b206290e",
+      "sha256": "7748597750a50f4ca21f559742e021e872b9f9ce51f8d8c01edc475f44948d45",
+      "kind": "adapted-documentation"
+    },
+    {
+      "source": "docs/skills/0039-v0.2-agent-harness-setup/Mocking-Plan.md",
+      "target": "docs/0002/Mocking-Plan.md",
+      "source_sha256": "d6cc04b53581dce29f568f7ad045260f3755a3e89156b1654e0045f1b9aa462e",
+      "sha256": "45e9634df07d3590c8b54f1b987a524f12960f1a5dc16b55dbcc277f76ed443c",
+      "kind": "adapted-documentation"
+    },
+    {
+      "source": "docs/skills/0039-v0.2-agent-harness-setup/Plan.md",
+      "target": "docs/0002/Plan.md",
+      "source_sha256": "bcead08e58c97211eaaec7bdbb82ad299816b39ebef0564bb336c6cbc09453bc",
+      "sha256": "f9d476812accc81b3a055b7ad6c895f25b1c1942433204ebcc89fc2021aada11",
+      "kind": "adapted-documentation"
+    },
+    {
+      "source": "docs/skills/0039-v0.2-agent-harness-setup/Prototype-Decision.md",
+      "target": "docs/0002/Prototype-Decision.md",
+      "source_sha256": "6dca099045911185b049bb9f4d912858b461a1acdfeb352b317b63efa1034156",
+      "sha256": "5a0c89dba7ccf3be91ff8c3ac7ddc8eb55a7ad93825d92b2fea66ed13d5f98cc",
+      "kind": "adapted-documentation"
+    },
+    {
+      "source": "docs/skills/0039-v0.2-agent-harness-setup/Research-Paper.md",
+      "target": "docs/0002/Research-Paper.md",
+      "source_sha256": "6e6afc5b7d47e42e1796b24663bd75c9a7ba30c6fe90e418de9dd8b28f4c3ed0",
+      "sha256": "09483881a1a9da735d1eeee8b61ca843d6329a869ee83120d602a6832e24583d",
+      "kind": "adapted-documentation"
+    },
+    {
+      "source": "docs/skills/0039-v0.2-agent-harness-setup/Test-Plan.md",
+      "target": "docs/0002/Test-Plan.md",
+      "source_sha256": "4e27b471d666e12be0cde17ccebf502d230a8c4c7b8dfefa0d8126bb52a4a530",
+      "sha256": "d45a40289743b31297e38cd656817a997430c9fc9c18e624040c2a9d115af40e",
+      "kind": "adapted-documentation"
+    },
+    {
+      "source": "docs/skills/0039-v0.2-agent-harness-setup/Tracker.md",
+      "target": "docs/0002/Tracker.md",
+      "source_sha256": "994b89eceaf7a36a971aff652e3d55ad9d08fc385d0dd1ad62c3d790e59b5b1a",
+      "sha256": "8023b2fe9508459ef02f2b689cc49b8430344742031b6c603e0c2f61dbe05de3",
+      "kind": "adapted-documentation"
+    },
+    {
+      "source": "docs/skills/0039-v0.2-agent-harness-setup/Whitepaper.md",
+      "target": "docs/0002/Whitepaper.md",
+      "source_sha256": "3dada6d17850bac6c81bc7ce89e26639f6f1560bb06bff2e3dab7eef6da4d7f8",
+      "sha256": "d4668102af8dc6c122dd9fc9102820a761ba45e4ce8b7226b665b51e961dd603",
+      "kind": "adapted-documentation"
+    },
+    {
+      "source": "docs/skills/0039-v0.2-agent-harness-setup/Workflow-Report.md",
+      "target": "docs/0002/Workflow-Report.md",
+      "source_sha256": "42b13d17777fa59bd7582066226efa80b9bf5b9d874743f726d7b75fefbe21e9",
+      "sha256": "5880968fd33e04f2cd0e705dd1968671ec2b57150fcd31e2d93ea471d9ba03aa",
+      "kind": "adapted-documentation"
+    },
+    {
+      "source": "docs/skills/0039-v0.2-agent-harness-setup/architecture-model.jsonc",
+      "target": "docs/0002/architecture-model.jsonc",
+      "source_sha256": "9dc421b9f658731181ce689c877741973392b25e85c095288d7f22da6ca80529",
+      "sha256": "b9bca1cbb90de915cad65f02a0531891f0c8a9a0eb58d122d01a4c8df98874f5",
+      "kind": "adapted-documentation"
+    },
+    {
+      "source": "docs/skills/0039-v0.2-agent-harness-setup/artifact-meta-architecture.jsonc",
+      "target": "docs/0002/artifact-meta-architecture.jsonc",
+      "source_sha256": "22b27834b7c0377a48bc42226812e00a0a85fcad29d4adb30143c46c021453cf",
+      "sha256": "969831fb8a799847ec3e97e02c975cee5c5a7cebda4fca2c0a16c4f9eb3d3bd6",
+      "kind": "adapted-documentation"
+    },
+    {
+      "source": "docs/skills/0039-v0.2-agent-harness-setup/artifact-meta-ideation.jsonc",
+      "target": "docs/0002/artifact-meta-ideation.jsonc",
+      "source_sha256": "7881497591f8059496a897c0843c62b137f81066b75f00444a0770da3bd804b3",
+      "sha256": "d8efc3f1faa406cef4231ec0bb1eb2795e40545e409a6a9b3222743b2638caed",
+      "kind": "adapted-documentation"
+    },
+    {
+      "source": "docs/skills/0039-v0.2-agent-harness-setup/artifact-meta-implementation.jsonc",
+      "target": "docs/0002/artifact-meta-implementation.jsonc",
+      "source_sha256": "fe00fb739715a99d64b109d3f06f8a7618168309323cbf353115e308304c4656",
+      "sha256": "60d1bb4a8addbfc987193787b7640c68f1cdcd9384fd427652612469853b0b29",
+      "kind": "adapted-documentation"
+    },
+    {
+      "source": "docs/skills/0039-v0.2-agent-harness-setup/artifact-meta-mocking.jsonc",
+      "target": "docs/0002/artifact-meta-mocking.jsonc",
+      "source_sha256": "42696a099b5ddab1e03e336675efaab103543e88c384f3eca423796b764645ca",
+      "sha256": "3e71b0420191786fb44bbbe09c2271821f91a68bca7aa971242403560ef87b13",
+      "kind": "adapted-documentation"
+    },
+    {
+      "source": "docs/skills/0039-v0.2-agent-harness-setup/artifact-meta-plan.jsonc",
+      "target": "docs/0002/artifact-meta-plan.jsonc",
+      "source_sha256": "23db53aff331c89847945ad23832b4cbb3c147220f8d7780846633c61a6b7267",
+      "sha256": "55b0c3223dd5118c75f9d9dd074970352f82f020abb48cbf28886a27e146af67",
+      "kind": "adapted-documentation"
+    },
+    {
+      "source": "docs/skills/0039-v0.2-agent-harness-setup/artifact-meta-prototype.jsonc",
+      "target": "docs/0002/artifact-meta-prototype.jsonc",
+      "source_sha256": "98dfb4624f1d470e3f107a88117b186f548fe14797fd72ac0842a9a18d83a11d",
+      "sha256": "d0330e27521ad93c7c6d6a8c9942e8a0e8c673bf395a9f2a20b08e73dcee37e0",
+      "kind": "adapted-documentation"
+    },
+    {
+      "source": "docs/skills/0039-v0.2-agent-harness-setup/artifact-meta-research.jsonc",
+      "target": "docs/0002/artifact-meta-research.jsonc",
+      "source_sha256": "ef69905092cd346377cd8f029053cec1a40ae06c4d1f5a4083f182c79dde828f",
+      "sha256": "beb8a097b12362608c08da7048bc4d962ec6269c7d314ca5d54173a6970aa0cb",
+      "kind": "adapted-documentation"
+    },
+    {
+      "source": "docs/skills/0039-v0.2-agent-harness-setup/artifact-meta-testing.jsonc",
+      "target": "docs/0002/artifact-meta-testing.jsonc",
+      "source_sha256": "22a6d4b2002904997aadcd24dcea8cd8686a227283a33d7af04c8cb0d3c1befd",
+      "sha256": "cbfebe5224bd48a3895fcd76613c81fd89c60f438ad35646aa9cc17c90fe5fde",
+      "kind": "adapted-documentation"
+    },
+    {
+      "source": "docs/skills/0039-v0.2-agent-harness-setup/artifact-meta-wayfinder.jsonc",
+      "target": "docs/0002/artifact-meta-wayfinder.jsonc",
+      "source_sha256": "217d7b4be661363ade973efe802845c5727a4bd993e27ae27d7745cc69ff274f",
+      "sha256": "35543adab6ec72c71dd630cab019a8ac4bac1b51263162643095f60a64fb3d22",
+      "kind": "adapted-documentation"
+    },
+    {
+      "source": "docs/skills/0039-v0.2-agent-harness-setup/artifact-meta-whitepaper.jsonc",
+      "target": "docs/0002/artifact-meta-whitepaper.jsonc",
+      "source_sha256": "55c0f09ef09d180b0e2d4a86cf9f366a5b25fc80bc3ec2874dc9974a8428a994",
+      "sha256": "d1cfe71064979e41d1a5e682335657b4203b5a435fa7060e81c031844082baca",
+      "kind": "adapted-documentation"
+    },
+    {
+      "source": "docs/skills/0039-v0.2-agent-harness-setup/change-set.jsonc",
+      "target": "docs/0002/change-set.jsonc",
+      "source_sha256": "80203f3446ef33c9f853467c448eede4beedba55f5387a0be673f40603c5b41c",
+      "sha256": "5141a2e4b9146712b160f1d40aab80cda8258370c6b0a2143b40543569980a43",
+      "kind": "adapted-documentation"
+    },
+    {
+      "source": "docs/skills/0039-v0.2-agent-harness-setup/citation-qa.jsonc",
+      "target": "docs/0002/citation-qa.jsonc",
+      "source_sha256": "8f65879eb6c144ef5e8648cd0e96e0fcc3dbb0dc113a1984dd8bd6627cc2058c",
+      "sha256": "239a0de0d68baf2c37358d790e1d54cc29ef2ff1fd7622b74d08553cd276f433",
+      "kind": "adapted-documentation"
+    },
+    {
+      "source": "docs/skills/0039-v0.2-agent-harness-setup/ontology/Ontology.md",
+      "target": "docs/0002/ontology/Ontology.md",
+      "source_sha256": "ef630307b41e0ab270e13eac43d3bcefa1ae6682e60bbc4c400e085605745cf0",
+      "sha256": "c7ce0f72c766c79d711cd6e96a589e5d750421a393ef437f03200a3240c53500",
+      "kind": "adapted-documentation"
+    },
+    {
+      "source": "docs/skills/0039-v0.2-agent-harness-setup/ontology/artifact-meta.jsonc",
+      "target": "docs/0002/ontology/artifact-meta.jsonc",
+      "source_sha256": "96a454a2b252064e3a79218a2c53a0c275309f42f123ad720ffd8125387f3005",
+      "sha256": "9e8f8b5f0f62ee2ed25781ac40da024f484e0e228583e37a44b33edfb574734b",
+      "kind": "adapted-documentation"
+    },
+    {
+      "source": "docs/skills/0039-v0.2-agent-harness-setup/ontology/ontology.json",
+      "target": "docs/0002/ontology/ontology.json",
+      "source_sha256": "7e4a513b2504a0b78c13868c2c69711d46702297708336fe2ffc2c98c1285357",
+      "sha256": "c4c55fec5463472b454e616908f5cc81c6eff9adb55907986dbf85bbca06a582",
+      "kind": "adapted-documentation"
+    },
+    {
+      "source": "docs/skills/0039-v0.2-agent-harness-setup/prototype/contract-probe.sh",
+      "target": "docs/0002/prototype/contract-probe.sh",
+      "source_sha256": "59c5130c8c66260598e3f898e2d29d15567e427b9cdea208c44a44032204c5ab",
+      "sha256": "59c5130c8c66260598e3f898e2d29d15567e427b9cdea208c44a44032204c5ab",
+      "kind": "adapted-documentation"
+    },
+    {
+      "source": "docs/skills/0039-v0.2-agent-harness-setup/research/As-Built-Findings.md",
+      "target": "docs/0002/research/As-Built-Findings.md",
+      "source_sha256": "45025171857d82c1960a931dff160843464d8cdfdbce429e4318959397fd8b02",
+      "sha256": "632c169b2ec9283407762e5eaa95b38cfa52907537d03eb04c0db72ddfaa5eb4",
+      "kind": "adapted-documentation"
+    },
+    {
+      "source": "docs/skills/0039-v0.2-agent-harness-setup/research/BACKLOG.md",
+      "target": "docs/0002/research/BACKLOG.md",
+      "source_sha256": "349bde26f349a59e6ecb488ec2c0eb3eedbabb626eb3ff4fcafe83be58fbf4c8",
+      "sha256": "349bde26f349a59e6ecb488ec2c0eb3eedbabb626eb3ff4fcafe83be58fbf4c8",
+      "kind": "adapted-documentation"
+    },
+    {
+      "source": "docs/skills/0039-v0.2-agent-harness-setup/research/catalog.yaml",
+      "target": "docs/0002/research/catalog.yaml",
+      "source_sha256": "d0384a2915c031a363a4026ba1cb67922c26921efffab088f19732637eb38a3a",
+      "sha256": "d0384a2915c031a363a4026ba1cb67922c26921efffab088f19732637eb38a3a",
+      "kind": "adapted-documentation"
+    },
+    {
+      "source": "docs/skills/0039-v0.2-agent-harness-setup/tests/e2e/README.md",
+      "target": "docs/0002/tests/e2e/README.md",
+      "source_sha256": "2f328a174643a395c96e0d44bfdcc48705d491270d1e04bab6ddd39a442b33c9",
+      "sha256": "2f328a174643a395c96e0d44bfdcc48705d491270d1e04bab6ddd39a442b33c9",
+      "kind": "adapted-documentation"
+    },
+    {
+      "source": "docs/skills/0039-v0.2-agent-harness-setup/tests/infrastructure/README.md",
+      "target": "docs/0002/tests/infrastructure/README.md",
+      "source_sha256": "e8fb5c02a6e78d919f77b2d7c7393580fced10d14d738b29cf7bb8c6585e89ad",
+      "sha256": "e8fb5c02a6e78d919f77b2d7c7393580fced10d14d738b29cf7bb8c6585e89ad",
+      "kind": "adapted-documentation"
+    },
+    {
+      "source": "docs/skills/0039-v0.2-agent-harness-setup/tests/integration/README.md",
+      "target": "docs/0002/tests/integration/README.md",
+      "source_sha256": "1f3e4e4d4b6d8e6a73beb69c23ca53271d417abd77202496ceb9681b1f7c2a23",
+      "sha256": "1f3e4e4d4b6d8e6a73beb69c23ca53271d417abd77202496ceb9681b1f7c2a23",
+      "kind": "adapted-documentation"
+    },
+    {
+      "source": "docs/skills/0039-v0.2-agent-harness-setup/tests/smoke/README.md",
+      "target": "docs/0002/tests/smoke/README.md",
+      "source_sha256": "7444027b8a46143ffe29b2735f21141ab9471aa81c0d37e3913060bad3bea3b3",
+      "sha256": "7444027b8a46143ffe29b2735f21141ab9471aa81c0d37e3913060bad3bea3b3",
+      "kind": "adapted-documentation"
+    },
+    {
+      "source": "docs/skills/0039-v0.2-agent-harness-setup/tests/unit/README.md",
+      "target": "docs/0002/tests/unit/README.md",
+      "source_sha256": "95bca589d5c81ce4f68cee5c2c27fc6a3081bbfad0f84e63b9da1c9ccd2b27f9",
+      "sha256": "95bca589d5c81ce4f68cee5c2c27fc6a3081bbfad0f84e63b9da1c9ccd2b27f9",
+      "kind": "adapted-documentation"
+    },
+    {
+      "source": "docs/skills/0039-v0.2-agent-harness-setup/wayfinder-tickets/01-dual-evaluation-and-reconciliation.md",
+      "target": "docs/0002/wayfinder-tickets/01-dual-evaluation-and-reconciliation.md",
+      "source_sha256": "bdbc69654865e832c1bcf329fd9f5dee6d209da8c1169e43b632db3a67b714ef",
+      "sha256": "42ab91f24f157685b71240f323fa1b4f0d1b82f82c2e081fb0526a37491a1442",
+      "kind": "adapted-documentation"
+    },
+    {
+      "source": "docs/skills/0039-v0.2-agent-harness-setup/wayfinder-tickets/02-approved-creation-and-activation.md",
+      "target": "docs/0002/wayfinder-tickets/02-approved-creation-and-activation.md",
+      "source_sha256": "612f452b065d1b4d8fb4e5da43eb5abfad97b971834eacd581fba793c9d70a43",
+      "sha256": "d2f97254fc43647e6e8aa8eb49a3e3dadaf5a43f318f55ebc1eda57cf9e22547",
+      "kind": "adapted-documentation"
+    },
+    {
+      "source": "docs/skills/0039-v0.2-agent-harness-setup/wayfinder-tickets/03-enforcement-and-qualification-evidence.md",
+      "target": "docs/0002/wayfinder-tickets/03-enforcement-and-qualification-evidence.md",
+      "source_sha256": "88f46ce3a8cbbd1f40eeca2cdb699b1838ee06a47daf068fedb9615b9d7536a0",
+      "sha256": "bf47f8a50ea28de45adcf6fb0f4480ce9e3af47e8181452adfd64c48421c4967",
+      "kind": "adapted-documentation"
+    },
+    {
+      "source": "docs/skills/0039-v0.2-agent-harness-setup/wayfinder-tickets/04-specification-readiness-and-handoff.md",
+      "target": "docs/0002/wayfinder-tickets/04-specification-readiness-and-handoff.md",
+      "source_sha256": "b132792e7afc20e4ee6c2e5b46187010eaa4f10abab6ce491efdfc157121f544",
+      "sha256": "9f517ec09a982d7f3ac413e8051354762b3046d83f5b3e7bb63b04521a690afe",
+      "kind": "adapted-documentation"
+    },
+    {
+      "source": "docs/skills/0039-v0.2-agent-harness-setup/wayfinder-tickets/05-frozen-source-and-history.md",
+      "target": "docs/0002/wayfinder-tickets/05-frozen-source-and-history.md",
+      "source_sha256": "648a324ecbae4c5a08ea31f4d0efa80a9d439c04b69e9fd90471383ed15a53c6",
+      "sha256": "177b17ad5c688315975a8c21e5f81e24fb13acab99f61d20e00725f43958a89f",
+      "kind": "adapted-documentation"
+    },
+    {
+      "source": "docs/skills/0039-v0.2-agent-harness-setup/wayfinder-tickets/06-as-built-evaluation-and-scoring.md",
+      "target": "docs/0002/wayfinder-tickets/06-as-built-evaluation-and-scoring.md",
+      "source_sha256": "0e59d5cadabe6912e12d35c90de132a3bb56736d4799f0469207441013a90231",
+      "sha256": "06966ad41c21455eb3436481a601ccce67220477b2c849bd6948ca66d602ebec",
+      "kind": "adapted-documentation"
+    },
+    {
+      "source": "docs/skills/0039-v0.2-agent-harness-setup/wayfinder-tickets/07-bootstrap-and-documentation-handoff.md",
+      "target": "docs/0002/wayfinder-tickets/07-bootstrap-and-documentation-handoff.md",
+      "source_sha256": "d4de4a16d1230f412b7c3bf2ea07c43a116752b43af49870c8a184ad164876c7",
+      "sha256": "293c33abe664745d64fcef2357c5d3c0f6ca029e85e4a79abcbc6a2be98aae59",
+      "kind": "adapted-documentation"
+    },
+    {
+      "source": "LICENSE",
+      "target": "LICENSE",
+      "source_sha256": "3c8968c5ac0269c1470d9682e19da9ec9946ac5e2e9e701d43061649091c9f5f",
+      "sha256": "3c8968c5ac0269c1470d9682e19da9ec9946ac5e2e9e701d43061649091c9f5f",
+      "kind": "unchanged-source"
+    },
+    {
+      "source": "Repo Harness Next Steps.md",
+      "target": "docs/0003/Repo Harness Next Steps.md",
+      "source_sha256": "62887afdedc22e074a951bb294b3abe6d200719423477fa07cd95ae6cf0a77f8",
+      "sha256": "62887afdedc22e074a951bb294b3abe6d200719423477fa07cd95ae6cf0a77f8",
+      "kind": "adapted-documentation"
+    }
+  ]
+}

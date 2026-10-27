@@ -1,0 +1,41 @@
+{
+  "artifact": "dataset.json",
+  "generatedAt": "2026-10-27T14:06:12.250317+00:00",
+  "mode": "draft",
+  "inputs": [
+    "docs/0002/Plan.md",
+    "docs/0002/Test-Plan.md",
+    "docs/0002/Mocking-Plan.md"
+  ],
+  "outputs": [
+    "docs/0002/Golden-Dataset/dataset.json",
+    "docs/0002/Golden-Dataset/dataset-guide.md"
+  ],
+  "validation": {
+    "status": "warn",
+    "checks": [
+      "standalone-source-integrity-and-local-doc-path-checks"
+    ]
+  },
+  "notes": [
+    "Synthetic contract records, not executed repository fixtures.",
+    "Imported from original 0039; old validation is historical. New-checkout validation is recorded in EXTRACTION.md."
+  ],
+  "importedValidation": {
+    "status": "pass",
+    "checks": [
+      "json_parse_pass",
+      "14_unique_records_pass",
+      "criterion_and_scenario_join_pass"
+    ]
+  },
+  "importedInputs": [
+    "../Plan.md",
+    "../Test-Plan.md",
+    "../Mocking-Plan.md"
+  ],
+  "importedOutputs": [
+    "dataset.json",
+    "dataset-guide.md"
+  ]
+}

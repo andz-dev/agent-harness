@@ -1,0 +1,863 @@
+# harness-audit check catalog, v1 draft (P0)
+# Scope: Python and Node repos. Static analysis only: no repo code is ever executed.
+# Stack-neutral: detectors accept any common tool for the same job.
+
+catalog_version: 0.1
+scope:
+  ecosystems: [python, node]
+  execution: static-only
+
+# ---------------------------------------------------------------------------
+# How levels are derived
+# ---------------------------------------------------------------------------
+level_rule:
+  description: >
+    A pillar reaches level N when (a) every check with gate: true at levels <= N passes
+    and (b) at least pass_ratio of all checks at level N pass.
+    Level 0 means not even L1 is reached. Checks that do not apply to a component
+    (see applies_to) are excluded from the ratio, not counted as failures.
+  pass_ratio: 0.6
+  levels:
+    0: Absent
+    1: Present (exists, but you have to know about it)
+    2: Enforced (runs automatically through hooks or CI)
+    3: Agent-native (documented for agents, fast, actionable output)
+
+# ---------------------------------------------------------------------------
+# Detector vocabulary (implemented in scripts/run_checks.py)
+# ---------------------------------------------------------------------------
+detector_types:
+  file_exists:      "Any of the given globs matches a tracked file."
+  glob_count:       "Number of tracked files matching globs meets min."
+  key_present:      "A key/path exists in a JSON, TOML or YAML file."
+  text_match:       "Regex matches inside the given files (with line numbers)."
+  ci_runs:          "A CI definition (GitHub Actions, Azure Pipelines, GitLab CI) runs a command matching the pattern."
+  hook_runs:        "A hook config (pre-commit, husky, lefthook, agent hooks) runs a command matching the pattern."
+  runner_target:    "A task runner (Taskfile, Makefile, justfile, package.json scripts, tox/nox) defines a target matching the names."
+  git_signal:       "Derived from git metadata (last touch, reference graph). Needs --filter=blob:none history."
+  llm:              "Judged by an LLM from script-selected excerpts. Must quote evidence (file and lines)."
+
+evidence_format:
+  required_fields: [path, line, snippet]
+  note: "Every finding records at least one piece of evidence; a failed check records what was searched."
+
+# Shared glob and pattern sets, referenced by name below.
+sets:
+  agent_files:
+    - AGENTS.md
+    - CLAUDE.md
+    - GEMINI.md
+    - .github/copilot-instructions.md
+    - .github/instructions/*.instructions.md
+    - .cursor/rules/**
+    - .cursorrules
+  ci_files:
+    - .github/workflows/*.yml
+    - .github/workflows/*.yaml
+    - azure-pipelines.yml
+    - azure-pipelines/**/*.yml
+    - .azure-pipelines/**/*.yml
+    - .gitlab-ci.yml
+    - .circleci/config.yml
+    - Jenkinsfile
+  runner_files:
+    - Taskfile.yml
+    - Taskfile.yaml
+    - Makefile
+    - justfile
+    - package.json
+    - tox.ini
+    - noxfile.py
+    - pyproject.toml
+  hook_files:
+    - .pre-commit-config.yaml
+    - .husky/*
+    - lefthook.yml
+    - lefthook.yaml
+    - .githooks/*
+    - .simple-git-hooks.*
+    - .lintstagedrc*
+    - lint-staged.config.*
+    - .claude/settings.json
+    - .claude/hooks/*
+  test_cmd_python: 'pytest|python -m pytest|tox|nox|unittest'
+  test_cmd_node: 'jest|vitest|mocha|ava|tap|node --test|npm (run )?test|pnpm (run )?test|yarn test'
+  lint_cmd_python: 'ruff|flake8|pylint|black|isort|pre-commit'
+  lint_cmd_node: 'eslint|biome|prettier|oxlint|xo'
+  type_cmd_python: 'mypy|pyright|pytype|ty check'
+  type_cmd_node: 'tsc|tsgo|flow check|vue-tsc|svelte-check|astro check'
+
+# ---------------------------------------------------------------------------
+# Checks
+# fields: id, pillar, level, gate, applies_to, title, detector, params, evidence, rationale
+# ---------------------------------------------------------------------------
+checks:
+
+  # ===== ORIENTATION: can an agent find its way without reading everything? =====
+  - id: ORI-01
+    pillar: orientation
+    level: 1
+    gate: true
+    applies_to: [all]
+    title: README exists and has a setup or usage section
+    detector: text_match
+    params:
+      files: ["README*"]
+      pattern: '(?im)^#{1,3}\s+.*\b(install(ation)?|setup|getting started|usage|quick ?start|development|examples?|documentation)\b|^(install(ation)?|usage|quick ?start|getting started|examples?|documentation)\s*\n[=\-~^]{3,}\s*$'
+    evidence: heading line that matched
+    rationale: Baseline human orientation; agents read it first.
+
+  - id: ORI-02
+    pillar: orientation
+    level: 1
+    gate: false
+    applies_to: [all]
+    title: Any agent instruction file exists
+    detector: file_exists
+    params: { globs: { set: agent_files } }
+    evidence: list of agent files found
+    rationale: Shows the maintainers thought about agents at all.
+
+  - id: ORI-03
+    pillar: orientation
+    level: 1
+    gate: false
+    applies_to: [all]
+    title: CONTRIBUTING or development guide exists
+    detector: file_exists
+    params: { globs: [CONTRIBUTING*, .github/CONTRIBUTING*, docs/contributing*, docs/development*, DEVELOPMENT.md, HACKING.md] }
+    evidence: file path
+    rationale: Documents the human workflow that agents should mirror.
+
+  - id: ORI-04
+    pillar: orientation
+    level: 2
+    gate: true
+    applies_to: [all]
+    title: Agent file names build, test and lint commands
+    detector: text_match
+    params:
+      files: { set: agent_files }
+      pattern: '(?i)(`[^`]*\b(test|lint|build|check|format)\b[^`]*`)'
+      min_distinct_commands: 2
+    evidence: command snippets with line numbers
+    rationale: The first thing an agent needs is how to verify its work.
+
+  - id: ORI-05
+    pillar: orientation
+    level: 2
+    gate: false
+    applies_to: [all]
+    title: Agent file describes repository structure
+    detector: llm
+    params:
+      prompt: prompts/orientation_quality.md
+      question: Does the file explain where the main code, tests and config live?
+    evidence: quoted lines
+    rationale: A directory map saves most exploratory searching.
+
+  - id: ORI-06
+    pillar: orientation
+    level: 2
+    gate: false
+    applies_to: [all]
+    title: Agent file states conventions or boundaries (do, do not)
+    detector: llm
+    params:
+      prompt: prompts/orientation_quality.md
+      question: Are there concrete conventions, forbidden actions or review rules?
+    evidence: quoted lines
+    rationale: Prevents the common wrong-but-plausible changes.
+
+  - id: ORI-07
+    pillar: orientation
+    level: 2
+    gate: false
+    applies_to: [all]
+    title: Architecture or design overview document exists
+    detector: file_exists
+    params: { globs: [ARCHITECTURE.md, docs/architecture*, docs/design*, docs/adr/**, docs/decisions/**] }
+    evidence: file path
+    rationale: Explains why the code looks the way it does.
+
+  - id: ORI-08
+    pillar: orientation
+    level: 3
+    gate: true
+    applies_to: [all]
+    title: AGENTS.md is canonical; tool-specific files point to it instead of duplicating
+    detector: llm
+    params:
+      prompt: prompts/instruction_drift.md
+      question: Is AGENTS.md the single source, with CLAUDE.md and copilot-instructions importing or linking to it?
+    evidence: import lines or links between the files
+    rationale: One source of truth keeps Claude and Copilot behavior identical.
+
+  - id: ORI-09
+    pillar: orientation
+    level: 3
+    gate: true
+    applies_to: [all]
+    title: No drift between agent files, README and runner targets
+    detector: llm
+    params:
+      prompt: prompts/instruction_drift.md
+      question: Do documented commands exist and agree across agent files, README and the task runner?
+    evidence: pairs of conflicting lines, or confirmation of agreement
+    rationale: Contradicting instructions are worse than none.
+
+  - id: ORI-10
+    pillar: orientation
+    level: 3
+    gate: false
+    applies_to: [all]
+    title: Nested or scoped instructions for large components
+    detector: glob_count
+    params:
+      globs: ["**/AGENTS.md", "**/CLAUDE.md", ".github/instructions/*.instructions.md"]
+      min: 2
+      only_if: repo has more than one detected component
+    evidence: file paths
+    rationale: Monorepos need per-component guidance, not one giant file.
+
+  # ===== VERIFICATION: can the agent tell whether it broke something? =====
+  - id: VER-01
+    pillar: verification
+    level: 1
+    gate: true
+    applies_to: [python]
+    title: Python tests exist
+    detector: glob_count
+    params: { globs: ["tests/**/*.py", "test/**/*.py", "**/test_*.py", "**/*_test.py"], min: 3 }
+    evidence: count and sample paths
+    rationale: No tests means no feedback loop.
+
+  - id: VER-02
+    pillar: verification
+    level: 1
+    gate: true
+    applies_to: [node]
+    title: Node tests exist
+    detector: glob_count
+    params: { globs: ["**/*.test.{js,ts,tsx,mjs}", "**/*.spec.{js,ts,tsx,mjs}", "test/**/*.{js,ts}", "tests/**/*.{js,ts}", "__tests__/**"], min: 3 }
+    evidence: count and sample paths
+    rationale: No tests means no feedback loop.
+
+  - id: VER-03
+    pillar: verification
+    level: 1
+    gate: false
+    applies_to: [python]
+    title: Python test framework configured
+    detector: key_present
+    params:
+      any_of:
+        - { file: pyproject.toml, path: tool.pytest }
+        - { file: pytest.ini }
+        - { file: tox.ini, path: pytest }
+        - { file: setup.cfg, path: tool:pytest }
+        - { file: noxfile.py }
+        - { file: runtests.py }        # unittest runner script (django)
+        - { file: tests/runtests.py }
+    evidence: config location
+    rationale: Configured frameworks run the same way for everyone.
+
+  - id: VER-04
+    pillar: verification
+    level: 1
+    gate: false
+    applies_to: [node]
+    title: Node test framework configured
+    detector: key_present
+    params:
+      any_of:
+        - { file: package.json, path: scripts.test }
+        - { file: package.json, path: jest }
+        - { file: "vitest.config.*" }
+        - { file: "jest.config.*" }
+        - { file: ".mocharc.*" }
+    evidence: config location
+    rationale: Configured frameworks run the same way for everyone.
+
+  - id: VER-05
+    pillar: verification
+    level: 2
+    gate: true
+    applies_to: [python]
+    title: Python tests run in CI
+    detector: ci_runs
+    params: { pattern: { set: test_cmd_python } }
+    evidence: CI file, job and step
+    rationale: Tests that only run locally rot.
+
+  - id: VER-06
+    pillar: verification
+    level: 2
+    gate: true
+    applies_to: [node]
+    title: Node tests run in CI
+    detector: ci_runs
+    params: { pattern: { set: test_cmd_node } }
+    evidence: CI file, job and step
+    rationale: Tests that only run locally rot.
+
+  - id: VER-07
+    pillar: verification
+    level: 2
+    gate: false
+    applies_to: [all]
+    title: Tests gate merges (CI runs on pull requests)
+    detector: ci_runs
+    params: { trigger: [pull_request, pull_request_target, merge_group] }
+    evidence: workflow trigger block
+    rationale: Enforcement means a failing test blocks the change.
+
+  - id: VER-08
+    pillar: verification
+    level: 2
+    gate: false
+    applies_to: [all]
+    title: Test dependencies are declared and pinned or locked
+    detector: file_exists
+    params:
+      globs: [requirements*.txt, uv.lock, poetry.lock, Pipfile.lock, pdm.lock, package-lock.json, pnpm-lock.yaml, yarn.lock, bun.lockb]
+    evidence: lockfile path
+    rationale: Agents get the same environment as CI.
+
+  - id: VER-09
+    pillar: verification
+    level: 3
+    gate: false
+    applies_to: [all]
+    title: Fast subset exists (markers, scopes, or separate unit and e2e targets)
+    detector: text_match
+    params:
+      files: { set: runner_files }
+      pattern: '(?im)(^\s*markers\s*=|-m ["'']?not (slow|e2e|integration)|test:unit|test:e2e|test:fast|test:integration|test-unit|test-e2e)'
+    evidence: marker or script lines
+    rationale: Agents iterate on seconds-long checks, not hour-long suites. Speed is inferred from config only.
+
+  - id: VER-10
+    pillar: verification
+    level: 3
+    gate: false
+    applies_to: [all]
+    title: Coverage configured
+    detector: text_match
+    params:
+      files: [pyproject.toml, setup.cfg, tox.ini, .coveragerc, package.json, "vitest.config.*", "jest.config.*", .nycrc*, codecov.yml]
+      pattern: '(?i)(pytest-cov|coverage\.py|\[tool\.coverage|--cov|c8|nyc|istanbul|collectCoverage|coverage:)'
+    evidence: config lines
+    rationale: Shows which code the tests actually touch.
+
+  - id: VER-11
+    pillar: verification
+    level: 3
+    gate: false
+    applies_to: [all]
+    title: Test layout is documented for agents (where tests live, how to run one)
+    detector: llm
+    params:
+      prompt: prompts/orientation_quality.md
+      question: Do agent files or CONTRIBUTING say how to run a single test or a single package?
+    evidence: quoted lines
+    rationale: Running one test is the agent's main inner loop.
+
+  # ===== STATIC GUARDRAILS: are style and correctness enforced, not suggested? =====
+  - id: STA-01
+    pillar: static_guardrails
+    level: 1
+    gate: true
+    applies_to: [python]
+    title: Python linter or formatter configured
+    detector: key_present
+    params:
+      any_of:
+        - { file: pyproject.toml, path: tool.ruff }
+        - { file: pyproject.toml, path: tool.black }
+        - { file: pyproject.toml, path: tool.pylint }
+        - { file: ruff.toml }
+        - { file: .flake8 }
+        - { file: setup.cfg, path: flake8 }
+        - { file: .pylintrc }
+    evidence: config location
+    rationale: Mechanical style checks remove a whole class of review noise.
+
+  - id: STA-02
+    pillar: static_guardrails
+    level: 1
+    gate: true
+    applies_to: [node]
+    title: Node linter or formatter configured
+    detector: file_exists
+    params:
+      globs: [".eslintrc*", "eslint.config.*", "biome.json*", ".prettierrc*", "prettier.config.*", ".oxlintrc*", "oxlint.config.*", ".oxfmtrc*", "oxfmt.config.*", "dprint.json", ".xo-config*"]
+    evidence: config path
+    rationale: Mechanical style checks remove a whole class of review noise.
+
+  - id: STA-03
+    pillar: static_guardrails
+    level: 2
+    gate: true
+    applies_to: [python]
+    title: Python lint runs in CI or a hook
+    detector: ci_runs
+    params: { pattern: { set: lint_cmd_python }, also_check: hook_runs }
+    evidence: CI step or hook entry
+    rationale: Config without enforcement is a suggestion.
+
+  - id: STA-04
+    pillar: static_guardrails
+    level: 2
+    gate: true
+    applies_to: [node]
+    title: Node lint runs in CI or a hook
+    detector: ci_runs
+    params: { pattern: { set: lint_cmd_node }, also_check: hook_runs }
+    evidence: CI step or hook entry
+    rationale: Config without enforcement is a suggestion.
+
+  - id: STA-05
+    pillar: static_guardrails
+    level: 2
+    gate: false
+    applies_to: [all]
+    title: Formatter is enforced (check mode in CI, or a formatter hook that CI runs)
+    detector: ci_runs
+    params:
+      pattern: '(?i)(ruff format|ruff-format|black|prettier|oxfmt|dprint|biome (check|ci|format)|format:check|fmt --check|gofmt)'
+      also_check: hook_runs
+    evidence: CI step, runner line or hook entry
+    rationale: Formatting disputes should never reach a reviewer.
+
+  - id: STA-06
+    pillar: static_guardrails
+    level: 3
+    gate: true
+    applies_to: [python]
+    title: Python type checking configured and enforced
+    detector: ci_runs
+    params: { pattern: { set: type_cmd_python }, also_check: hook_runs }
+    evidence: config and CI step
+    rationale: Types give agents precise, machine-readable contracts.
+
+  - id: STA-07
+    pillar: static_guardrails
+    level: 3
+    gate: true
+    applies_to: [node]
+    title: TypeScript type check enforced (tsc --noEmit or equivalent)
+    detector: ci_runs
+    params: { pattern: { set: type_cmd_node }, also_check: hook_runs, only_if: component has TypeScript }
+    evidence: CI step or script
+    rationale: Types give agents precise, machine-readable contracts.
+
+  - id: STA-08
+    pillar: static_guardrails
+    level: 3
+    gate: false
+    applies_to: [all]
+    title: One configuration per tool (no conflicting duplicate configs)
+    detector: git_signal
+    params:
+      rule: more than one config file for the same linter or formatter at the same scope
+    evidence: conflicting file paths
+    rationale: Duplicate configs make results depend on the working directory.
+
+  - id: STA-09
+    pillar: static_guardrails
+    level: 3
+    gate: false
+    applies_to: [all]
+    title: Linter output is actionable (rule ids, file and line)
+    detector: llm
+    params:
+      prompt: prompts/orientation_quality.md
+      question: From the configured tools and output formats, do findings carry rule ids and locations an agent can act on?
+    evidence: config lines (output format settings)
+    rationale: Agents fix what they can locate; a wall of text is skipped.
+
+  # ===== AUTOMATIC TRIGGERS: do checks fire without anyone remembering? =====
+  - id: TRG-01
+    pillar: automatic_triggers
+    level: 1
+    gate: true
+    applies_to: [all]
+    title: Any hook configuration exists
+    detector: hook_runs
+    params: { pattern: '.' }
+    evidence: hook file paths and commands
+    rationale: Starting point for local automation.
+
+  - id: TRG-02
+    pillar: automatic_triggers
+    level: 2
+    gate: true
+    applies_to: [all]
+    title: Git hooks run lint or format
+    detector: hook_runs
+    params: { pattern: '(?i)(ruff|black|flake8|eslint|prettier|biome|lint|format)' }
+    evidence: hook entry
+    rationale: Cheap checks belong at commit time.
+
+  - id: TRG-03
+    pillar: automatic_triggers
+    level: 2
+    gate: false
+    applies_to: [all]
+    title: Git hooks run tests or a fast check target
+    detector: hook_runs
+    params: { pattern: '(?i)(pytest|jest|vitest|mocha|\btox\b|\bnox\b|\btest\b|preflight|task check|make check|npm run (test|check))', stages: [pre-push, pre-commit] }
+    evidence: hook entry and stage
+    rationale: Catches breakage before CI does.
+
+  - id: TRG-04
+    pillar: automatic_triggers
+    level: 2
+    gate: false
+    applies_to: [all]
+    title: Hooks are versioned in the repo and installed by a documented step
+    detector: text_match
+    params:
+      files: [README*, CONTRIBUTING*, .github/CONTRIBUTING*, docs/contributing*, docs/development*, AGENTS.md, CLAUDE.md, Taskfile.yml, Makefile, package.json]
+      pattern: '(?i)(pre-commit install|husky|lefthook install|core\.hooksPath|prepare)'
+    evidence: install instruction or prepare script
+    rationale: A hook nobody installs does nothing.
+
+  - id: TRG-05
+    pillar: automatic_triggers
+    level: 3
+    gate: true
+    applies_to: [all]
+    title: Agent hooks configured (e.g. .claude/settings.json hooks, Copilot equivalents)
+    detector: key_present
+    params:
+      any_of:
+        - { file: .claude/settings.json, path: hooks }
+        - { file: .claude/settings.local.json, path: hooks }
+        - { file: .github/hooks/** }
+    evidence: hook events and commands
+    rationale: Lets the repo fire checks right after an agent edits files.
+
+  - id: TRG-06
+    pillar: automatic_triggers
+    level: 3
+    gate: false
+    applies_to: [all]
+    title: Agent hooks and Git hooks call the same entry points (no duplicated logic)
+    detector: llm
+    params:
+      prompt: prompts/instruction_drift.md
+      question: Do agent hooks and Git hooks call the same runner targets instead of containing their own logic?
+    evidence: hook commands side by side
+    rationale: Identical behavior no matter who or what triggers the check.
+
+  # ===== WORKFLOW ENTRY POINTS: one obvious way to do common things =====
+  - id: ENT-01
+    pillar: workflow_entry_points
+    level: 1
+    gate: true
+    applies_to: [all]
+    title: A task runner defines at least one target (Taskfile, Makefile, justfile, package.json scripts, tox, nox, poe)
+    detector: runner_target
+    params: { any_target: true }
+    evidence: runner file and first targets
+    rationale: Commands that live in a file can be found and reused.
+
+  - id: ENT-02
+    pillar: workflow_entry_points
+    level: 2
+    gate: true
+    applies_to: [all]
+    title: Standard targets defined (test, lint, and one of check/ci/verify)
+    detector: runner_target
+    params:
+      all_of: [test, lint]
+      any_of: [check, ci, verify, preflight, validate, all]
+    evidence: target names and file
+    rationale: Predictable names mean no reverse-engineering.
+
+  - id: ENT-03
+    pillar: workflow_entry_points
+    level: 2
+    gate: false
+    applies_to: [all]
+    title: Targets are documented (description fields, help target, or README section)
+    detector: text_match
+    params:
+      files: [Taskfile.yml, Taskfile.yaml, Makefile, justfile, README*, AGENTS.md, CLAUDE.md]
+      pattern: '(?i)(desc:|summary:|^help:|## .*\bcommands?\b|task --list|make help|just --list)'
+    evidence: matching lines
+    rationale: Self-describing runners guide humans and agents alike.
+
+  - id: ENT-04
+    pillar: workflow_entry_points
+    level: 2
+    gate: false
+    applies_to: [all]
+    title: Setup is one command (install or bootstrap target)
+    detector: runner_target
+    params: { any_of: [setup, install, bootstrap, dev, init] }
+    evidence: target name
+    rationale: A new clone should reach a working state without a wiki trip.
+
+  - id: ENT-05
+    pillar: workflow_entry_points
+    level: 3
+    gate: true
+    applies_to: [all]
+    title: One entry point is documented as the way for agents
+    detector: llm
+    params:
+      prompt: prompts/orientation_quality.md
+      question: Do agent files name ONE aggregate command (for example task check, make verify, npm run check) that runs lint, types and tests, instead of separate per-tool commands? Separate scripts for lint and test alone are a fail.
+    evidence: quoted lines
+    rationale: One interface to learn instead of five tool invocations.
+
+  - id: ENT-06
+    pillar: workflow_entry_points
+    level: 3
+    gate: false
+    applies_to: [all]
+    title: A preflight or doctor target checks the environment
+    detector: runner_target
+    params: { any_of: [doctor, preflight, env-check, check-env, verify-env] }
+    evidence: target name
+    rationale: Agents fail early and clearly when tools are missing.
+
+  - id: ENT-07
+    pillar: workflow_entry_points
+    level: 3
+    gate: false
+    applies_to: [all]
+    title: Runner supports scoped runs (per package, per path or per test)
+    detector: text_match
+    params:
+      files: { set: runner_files }
+      pattern: '(?i)(\{\{\.?CLI_ARGS\}\}|\$\(ARGS\)|"\$@"|--filter|--workspace|-k |-- )'
+    evidence: parameter passthrough lines
+    rationale: Narrow runs keep the agent loop fast.
+
+  # ===== PIPELINE PARITY: does CI run what developers run locally? =====
+  - id: CIP-01
+    pillar: pipeline_parity
+    level: 1
+    gate: true
+    applies_to: [all]
+    title: A CI definition exists
+    detector: file_exists
+    params: { globs: { set: ci_files } }
+    evidence: CI files
+    rationale: Without CI nothing is enforced for contributors.
+
+  - id: CIP-02
+    pillar: pipeline_parity
+    level: 2
+    gate: true
+    applies_to: [all]
+    title: CI runs both lint and tests
+    detector: ci_runs
+    params:
+      all_of:
+        - '(?i)(ruff|flake8|pylint|eslint|biome|lint|pre-commit)'
+        - '(?i)(pytest|jest|vitest|mocha|unittest|tox|nox|test)'
+    evidence: CI steps
+    rationale: The minimum useful pipeline.
+
+  - id: CIP-03
+    pillar: pipeline_parity
+    level: 2
+    gate: false
+    applies_to: [all]
+    title: CI runs on pull requests and on the default branch
+    detector: ci_runs
+    params: { trigger_all: [pull_request, push] }
+    evidence: workflow triggers
+    rationale: Checks must run before and after merge.
+
+  - id: CIP-04
+    pillar: pipeline_parity
+    level: 2
+    gate: false
+    applies_to: [all]
+    title: CI uses dependency caching or lockfile installs
+    detector: text_match
+    params:
+      files: { set: ci_files }
+      include_setup: true
+      pattern: '(?i)(actions/cache|cache:|setup-node.*cache|setup-python.*cache|npm ci|pnpm install --frozen-lockfile|yarn install --immutable|uv sync --locked|pip install -r)'
+    evidence: CI line
+    rationale: Reproducible and fast; also shows lockfile discipline.
+
+  - id: CIP-05
+    pillar: pipeline_parity
+    level: 3
+    gate: true
+    applies_to: [all]
+    title: CI calls the local entry point (task, make, npm run, nox) instead of duplicating commands
+    detector: ci_runs
+    params:
+      pattern: '(?i)(task |make |just |npm run |pnpm run |yarn run |nox |tox)'
+      min_share_of_run_steps: 0.5
+    evidence: ratio and sample steps
+    rationale: What passes locally passes in CI, and the reverse.
+
+  - id: CIP-06
+    pillar: pipeline_parity
+    level: 3
+    gate: false
+    applies_to: [all]
+    title: Matrix covers supported versions (Python or Node versions, OS)
+    detector: text_match
+    params:
+      files: { set: ci_files }
+      pattern: '(?i)(matrix:|python-version:|node-version:|strategy:)'
+    evidence: matrix block
+    rationale: Documents the supported range as executable fact.
+
+  - id: CIP-07
+    pillar: pipeline_parity
+    level: 3
+    gate: false
+    applies_to: [all]
+    title: Dependency and workflow updates automated (Dependabot or Renovate)
+    detector: file_exists
+    params: { globs: [.github/dependabot.yml, renovate.json, ".github/renovate.json*", .renovaterc*] }
+    evidence: config path
+    rationale: Keeps the harness itself from decaying.
+
+  # ===== DOC HYGIENE: is the docs layer machine-readable and current? =====
+  - id: DOC-01
+    pillar: doc_hygiene
+    level: 1
+    gate: false
+    applies_to: [all]
+    title: A docs directory or documentation site exists
+    detector: file_exists
+    params: { globs: [docs/**, mkdocs.yml, "docusaurus.config.*", conf.py, .readthedocs.y*ml, book.toml] }
+    evidence: path
+    rationale: Documentation has an obvious home.
+
+  - id: DOC-02
+    pillar: doc_hygiene
+    level: 2
+    gate: true
+    applies_to: [all]
+    title: Docs build or link check runs in CI
+    detector: ci_runs
+    params: { pattern: '(?i)(mkdocs|sphinx|docusaurus|lychee|markdown-link-check|linkcheck|vale|markdownlint)' }
+    evidence: CI step
+    rationale: Broken docs are found by machines, not by readers.
+
+  - id: DOC-03
+    pillar: doc_hygiene
+    level: 2
+    gate: false
+    applies_to: [all]
+    title: Markdown lint configured
+    detector: file_exists
+    params: { globs: [".markdownlint*", ".remarkrc*", .vale.ini, ".mdlrc"] }
+    evidence: config path
+    rationale: Consistent structure helps parsing by tools and agents.
+
+  - id: DOC-04
+    pillar: doc_hygiene
+    level: 3
+    gate: false
+    applies_to: [all]
+    title: Front matter or schema enforced on docs
+    detector: text_match
+    params:
+      files: [".pre-commit-config.yaml", Taskfile.yml, Makefile, package.json, .github/workflows/*.yml]
+      pattern: '(?i)(front.?matter|frontmatter|markdown.*schema|docs.*validate)'
+    evidence: hook, task or CI line
+    rationale: Metadata that is enforced is metadata that can be trusted.
+
+  - id: DOC-05
+    pillar: doc_hygiene
+    level: 3
+    gate: false
+    applies_to: [all]
+    title: Decisions recorded (ADR directory with recent entries)
+    detector: git_signal
+    params: { globs: ["docs/adr/**", "docs/decisions/**", "adr/**"], recent_within_months: 12 }
+    evidence: file paths and last-touch dates
+    rationale: Gives agents the reasons, not just the code.
+
+  - id: DOC-06
+    pillar: doc_hygiene
+    level: 3
+    gate: false
+    applies_to: [all]
+    title: Documentation references resolve (no dead paths or commands in docs)
+    detector: llm
+    params:
+      prompt: prompts/instruction_drift.md
+      question: Do paths, commands and links named in README and docs exist in the repository?
+    evidence: broken references with file and line
+    rationale: Stale references are the most common way docs mislead agents.
+
+# ---------------------------------------------------------------------------
+# Entropy: a penalty, not a level. Each finding gets a verdict, never a deletion.
+# ---------------------------------------------------------------------------
+entropy:
+  verdicts:
+    active: Referenced, executed or imported, and current.
+    stale: Still used, but outdated.
+    orphaned: Nothing references it.
+    conflicting: Contradicts another source of truth.
+    unknown: A human needs to decide.
+  rule: The agent never deletes. It reports evidence and a human decides.
+  penalty:
+    max_points: 10
+    formula: min(10, round(20 * flagged_units / max(20, candidate_files)))  # numbered file families count once
+    note: Provisional; tuned in P4 and frozen before P5.
+  checks:
+    - id: ENR-01
+      title: Orphaned scripts (not referenced by runners, CI, hooks or docs)
+      detector: git_signal
+      params: { globs: ["scripts/**", "tools/**", "bin/**"], reference_sources: [runner_files, ci_files, hook_files, docs] }
+      evidence: path, last commit date, zero inbound references
+      verdict: orphaned
+
+    - id: ENR-02
+      title: Duplicate or conflicting tool configs at the same scope
+      detector: git_signal
+      params: { rule: two configs for the same tool at the same scope }
+      evidence: both paths
+      verdict: conflicting
+
+    - id: ENR-03
+      title: Docs describing removed commands, paths or features
+      detector: llm
+      params: { prompt: prompts/instruction_drift.md }
+      evidence: doc line and the missing target
+      verdict: stale
+
+    - id: ENR-04
+      title: CI jobs or workflows referencing missing files, branches or scripts
+      detector: ci_runs
+      params: { rule: referenced path or script does not exist }
+      evidence: workflow line and missing path
+      verdict: stale
+
+    - id: ENR-05
+      title: Agent instruction files contradicting README or runner targets
+      detector: llm
+      params: { prompt: prompts/instruction_drift.md }
+      evidence: conflicting line pairs
+      verdict: conflicting
+
+    - id: ENR-06
+      title: Unused dependencies declared but never imported
+      detector: git_signal
+      params: { rule: declared in manifest, no import found in tracked sources, allowlist for tooling packages }
+      evidence: package name and manifest line
+      verdict: orphaned
+
+    - id: ENR-07
+      title: Dead config for tools that are no longer installed or run
+      detector: git_signal
+      params: { rule: config file for a tool absent from manifests, runners, CI and hooks }
+      evidence: config path
+      verdict: orphaned

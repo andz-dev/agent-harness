@@ -1,0 +1,37 @@
+{
+  "artifact": "Plan.md",
+  "generatedAt": "2026-10-27T14:06:12.250317+00:00",
+  "mode": "draft",
+  "inputs": [
+    "docs/0002/Whitepaper.md",
+    "docs/0002/Research-Paper.md",
+    "docs/0002/Map.md"
+  ],
+  "outputs": [
+    "docs/0002/Plan.md"
+  ],
+  "validation": {
+    "status": "warn",
+    "checks": [
+      "standalone-source-integrity-and-local-doc-path-checks"
+    ]
+  },
+  "notes": [
+    "As-built adoption criteria, not authorization to change the frozen solution.",
+    "Imported from original 0039; old validation is historical. New-checkout validation is recorded in EXTRACTION.md."
+  ],
+  "importedValidation": {
+    "status": "warn",
+    "checks": [
+      "14_criteria_dataset_join_pass"
+    ]
+  },
+  "importedInputs": [
+    "Whitepaper.md",
+    "Research-Paper.md",
+    "Map.md"
+  ],
+  "importedOutputs": [
+    "Plan.md"
+  ]
+}

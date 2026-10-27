@@ -1,0 +1,570 @@
+<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Harness City</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: repo picker strip on top, the daylight city as the hero stage with a district inspector beside it, then the reading key, asset sheet, data and credits. */
+:root{
+  --bg:#eef1ec; --panel:#ffffff; --ink:#1b2420; --muted:#5b6a62; --line:#d3dbd3; --accent:#2a63c9;
+  --good:#2b8a55; --warn:#b98318; --bad:#c2452f;
+  --sky-a:#bcd9ec; --sky-b:#e4efe6;
+  --f-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#121815;--panel:#1a221e;--ink:#e3ebe5;--muted:#93a39a;--line:#2e3a34;--accent:#7aa7f2;--good:#5cc489;--warn:#e2b04a;--bad:#ef7a62;--sky-a:#9fc3db;--sky-b:#cfe0d6;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#121815;--panel:#1a221e;--ink:#e3ebe5;--muted:#93a39a;--line:#2e3a34;--accent:#7aa7f2;--good:#5cc489;--warn:#e2b04a;--bad:#ef7a62;--sky-a:#9fc3db;--sky-b:#cfe0d6;color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:14px;line-height:1.5}
+.wrap{max-width:1560px;margin:0 auto;padding-block:20px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:22px}
+header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:10px 28px}
+h1{font-family:var(--f-display);font-weight:800;font-size:clamp(30px,4.2vw,46px);letter-spacing:-.025em;margin:0;line-height:1}
+h2{font-family:var(--f-display);font-weight:600;font-size:22px;margin:0;text-wrap:balance}
+h3{font-family:var(--f-display);font-weight:600;font-size:17px;margin:0}
+.sub{color:var(--muted);max-width:72ch;margin:8px 0 0}
+.eyebrow{font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.meta{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.picker{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.picker .grp{font-family:var(--f-mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 2px 0 8px}
+.picker .grp:first-child{margin-left:0}
+.chip{all:unset;box-sizing:border-box;cursor:pointer;display:inline-flex;align-items:center;gap:8px;padding:5px 6px 5px 11px;border:1px solid var(--line);border-radius:999px;background:var(--panel);font-weight:500;font-size:13px}
+.chip b{font-family:var(--f-mono);font-variant-numeric:tabular-nums;font-size:12px;padding:1px 7px;border-radius:999px;color:#fff}
+.chip:hover{border-color:var(--muted)}
+.chip:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.chip[aria-pressed="true"]{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.main{display:grid;grid-template-columns:minmax(0,1fr) 350px;gap:16px;align-items:start}
+@media (max-width:980px){.main{grid-template-columns:minmax(0,1fr)}}
+.stage{position:relative;border-radius:14px;overflow:hidden;border:1px solid var(--line);background:linear-gradient(180deg,var(--sky-a),var(--sky-b));min-width:0;height:min(74vh,760px);min-height:420px}
+.stage canvas{display:block;width:100%;height:100%;touch-action:none;cursor:grab}
+.stage canvas.drag{cursor:grabbing}
+.stage canvas.hot{cursor:pointer}
+.hud-top{position:absolute;left:14px;top:12px;right:14px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;pointer-events:none}
+.cityplate{background:rgba(255,255,255,.94);color:#1b2420;border-radius:10px;padding:10px 14px;box-shadow:0 2px 10px rgba(20,40,30,.14);pointer-events:auto;max-width:min(420px,70%)}
+.cityplate .t{font-family:var(--f-display);font-weight:800;font-size:clamp(20px,2.4vw,28px);line-height:1.05;letter-spacing:-.01em}
+.cityplate .m{font-family:var(--f-mono);font-size:12px;color:#4e5d55;margin-top:4px}
+.tierpill{display:inline-block;font-family:var(--f-mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#fff;border-radius:4px;padding:1px 7px;margin-right:6px;vertical-align:2px}
+.tools{display:flex;gap:6px;pointer-events:auto;flex-wrap:wrap;justify-content:flex-end}
+@media (max-width:560px){.hud-top{flex-direction:column;align-items:stretch}.tools{justify-content:flex-start}.tools button{width:32px;height:32px}.cityplate{max-width:none;padding:8px 11px}.cityplate .m{font-size:11px}}
+.tools button{all:unset;cursor:pointer;width:34px;height:34px;display:grid;place-items:center;border-radius:8px;background:rgba(255,255,255,.94);color:#1b2420;box-shadow:0 2px 8px rgba(20,40,30,.14);font-family:var(--f-mono);font-size:15px;font-weight:600}
+.tools button:focus-visible{outline:2px solid #2a63c9;outline-offset:1px}
+.tools button[aria-pressed="true"]{background:#1b2420;color:#fff}
+.labels{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.plate{position:absolute;left:0;top:0;transform:translate(-50%,-100%);white-space:nowrap;pointer-events:auto;cursor:pointer;background:rgba(255,255,255,.95);color:#18211c;border-radius:8px;padding:5px 9px 6px;box-shadow:0 2px 8px rgba(15,35,25,.22);border-left:5px solid var(--pc);display:flex;flex-direction:column;gap:2px;transition:box-shadow .15s}
+.plate .pn{font-family:var(--f-display);font-weight:700;font-size:15px;line-height:1.1;display:flex;align-items:center;gap:6px}
+.plate .pi{width:18px;height:18px;border-radius:4px;display:block}
+.plate .pl{display:flex;align-items:center;gap:6px;font-family:var(--f-mono);font-size:11px;color:#46554d}
+.plate .pips{display:inline-flex;gap:2px}.plate .pips i{width:9px;height:6px;border-radius:1px;background:#d6ddd8}
+.plate.sel{box-shadow:0 0 0 2px #1b2420,0 4px 14px rgba(15,35,25,.3)}
+.plate.small .pl{display:none}
+.plate .lvb{display:none;font-family:var(--f-mono);font-size:11px;font-weight:600;color:#fff;background:var(--pc);border-radius:4px;padding:0 5px;margin-left:2px}
+.plate.small .lvb{display:inline-block}
+.plate.tiny{padding:3px 5px 3px 4px;border-left-width:3px}.plate.tiny .pt{display:none}.plate.tiny .pn{gap:3px}
+.tag3d{position:absolute;left:0;top:0;transform:translate(-50%,-100%);white-space:nowrap;pointer-events:auto;cursor:pointer;font-family:var(--f-mono);font-size:11px;font-weight:600;padding:2px 7px;border-radius:5px;color:#fff;box-shadow:0 1px 5px rgba(0,0,0,.25)}
+.hide-labels .plate,.hide-labels .tag3d{display:none}
+.hint{position:absolute;left:14px;bottom:10px;font-family:var(--f-mono);font-size:11px;color:#33433a;background:rgba(255,255,255,.8);border-radius:6px;padding:3px 8px;pointer-events:none}
+.loading[hidden]{display:none}
+.loading{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--f-mono);font-size:13px;color:#33433a}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:16px;min-width:0}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:13px;margin:0}
+.kv dt{color:var(--muted)}.kv dd{margin:0;font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.dtab{width:100%;border-collapse:collapse;font-size:13px}
+.dtab td{padding:6px 4px;border-top:1px solid var(--line);vertical-align:middle}
+.dtab tr{cursor:pointer}
+.dtab tr:hover td{background:color-mix(in srgb,var(--accent) 7%,transparent)}
+.dtab tr.sel td{background:color-mix(in srgb,var(--accent) 15%,transparent)}
+.sw{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:7px;vertical-align:0}
+.lv{font-family:var(--f-mono);font-size:12px;white-space:nowrap}
+.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+ul.plain{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px}
+.wi{display:grid;grid-template-columns:auto minmax(0,1fr);gap:2px 8px;font-size:13px}
+.tag{font-family:var(--f-mono);font-size:11px;padding:1px 6px;border-radius:4px;border:1px solid var(--line);white-space:nowrap;align-self:start}
+.tag.bad{color:var(--bad);border-color:color-mix(in srgb,var(--bad) 45%,transparent)}
+.tag.warn{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 45%,transparent)}
+.path{font-family:var(--f-mono);font-size:12px;overflow-wrap:anywhere}
+.focus{border-left:4px solid var(--pc);padding-left:12px;display:flex;flex-direction:column;gap:8px}
+.focus p{margin:0;font-size:13px}
+.btnlink{all:unset;cursor:pointer;color:var(--accent);font-size:13px;font-weight:500}
+.btnlink:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.empty{color:var(--muted);font-size:13px;margin:0}
+section{display:flex;flex-direction:column;gap:12px}
+.key{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.kc{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden;display:flex;flex-direction:column;min-width:0}
+.kc img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;background:linear-gradient(180deg,var(--sky-a),var(--sky-b))}
+.kc .kt{padding:10px 12px 12px;display:flex;flex-direction:column;gap:3px}
+.kc .kt span{font-size:13px;color:var(--muted)}
+.sheet{display:flex;flex-direction:column;gap:10px}
+.srow{display:grid;grid-template-columns:170px repeat(4,minmax(0,1fr));gap:8px;align-items:center}
+@media (max-width:760px){.srow{grid-template-columns:repeat(2,minmax(0,1fr))}.srow .sh{grid-column:1/-1}}
+.srow .sh{display:flex;flex-direction:column;gap:2px}
+.srow img{width:100%;display:block;border-radius:10px;border:1px solid var(--line);aspect-ratio:4/3;object-fit:cover;background:linear-gradient(180deg,var(--sky-a),var(--sky-b))}
+.scol{display:grid;grid-template-columns:170px repeat(4,minmax(0,1fr));gap:8px;font-family:var(--f-mono);font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+@media (max-width:760px){.scol{display:none}}
+.figure{position:relative}
+.figure figcaption{font-family:var(--f-mono);font-size:11px;color:var(--muted);text-align:center;margin-top:3px}
+@media (min-width:761px){.figure figcaption{display:none}}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--panel)}
+table.data{border-collapse:collapse;width:100%;min-width:900px;font-size:13px}
+table.data th,table.data td{padding:7px 10px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+table.data th{font-family:var(--f-mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:500}
+table.data td.l{font-family:var(--f-mono);text-align:center}
+table.data tr:last-child td{border-bottom:0}
+table.data tbody tr{cursor:pointer}
+table.data tbody tr:hover td{background:color-mix(in srgb,var(--accent) 7%,transparent)}
+.note{font-size:12px;color:var(--muted);max-width:90ch;margin:0}
+.credits{font-size:13px;color:var(--muted);max-width:90ch;display:flex;flex-direction:column;gap:6px}
+.credits a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <div class="eyebrow" id="hdrEyebrow"></div>
+      <h1 id="hdrTitle">Harness City</h1>
+      <p class="sub">Every repository is a city. Its seven districts are the seven harness pillars, built up from a vacant lot (L0) to a skyline (L3). Traffic shows known limits, construction sites show the next planned fix, and decay shows entropy findings.</p>
+    </div>
+    <div class="meta">score = Σ level ÷ 3 × weight − entropy penalty<br>weights: Verification 25 · Orientation 20 · Guardrails 15 · Entry points 15 · Triggers 10 · Parity 10 · Docs 5</div>
+  </header>
+
+  <nav class="picker" id="picker" aria-label="Repositories"></nav>
+
+  <div class="main">
+    <div class="stage" id="stage">
+      <canvas id="city" aria-label="3D city map of the selected repository"></canvas>
+      <div class="labels" id="labels"></div>
+      <div class="hud-top">
+        <div class="cityplate" id="cityplate"></div>
+        <div class="tools">
+          <button id="rotL" title="Rotate left" aria-label="Rotate left">⟲</button>
+          <button id="rotR" title="Rotate right" aria-label="Rotate right">⟳</button>
+          <button id="zin" title="Zoom in" aria-label="Zoom in">+</button>
+          <button id="zout" title="Zoom out" aria-label="Zoom out">−</button>
+          <button id="fit" title="Fit city" aria-label="Fit city">⤢</button>
+          <button id="lbl" title="Show or hide labels" aria-label="Show or hide labels" aria-pressed="true">Aa</button>
+        </div>
+      </div>
+      <div class="hint">Drag to move · scroll or pinch to zoom · click a district</div>
+      <div class="loading" id="loading">Loading city assets…</div>
+    </div>
+    <aside class="panel" id="panel" aria-live="polite"></aside>
+  </div>
+
+  <section>
+    <div><div class="eyebrow">How to read a city</div><h2>Traffic, construction and decay</h2></div>
+    <div class="key" id="key"></div>
+  </section>
+
+  <section>
+    <div><div class="eyebrow">Asset sheet</div><h2>Every district at every level</h2></div>
+    <p class="note">The renderer builds each city from these pieces only, seeded by the repository name, so the same scan always draws the same city.</p>
+    <div class="scol"><span></span><span>L0 absent</span><span>L1 present</span><span>L2 enforced</span><span>L3 agent-native</span></div>
+    <div class="sheet" id="sheet"></div>
+  </section>
+
+  <section>
+    <div><div class="eyebrow">Plain data</div><h2 id="tblTitle">All scans</h2></div>
+    <div class="tablewrap"><table class="data" id="dtable"></table></div>
+    <p class="note" id="tblNote"></p>
+  </section>
+
+  <section>
+    <div><div class="eyebrow">Credits</div><h2>Assets and licences</h2></div>
+    <div class="credits">
+      <span>Buildings, skyscrapers, vehicles and road tiles: <a href="https://kenney.nl" target="_blank" rel="noopener">Kenney</a> (City Kit Commercial, Car Kit, City Builder Starter Kit models), CC0 1.0.</span>
+      <span>Trees, rocks, fences, crates, generators, hangar and props: <a href="https://quaternius.com" target="_blank" rel="noopener">Quaternius</a>, CC0 1.0. Optimised copies via the @netforge/asset-library-files package, which records each pack's licence.</span>
+      <span>Landmarks, rail line, trains, traffic lights, cones, barriers, cranes and power lines are drawn in code for this page. Rendering: three.js (MIT).</span>
+    </div>
+  </section>
+</div>
+
+<script type="importmap">{"imports":{"three":"./vendor/three.module.js","three/addons/":"./vendor/jsm/"}}</script>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+/* ================= data ================= */
+const PILLARS=[
+ {k:"verification",n:"Verification",short:"Verif",w:25,b:"Hospital & test labs",word:"HOSPITAL",place:"Hospital",c:"#d64545",pre:"VER"},
+ {k:"orientation",n:"Orientation",short:"Orient",w:20,b:"City hall & visitor info",word:"CITY HALL",place:"City hall",c:"#2f86c9",pre:"ORI"},
+ {k:"static_guardrails",n:"Static guardrails",short:"Guard",w:15,b:"Police headquarters",word:"POLICE",place:"Police HQ",c:"#33489c",pre:"STA"},
+ {k:"workflow_entry_points",n:"Workflow entry points",short:"Entry",w:15,b:"Central station & rail",word:"STATION",place:"Central station",c:"#24946a",pre:"ENT"},
+ {k:"automatic_triggers",n:"Automatic triggers",short:"Trig",w:10,b:"Fire & alarm station",word:"FIRE DEPT",place:"Fire station",c:"#e0672b",pre:"TRG"},
+ {k:"pipeline_parity",n:"Pipeline parity",short:"Parity",w:10,b:"Power plant & grid",word:"POWER",place:"Power plant",c:"#d9a42a",pre:"CIP"},
+ {k:"doc_hygiene",n:"Doc hygiene",short:"Docs",w:5,b:"Public library",word:"LIBRARY",place:"Library",c:"#8a5bb5",pre:"DOC"}
+];
+const PI={};PILLARS.forEach((p,i)=>PI[p.k]=i);
+const LEVEL=["absent","present","enforced","agent-native"];
+const ENR={"ENR-01":{t:"orphaned script",where:"Abandoned wagon on the rail siding"},"ENR-02":{t:"conflicting config",where:"Graffiti on the police district wall"},"ENR-04":{t:"stale CI workflow",where:"Broken pylon on the power line"}};
+let REPOS=[],META={};
+const tierOf=s=>s>=80?{n:"Thriving",c:"#2b8a55",v:"good"}:s>=60?{n:"Prosperous",c:"#4f9a3d",v:"good"}:s>=45?{n:"Working",c:"#b98318",v:"warn"}:{n:"Neglected",c:"#c2452f",v:"bad"};
+const TRAFFIC=["Road closed: nothing reaches this district","One lane, traffic light, queue: present but thin","Two lanes, steady traffic: enforced","Free-flowing boulevard: agent-native"];
+const stepsFor=(rep,p)=>rep.steps.filter(s=>s.c.startsWith(p.pre));
+const DIST={
+ workflow_entry_points:{x0:1,x1:8,z0:1,z1:7},
+ verification:{x0:10,x1:19,z0:1,z1:7},
+ orientation:{x0:21,x1:28,z0:1,z1:7},
+ static_guardrails:{x0:1,x1:8,z0:9,z1:15},
+ automatic_triggers:{x0:10,x1:15,z0:9,z1:15},
+ pipeline_parity:{x0:17,x1:23,z0:9,z1:15},
+ doc_hygiene:{x0:25,x1:28,z0:9,z1:15}
+};
+const ROADS=new Set();const rk=(x,z)=>x+","+z;
+for(let x=-4;x<=33;x++){ROADS.add(rk(x,0));ROADS.add(rk(x,8));ROADS.add(rk(x,16))}
+for(const x of [0,9,20,29])for(let z=1;z<=7;z++)ROADS.add(rk(x,z));
+for(const x of [0,9,16,24,29])for(let z=9;z<=15;z++)ROADS.add(rk(x,z));
+for(const x of [9,24])for(let z=17;z<=19;z++)ROADS.add(rk(x,z));
+const RAIL_Z=[-1.75,-2.75],SIDING_Z=-3.75;
+const BOUNDS={x0:-4.5,x1:33.5,z0:-4.5,z1:19.5};
+
+/* ================= helpers ================= */
+const hash=s=>{let h=2166136261;for(const c of s){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return h>>>0};
+const rng=seed=>{let s=seed||1;return()=>{s^=s<<13;s^=s>>>17;s^=s<<5;return((s>>>0)%1e6)/1e6}};
+const MAT={};const mat=(c,o={})=>{const k=c+JSON.stringify(o);return MAT[k]||(MAT[k]=new THREE.MeshStandardMaterial({color:c,roughness:.82,metalness:0,flatShading:true,...o}))};
+const GEO={};const bg=(w,h,d)=>{const k=`b${w}_${h}_${d}`;return GEO[k]||(GEO[k]=new THREE.BoxGeometry(w,h,d))};
+const cg=(rt,rb,h,s=12)=>{const k=`c${rt}_${rb}_${h}_${s}`;return GEO[k]||(GEO[k]=new THREE.CylinderGeometry(rt,rb,h,s))};
+function shade(o,cast=true){o.traverse(m=>{if(m.isMesh){m.castShadow=cast;m.receiveShadow=true}});return o}
+function box(par,w,h,d,color,x,y,z,o){const m=new THREE.Mesh(bg(w,h,d),typeof color==="string"?mat(color,o):color);m.position.set(x,y+h/2,z);m.castShadow=m.receiveShadow=true;par.add(m);return m}
+function cyl(par,rt,rb,h,color,x,y,z,s=12,o){const m=new THREE.Mesh(cg(rt,rb,h,s),typeof color==="string"?mat(color,o):color);m.position.set(x,y+h/2,z);m.castShadow=m.receiveShadow=true;par.add(m);return m}
+function gable(par,w,h,d,color,x,y,z){const sh=new THREE.Shape();sh.moveTo(-w/2,0);sh.lineTo(w/2,0);sh.lineTo(0,h);sh.lineTo(-w/2,0);const g=new THREE.ExtrudeGeometry(sh,{depth:d,bevelEnabled:false});g.translate(0,0,-d/2);const m=new THREE.Mesh(g,mat(color));m.position.set(x,y,z);m.castShadow=m.receiveShadow=true;par.add(m);return m}
+const TEX={};
+function canvasTex(key,w,h,draw){if(TEX[key])return TEX[key];const c=document.createElement("canvas");c.width=w;c.height=h;draw(c.getContext("2d"),w,h);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=4;return TEX[key]=t}
+function rr(x,X,Y,W,H,r){x.beginPath();x.moveTo(X+r,Y);x.arcTo(X+W,Y,X+W,Y+H,r);x.arcTo(X+W,Y+H,X,Y+H,r);x.arcTo(X,Y+H,X,Y,r);x.arcTo(X,Y,X+W,Y,r);x.closePath()}
+function icon(x,k,cx,cy,s,col){x.save();x.fillStyle=col;x.strokeStyle=col;x.lineCap="round";x.lineJoin="round";
+ switch(k){
+  case"verification":x.fillRect(cx-s*.14,cy-s*.42,s*.28,s*.84);x.fillRect(cx-s*.42,cy-s*.14,s*.84,s*.28);break;
+  case"orientation":x.beginPath();x.arc(cx,cy-s*.3,s*.11,0,7);x.fill();x.fillRect(cx-s*.1,cy-s*.12,s*.2,s*.52);break;
+  case"static_guardrails":x.beginPath();x.moveTo(cx,cy-s*.44);x.lineTo(cx+s*.36,cy-s*.3);x.lineTo(cx+s*.3,cy+s*.12);x.quadraticCurveTo(cx+s*.2,cy+s*.35,cx,cy+s*.46);x.quadraticCurveTo(cx-s*.2,cy+s*.35,cx-s*.3,cy+s*.12);x.lineTo(cx-s*.36,cy-s*.3);x.closePath();x.fill();break;
+  case"workflow_entry_points":rr(x,cx-s*.3,cy-s*.42,s*.6,s*.68,s*.12);x.fill();x.fillStyle="#fff";x.fillRect(cx-s*.2,cy-s*.3,s*.4,s*.2);x.beginPath();x.arc(cx-s*.15,cy+s*.12,s*.06,0,7);x.arc(cx+s*.15,cy+s*.12,s*.06,0,7);x.fill();x.fillStyle=col;x.lineWidth=s*.08;x.beginPath();x.moveTo(cx-s*.22,cy+s*.3);x.lineTo(cx-s*.34,cy+s*.46);x.moveTo(cx+s*.22,cy+s*.3);x.lineTo(cx+s*.34,cy+s*.46);x.stroke();break;
+  case"automatic_triggers":x.beginPath();x.moveTo(cx,cy-s*.46);x.bezierCurveTo(cx+s*.42,cy-s*.05,cx+s*.36,cy+s*.42,cx,cy+s*.44);x.bezierCurveTo(cx-s*.36,cy+s*.42,cx-s*.38,cy+s*.05,cx-s*.12,cy-s*.16);x.quadraticCurveTo(cx-s*.06,cy+s*.06,cx+s*.02,cy-s*.02);x.quadraticCurveTo(cx+s*.08,cy-s*.22,cx,cy-s*.46);x.fill();break;
+  case"pipeline_parity":x.beginPath();x.moveTo(cx+s*.08,cy-s*.46);x.lineTo(cx-s*.28,cy+s*.06);x.lineTo(cx-s*.02,cy+s*.06);x.lineTo(cx-s*.1,cy+s*.46);x.lineTo(cx+s*.28,cy-s*.08);x.lineTo(cx+s*.02,cy-s*.08);x.closePath();x.fill();break;
+  case"doc_hygiene":x.lineWidth=s*.07;x.beginPath();x.moveTo(cx,cy-s*.28);x.quadraticCurveTo(cx-s*.2,cy-s*.4,cx-s*.42,cy-s*.32);x.lineTo(cx-s*.42,cy+s*.3);x.quadraticCurveTo(cx-s*.2,cy+s*.22,cx,cy+s*.34);x.quadraticCurveTo(cx+s*.2,cy+s*.22,cx+s*.42,cy+s*.3);x.lineTo(cx+s*.42,cy-s*.32);x.quadraticCurveTo(cx+s*.2,cy-s*.4,cx,cy-s*.28);x.lineTo(cx,cy+s*.34);x.stroke();break;
+ }x.restore()}
+const FONT_D='"Bricolage Grotesque","Segoe UI",system-ui,sans-serif',FONT_M='"IBM Plex Mono",ui-monospace,monospace';
+// landmark billboard: icon + word, always faces the camera
+const ICONS={};function iconURL(p){if(ICONS[p.k])return ICONS[p.k];const c=document.createElement("canvas");c.width=c.height=72;const x=c.getContext("2d");rr(x,0,0,72,72,14);x.fillStyle=p.c;x.fill();icon(x,p.k,36,36,48,"#fff");return ICONS[p.k]=c.toDataURL()}
+function signSprite(p,scale=1){const t=canvasTex("sign-"+p.k,640,176,(x,W,H)=>{rr(x,6,6,W-12,H-12,30);x.fillStyle="#fff";x.fill();x.lineWidth=6;x.strokeStyle=p.c;x.stroke();rr(x,18,18,H-36,H-36,22);x.fillStyle=p.c;x.fill();icon(x,p.k,18+(H-36)/2,H/2,H-60,"#fff");x.fillStyle="#18211c";x.font=`800 ${p.word.length>8?64:74}px ${FONT_D}`;x.textBaseline="middle";x.fillText(p.word,H+4,H/2+3)});
+ const s=new THREE.Sprite(new THREE.SpriteMaterial({map:t,depthTest:false,transparent:true}));s.scale.set(2.3*scale,2.3*scale*176/640,1);s.renderOrder=5;return s}
+function textSprite(key,lines,{bg="#ffd23f",fg="#1b2420",w=420,h=140,diamond=false,scale=1}={}){const t=canvasTex(key,w,h,(x,W,H)=>{rr(x,5,5,W-10,H-10,18);x.fillStyle=bg;x.fill();x.lineWidth=5;x.strokeStyle="#1b2420";x.stroke();x.fillStyle=fg;x.textAlign="center";x.textBaseline="middle";x.font=`800 ${lines.length>1?44:54}px ${FONT_D}`;x.fillText(lines[0],W/2,lines.length>1?H*.36:H/2+2);if(lines[1]){x.font=`600 36px ${FONT_M}`;x.fillText(lines[1],W/2,H*.7)}});
+ const s=new THREE.Sprite(new THREE.SpriteMaterial({map:t,transparent:true}));s.scale.set(1.5*scale,1.5*scale*h/w,1);s.renderOrder=6;return s}
+
+/* ================= assets ================= */
+const ASSET_IDS=["road-straight","road-lamps","road-cross","road-t","road-corner","pavement","fountain","grass","grass-trees","grass-trees-tall","house-a","house-b","house-c","house-d","garage","bld-a","bld-b","bld-c","bld-d","bld-e","bld-f","bld-g","bld-h","tower-a","tower-b","tower-c","sedan","taxi","suv","van","truck","truck-flat","police-car","ambulance","firetruck","garbage-truck","delivery-van","digger","tractor","tree-oak","tree-fat","tree-pine","bush","bush-large","flower","rock","stump","fence","crate","barrels","generator","generator-large","hangar","dish","tent","column"];
+const A={};
+async function loadAssets(){const L=new GLTFLoader();let n=0;const el=document.getElementById("loading");
+ el.textContent="Loading city assets…";const pack=window.HARNESS_CITY_ASSETS||await (await fetch("assets/assets.json")).json();const buf=b64=>{const s=atob(b64),u=new Uint8Array(s.length);for(let i=0;i<s.length;i++)u[i]=s.charCodeAt(i);return u.buffer};
+ await Promise.all(ASSET_IDS.map(id=>L.parseAsync(buf(pack[id]),"").then(g=>{g.scene.traverse(m=>{if(m.isMesh){m.castShadow=true;m.receiveShadow=true;if(m.material&&m.material.map){m.material.map.anisotropy=4}}});A[id]=g.scene;n++;el.textContent=`Loading city assets… ${n}/${ASSET_IDS.length}`})));}
+function put(par,id,x,z,rot=0,s=1,y=0){const o=A[id].clone();o.position.set(x,y,z);o.rotation.y=rot*Math.PI/180;if(s!==1)o.scale.setScalar(s);par.add(o);return o}
+// instanced tiles: one InstancedMesh per sub-mesh of the model
+function instanced(par,id,list,cast=false){if(!list.length)return;const src=A[id];src.updateMatrixWorld(true);const tmp=new THREE.Object3D();
+ src.traverse(m=>{if(!m.isMesh)return;const im=new THREE.InstancedMesh(m.geometry,m.material,list.length);const local=m.matrixWorld.clone();
+  list.forEach(([x,z,r=0,s=1,y=0],i)=>{tmp.position.set(x,y,z);tmp.rotation.set(0,r*Math.PI/180,0);tmp.scale.setScalar(s);tmp.updateMatrix();im.setMatrixAt(i,tmp.matrix.clone().multiply(local))});
+  im.castShadow=cast;im.receiveShadow=true;par.add(im)})}
+
+/* ================= procedural pieces ================= */
+function windowsBand(g,w,d,y0,floors,fh,face="both",col="#5c87b0"){for(let f=0;f<floors;f++){const y=y0+f*fh+fh*.32;if(face!=="side")box(g,w*.86,fh*.36,.02,col,0,y,d/2+.005);if(face!=="front")box(g,.02,fh*.36,d*.82,col,w/2+.005,y,0)}}
+function cone(par,x,z){const g=new THREE.Group();box(g,.13,.02,.13,"#2b2b2b",0,0,0);cyl(g,.012,.055,.16,"#ff7a1a",0,.02,0,8);cyl(g,.03,.04,.03,"#f5f5f5",0,.08,0,8);g.position.set(x,0,z);par.add(g);return g}
+const stripeTex=()=>canvasTex("stripe",128,32,(x,W,H)=>{for(let i=0;i<8;i++){x.fillStyle=i%2?"#ffffff":"#d6342a";x.beginPath();x.moveTo(i*20-10,H);x.lineTo(i*20+6,0);x.lineTo(i*20+26,0);x.lineTo(i*20+10,H);x.fill()}});
+function barrier(par,x,z,rot=0,len=.8){const g=new THREE.Group();box(g,.04,.26,.04,"#e8e8e8",-len/2+.04,0,0);box(g,.04,.26,.04,"#e8e8e8",len/2-.04,0,0);const t=stripeTex();const m=new THREE.Mesh(bg(len,.09,.03),[mat("#d6342a"),mat("#d6342a"),mat("#ffffff"),mat("#ffffff"),new THREE.MeshStandardMaterial({map:t}),new THREE.MeshStandardMaterial({map:t})]);m.position.y=.2;m.castShadow=true;g.add(m);g.position.set(x,0,z);g.rotation.y=rot*Math.PI/180;par.add(g);return g}
+function trafficLight(par,x,z,rot=0){const g=new THREE.Group();cyl(g,.02,.025,.55,"#2f3438",0,0,0,8);box(g,.09,.24,.08,"#22272a",0,.5,0);const red=new THREE.Mesh(new THREE.SphereGeometry(.03,10,8),new THREE.MeshStandardMaterial({color:"#5a1a16"}));red.position.set(0,.68,.042);const grn=new THREE.Mesh(new THREE.SphereGeometry(.03,10,8),new THREE.MeshStandardMaterial({color:"#163a22"}));grn.position.set(0,.55,.042);const amb=new THREE.Mesh(new THREE.SphereGeometry(.03,10,8),mat("#4a3a12"));amb.position.set(0,.615,.042);g.add(red,grn,amb);g.position.set(x,0,z);g.rotation.y=rot*Math.PI/180;par.add(g);
+ g.userData.set=(state)=>{red.material.color.set(state==="red"?"#ff3b2f":"#5a1a16");red.material.emissive.set(state==="red"?"#ff2a1a":"#000");red.material.emissiveIntensity=state==="red"?1.6:0;grn.material.color.set(state==="green"?"#36e07a":"#163a22");grn.material.emissive.set(state==="green"?"#1ee06a":"#000");grn.material.emissiveIntensity=state==="green"?1.6:0};return g}
+function crane(par,x,z,h=2.4){const g=new THREE.Group();const Y="#f2b632";for(let i=0;i<Math.round(h/.3);i++){box(g,.16,.3,.16,mat(Y,{wireframe:false}),0,i*.3,0);box(g,.18,.02,.18,"#d99a1c",0,i*.3+.29,0)}
+ const top=new THREE.Group();top.position.y=h;box(top,.24,.18,.24,"#30363a",0,0,0);box(top,2.0,.07,.08,Y,.7,.17,0);box(top,.6,.07,.08,Y,-.45,.17,0);box(top,.28,.2,.2,"#5f666b",-.62,.04,0);box(top,.02,.6,.02,"#2a2a2a",1.4,-.42,0);box(top,.12,.08,.12,"#3a3f43",1.4,-.5,0);g.add(top);g.userData.top=top;g.position.set(x,0,z);par.add(g);return g}
+function pylon(par,x,z,broken){const g=new THREE.Group();const c="#8b939a";cyl(g,.02,.09,1.3,c,0,0,0,4);box(g,.62,.04,.04,c,0,1.06,0);box(g,.44,.04,.04,c,0,1.24,0);g.position.set(x,0,z);if(broken){g.rotation.z=.55;g.position.y=-.02}par.add(g);return g}
+function cable(par,a,b,sag=.18,color="#3b4146"){const pts=[];for(let i=0;i<=12;i++){const t=i/12;pts.push(new THREE.Vector3(a.x+(b.x-a.x)*t,a.y+(b.y-a.y)*t-Math.sin(Math.PI*t)*sag,a.z+(b.z-a.z)*t))}const l=new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),new THREE.LineBasicMaterial({color}));par.add(l);return l}
+const sparkMat=()=>new THREE.SpriteMaterial({map:canvasTex("spark",64,64,(x)=>{const g=x.createRadialGradient(32,32,2,32,32,30);g.addColorStop(0,"#fffbe0");g.addColorStop(.35,"#ffd23f");g.addColorStop(1,"rgba(255,180,0,0)");x.fillStyle=g;x.fillRect(0,0,64,64);x.strokeStyle="#fff6b0";x.lineWidth=3;x.beginPath();for(let i=0;i<6;i++){const a=i*Math.PI/3;x.moveTo(32,32);x.lineTo(32+Math.cos(a)*28,32+Math.sin(a)*28)}x.stroke()}),transparent:true,depthWrite:false});
+const steamMat=()=>new THREE.SpriteMaterial({map:canvasTex("steam",64,64,(x)=>{const g=x.createRadialGradient(32,32,4,32,32,31);g.addColorStop(0,"rgba(255,255,255,.95)");g.addColorStop(1,"rgba(255,255,255,0)");x.fillStyle=g;x.fillRect(0,0,64,64)}),transparent:true,depthWrite:false});
+function trainCar(color,loco){const g=new THREE.Group();const len=loco?1.15:1.05;box(g,len,.32,.36,color,0,.08,0);box(g,len*.96,.07,.34,"#2a2f33",0,.4,0);box(g,len*.86,.1,.02,"#9cc6e6",0,.24,.185);box(g,len*.86,.1,.02,"#9cc6e6",0,.24,-.185);box(g,len*.98,.04,.37,"#f4f4f2",0,.14,0);
+ for(const dx of [-len*.32,len*.32])box(g,.22,.08,.3,"#1f2326",dx,0,0);if(loco){box(g,.02,.12,.26,"#9cc6e6",len/2+.005,.24,0)}return g}
+function wagon(){const g=new THREE.Group();box(g,.95,.36,.36,"#8a4b2c",0,.08,0);box(g,.97,.03,.38,"#5c3020",0,.44,0);const t=canvasTex("graf",256,96,(x,W,H)=>{x.fillStyle="#8a4b2c";x.fillRect(0,0,W,H);x.lineWidth=10;x.lineCap="round";x.strokeStyle="#e14fb0";x.beginPath();x.moveTo(20,70);x.bezierCurveTo(60,10,90,90,130,30);x.stroke();x.strokeStyle="#45c3e6";x.beginPath();x.moveTo(120,75);x.bezierCurveTo(160,20,200,90,240,35);x.stroke();x.fillStyle="#3d2014";for(let i=0;i<5;i++)x.fillRect(10+i*50,6,30,8)});
+ const side=new THREE.Mesh(new THREE.PlaneGeometry(.9,.3),new THREE.MeshStandardMaterial({map:t}));side.position.set(0,.26,.181);g.add(side);for(const dx of [-.3,.3])box(g,.2,.08,.3,"#2a2420",dx,0,0);g.rotation.z=.04;return g}
+function graffitiWall(n){const g=new THREE.Group();const t=canvasTex("wall"+n,512,128,(x,W,H)=>{x.fillStyle="#b9bcb5";x.fillRect(0,0,W,H);x.strokeStyle="#a3a69f";x.lineWidth=2;for(let i=0;i<W;i+=64){x.strokeRect(i,0,64,H/2);x.strokeRect(i-32,H/2,64,H/2)}const cols=["#e14fb0","#45c3e6","#7ad14a","#ffb020"];for(let i=0;i<Math.max(1,n);i++){x.lineWidth=12;x.lineCap="round";x.strokeStyle=cols[i%4];const ox=30+i*110;x.beginPath();x.moveTo(ox,95);x.bezierCurveTo(ox+30,10,ox+60,120,ox+95,30);x.stroke()}});
+ const m=new THREE.Mesh(bg(2.2,.42,.08),[mat("#b9bcb5"),mat("#b9bcb5"),mat("#a9aca5"),mat("#a9aca5"),new THREE.MeshStandardMaterial({map:t}),new THREE.MeshStandardMaterial({map:t})]);m.position.y=.21;m.castShadow=m.receiveShadow=true;g.add(m);return g}
+function groundPlane(par,x0,z0,x1,z1,color,y=.015){const m=new THREE.Mesh(new THREE.PlaneGeometry(x1-x0,z1-z0),mat(color,{flatShading:false}));m.rotation.x=-Math.PI/2;m.position.set((x0+x1)/2,y,(z0+z1)/2);m.receiveShadow=true;par.add(m);return m}
+function coolingTower(par,x,z,h=1.5){const pts=[];for(let i=0;i<=10;i++){const t=i/10;pts.push(new THREE.Vector2(.42-.18*Math.sin(Math.PI*t*.85)+(t>.8?(t-.8)*.3:0),t*h))}const m=new THREE.Mesh(new THREE.LatheGeometry(pts,24),mat("#d7dadd",{side:THREE.DoubleSide,flatShading:false}));m.position.set(x,0,z);m.castShadow=m.receiveShadow=true;par.add(m);return m}
+function clockTex(){return canvasTex("clock",64,64,(x)=>{x.fillStyle="#fff";x.beginPath();x.arc(32,32,30,0,7);x.fill();x.strokeStyle="#222";x.lineWidth=4;x.beginPath();x.moveTo(32,32);x.lineTo(32,10);x.moveTo(32,32);x.lineTo(46,38);x.stroke()})}
+
+/* ================= landmarks (front faces +z, centred on 0,0) ================= */
+function landmark(k,lvl,rep){const g=new THREE.Group();let top=1;const p=PILLARS[PI[k]];
+ if(lvl===0){// foundation outline + survey sign: the district keeps its identity even when empty
+  box(g,2.6,.04,1.6,"#c9b48e",0,0,0);for(const [x,z] of [[-1.3,-.8],[1.3,-.8],[-1.3,.8],[1.3,.8]])box(g,.05,.32,.05,"#7a5a36",x,0,z);top=.5;g.userData.top=top;return g}
+ switch(k){
+ case"verification":{const W=lvl===1?2.2:lvl===2?2.8:3.0,H=lvl===1?.55:lvl===2?1.05:.95,D=1.5;
+  box(g,W,H,D,"#f1f0ec",0,0,0);windowsBand(g,W,D,0,lvl===1?1:3,H/(lvl===1?1:3));box(g,W*1.01,.05,D*1.01,"#5bb8ad",0,H*.98,0);
+  box(g,.7,.42,.3,"#5bb8ad",0,0,D/2+.15);box(g,.9,.04,.5,"#5bb8ad",0,.42,D/2+.15);
+  box(g,.32,.09,.02,"#d64545",-W/2+.4,H*.6,D/2+.012);box(g,.09,.32,.02,"#d64545",-W/2+.4,H*.6-.115,D/2+.012);
+  if(lvl===3){const tw=new THREE.Group();tw.position.set(-.6,0,-.2);g.add(tw);box(tw,1.4,2.3,1.2,"#f1f0ec",0,0,0);windowsBand(tw,1.4,1.2,0,7,2.3/7);box(tw,1.42,.06,1.22,"#5bb8ad",0,2.3,0);
+   cyl(g,.42,.42,.04,"#3a4044",.95,H,-.15,20);const hp=canvasTex("heli",128,128,(x,W2)=>{x.fillStyle="#3a4044";x.fillRect(0,0,W2,W2);x.strokeStyle="#ffd23f";x.lineWidth=6;x.beginPath();x.arc(64,64,52,0,7);x.stroke();x.fillStyle="#fff";x.font=`800 64px ${FONT_D}`;x.textAlign="center";x.textBaseline="middle";x.fillText("H",64,68)});const hm=new THREE.Mesh(new THREE.CircleGeometry(.4,24),new THREE.MeshStandardMaterial({map:hp}));hm.rotation.x=-Math.PI/2;hm.position.set(.95,H+.045,-.15);g.add(hm);top=2.4}
+  else top=H;
+  const amb=lvl;for(let i=0;i<amb;i++)put(g,"ambulance",W/2-.35-i*.42,D/2+.45,0,1);
+  if(lvl>=2)put(g,"dish",-W/2+.4,-.3,0,.7,H);break}
+ case"orientation":{const W=lvl===1?1.9:lvl===2?2.5:2.9,H=lvl===1?.5:lvl===2?.75:.95,D=1.3,col="#eadfc4";
+  box(g,W+.3,.08,D+.3,"#d2c7ac",0,0,0);box(g,W,H,D,col,0,.08,0);windowsBand(g,W,D,.08,lvl===1?1:2,H/(lvl===1?1:2),"side","#6a8fb0");
+  const nc=lvl===1?4:lvl===2?6:8;for(let i=0;i<nc;i++)cyl(g,.04,.045,H,"#fbf8f0",-W/2+.15+i*(W-.3)/(nc-1),.08,D/2+.12,10);
+  box(g,W,.06,.3,"#fbf8f0",0,H+.08,D/2+.05);gable(g,W+.04,.32+lvl*.05,.32,"#fbf8f0",0,H+.14,D/2+.04);box(g,W,.06,D,"#d2c7ac",0,H+.08,0);
+  if(lvl>=2){cyl(g,.36,.4,.25,col,0,H+.14,-.15,20);const dm=new THREE.Mesh(new THREE.SphereGeometry(.38+(lvl-2)*.1,20,12,0,Math.PI*2,0,Math.PI/2),mat("#4f9e93",{flatShading:false}));dm.position.set(0,H+.39,-.15);dm.castShadow=true;g.add(dm);top=H+.9+(lvl-2)*.1}else top=H+.5;
+  if(lvl===3){box(g,.5,1.8,.5,col,W/2+.45,0,-.3);box(g,.54,.08,.54,"#fbf8f0",W/2+.45,1.8,-.3);const cm=new THREE.Mesh(new THREE.CircleGeometry(.17,20),new THREE.MeshStandardMaterial({map:clockTex()}));cm.position.set(W/2+.45,1.5,-.04);g.add(cm);gable(g,.54,.4,.54,"#4f9e93",W/2+.45,1.88,-.3);top=Math.max(top,2.3)}
+  // visitor info board
+  box(g,.04,.42,.04,"#33404a",-W/2-.25,0,D/2+.35);const ib=canvasTex("info",128,96,(x,W2,H2)=>{x.fillStyle="#2f86c9";x.fillRect(0,0,W2,H2);x.fillStyle="#fff";x.font=`800 70px ${FONT_D}`;x.textAlign="center";x.textBaseline="middle";x.fillText("i",W2/2,H2/2+4)});const ibm=new THREE.Mesh(new THREE.PlaneGeometry(.34,.26),new THREE.MeshStandardMaterial({map:ib}));ibm.position.set(-W/2-.25,.5,D/2+.37);g.add(ibm);break}
+ case"static_guardrails":{const W=lvl===1?1.8:lvl===2?2.4:2.8,H=lvl===1?.5:lvl===2?.9:1.5,D=1.4;
+  box(g,W,H,D,"#e9ecef",0,0,0);box(g,W*1.01,.16,D*1.01,"#33489c",0,H-.16,0);windowsBand(g,W,D,0,Math.max(1,Math.round(H/.35)),H/Math.max(1,Math.round(H/.35)),"both","#4e6a8f");
+  box(g,.5,.38,.12,"#33489c",0,0,D/2+.06);const lb=new THREE.Group();box(lb,.2,.05,.06,"#d6342a",-.1,0,0);box(lb,.2,.05,.06,"#2a63c9",.1,0,0);lb.position.set(0,H,0);g.add(lb);
+  for(let i=0;i<lvl+1;i++)put(g,"police-car",-W/2+.35+i*.42,D/2+.5,0,1);if(lvl===3)put(g,"dish",W/2-.4,-.3,0,.8,H);top=H+.1;break}
+ case"workflow_entry_points":{const W=lvl===1?1.6:lvl===2?2.6:3.2,H=lvl===1?.4:lvl===2?.7:.95,D=1.3,col="#efe2c6";
+  box(g,W,H,D,col,0,0,0);windowsBand(g,W,D,0,1,H*.9,"both","#6a8fb0");
+  const rf=new THREE.Mesh(new THREE.CylinderGeometry(D/2,D/2,W,18,1,false,-Math.PI/2,Math.PI),mat(lvl===3?"#8fbfe0":"#3f8f6c",{flatShading:false,side:THREE.DoubleSide}));rf.rotation.z=Math.PI/2;rf.position.y=H;rf.scale.set(1,1,.7);rf.castShadow=true;g.add(rf);
+  const cm=new THREE.Mesh(new THREE.CircleGeometry(.16,20),new THREE.MeshStandardMaterial({map:clockTex()}));cm.position.set(0,H+.25,D/2-.12);if(lvl>=2)g.add(cm);
+  if(lvl>=2){for(let i=0;i<lvl;i++)put(g,"taxi",W/2-.3-i*.4,D/2+.45,0,1)}top=H+.55;break}
+ case"automatic_triggers":{const W=lvl===1?1.6:lvl===2?2.2:2.6,H=lvl===1?.5:lvl===2?.65:.8,D=1.3;
+  box(g,W,H,D,"#c8402f",0,0,0);box(g,W*1.01,.07,D*1.01,"#f1e3d0",0,H,0);const doors=lvl+1;for(let i=0;i<doors;i++){const dx=-W/2+W*(i+.5)/doors;box(g,W/doors*.7,H*.62,.02,"#f1e3d0",dx,0,D/2+.006);box(g,W/doors*.62,H*.55,.02,"#5f6a70",dx,0,D/2+.012)}
+  const th=H+.5+lvl*.35;box(g,.36,th,.36,"#b23526",-W/2+.18,0,-D/2+.18);box(g,.4,.06,.4,"#f1e3d0",-W/2+.18,th,-D/2+.18);const s=new THREE.Mesh(new THREE.SphereGeometry(.07,10,8),new THREE.MeshStandardMaterial({color:"#ff3b2f",emissive:"#ff2a1a",emissiveIntensity:lvl>=2?1:0}));s.position.set(-W/2+.18,th+.12,-D/2+.18);g.add(s);g.userData.siren=s;
+  for(let i=0;i<lvl;i++)put(g,"firetruck",W/2-.35-i*.42,D/2+.5,0,1);top=th+.2;break}
+ case"pipeline_parity":{if(lvl===1){put(g,"generator",-.4,0,0,1);box(g,.8,.45,.7,"#c9ccd1",.6,0,-.1);top=.8}
+  else{put(g,"generator-large",-.9,.1,90,1);coolingTower(g,.7,-.1,1.3+lvl*.25);if(lvl===3){coolingTower(g,1.6,-.1,1.7);put(g,"hangar",-.9,-1.2,0,.6)}
+   cyl(g,.08,.11,1.8+lvl*.2,"#b9bec2",-1.7,0,-.4,10);box(g,.18,.1,.18,"#d6342a",-1.7,1.6+lvl*.2,-.4);top=1.6+lvl*.25}
+  g.userData.steam=lvl>=2;break}
+ case"doc_hygiene":{const W=lvl===1?1.4:lvl===2?1.9:2.3,H=lvl===1?.45:lvl===2?.65:.85,D=1.2;
+  box(g,W+.2,.08,D+.2,"#d8d0c0",0,0,0);box(g,W,H,D,"#b8735a",0,.08,0);const nc=lvl===1?3:lvl===2?4:6;for(let i=0;i<nc;i++)cyl(g,.04,.045,H,"#fbf8f0",-W/2+.15+i*(W-.3)/(nc-1),.08,D/2+.1,10);
+  gable(g,W+.04,.3,.28,"#fbf8f0",0,H+.08,D/2+.02);box(g,W,.06,D,"#8e5642",0,H+.08,0);
+  const books=["#2f86c9","#d6342a","#ffd23f","#24946a","#8a5bb5"];for(let i=0;i<lvl+2;i++)box(g,.08,.24,.32,books[i%5],-.3+i*.12,H+.14,-.25);top=H+.55;break}
+ }
+ g.userData.top=top;return g}
+
+/* ================= district builder ================= */
+const GROUND=["#c7ae84","#b8c98a","#9cc77f","#9cc77f"];
+function buildDistrict(par,k,lvl,b,rep,seed,opt={}){
+ const g=new THREE.Group();par.add(g);const r=rng(seed);const p=PILLARS[PI[k]];
+ const {x0,x1,z0,z1}=b;const W=x1-x0+1,D=z1-z0+1;
+ // ground: dirt lot at L0, grass with paved edge at L2+
+ groundPlane(g,x0-.5,z0-.5,x1+.5,z1+.5,GROUND[lvl],.02);
+ if(lvl>=2){const pav=[];for(let x=x0;x<=x1;x++){pav.push([x,z1]);if(lvl===3)pav.push([x,z0])}for(let z=z0;z<z1;z++){if(lvl===3){pav.push([x0,z]);pav.push([x1,z])}}instanced(g,"pavement",pav)}
+ // zone colour curb so the district reads at a glance
+ const cw=.07,cy=.03;const curb=mat(p.c);for(const [w,d,x,z] of [[W,cw,(x0+x1)/2,z0-.5+cw/2],[W,cw,(x0+x1)/2,z1+.5-cw/2],[cw,D,x0-.5+cw/2,(z0+z1)/2],[cw,D,x1+.5-cw/2,(z0+z1)/2]]){const m=new THREE.Mesh(bg(w,.06,d),curb);m.position.set(x,cy,z);g.add(m)}
+ // landmark front-centre on the road side
+ const lx=(x0+x1)/2,lz=z1-.55;const lm=landmark(k,lvl,rep);lm.position.set(lx,0,lz);g.add(lm);
+ let sg=null;if(opt.signs){sg=signSprite(p,opt.signScale||1);sg.position.set(lx,(lm.userData.top||1)+.55,lz);g.add(sg)}
+ const res=new Set();for(let x=Math.floor(lx-1.6);x<=Math.ceil(lx+1.6);x++)for(let z=z1-1;z<=z1;z++)res.add(rk(x,z));
+ // construction site for the next planned fix in this pillar (or a vacant L0 lot)
+ const steps=opt.steps||[];let site=null;
+ if(steps.length||lvl===0){const sx=x0+(lvl===0?Math.floor(W/2)-1:0),sz=z0+(lvl===0?1:0);site={x:sx,z:sz};for(let x=sx;x<sx+3;x++)for(let z=sz;z<sz+2;z++)res.add(rk(x,z));
+  groundPlane(g,sx-.5,sz-.5,sx+2.5,sz+1.5,"#c2a473",.03);const fz=[sz-.48,sz+1.48];for(let x=sx;x<sx+3;x++)for(const z of fz){const m=new THREE.Mesh(bg(.96,.22,.03),mat("#ff8a2a"));m.position.set(x,.11,z);m.castShadow=true;g.add(m)}
+  for(const x of [sx-.48,sx+2.48]){const m=new THREE.Mesh(bg(.03,.22,1.96),mat("#ff8a2a"));m.position.set(x,.11,sz+.5);m.castShadow=true;g.add(m)}
+  put(g,"digger",sx+.6,sz+.6,35,1);const cr=crane(g,sx+2,sz+.2,lvl===0?1.9:2.3);g.userData.crane=cr;put(g,"crate",sx+1.3,sz+1.1,10,1);put(g,"barrels",sx+2.1,sz+1.1,0,1);
+  const st=steps[0];const label=st?[`NEXT · ${st.c.split(" ")[0]}`,st.p!=null?`+${st.p.toFixed(1)} pts`:"planned fix"]:["VACANT LOT","L0 absent"];
+  const ts=textSprite("site-"+label.join("|"),label,{bg:st?"#ffd23f":"#f4ecdc",scale:.9});ts.position.set(sx+1,1.0,sz+1.6);g.add(ts)}
+ // filler buildings: tall at the back (north), low at the front
+ const towers=["tower-a","tower-b","tower-c"],mids=["bld-a","bld-b","bld-c","bld-d","bld-f","bld-g","bld-h"],smalls=["house-a","house-b","house-d","garage"];
+ const free=(x,z)=>!res.has(rk(x,z));const trees=[],grassT=[];
+ if(lvl===3){for(let x=x0+1;x<=x1-2;x+=2){if(free(x,z0)&&free(x+1,z0)&&free(x,z0+1)&&free(x+1,z0+1)&&r()<.85){put(g,towers[Math.floor(r()*3)],x+.5,z0+.5,[0,90,180,270][Math.floor(r()*4)],.95);for(const [a,c] of [[x,z0],[x+1,z0],[x,z0+1],[x+1,z0+1]])res.add(rk(a,c))}}}
+ for(let z=z0;z<=z1;z++)for(let x=x0;x<=x1;x++){if(!free(x,z))continue;const v=r();const back=(z-z0)/Math.max(1,D-1);
+  if(lvl===0){if(v<.35)put(g,v<.15?"rock":"stump",x+(r()-.5)*.6,z+(r()-.5)*.6,r()*360,1+r());continue}
+  if(lvl===1){if(v<.42)put(g,smalls[Math.floor(r()*smalls.length)],x,z,[0,90,180,270][Math.floor(r()*4)],.92);else if(v<.6)put(g,"bush",x+(r()-.5)*.5,z+(r()-.5)*.5,r()*360,1);else if(v<.7)put(g,"rock",x,z,r()*360,1);continue}
+  if(lvl===2){if(v<.66){const id=back<.5?mids[Math.floor(r()*mids.length)]:(r()<.5?mids[Math.floor(r()*mids.length)]:smalls[Math.floor(r()*smalls.length)]);put(g,id,x,z,[0,90,180,270][Math.floor(r()*4)],.92)}else if(v<.86)grassT.push([x,z,Math.floor(r()*4)*90]);else trees.push([x+(r()-.5)*.4,z+(r()-.5)*.4]);continue}
+  if(v<.55)put(g,back<.45?mids[Math.floor(r()*mids.length)]:mids[Math.floor(r()*mids.length)],x,z,[0,90,180,270][Math.floor(r()*4)],.92);else if(v<.72)grassT.push([x,z,Math.floor(r()*4)*90]);else if(v<.8)put(g,"fountain",x,z,0,1);else trees.push([x+(r()-.5)*.4,z+(r()-.5)*.4])}
+ instanced(g,"grass-trees",grassT.filter((_,i)=>i%2===0),true);instanced(g,"grass-trees-tall",grassT.filter((_,i)=>i%2===1),true);
+ for(const [x,z] of trees)put(g,r()<.5?"tree-oak":"tree-fat",x,z,r()*360,1);
+ if(lvl===0){// fence the vacant district
+  for(let x=x0;x<=x1;x++){put(g,"fence",x,z0-.42,0,1);put(g,"fence",x,z1+.42,0,1)}for(let z=z0;z<=z1;z++){put(g,"fence",x0-.42,z,90,1);put(g,"fence",x1+.42,z,90,1)}}
+ // cap: district closed by order (e.g. no-tests caps the whole score)
+ if(opt.cap){for(let i=0;i<3;i++)barrier(g,lx-1+i,z1+.25,0,.9);const cs=textSprite("closed",["CLOSED","cap: "+opt.cap],{bg:"#d6342a",fg:"#fff",scale:1});cs.position.set(lx,(lm.userData.top||1)+1.25,lz);g.add(cs)}
+ g.userData={k,lm,sign:sg,site};return g}
+
+/* ================= roads, rail, traffic ================= */
+function buildRoads(par,rep){const lists={"road-straight":[],"road-lamps":[],"road-cross":[],"road-t":[],"road-corner":[]};
+ for(const key of ROADS){const [x,z]=key.split(",").map(Number);const n=ROADS.has(rk(x,z-1)),s=ROADS.has(rk(x,z+1)),e=ROADS.has(rk(x+1,z)),w=ROADS.has(rk(x-1,z));const c=n+s+e+w;let id="road-straight",rot=0;
+  if(c===4)id="road-cross";else if(c===3){id="road-t";rot=!n?0:!w?90:!s?180:270}
+  else if(c===2&&!((n&&s)||(e&&w))){id="road-corner";rot=s&&w?0:s&&e?90:n&&e?180:270}
+  else{rot=(e||w)&&!(n||s)?90:0;if((e||w)&&!(n||s)&&(x%4===2)&&x>0&&x<29)id="road-lamps"}
+  lists[id].push([x,z,rot])}
+ for(const [id,l] of Object.entries(lists))instanced(par,id,l,id==="road-lamps")}
+function buildRail(par,rep){const lvl=rep.L[PI.workflow_entry_points];const g=new THREE.Group();par.add(g);const xa=BOUNDS.x0-6,xb=BOUNDS.x1+6,len=xb-xa;
+ const tracks=lvl===0?[RAIL_Z[0]]:RAIL_Z;const rust=lvl===0;
+ for(const tz of tracks){const bed=new THREE.Mesh(bg(len,.06,.78),mat(rust?"#a59578":"#9c9184"));bed.position.set((xa+xb)/2,.03,tz);bed.receiveShadow=true;g.add(bed);
+  const n=Math.floor(len/.28);const sl=new THREE.InstancedMesh(bg(.08,.03,.62),mat(rust?"#6e5640":"#5b4636"),n);const t=new THREE.Object3D();let k=0;for(let i=0;i<n;i++){if(rust&&i%3===1){continue}t.position.set(xa+i*.28,.075,tz);t.updateMatrix();sl.setMatrixAt(k++,t.matrix)}sl.count=k;sl.receiveShadow=true;g.add(sl);
+  for(const dz of [-.18,.18]){const rl=new THREE.Mesh(bg(len,.04,.035),mat(rust?"#8a5a3a":"#b9c1c7",{metalness:rust?0:.4,roughness:.5}));rl.position.set((xa+xb)/2,.1,tz+dz);rl.castShadow=true;g.add(rl)}}
+ if(rust){const r=rng(9);for(let i=0;i<40;i++)put(g,"bush",xa+r()*len,RAIL_Z[0]+(r()-.5)*.8,r()*360,.6)}
+ // platform + canopy in front of the station district
+ const b=DIST.workflow_entry_points;if(lvl>=1){const px0=b.x0-.3,px1=b.x1+.3;box(g,px1-px0,.14,.62,"#cfc9bd",(px0+px1)/2,0,-.92);box(g,px1-px0,.02,.06,"#ffd23f",(px0+px1)/2,.14,-1.2);
+  if(lvl>=2){for(let x=px0+.4;x<px1;x+=1.2)cyl(g,.03,.03,.55,"#5a646b",x,.14,-.92,8);box(g,px1-px0,.05,.8,lvl===3?"#9cc6e6":"#3f8f6c",(px0+px1)/2,.69,-.98)}
+  if(lvl>=2){// footbridge from the district over the road to the platform
+   const bx=b.x0+1;box(g,.5,.06,1.7,"#bfc4c8",bx,.62,-.15);for(const z of [-.95,.65])box(g,.08,.62,.08,"#8b939a",bx,0,z);box(g,.02,.18,1.7,"#8b939a",bx-.24,.68,-.15);box(g,.02,.18,1.7,"#8b939a",bx+.24,.68,-.15)}}
+ // siding with abandoned wagons = orphaned scripts
+ const orphans=rep.ent.filter(e=>e.c==="ENR-01");const sx0=BOUNDS.x0-3,sx1=sx0+Math.max(5,orphans.length*1.15+1.5);
+ {const bed=new THREE.Mesh(bg(sx1-sx0,.05,.7),mat("#a59578"));bed.position.set((sx0+sx1)/2,.025,SIDING_Z);g.add(bed);for(const dz of [-.18,.18]){const rl=new THREE.Mesh(bg(sx1-sx0,.04,.035),mat("#8a5a3a"));rl.position.set((sx0+sx1)/2,.08,SIDING_Z+dz);g.add(rl)}box(g,.12,.3,.7,"#d6342a",sx1,0,SIDING_Z)}
+ const wag=[];orphans.forEach((e,i)=>{const w=wagon();w.position.set(sx0+.8+i*1.12,.1,SIDING_Z);w.userData.pick={kind:"ENR-01"};g.add(w);wag.push(w)});
+ if(orphans.length)tags.push({pos:new THREE.Vector3((sx0+sx0+.8+orphans.length*1.12)/2,1.0,SIDING_Z),text:`${orphans.length} orphaned script${orphans.length>1?"s":""}`,color:"#8a4b2c",kind:"ENR-01"});
+ // trains
+ const trains=[];if(lvl>=1){const mk=(cars,color)=>{const t=new THREE.Group();for(let i=0;i<cars;i++){const c=trainCar(i===0?"#e8e6e1":color,i===0);c.position.x=-i*1.12;t.add(c)}t.traverse(m=>{if(m.isMesh)m.castShadow=true});g.add(t);return t};
+  trains.push({o:mk(lvl===1?1:lvl===2?3:4,"#24946a"),z:RAIL_Z[0]+.0,dir:1,speed:lvl===1?.9:lvl===2?1.6:2.6,dwell:lvl<3,off:0,len});
+  if(lvl===3)trains.push({o:mk(4,"#2a63c9"),z:RAIL_Z[1],dir:-1,speed:2.8,dwell:false,off:len*.45,len})}
+ return {g,trains,xa,xb}}
+// traffic on the district's front street
+function buildTraffic(par,k,lvl,b,seed){const g=new THREE.Group();par.add(g);const r=rng(seed);const zr=b.z1+1;const xa=b.x0-.45,xb=b.x1+.45;const lanes=[];
+ const pool=["sedan","taxi","suv","van","truck","delivery-van","sedan","taxi","garbage-truck"];
+ const mkCar=()=>{const id=pool[Math.floor(r()*pool.length)];const o=A[id].clone();g.add(o);return o};
+ if(lvl===0){barrier(g,xa+.15,zr,90,.9);barrier(g,xb-.15,zr,90,.9);for(let x=xa+.6;x<xb-.4;x+=.7)cone(g,x,zr+(r()-.5)*.5);const s=textSprite("roadclosed",["ROAD CLOSED","nothing reaches it"],{bg:"#fff",fg:"#d6342a",scale:.75});s.position.set(xa+.6,.85,zr);g.add(s);put(g,"rock",(xa+xb)/2,zr+.1,0,1.4);return {g,lanes,light:null}}
+ if(lvl===1){// north lane closed, alternating single lane with a traffic light: known limit
+  for(let x=xa+.9;x<xb-.6;x+=.45)cone(g,x,zr-.2);barrier(g,xa+.7,zr-.2,90,.42);barrier(g,xb-.5,zr-.2,90,.42);
+  const tl=trafficLight(g,xa+.55,zr+.42,90);const tl2=trafficLight(g,xb-.4,zr-.42,-90);const ws=textSprite("onelane",["1 LANE","known limit"],{bg:"#ffd23f",scale:.65});ws.position.set(xb-.6,.78,zr-.3);g.add(ws);
+  const n=5;const cars=[];for(let i=0;i<n;i++){const o=mkCar();cars.push({o,s:(xb-xa)-i*.62})}cars.reverse();lanes.push({cars,z:zr+.18,dir:1,speed:1.0,stop:.45,gap:.62,len:xb-xa});
+  return {g,lanes,light:{a:tl,b:tl2,period:9,green:2.4},xa,xb}}
+ const n=lvl===2?4:3;for(const [dz,dir] of [[.18,1],[-.18,-1]]){const cars=[];for(let i=0;i<n;i++){const o=mkCar();cars.push({o,s:(i/n)*(xb-xa)+r()*.3})}lanes.push({cars,z:zr+dz,dir,speed:lvl===2?.9:1.25,gap:.7,len:xb-xa})}
+ if(lvl===3){for(let x=b.x0;x<=b.x1;x+=2)put(g,"tree-oak",x,zr-.47,r()*360,.6)}
+ return {g,lanes,light:null,xa,xb}}
+function buildGrid(par,rep){// power line from the plant to the city along the south edge; stale workflows break pylons
+ const lvl=rep.L[PI.pipeline_parity];const g=new THREE.Group();par.add(g);if(lvl===0)return {g,sparks:[]};const stale=rep.ent.filter(e=>e.c==="ENR-04");
+ const zl=17.3;const xs=[];for(let x=22;x>=-2;x-=3)xs.push(x);const brokenIdx=new Set(stale.map((_,i)=>Math.min(xs.length-1,1+i*Math.max(1,Math.floor((xs.length-1)/Math.max(1,stale.length))))));
+ const sparks=[];let prev=null;xs.forEach((x,i)=>{const br=brokenIdx.has(i);pylon(g,x,zl,br);const tip=new THREE.Vector3(br?x-.55:x,br?.95:1.27,zl);
+  if(prev&&!br&&!prev.br){cable(g,new THREE.Vector3(prev.x-.3,1.06,zl),new THREE.Vector3(x-.3,1.06,zl));cable(g,new THREE.Vector3(prev.x+.3,1.06,zl),new THREE.Vector3(x+.3,1.06,zl))}
+  if(br){const sp=new THREE.Sprite(sparkMat());sp.scale.set(.5,.5,1);sp.position.set(x-.4,1.0,zl);g.add(sp);sparks.push(sp);cable(g,new THREE.Vector3(x-.6,.95,zl),new THREE.Vector3(x-1.1,.1,zl+.3),.05)}
+  prev={x,br}});
+ if(stale.length)tags.push({pos:new THREE.Vector3(xs[Math.min(xs.length-1,2)],1.9,zl),text:`${stale.length} stale CI workflow${stale.length>1?"s":""}`,color:"#b23526",kind:"ENR-04"});
+ return {g,sparks}}
+function buildOutskirts(par,rep){const g=new THREE.Group();par.add(g);const t=tierOf(rep.score);const r=rng(hash(rep.id+"out"));
+ groundPlane(g,BOUNDS.x0-60,BOUNDS.z0-50,BOUNDS.x1+60,BOUNDS.z1+50,"#a9cf8f",-.03);
+ // meadow trees around the city; denser for richer cities
+ const n=rep.score>=60?120:rep.score>=45?80:45;for(let i=0;i<n;i++){let x,z;do{x=BOUNDS.x0-9+r()*(BOUNDS.x1-BOUNDS.x0+18);z=BOUNDS.z0-6+r()*(BOUNDS.z1-BOUNDS.z0+12)}while((x>-1&&x<30&&z>-4.4&&z<17.8));put(g,r()<.6?"tree-pine":"tree-oak",x,z,r()*360,.8+r()*.5)}
+ // potholes and weeds in neglected cities
+ if(rep.score<45){const ph=new THREE.MeshStandardMaterial({color:"#2a2d33"});for(let i=0;i<Math.round((45-rep.score)*1.5);i++){const keys=[...ROADS];const [x,z]=keys[Math.floor(r()*keys.length)].split(",").map(Number);const m=new THREE.Mesh(new THREE.CircleGeometry(.07+r()*.06,9),ph);m.rotation.x=-Math.PI/2;m.position.set(x+(r()-.5)*.6,.058,z+(r()-.5)*.6);g.add(m)}}
+ // conflicting configs: graffiti wall in the police district
+ const conf=rep.ent.filter(e=>e.c==="ENR-02");if(conf.length){const b=DIST.static_guardrails;const w=graffitiWall(conf.length);w.position.set(b.x1+.36,0,b.z0+1.6);w.rotation.y=Math.PI/2;w.userData.pick={kind:"ENR-02"};g.add(w);tags.push({pos:new THREE.Vector3(b.x1+.36,.9,b.z0+1.6),text:`${conf.length} conflicting config${conf.length>1?"s":""}`,color:"#b0377f",kind:"ENR-02"})}
+ return g}
+
+/* ================= scene ================= */
+const stage=document.getElementById("stage"),canvas=document.getElementById("city"),labelsEl=document.getElementById("labels");
+let renderer,scene,camera,sun,city=null,dyn=null,tags=[],plates=[],current=null,sel=null;
+const view={az:45,zoom:1,target:new THREE.Vector3(14.5,0,7.5)};
+function initScene(){renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true,preserveDrawingBuffer:true});renderer.setPixelRatio(Math.min(2,window.devicePixelRatio||1));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+ scene=new THREE.Scene();
+ scene.add(new THREE.HemisphereLight("#f4f8ff","#8aa77a",1.35));sun=new THREE.DirectionalLight("#fff3dd",2.5);sun.position.set(26,30,22);sun.target.position.set(14.5,0,7.5);sun.castShadow=true;sun.shadow.mapSize.set(4096,4096);const sc=sun.shadow.camera;sc.left=-26;sc.right=26;sc.top=24;sc.bottom=-24;sc.near=1;sc.far=90;sun.shadow.bias=-.0004;sun.shadow.normalBias=.02;scene.add(sun,sun.target);
+ camera=new THREE.OrthographicCamera(-1,1,1,-1,-200,400);resize()}
+function placeCamera(){const a=view.az*Math.PI/180,d=60;camera.position.set(view.target.x+Math.sin(a)*d,view.target.y+d*.82,view.target.z+Math.cos(a)*d);camera.lookAt(view.target);const w=stage.clientWidth,h=stage.clientHeight;const s=fitSize(w/h)/view.zoom;camera.left=-s*w/h;camera.right=s*w/h;camera.top=s;camera.bottom=-s;camera.updateProjectionMatrix()}
+function fitSize(aspect){// half-height in world units so the whole city (incl. rail and power line) fits the stage
+ const a=view.az*Math.PI/180;const dir=new THREE.Vector3(Math.sin(a),.82,Math.cos(a)).normalize();const right=new THREE.Vector3().crossVectors(new THREE.Vector3(0,1,0),dir).normalize();const up=new THREE.Vector3().crossVectors(dir,right);
+ const c0=new THREE.Vector3(14.5,0,7.5);let mx=0,my=0;for(const x of [BOUNDS.x0+1,BOUNDS.x1])for(const z of [BOUNDS.z0+.5,BOUNDS.z1-1])for(const y of [0,2.2]){const v=new THREE.Vector3(x,y,z).sub(c0);mx=Math.max(mx,Math.abs(v.dot(right)));my=Math.max(my,Math.abs(v.dot(up)))}
+ return Math.max(my,mx/aspect)*1.0}
+function resize(){const w=stage.clientWidth,h=stage.clientHeight;renderer.setSize(w,h,false);placeCamera()}
+function build(rep){if(city){scene.remove(city)}tags=[];city=new THREE.Group();scene.add(city);
+ buildOutskirts(city,rep);buildRoads(city,rep);const rail=buildRail(city,rep);const grid=buildGrid(city,rep);
+ const districts={},traffic=[];
+ for(const p of PILLARS){const lvl=rep.L[PI[p.k]];const st=stepsFor(rep,p);const cap=p.k==="verification"&&rep.caps.length?rep.caps[0]:null;
+  const d=buildDistrict(city,p.k,lvl,DIST[p.k],rep,hash(rep.id+p.k),{steps:st,cap});districts[p.k]=d;
+  traffic.push(buildTraffic(city,p.k,lvl,DIST[p.k],hash(rep.id+p.k+"t")));
+  const b=DIST[p.k];const pick=new THREE.Mesh(bg(b.x1-b.x0+1,1.2,b.z1-b.z0+1),new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false}));pick.position.set((b.x0+b.x1)/2,.6,(b.z0+b.z1)/2);pick.userData.pick={kind:"district",k:p.k};city.add(pick)}
+ const selLine=new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(),new THREE.Vector3(.1,0,0),new THREE.Vector3(0,0,.1)]),new THREE.LineBasicMaterial({color:"#111"}));selLine.visible=false;city.add(selLine);
+ dyn={rail,grid,districts,traffic,selLine,t0:performance.now(),signs:[]};
+ makePlates(rep);updateSelection()}
+function makePlates(rep){labelsEl.innerHTML="";plates=[];
+ for(const p of PILLARS){const lvl=rep.L[PI[p.k]];const b=DIST[p.k];const el=document.createElement("div");el.className="plate";el.style.setProperty("--pc",p.c);
+  el.innerHTML=`<span class="pn"><img class="pi" alt="" src="${iconURL(p)}"><span class="pt">${p.place}</span><span class="lvb">L${lvl}</span></span><span class="pl">${p.n} · <span class="pips">${[1,2,3].map(n=>`<i style="${n<=lvl?`background:${p.c}`:""}"></i>`).join("")}</span>L${lvl} ${LEVEL[lvl]}</span>`;
+  el.addEventListener("click",()=>select(sel===p.k?null:p.k));labelsEl.appendChild(el);plates.push({el,pos:new THREE.Vector3(b.x0+1.6,0,b.z1+.5),k:p.k})}
+ for(const t of tags){const el=document.createElement("div");el.className="tag3d";el.style.background=t.color;el.textContent=t.text;el.addEventListener("click",()=>select(null,t.kind));labelsEl.appendChild(el);plates.push({el,pos:t.pos,k:null})}}
+const v3=new THREE.Vector3();
+function updateLabels(){const w=stage.clientWidth,h=stage.clientHeight;if(dyn){const on=view.zoom>=1.45;dyn.signs.forEach(s=>s.visible=on)}const small=view.zoom<1.3||w<640;const tiny=w<560&&view.zoom<1.8;for(const pl of plates){v3.copy(pl.pos).project(camera);const x=(v3.x+1)/2*w,y=(1-v3.y)/2*h;const vis=v3.z<1&&x>-80&&x<w+80&&y>-20&&y<h+60;pl.el.style.display=vis?"":"none";if(vis)pl.el.style.transform=`translate(${x}px,${y}px) translate(-50%,-100%)`;if(pl.k){pl.el.classList.toggle("sel",sel===pl.k);pl.el.classList.toggle("small",small);pl.el.classList.toggle("tiny",tiny)}}}
+function updateSelection(){const L=dyn&&dyn.selLine;if(!L)return;if(!sel){L.visible=false;return}const b=DIST[sel];const y=.08,pad=.5;const pts=[[b.x0-pad,b.z0-pad],[b.x1+pad,b.z0-pad],[b.x1+pad,b.z1+pad],[b.x0-pad,b.z1+pad]].map(([x,z])=>new THREE.Vector3(x,y,z));L.geometry.setFromPoints(pts);L.material.color.set(PILLARS[PI[sel]].c);L.visible=true}
+// animation
+const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+function animate(now){if(!dyn)return;const t=(now-dyn.t0)/1000;const tt=reduce?3.2:t;
+ for(const tr of dyn.traffic){if(tr.light){const ph=tt%tr.light.period;const green=ph<tr.light.green;tr.light.a.userData.set(green?"green":"red");tr.light.b.userData.set(green?"red":"green");tr.lightGreen=green}
+  for(const ln of tr.lanes){const L=ln.len;const sorted=ln.cars;for(let i=0;i<sorted.length;i++){const c=sorted[i];if(!c.v)c.v=ln.speed;let target=ln.speed;
+    if(ln.stop!=null&&!tr.lightGreen){const d=ln.stop-c.s;if(d>0&&d<.5)target=0}
+    const ahead=sorted[(i+1)%sorted.length];let gap=(ahead.s-c.s+L)%L;if(sorted.length>1&&gap<ln.gap)target=0;
+    c.v+=(target-c.v)*.12;if(!reduce)c.s=(c.s+c.v*(1/60))%L;
+    const x=ln.dir>0?tr.xa+c.s:tr.xb-c.s;c.o.position.set(x,0,ln.z);c.o.rotation.y=ln.dir>0?Math.PI/2:-Math.PI/2}}}
+ for(const trn of dyn.rail.trains){const L=trn.len;let s=(tt*trn.speed+trn.off)%(L+8);const st=DIST.workflow_entry_points;const stopX=(st.x0+st.x1)/2+1.6-dyn.rail.xa;
+  if(trn.dwell){const cyc=L+8+trn.speed*3;let u=(tt*trn.speed+trn.off)%cyc;if(u<stopX)s=u;else if(u<stopX+trn.speed*3)s=stopX;else s=u-trn.speed*3}
+  const x=trn.dir>0?dyn.rail.xa+s-2:dyn.rail.xb-s+2;trn.o.position.set(x,.1,trn.z);trn.o.rotation.y=trn.dir>0?0:Math.PI}
+ for(const [k,d] of Object.entries(dyn.districts)){if(d.userData.crane&&!reduce)d.userData.crane.userData.top.rotation.y=Math.sin(t*.25+k.length)*1.1;if(d.userData.lm.userData.siren)d.userData.lm.userData.siren.material.emissiveIntensity=reduce?1:(Math.sin(t*6)>0?1.6:.2)}
+ for(const sp of dyn.grid.sparks){sp.material.opacity=reduce?.9:(Math.random()<.5?1:.25);sp.scale.setScalar(reduce?.5:.35+Math.random()*.3)}
+ steam(t)}
+const puffs=[];function steam(t){if(!dyn)return;const d=dyn.districts.pipeline_parity;if(!d||!d.userData.lm.userData.steam)return;if(!puffs.length||puffs.owner!==d){puffs.forEach(p=>p.parent&&p.parent.remove(p));puffs.length=0;puffs.owner=d;for(let i=0;i<10;i++){const s=new THREE.Sprite(steamMat());s.material=s.material.clone();d.userData.lm.add(s);puffs.push(s)}}
+ const lvl=current.L[PI.pipeline_parity];const H=1.3+lvl*.25;puffs.forEach((s,i)=>{const u=((reduce?.5:t*.18)+i/10)%1;s.position.set(.7+Math.sin(i*7+u*3)*.12,H+u*1.4,-.1);s.scale.setScalar(.45+u*.9);s.material.opacity=(1-u)*.8})}
+let last=0;function loop(now){requestAnimationFrame(loop);if(document.hidden)return;animate(now);renderer.render(scene,camera);updateLabels()}
+
+/* ================= interaction ================= */
+const ray=new THREE.Raycaster(),ndc=new THREE.Vector2();let drag=null,moved=0;
+function pickAt(cx,cy){const b=canvas.getBoundingClientRect();ndc.set((cx-b.left)/b.width*2-1,-(cy-b.top)/b.height*2+1);ray.setFromCamera(ndc,camera);const hits=ray.intersectObjects(city.children,true);for(const h of hits){let o=h.object;while(o&&!o.userData.pick)o=o.parent;if(o&&o.userData.pick&&o.userData.pick.kind!=="district")return o.userData.pick}for(const h of hits){let o=h.object;while(o&&!o.userData.pick)o=o.parent;if(o&&o.userData.pick)return o.userData.pick}return null}
+canvas.addEventListener("pointerdown",e=>{drag={x:e.clientX,y:e.clientY,t:view.target.clone()};moved=0;canvas.setPointerCapture(e.pointerId)});
+canvas.addEventListener("pointermove",e=>{if(drag){const dx=e.clientX-drag.x,dy=e.clientY-drag.y;moved=Math.max(moved,Math.abs(dx)+Math.abs(dy));if(moved>4){canvas.classList.add("drag");const s=(camera.top-camera.bottom)/stage.clientHeight;const a=view.az*Math.PI/180;const rx=new THREE.Vector3(Math.cos(a),0,-Math.sin(a)),fz=new THREE.Vector3(-Math.sin(a),0,-Math.cos(a));view.target.copy(drag.t).addScaledVector(rx,-dx*s).addScaledVector(fz,dy*s*1.22);clampTarget();placeCamera()}}else{const pk=pickAt(e.clientX,e.clientY);canvas.classList.toggle("hot",!!pk)}});
+canvas.addEventListener("pointerup",e=>{canvas.classList.remove("drag");if(drag&&moved<=4){const pk=pickAt(e.clientX,e.clientY);if(pk){if(pk.kind==="district")select(sel===pk.k?null:pk.k);else select(null,pk.kind)}else select(null)}drag=null});
+canvas.addEventListener("wheel",e=>{e.preventDefault();zoomBy(e.deltaY<0?1.12:1/1.12)},{passive:false});
+let pinch=null;canvas.addEventListener("touchstart",e=>{if(e.touches.length===2){pinch=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);drag=null}},{passive:true});
+canvas.addEventListener("touchmove",e=>{if(pinch&&e.touches.length===2){const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);zoomBy(d/pinch);pinch=d}},{passive:true});
+canvas.addEventListener("touchend",()=>{pinch=null});
+function clampTarget(){view.target.x=Math.max(-2,Math.min(31,view.target.x));view.target.z=Math.max(-3,Math.min(18,view.target.z))}
+function zoomBy(f){view.zoom=Math.max(.7,Math.min(4,view.zoom*f));placeCamera()}
+let rotAnim=null;function rotate(d){const from=view.az,to=view.az+d;const t0=performance.now();cancelAnimationFrame(rotAnim);const step=now=>{const u=Math.min(1,(now-t0)/450);const e=u<.5?2*u*u:1-Math.pow(-2*u+2,2)/2;view.az=from+(to-from)*(reduce?1:e);placeCamera();if(u<1&&!reduce)rotAnim=requestAnimationFrame(step)};rotAnim=requestAnimationFrame(step)}
+document.getElementById("rotL").onclick=()=>rotate(-90);document.getElementById("rotR").onclick=()=>rotate(90);
+document.getElementById("zin").onclick=()=>zoomBy(1.25);document.getElementById("zout").onclick=()=>zoomBy(.8);
+document.getElementById("fit").onclick=()=>{view.zoom=1;view.target.set(14.5,0,7.5);placeCamera()};
+document.getElementById("lbl").onclick=e=>{const on=stage.classList.toggle("hide-labels");e.currentTarget.setAttribute("aria-pressed",String(!on))};
+function focusDistrict(k){const b=DIST[k];view.target.set((b.x0+b.x1)/2,0,(b.z0+b.z1)/2+.5);view.zoom=Math.max(view.zoom,1.7);placeCamera()}
+let selKind=null;function select(k,kind){sel=k;selKind=kind||null;if(k)focusDistrict(k);updateSelection();renderPanel()}
+
+/* ================= panel, picker, table ================= */
+const fmt=n=>n==null?"":`+${n.toFixed(1)}`;
+function districtStory(rep,p){const lvl=rep.L[PI[p.k]];const st=stepsFor(rep,p);const lines=[];
+ lines.push(lvl===0?`Vacant, fenced lot. The ${p.b.toLowerCase()} has not been built.`:lvl===1?`A small ${p.b.toLowerCase()} stands, surrounded by low houses.`:lvl===2?`A working ${p.b.toLowerCase()} with mid-rise blocks and green space.`:`A flagship ${p.b.toLowerCase()} with towers and paved plazas.`);
+ lines.push("Street: "+TRAFFIC[lvl]+".");if(st.length)lines.push(`Construction site: ${st[0].c} is the next planned fix${st[0].p!=null?` (${fmt(st[0].p)} points)`:""}.`);
+ if(p.k==="verification"&&rep.caps.length)lines.push("Closed by order: a score cap ("+rep.caps[0]+") limits the whole score.");return lines}
+function renderPanel(){const rep=current,pn=document.getElementById("panel");const t=tierOf(rep.score);const pts=PILLARS.map((p,i)=>rep.L[i]/3*p.w);
+ let h=`<div><div class="eyebrow">${rep.set?rep.set+" set · ":""}${rep.comp} component${rep.comp===1?"":"s"}</div><h2>${rep.id}</h2></div>
+ <dl class="kv"><dt>Tool score</dt><dd>${rep.score} / 100 · ${t.n}</dd>${rep.gut!=null?`<dt>Human gut score</dt><dd>${rep.gut} (tool ${rep.score-rep.gut>=0?"+":""}${rep.score-rep.gut})</dd>`:""}${rep.done!=null?`<dt>All fixes done</dt><dd>${rep.done}</dd>`:""}<dt>Entropy penalty</dt><dd>${rep.pen.toFixed(1)}</dd><dt>Tracked files</dt><dd>${rep.files.toLocaleString("en")}</dd>${rep.caps.length?`<dt>Cap</dt><dd style="color:var(--bad)">${rep.caps[0]}</dd>`:""}</dl>`;
+ if(sel){const p=PILLARS[PI[sel]];const i=PI[sel];const lvl=rep.L[i];const st=stepsFor(rep,p);
+  h+=`<div class="focus" style="--pc:${p.c}"><div><div class="eyebrow">${p.b}</div><h3>${p.n}: L${lvl} ${LEVEL[lvl]}</h3><div class="meta">${pts[i].toFixed(1)} of ${p.w} points${p.w-pts[i]>0?` · ${(p.w-pts[i]).toFixed(1)} still open`:" · complete"}</div></div>
+  ${districtStory(rep,p).map(l=>`<p>${l}</p>`).join("")}
+  ${st.length?`<ul class="plain">${st.map(s=>`<li class="wi"><span class="tag">${s.c}</span><span>${s.t} <span class="meta">${fmt(s.p)}</span></span></li>`).join("")}</ul>`:""}
+  <button class="btnlink" id="clr">Show the whole city</button></div>`}
+ if(selKind){const items=rep.ent.filter(e=>e.c===selKind);h+=`<div class="focus" style="--pc:#b0377f"><div><div class="eyebrow">${ENR[selKind].where}</div><h3>${items.length} ${ENR[selKind].t}${items.length>1?"s":""}</h3></div><ul class="plain">${items.map(e=>`<li class="path">${e.p}</li>`).join("")}</ul><p class="meta">The tool only reports; a person decides whether to delete or wire it up.</p><button class="btnlink" id="clr">Show the whole city</button></div>`}
+ h+=`<div><div class="eyebrow">Districts</div><table class="dtab">${PILLARS.map((p,i)=>`<tr data-k="${p.k}" class="${sel===p.k?"sel":""}"><td><span class="sw" style="background:${p.c}"></span>${p.n}</td><td class="lv">L${rep.L[i]}</td><td class="num">${pts[i].toFixed(1)}/${p.w}</td></tr>`).join("")}</table></div>`;
+ const groups={};for(const e of rep.ent)(groups[e.c]=groups[e.c]||[]).push(e);
+ h+=`<div><div class="eyebrow">Decay · ${rep.ent.length} entropy item${rep.ent.length===1?"":"s"}</div>${rep.ent.length?`<ul class="plain" style="margin-top:6px">${Object.entries(groups).map(([c,l])=>`<li class="wi"><span class="tag ${c==="ENR-04"?"bad":"warn"}">${c}</span><span><button class="btnlink" data-kind="${c}">${l.length} ${ENR[c].t}${l.length>1?"s":""}</button><br><span class="meta">${ENR[c].where}</span></span></li>`).join("")}</ul>`:`<p class="empty">No entropy items in the export for this repository.</p>`}</div>`;
+ h+=`<div><div class="eyebrow">Next fixes (construction sites)</div><ul class="plain" style="margin-top:6px">${rep.steps.map(s=>`<li class="wi"><span class="tag">${s.c}</span><span>${s.t} <span class="meta">${fmt(s.p)}</span></span></li>`).join("")}</ul></div>`;
+ pn.innerHTML=h;pn.querySelectorAll("tr[data-k]").forEach(tr=>tr.onclick=()=>select(sel===tr.dataset.k?null:tr.dataset.k));pn.querySelectorAll("[data-kind]").forEach(b=>b.onclick=()=>select(null,b.dataset.kind));const c=pn.querySelector("#clr");if(c)c.onclick=()=>{select(null);document.getElementById("fit").click()};
+ document.getElementById("cityplate").innerHTML=`<div class="t">${rep.id}</div><div class="m"><span class="tierpill" style="background:${t.c}">${t.n}</span>score ${rep.score} · ${rep.gut!=null?`residents rate it ${rep.gut} · `:""}${rep.ent.length} decay</div>`}
+function renderPicker(){const el=document.getElementById("picker");const sorted=[...REPOS].sort((a,b)=>b.score-a.score);let h="",last="";for(const r of sorted){const t=tierOf(r.score);if(t.n!==last){h+=`<span class="grp">${t.n}</span>`;last=t.n}h+=`<button class="chip" data-id="${r.id}" aria-pressed="${r===current}">${r.id}<b style="background:${t.c}">${r.score}</b></button>`}el.innerHTML=h;el.querySelectorAll(".chip").forEach(b=>b.onclick=()=>choose(b.dataset.id,true))}
+function renderTable(){const t=document.getElementById("dtable");const sorted=[...REPOS].sort((a,b)=>b.score-a.score);
+ t.innerHTML=`<thead><tr><th>Repository</th><th>Set</th><th>Score</th><th>Gut</th><th>Tier</th>${PILLARS.map(p=>`<th title="${p.n}">${p.short}</th>`).join("")}<th>Penalty</th><th>Decay</th><th>All fixes</th></tr></thead><tbody>${sorted.map(r=>`<tr data-id="${r.id}"><td>${r.id}</td><td>${r.set}</td><td class="num">${r.score}</td><td class="num">${r.gut??"–"}</td><td>${tierOf(r.score).n}</td>${r.L.map(l=>`<td class="l">L${l}</td>`).join("")}<td class="num">${r.pen.toFixed(1)}</td><td class="num">${r.ent.length}</td><td class="num">${r.done??"–"}</td></tr>`).join("")}</tbody>`;
+ t.querySelectorAll("tbody tr").forEach(tr=>tr.onclick=()=>{choose(tr.dataset.id,true);stage.scrollIntoView({behavior:reduce?"auto":"smooth",block:"center"})})}
+function choose(id,push){const r=REPOS.find(x=>x.id===id);if(!r)return;current=r;sel=null;selKind=null;if(push){try{history.replaceState(null,"","#"+id)}catch(e){location.hash=id}}renderPicker();renderPanel();if(scene){view.zoom=1;view.target.set(14.5,0,7.5);placeCamera();build(r)}}
+
+/* ================= offscreen thumbnails (asset sheet + key) ================= */
+async function renderThumbs(){const tr=new THREE.WebGLRenderer({antialias:true,alpha:true,preserveDrawingBuffer:true});tr.setPixelRatio(1);tr.setSize(480,360);tr.outputColorSpace=THREE.SRGBColorSpace;tr.shadowMap.enabled=true;tr.shadowMap.type=THREE.PCFSoftShadowMap;
+ const shot=(build,cx,cz,half)=>{const sc=new THREE.Scene();sc.add(new THREE.HemisphereLight("#f4f8ff","#8aa77a",1.35));const s=new THREE.DirectionalLight("#fff3dd",2.5);s.position.set(cx+12,18,cz+10);s.target.position.set(cx,0,cz);s.castShadow=true;s.shadow.mapSize.set(1024,1024);Object.assign(s.shadow.camera,{left:-8,right:8,top:8,bottom:-8,near:1,far:60});s.shadow.bias=-.0005;sc.add(s,s.target);
+  const g=new THREE.Group();sc.add(g);const savedTags=tags;tags=[];build(g);tags=savedTags;const cam=new THREE.OrthographicCamera(-half*4/3,half*4/3,half,-half,-100,200);cam.position.set(cx+30,30*.82,cz+30);cam.lookAt(cx,0,cz);tr.render(sc,cam);return tr.domElement.toDataURL("image/png")};
+ const sheet=document.getElementById("sheet");sheet.innerHTML="";const fake={id:"sheet",L:[0,0,0,0,0,0,0],ent:[],caps:[],steps:[],score:60};
+ for(const p of PILLARS){const row=document.createElement("div");row.className="srow";row.innerHTML=`<div class="sh"><span class="eyebrow">weight ${p.w}</span><strong><span class="sw" style="background:${p.c}"></span>${p.n}</strong><span class="meta">${p.b}</span></div>`;sheet.appendChild(row);
+  for(let l=0;l<4;l++){const b={x0:0,x1:5,z0:0,z1:4};const url=shot(g=>{groundPlane(g,-3,-3,9,8,"#a9cf8f",-.03);buildDistrict(g,p.k,l,b,fake,hash(p.k+"sheet"+l),{signScale:.85,signs:true});const rd=[];for(let x=-1;x<=6;x++)rd.push([x,5,90]);instanced(g,"road-straight",rd)},2.6,2.8,4.2);
+   const f=document.createElement("figure");f.className="figure";f.style.margin="0";f.innerHTML=`<img alt="${p.n} district at L${l} ${LEVEL[l]}" src="${url}"><figcaption>L${l} ${LEVEL[l]}</figcaption>`;row.appendChild(f)}await new Promise(r=>setTimeout(r,0))}
+ // reading key
+ const key=document.getElementById("key");const KEY=[
+  ["Free-flowing boulevard","L3 agent-native: two busy lanes, street trees, the district is fully served.",g=>{groundPlane(g,-3,-3,9,8,"#a9cf8f",-.03);const rd=[];for(let x=-1;x<=6;x++)rd.push([x,2,90]);instanced(g,"road-straight",rd);const r=rng(4);for(const [x,z,rot,id] of [[0.3,2.18,90,"sedan"],[1.6,2.18,90,"taxi"],[3.2,2.18,90,"suv"],[0.9,1.82,-90,"van"],[2.6,1.82,-90,"sedan"],[4.4,1.82,-90,"delivery-van"]])put(g,id,x,z,rot);for(let x=0;x<=5;x+=2)put(g,"tree-oak",x,1.53,r()*360,.6);put(g,"bld-f",1,0.6,0,.92);put(g,"bld-g",3,0.6,0,.92);put(g,"tower-a",5,.3,0,.8)}],
+  ["One lane and a traffic light","L1 present: the pillar exists but is thin. Half the street is coned off and cars queue at the light. A known limit.",g=>{groundPlane(g,-3,-3,9,8,"#a9cf8f",-.03);const rd=[];for(let x=-1;x<=6;x++)rd.push([x,2,90]);instanced(g,"road-straight",rd);for(let x=.5;x<5;x+=.45)cone(g,x,1.8);barrier(g,.2,1.8,90,.42);const tl=trafficLight(g,.0,2.42,90);tl.userData.set("red");put(g,"sedan",.45,2.18,90);put(g,"taxi",-.2,2.18,90);put(g,"van",-.85,2.18,90);put(g,"digger",2.6,1.7,90,.8);put(g,"house-a",1,.6,0,.9);put(g,"house-d",3,.6,0,.9);const ws=textSprite("onelane",["1 LANE","known limit"],{bg:"#ffd23f",scale:.65});ws.position.set(4.3,.78,1.7);g.add(ws)}],
+  ["Road closed","L0 absent: the street to the district is barricaded. Nothing gets in or out.",g=>{groundPlane(g,-3,-3,9,8,"#a9cf8f",-.03);const rd=[];for(let x=-1;x<=6;x++)rd.push([x,2,90]);instanced(g,"road-straight",rd);barrier(g,.5,2,90,.9);barrier(g,4.4,2,90,.9);for(let x=1;x<4.2;x+=.7)cone(g,x,2+(x%1.4?.15:-.15));put(g,"rock",2.4,2.05,0,1.4);groundPlane(g,-.5,-.5,5.5,1.5,"#c7ae84",.02);for(let x=0;x<=5;x++)put(g,"fence",x,1.42,0,1);put(g,"stump",1.5,.6,0,1.5);put(g,"rock",3.5,.4,0,1.5);const s=textSprite("roadclosed",["ROAD CLOSED","nothing reaches it"],{bg:"#fff",fg:"#d6342a",scale:.75});s.position.set(2.4,.9,2.1);g.add(s)}],
+  ["Construction site","The next planned fix from the fix plan, with its score gain. Built where the pillar will grow.",g=>{groundPlane(g,-3,-3,9,8,"#a9cf8f",-.03);const fake2={id:"k",L:[1,1,1,1,1,1,1],ent:[],caps:[],steps:[],score:50};buildDistrict(g,"pipeline_parity",1,{x0:0,x1:5,z0:0,z1:3},fake2,7,{steps:[{c:"CIP-05",t:"",p:3.3}],signScale:.8,signs:true})}],
+  ["Abandoned wagons","Each wagon on the rusty siding is one orphaned script that nothing calls any more (ENR-01).",g=>{groundPlane(g,-3,-3,9,8,"#a9cf8f",-.03);const bed=new THREE.Mesh(bg(7,.05,.7),mat("#a59578"));bed.position.set(2.5,.025,2);g.add(bed);for(const dz of [-.18,.18]){const rl=new THREE.Mesh(bg(7,.04,.035),mat("#8a5a3a"));rl.position.set(2.5,.08,2+dz);g.add(rl)}for(let i=0;i<4;i++){const w=wagon();w.position.set(.4+i*1.12,.1,2);g.add(w)}const r=rng(3);for(let i=0;i<14;i++)put(g,"bush",-.5+r()*6,1.5+r()*1,r()*360,.6)}],
+  ["Broken pylon","Each toppled, sparking pylon on the power line is one CI workflow pointing at a file that no longer exists (ENR-04).",g=>{groundPlane(g,-3,-3,9,8,"#a9cf8f",-.03);let prev=null;[0,2.5,5].forEach((x,i)=>{const br=i===1;pylon(g,x,2,br);if(br){const sp=new THREE.Sprite(sparkMat());sp.scale.set(.5,.5,1);sp.position.set(x-.4,1,2);g.add(sp);cable(g,new THREE.Vector3(x-.6,.95,2),new THREE.Vector3(x-1.1,.1,2.3),.05)}});cable(g,new THREE.Vector3(-1,1.06,2),new THREE.Vector3(0,1.06,2));put(g,"generator",4.6,.6,0,1)}],
+  ["Graffiti wall","Each tag on the wall in the police district is one tool configured twice in conflicting ways (ENR-02).",g=>{groundPlane(g,-3,-3,9,8,"#a9cf8f",-.03);const w=graffitiWall(2);w.position.set(2.5,0,2);g.add(w);put(g,"bld-c",1.5,.7,0,.9);put(g,"police-car",3.5,2.6,90)}],
+  ["Closed by order","A score cap (no tests found) closes the hospital: barriers and a red sign, whatever else is built.",g=>{groundPlane(g,-3,-3,9,8,"#a9cf8f",-.03);const fake2={id:"k",L:[0,0,0,0,0,0,0],ent:[],caps:["no-tests"],steps:[],score:30};buildDistrict(g,"verification",1,{x0:0,x1:5,z0:0,z1:3},fake2,11,{cap:"no-tests",signScale:.8,signs:true})}]
+ ];
+ key.innerHTML="";for(const [t,d,fn] of KEY){const url=shot(fn,2.5,1.8,3.2);const c=document.createElement("div");c.className="kc";c.innerHTML=`<img alt="${t}" src="${url}"><div class="kt"><h3>${t}</h3><span>${d}</span></div>`;key.appendChild(c);await new Promise(r=>setTimeout(r,0))}
+ tr.dispose()}
+
+/* ================= boot ================= */
+async function loadData(){
+ const raw=window.HARNESS_CITY_DATA||await (await fetch(new URLSearchParams(location.search).get("data")||"data/cities.json")).json();
+ META=raw.meta||{};REPOS=(raw.cities||raw).map(c=>({set:"",gut:null,done:null,comp:1,files:0,pen:0,steps:[],ent:[],caps:[],...c}));
+ if(!REPOS.length)throw new Error("no cities in data");
+ const n=REPOS.length;document.getElementById("hdrEyebrow").textContent=[META.tool,META.scanDate?"scan of "+META.scanDate:"",n+" "+(n===1?"repository":"repositories")].filter(Boolean).join(" · ");
+ if(META.title){document.getElementById("hdrTitle").textContent=META.title;document.title=META.title}
+ document.getElementById("tblTitle").textContent=n===1?"Scan data":"All "+n+" scans";
+ document.getElementById("tblNote").textContent=(META.source?"Source: "+META.source+". ":"")+"Decay shows the entropy items present in the export for each repository."}
+(async()=>{
+ try{await loadData()}catch(err){document.getElementById("loading").textContent="Could not load city data ("+err.message+"). Serve this folder over http (python3 tools/serve.py) or open the standalone file from dist/.";console.error(err);return}
+ renderTable();const fromHash=decodeURIComponent(location.hash.slice(1));current=REPOS.find(r=>r.id===fromHash)||REPOS[0];renderPicker();renderPanel();
+ try{await Promise.race([Promise.all([document.fonts.load(`800 40px ${FONT_D}`),document.fonts.load(`600 30px ${FONT_M}`)]),new Promise(r=>setTimeout(r,2500))])}catch(e){}
+ try{initScene();await loadAssets();build(current);document.getElementById("loading").hidden=true;requestAnimationFrame(loop);window.__ready=true;window.__t={view,placeCamera,choose,select,camera,renderer,scene};
+  new ResizeObserver(()=>{resize()}).observe(stage);
+  setTimeout(()=>renderThumbs().then(()=>{window.__thumbs=true}),50)}
+ catch(err){document.getElementById("loading").textContent="The 3D view needs WebGL, which this browser could not start. The data table below has every number.";console.error(err)}
+ window.addEventListener("hashchange",()=>{const id=decodeURIComponent(location.hash.slice(1));if(id&&id!==current.id)choose(id,false)});
+})();
+</script>

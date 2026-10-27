@@ -1,0 +1,59 @@
+# Triage hints per check (v1.1): effort 1 = minutes (add a small file or line), 2 = about an hour
+# (config or CI change), 3 = a day or more (new tooling, tests or docs to write).
+# `action` is one imperative sentence an agent or human can act on.
+ORI-01: { effort: 1, action: "Add a Setup/Usage section to README.md with install and run commands." }
+ORI-02: { effort: 1, action: "Add AGENTS.md at the repo root (build, test, lint commands, layout, conventions)." }
+ORI-03: { effort: 1, action: "Add CONTRIBUTING.md describing the human workflow (branching, checks, review)." }
+ORI-04: { effort: 1, action: "List the exact build, test and lint commands in AGENTS.md." }
+ORI-05: { effort: 1, action: "Add a short repository-layout section to AGENTS.md (where code, tests and config live)." }
+ORI-06: { effort: 1, action: "Add concrete do/do-not rules to AGENTS.md (forbidden actions, review rules)." }
+ORI-07: { effort: 2, action: "Add ARCHITECTURE.md or docs/architecture.md with the main parts and why they exist." }
+ORI-08: { effort: 1, action: "Make AGENTS.md canonical; make CLAUDE.md and copilot-instructions point to it (@AGENTS.md or a link)." }
+ORI-09: { effort: 2, action: "Align commands in AGENTS.md, README and the task runner; remove or fix ones that no longer exist." }
+ORI-10: { effort: 2, action: "Add nested AGENTS.md files in large components with their own commands and rules." }
+VER-01: { effort: 3, action: "Add automated tests (at least a few meaningful ones) so changes have a feedback loop." }
+VER-02: { effort: 3, action: "Add automated tests (at least a few meaningful ones) so changes have a feedback loop." }
+VER-03: { effort: 1, action: "Configure the test framework (pytest section in pyproject.toml, or tox/nox)." }
+VER-04: { effort: 1, action: "Add a test script (and runner config) to package.json." }
+VER-05: { effort: 2, action: "Run the Python tests in CI." }
+VER-06: { effort: 2, action: "Run the Node tests in CI." }
+VER-07: { effort: 1, action: "Trigger the CI test workflow on pull_request and make it a required check." }
+VER-08: { effort: 1, action: "Declare test dependencies and commit a lockfile (uv.lock, poetry.lock, package-lock.json...)." }
+VER-09: { effort: 2, action: "Add a fast test subset (markers, or separate unit and e2e targets)." }
+VER-10: { effort: 1, action: "Configure coverage reporting (coverage.py or c8/vitest coverage)." }
+VER-11: { effort: 1, action: "Document in AGENTS.md or CONTRIBUTING where tests live and how to run a single test." }
+STA-01: { effort: 1, action: "Configure a Python linter/formatter (ruff section in pyproject.toml)." }
+STA-02: { effort: 1, action: "Configure a Node linter/formatter (eslint, biome, oxlint or prettier config)." }
+STA-03: { effort: 2, action: "Run the Python linter in CI or a pre-commit hook." }
+STA-04: { effort: 2, action: "Run the Node linter in CI or a pre-commit hook." }
+STA-05: { effort: 1, action: "Enforce formatting in check mode in CI (for example ruff format --check, prettier --check)." }
+STA-06: { effort: 2, action: "Configure a Python type checker (mypy/pyright) and run it in CI." }
+STA-07: { effort: 1, action: "Run tsc --noEmit (or equivalent) in CI." }
+STA-08: { effort: 1, action: "Remove duplicate or conflicting tool configs so each tool has one." }
+STA-09: { effort: 1, action: "Use a linter output format with rule ids and file:line (the default for ruff/eslint)." }
+TRG-01: { effort: 1, action: "Add a hook configuration (.pre-commit-config.yaml, lefthook.yml or husky)." }
+TRG-02: { effort: 1, action: "Make Git hooks run the linter or formatter." }
+TRG-03: { effort: 1, action: "Make Git hooks run a fast check or the tests." }
+TRG-04: { effort: 1, action: "Document the hook install step (for example pre-commit install) in README or CONTRIBUTING." }
+TRG-05: { effort: 2, action: "Add agent hooks (.claude/settings.json hooks or Copilot equivalent) that call the same checks." }
+TRG-06: { effort: 2, action: "Make agent hooks and Git hooks call the same runner targets instead of duplicating logic." }
+ENT-01: { effort: 1, action: "Add a task runner (Taskfile.yml, Makefile, justfile or package.json scripts) with a few targets." }
+ENT-02: { effort: 1, action: "Define test, lint and a check/ci/verify target in the runner." }
+ENT-03: { effort: 1, action: "Add descriptions or a help target to the runner targets." }
+ENT-04: { effort: 1, action: "Add a one-command setup target (install or bootstrap)." }
+ENT-05: { effort: 1, action: "Name one aggregate command (for example task check) in AGENTS.md that runs lint, types and tests." }
+ENT-06: { effort: 2, action: "Add a doctor/preflight target that checks tools and environment." }
+ENT-07: { effort: 2, action: "Support scoped runs (per package, path or test) in the runner and document them." }
+CIP-01: { effort: 2, action: "Add a CI definition (GitHub Actions, Azure Pipelines or GitLab CI)." }
+CIP-02: { effort: 2, action: "Make CI run both lint and tests." }
+CIP-03: { effort: 1, action: "Run CI on pull requests and on the default branch." }
+CIP-04: { effort: 1, action: "Cache dependencies or install from the lockfile in CI." }
+CIP-05: { effort: 2, action: "Make CI call the same runner targets developers use (task, make, npm run)." }
+CIP-06: { effort: 2, action: "Add a version matrix (Python or Node versions) to CI." }
+CIP-07: { effort: 1, action: "Add Dependabot or Renovate configuration." }
+DOC-01: { effort: 2, action: "Add a docs/ directory or documentation site." }
+DOC-02: { effort: 2, action: "Build docs or check links in CI." }
+DOC-03: { effort: 1, action: "Configure a Markdown linter (markdownlint)." }
+DOC-04: { effort: 2, action: "Enforce front matter or a schema on docs." }
+DOC-05: { effort: 2, action: "Record decisions as ADRs in docs/adr with recent entries." }
+DOC-06: { effort: 2, action: "Fix or remove dead paths, commands and links named in README and docs." }

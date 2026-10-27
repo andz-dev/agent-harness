@@ -1,0 +1,69 @@
+{
+  "artifact": "Map.md",
+  "generatedAt": "2026-10-27T14:06:12.250317+00:00",
+  "mode": "draft",
+  "inputs": [
+    "skills/harness-audit/SKILL.md",
+    "docs/0002/research/BACKLOG.md",
+    "docs/0002/research/catalog.yaml"
+  ],
+  "outputs": [
+    "docs/0002/Map.md",
+    "docs/0002/Tracker.md",
+    "docs/0002/Workflow-Report.md",
+    "docs/0002/wayfinder-tickets/01-dual-evaluation-and-reconciliation.md",
+    "docs/0002/wayfinder-tickets/02-approved-creation-and-activation.md",
+    "docs/0002/wayfinder-tickets/03-enforcement-and-qualification-evidence.md",
+    "docs/0002/wayfinder-tickets/04-specification-readiness-and-handoff.md",
+    "docs/0002/wayfinder-tickets/05-frozen-source-and-history.md",
+    "docs/0002/wayfinder-tickets/06-as-built-evaluation-and-scoring.md",
+    "docs/0002/wayfinder-tickets/07-bootstrap-and-documentation-handoff.md",
+    "docs/0002/research/As-Built-Findings.md"
+  ],
+  "validation": {
+    "status": "warn",
+    "checks": [
+      "standalone-source-integrity-and-local-doc-path-checks"
+    ]
+  },
+  "notes": [
+    "2026-10-27 supersedes the former prospective workflow: adopt the existing frozen harness-audit and reverse-engineer its documentation.",
+    "Current map has four superseded scope exclusions and three source-reconstructed AFK task records, not newly approved HITL resolutions.",
+    "Earlier notes below are historical and do not describe current stage status.",
+    "Final-ready is the target mode; the Wayfinder policy gate is still open.",
+    "All seven shared dependencies and the stage graph were loaded.",
+    "Child identities were created before dependency edges were wired in a second pass.",
+    "The checker heading mismatch was repaired; final charting validation passes.",
+    "Local artifact hygiene and editor diagnostics pass; no target repository checks ran.",
+    "The owner accepted the prior completion and v0.2 recommendations and added mandatory static plus agent-led evaluation.",
+    "No child decision is resolved by charting; downstream policy gates remain open.",
+    "Imported from original 0039; old validation is historical. New-checkout validation is recorded in EXTRACTION.md."
+  ],
+  "importedValidation": {
+    "status": "warn",
+    "checks": [
+      "reconstructed_tracker_7_closed_0_frontier_pass",
+      "frozen_source_contract_probe_pass"
+    ]
+  },
+  "importedInputs": [
+    "docs/skills/0036-v0.1-agent-harness-setup/Map.md",
+    "docs/skills/0036-v0.1-agent-harness-setup/Tracker.md",
+    "skills/harness-audit/SKILL.md",
+    "docs/0002/research/BACKLOG.md",
+    "docs/0002/research/catalog.yaml"
+  ],
+  "importedOutputs": [
+    "docs/0002/Map.md",
+    "docs/0002/Tracker.md",
+    "docs/0002/Workflow-Report.md",
+    "docs/0002/wayfinder-tickets/01-dual-evaluation-and-reconciliation.md",
+    "docs/0002/wayfinder-tickets/02-approved-creation-and-activation.md",
+    "docs/0002/wayfinder-tickets/03-enforcement-and-qualification-evidence.md",
+    "docs/0002/wayfinder-tickets/04-specification-readiness-and-handoff.md",
+    "docs/0002/wayfinder-tickets/05-frozen-source-and-history.md",
+    "docs/0002/wayfinder-tickets/06-as-built-evaluation-and-scoring.md",
+    "docs/0002/wayfinder-tickets/07-bootstrap-and-documentation-handoff.md",
+    "docs/0002/research/As-Built-Findings.md"
+  ]
+}
