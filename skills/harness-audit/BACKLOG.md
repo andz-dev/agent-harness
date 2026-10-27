@@ -347,3 +347,10 @@ Full map: `docs/0005/Infrastructure-Coverage-Map.md`. Today the catalog has no i
 - B-189: Synthetic repos per tool and per pass/fail case in tests.
 - B-190: Infra calibration set with two raters; test that infra files never change the frozen 0-100 score until decision D1 is made.
 - B-191 (done): ORI-09 gets mechanical candidates (documented `task/make/just/npm run X` commands that no runner defines) and `command_references_checked`; prompt rule 9. Needs a re-answer run to measure the effect on agreement (B-165).
+
+### 4w. Decisions and first implementation (2026-10-27)
+- Decided: infrastructure is an unscored overlay next to the frozen 0-100 score (D1); IaC order Terraform, Bicep, Helm/Kubernetes, then the rest (D3); Go is out of scope. B-156 (Go in bootstrap) is dropped.
+- B-166..B-169 (done): `scripts/detect_infra.py` detects Terraform/OpenTofu/Terragrunt, Bicep/ARM, Helm/Kustomize/Kubernetes manifests, Pulumi, CloudFormation/CDK, Ansible, Dockerfile/Containerfile, Compose, devcontainers, gitpod, nix, mise. Content sniffing only for ambiguous names (ARM, CloudFormation, Kubernetes, Ansible site.yml). Example directories are marked `sample` and not counted.
+- B-181, B-184 (done): `report.json` has an optional `infra` block (schema updated), `report.md` has an "Infrastructure (detected, not scored)" table and a limitation line. A test pins that infra files never change the score or pillar levels (B-190 invariant); immich 57 and n8n 78 are unchanged.
+- B-192: Detection is by location; a monorepo's infra is not yet attributed to the Python/Node component that owns it (B-170).
+- B-193: Compose files inside CI folders (`.github/`) and benchmark folders are listed as normal locations; add noise filters after seeing more repos.

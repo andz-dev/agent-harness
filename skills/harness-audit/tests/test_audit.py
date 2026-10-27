@@ -55,6 +55,22 @@ class AuditTests(unittest.TestCase):
         self.assertIn("LLM judgement missing", md)
         self.assertTrue(any(i["path"] == "scripts/lonely.sh" for i in report["entropy"]["items"]))
 
+    def test_infra_files_never_change_the_score(self):
+        """D1: infrastructure is an unscored overlay; adding infra files leaves the 0-100 score unchanged."""
+        _, plain = self.run_audit(FILES)
+        r, with_infra = self.run_audit(
+            {**FILES, "Dockerfile": "FROM python:3.12\n", "infra/main.tf": "", ".devcontainer/devcontainer.json": "{}"}
+        )
+        self.assertEqual(r.returncode, 0, r.stderr)
+        a = json.loads((plain / "report.json").read_text())
+        b = json.loads((with_infra / "report.json").read_text())
+        self.assertEqual(a["score"], b["score"])
+        self.assertEqual([p["level"] for p in a["pillars"]], [p["level"] for p in b["pillars"]])
+        self.assertEqual(audit.validate(b), [])
+        self.assertEqual(b["infra"]["tools"], ["devcontainer", "docker", "terraform"])
+        self.assertTrue(any("not scored" in x for x in b["limitations"]))
+        self.assertIn("## Infrastructure (detected, not scored)", (with_infra / "report.md").read_text())
+
     def test_second_pass_with_llm_answers(self):
         files = {**FILES, "AGENTS.md": "# Agents\n\nRun `pytest` before committing.\n"}
         r, out = self.run_audit(files)

@@ -40,3 +40,7 @@ gut scores: mean error about 5 points. Known gaps and next steps are in `BACKLOG
 ## Development
 
 `task check` runs lint and tests. See `AGENTS.md`.
+
+## Infrastructure overlay
+
+`scripts/detect_infra.py` lists infrastructure-as-code, container and devcontainer files and the report shows them under "Infrastructure (detected, not scored)". They never change the score. Checks for them are planned; see `docs/0005/Infrastructure-Coverage-Map.md` in the repository root.

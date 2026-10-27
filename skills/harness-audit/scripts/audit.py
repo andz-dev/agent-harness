@@ -18,6 +18,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import detect_infra  # noqa: E402
 import detect_stack  # noqa: E402
 import git_signals  # noqa: E402
 import llm_layer  # noqa: E402
@@ -89,6 +90,16 @@ def limitations(root_meta: dict, stack_result: dict, run: dict, git: dict, findi
     return out
 
 
+def infra_limitations(infra: dict) -> list[str]:
+    real = [d for d in infra["detected"] if not d["sample"]]
+    if not real:
+        return []
+    return [
+        f"Infrastructure found but not scored: {', '.join(infra['tools'])} ({len(real)} locations). "
+        "The score says nothing about it (see the Infrastructure section)."
+    ]
+
+
 def assemble(root: Path, catalog: dict, name=None, url=None, weight=None, llm_answers=None, tasks_out=None) -> dict:
     stack_result = detect_stack.detect(root)
     stack = stack_result["stack"]
@@ -110,6 +121,7 @@ def assemble(root: Path, catalog: dict, name=None, url=None, weight=None, llm_an
     findings = [f for f in run["findings"] if f["check_id"] not in replaced] + git["findings"] + llm_findings
     parts = score.build({"findings": findings, "stack": stack}, catalog, entropy)
     meta = repo_meta(root, name, url, weight)
+    infra = detect_infra.detect(root)
     stack_out = dict(stack)
     stack_out["ecosystems"] = sorted({c["ecosystem"] for c in stack["components"]})
     return {
@@ -118,12 +130,13 @@ def assemble(root: Path, catalog: dict, name=None, url=None, weight=None, llm_an
         "generated_at": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "repo": meta,
         "stack": stack_out,
+        "infra": infra,
         "pillars": parts["pillars"],
         "findings": findings,
         "score": parts["score"],
         "entropy": parts["entropy"],
         "top_gaps": parts["top_gaps"],
-        "limitations": limitations(meta, stack_result, run, git, findings),
+        "limitations": limitations(meta, stack_result, run, git, findings) + infra_limitations(infra),
     }
 
 
@@ -196,6 +209,11 @@ def render_md(r: dict, titles: dict[str, str]) -> str:
         lines.append(f"- {it['verdict']}: `{it['path']}` ({it['check_id']}) {ev['snippet']}")
     if e["items"]:
         lines.append("")
+    real = [d for d in r.get("infra", {}).get("detected", []) if not d["sample"]]
+    if real:
+        lines += ["## Infrastructure (detected, not scored)", "", "| Kind | Tool | Location | Files |", "|---|---|---|---|"]
+        lines += [f"| {d['kind']} | {d['tool']} | `{d['scope']}` | {d['file_count']} |" for d in real[:25]]
+        lines += ["", f"{len(real)} locations; the list is capped at 25 rows. Infrastructure checks are planned (B-171 and later).", ""]
     if r["limitations"]:
         lines += ["## Limitations", ""] + [f"- {x}" for x in r["limitations"]] + [""]
     return "\n".join(lines)

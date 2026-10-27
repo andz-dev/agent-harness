@@ -18,27 +18,29 @@ proposal; the items are tracked as B-166 to B-190 in the skill's [BACKLOG](../..
 
 ## Starting point (verified in this repo)
 
-- The check catalog has no infrastructure check. `Dockerfile`, Compose files, `.devcontainer/`, Terraform and
+- Detection now exists as an overlay (`scripts/detect_infra.py`). The check catalog still has no infrastructure check. `Dockerfile`, Compose files, `.devcontainer/`, Terraform and
   Kubernetes files are neither detected nor scored.
-- `detect_stack.py` knows Python and Node (Go is listed as unsupported). It has no notion of an infra component.
+- `detect_stack.py` knows Python and Node (Go is out of scope). It has no notion of an infra component; the overlay detector lists infra by location instead.
 - The scan JSON for Harness City has pillar levels only; it has no infra block.
 - The audit is read-only and never runs audited code. That rule extends to `terraform`, `docker`, `kubectl`
   and `devcontainer`: infra is judged from files, never by running a plan, build or container.
 - The harness adoption skill (the part that applies fixes, today only the `bootstrap.py` preview) is **not
   started**. It is Track F below.
 
-## Design decisions to confirm
+## Design decisions
+
+Confirmed by the owner on 2026-10-27: D1 overlay, D3 order as recommended. Go is out of scope (B-156 dropped).
 
 | # | Decision | Recommendation | Why |
 | --- | --- | --- |
-| D1 | Fold infra checks into the frozen 0-100 score, or report an infra overlay next to it? | Overlay first (own 0-100 and levels), fold in only after recalibration | Weights are frozen; adding checks to existing pillars changes scores of repos that ship a Dockerfile (immich, n8n, home-assistant-core) and would invalidate the calibration |
+| D1 (decided: overlay) | Fold infra checks into the frozen 0-100 score, or report an infra overlay next to it? | Overlay first (own 0-100 and levels), fold in only after recalibration | Weights are frozen; adding checks to existing pillars changes scores of repos that ship a Dockerfile (immich, n8n, home-assistant-core) and would invalidate the calibration |
 | D2 | Infra as an 8th pillar or as `applies_to` kinds inside the seven pillars? | Kinds inside the pillars for the overlay; no new pillar until recalibration | Keeps the pillar model and the city districts stable |
-| D3 | Which IaC tools first? | Terraform/OpenTofu, then Bicep, then Helm/Kubernetes manifests, then Pulumi, CloudFormation/CDK, Ansible | Matches the owner's stack (Azure, Terraform) |
+| D3 (decided) | Which IaC tools first? | Terraform/OpenTofu, then Bicep, then Helm/Kubernetes manifests, then Pulumi, CloudFormation/CDK, Ansible | Matches the owner's stack (Azure, Terraform) |
 | D4 | Does the audit ever run `terraform validate` or `docker compose config`? | No | Read-only rule; static parsing only |
 
 ## Tracks
 
-Status key: `todo` = nothing built. All tracks are `todo`.
+Status key: `todo` = nothing built; `partly done` = some items built. Track A is partly done (detection of all listed tools, reported as an unscored overlay: `scripts/detect_infra.py`, B-166 to B-169 and B-184 done). The component model (B-170) and everything else are `todo`.
 
 ### Track A: Detection (prerequisite for everything)
 
