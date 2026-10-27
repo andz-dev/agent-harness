@@ -64,9 +64,9 @@ project rules. Python and Node only; monorepos get root-level files for the domi
 ## Infrastructure overlay
 
 Besides the score, every report has an `infra` block and an "Infrastructure" section. It lists the infrastructure
-files found (Terraform/OpenTofu, Bicep/ARM, Kubernetes/Helm/Kustomize, Pulumi, CloudFormation/CDK, Ansible,
+files found (Terraform/OpenTofu, Bicep/ARM, Kubernetes/Helm/Kustomize, Argo CD/Flux/Skaffold/Tilt/Swarm (listed only), Pulumi, CloudFormation/CDK, Ansible,
 Dockerfile, Compose, devcontainers, gitpod, nix, mise) and, for Dockerfile, Compose, devcontainer, Terraform,
-Bicep, Kubernetes/Helm, Ansible, CloudFormation and Pulumi, plus five cross-cutting checks (dependency bot, CODEOWNERS, path-filtered CI, secret scanning, tracked keys), 56 script checks (`INF-D*`, `C*`, `V*`, `T*`, `B*`, `K*`, `A*`, `F*`, `P*`, `X*`) and 4 judgement checks (`INF-J*`) with pass, fail or not applicable and quoted evidence.
+Bicep, Kubernetes/Helm, Ansible, CloudFormation and Pulumi, plus five cross-cutting checks (dependency bot, CODEOWNERS, path-filtered CI, secret scanning, tracked keys), 59 script checks (including three entropy checks `INF-E*`) (`INF-D*`, `C*`, `V*`, `T*`, `B*`, `K*`, `A*`, `F*`, `P*`, `X*`) and 4 judgement checks (`INF-J*`) with pass, fail or not applicable and quoted evidence.
 
 - Judgement (area `agent-guidance`, `INF-J01..J04`): when infrastructure exists and an agent file exists, `llm_tasks.json`
   also holds four infrastructure tasks (safe plan/apply workflow, environments, credential source, local checks) with

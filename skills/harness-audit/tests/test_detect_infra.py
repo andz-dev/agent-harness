@@ -104,7 +104,7 @@ class DetectInfraTests(unittest.TestCase):
         r = detect(
             {"a/site.yml": "- hosts: all\n  tasks: []\n", "b/site.yml": "title: docs\n", "roles/web/tasks/main.yml": "- debug: {}\n"}
         )
-        self.assertEqual(tools(r), {("ansible", "a"), ("ansible", "roles/web/tasks")})
+        self.assertEqual(tools(r), {("ansible", "a"), ("ansible", ".")})
 
     def test_no_infra(self):
         r = detect({"src/app.py": "print(1)\n"})
@@ -122,6 +122,39 @@ class OwnerTests(unittest.TestCase):
     def test_attribute_adds_component_without_changing_other_fields(self):
         d = [{"scope": "web/docker", "tool": "docker"}]
         self.assertEqual(detect_infra.attribute(d, ["web"])[0], {"scope": "web/docker", "tool": "docker", "component": "web"})
+
+
+class UnnamedTemplateTests(unittest.TestCase):
+    def test_cloudformation_template_with_any_file_name(self):
+        with tempfile.TemporaryDirectory() as d:
+            p = Path(d) / "network" / "vpc-basic.yaml"
+            p.parent.mkdir()
+            p.write_text("AWSTemplateFormatVersion: '2010-09-09'\nResources: {}\n")
+            got = {(x["tool"], x["scope"]) for x in detect_infra.detect(Path(d))["detected"]}
+        self.assertEqual(got, {("cloudformation", "network")})
+
+
+class GitOpsTests(unittest.TestCase):
+    def tools(self, tree):
+        with tempfile.TemporaryDirectory() as d:
+            for rel, text in tree.items():
+                p = Path(d) / rel
+                p.parent.mkdir(parents=True, exist_ok=True)
+                p.write_text(text)
+            return {x["tool"] for x in detect_infra.detect(Path(d))["detected"]}
+
+    def test_argocd_flux_skaffold_tilt_swarm(self):
+        tree = {
+            "gitops/app.yaml": "apiVersion: argoproj.io/v1alpha1\nkind: Application\n",
+            "clusters/prod/sync.yaml": "apiVersion: kustomize.toolkit.fluxcd.io/v1\nkind: Kustomization\n",
+            "skaffold.yaml": "apiVersion: skaffold/v4beta6\nkind: Config\n",
+            "Tiltfile": "docker_build('x', '.')\n",
+            "docker-stack.yml": "version: '3.8'\n",
+        }
+        self.assertEqual(self.tools(tree), {"argocd", "flux", "skaffold", "tilt", "swarm"})
+
+    def test_plain_manifest_stays_kubernetes(self):
+        self.assertEqual(self.tools({"k8s/d.yaml": "apiVersion: apps/v1\nkind: Deployment\n"}), {"kubernetes"})
 
 
 if __name__ == "__main__":

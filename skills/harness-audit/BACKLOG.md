@@ -345,7 +345,7 @@ Full map: `docs/0005/Infrastructure-Coverage-Map.md`. Today the catalog has no i
 - B-187: Adoption safety rules (dry run default, reviewable diff, never apply/destroy/deploy).
 - B-188: Diff-based merge mode for existing files (supersedes B-151..B-156 scope).
 - B-189: Covered by the synthetic trees in `tests/test_infra_checks.py` (a pass and a fail case per tool and gate); no separate fixture repos needed.
-- B-190: Infra calibration set with two raters; test that infra files never change the frozen 0-100 score until decision D1 is made.
+- B-190: Tooling done: `scripts/infra_calibration.py template` writes a blind rating file (levels hidden) and `compare` reports exact agreement, agreement within one level, error direction and gaps of two or more levels, also between two raters. Open: a human has to fill the ratings (16 repos, 73 area cells in the first set); no rating exists yet, so levels stay uncalibrated (B-202).
 - B-191 (done): ORI-09 gets mechanical candidates (documented `task/make/just/npm run X` commands that no runner defines) and `command_references_checked`; prompt rule 9. Needs a re-answer run to measure the effect on agreement (B-165).
 
 ### 4w. Decisions and first implementation (2026-10-27)
@@ -376,16 +376,16 @@ Full map: `docs/0005/Infrastructure-Coverage-Map.md`. Today the catalog has no i
 - Smoke test on public repos (not part of the calibration set): Azure-Samples/todo-nodejs-mongo (Bicep, Docker, devcontainer) overall L0; kubernetes/examples (37 manifest files) Kubernetes L1. None of the 18 calibration repos has Bicep or Kubernetes, so the checks have only synthetic and these two real tests.
 - B-203 (done): Kubernetes manifests are detected anywhere in repos with at most 600 YAML files (marker `apiVersion:` + `kind:`); larger repos only in k8s-like directories. Archive directories (`_archived`, `legacy`, ...) count as samples.
 - B-204: Helm templates are Go-templated YAML and are not parsed; Helm checks cover Chart.yaml and values.schema.json only. Kustomize overlays are not rendered, so patches are not seen.
-- B-205: Argo CD / Flux manifests, Skaffold, Tilt and Docker Swarm stacks are not detected.
+- B-205: Done. Argo CD, Flux, Skaffold, Tilt and Docker Swarm stack files are detected (tools `argocd`, `flux`, `skaffold`, `tilt`, `swarm`); they are listed but have no checks of their own yet.
 - B-206: Done. INF-B01 accepts a `bicepconfig.json` in any parent directory.
 
 ### 4z. Pulumi, CloudFormation, Ansible and cross-cutting checks (2026-10-27)
 - B-174 (first version done): Ansible INF-A01..A04, CloudFormation INF-F01..F03, Pulumi INF-P01..P03.
 - B-178 (first version done): cross-cutting INF-X01..X05 (Dependabot/Renovate cover the ecosystems in use, CODEOWNERS covers infra paths, path-filtered infra workflow, secret scanning, no tracked keys or .env). 56 checks in total. Gates added: INF-X05, INF-F03, INF-P03.
 - Smoke test: immich (Renovate, CODEOWNERS and a path filter present; no secret scanning), n8n (no dependency bot, no CODEOWNERS, no secret scanning), home-assistant-core (no path-filtered infra workflow, no secret scanning). A tracked `.env` that only holds `op://` references (immich) is not counted as a leak.
-- B-207: INF-X01 treats any Renovate config as full coverage and does not read its package rules.
-- B-208: INF-X03 is a text heuristic (a `paths:` filter plus an infra word in the same workflow); it does not map the filter to the infra directories.
-- B-209: Pulumi and CloudFormation checks have only synthetic tests; none of the 18 calibration repos use them. Run on real examples before relying on them.
+- B-207: Done. INF-X01 reads the Renovate config: `enabledManagers` must list the managers for the detected tools, `disabledManagers` must not remove them, and `ignorePaths` must not exclude infrastructure directories. An unparsable config gives `unknown`. Package rules are still not read.
+- B-208: Done. INF-X03 parses the workflow YAML and passes when a `paths:` filter of a push or pull_request trigger matches a detected infrastructure file (GitHub glob rules), or when a workflow file name is dedicated to infrastructure. Path filters in reusable workflows and `paths-ignore` are not evaluated.
+- B-209: Done in part. Run on pulumi/examples, aws-cloudformation-templates, ansible-for-devops and ansible-examples. Fixes: CloudFormation templates with any file name are found (AWSTemplateFormatVersion); NoEcho is checked on the Parameters block only (a Secrets Manager `GenerateSecretString` is not a parameter); Ansible roles belong to the project that holds `roles/`; collection requirements count only inside the project; Pulumi `yaml`, `hcl` and `java` runtimes need no lock file; checks that only read CI text (P02, A02, A04, F01, F02, D05, D07, C05, V06, T03 to T05, B03, B04, K05) are reported once as `repository (CI)`. Still open: CDK is detected but has no checks; Pulumi examples were not read by a human.
 - B-210: Done. Overall overlay level is the weakest tool area; `cross-cutting`, `agent-guidance` and `infra-entropy` are reported separately in `levels.repo_wide`.
 
 ### 5a. Infrastructure judgement (2026-10-27)

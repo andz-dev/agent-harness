@@ -37,6 +37,9 @@ BY_NAME: list[tuple[str, str, tuple[str, ...]]] = [
     ("iac", "kustomize", ("kustomization.yaml", "kustomization.yml")),
     ("iac", "pulumi", ("pulumi.yaml", "pulumi.yml")),
     ("iac", "cdk", ("cdk.json",)),
+    ("iac", "skaffold", ("skaffold.yaml", "skaffold.yml")),
+    ("iac", "tilt", ("tiltfile",)),
+    ("iac", "swarm", ("docker-stack*.yml", "docker-stack*.yaml")),
     ("iac", "ansible", ("ansible.cfg", "playbook*.yml", "playbook*.yaml", "site.yml", "site.yaml")),
     ("container", "docker", ("dockerfile", "dockerfile.*", "*.dockerfile", "containerfile", "containerfile.*", ".dockerignore")),
     (
@@ -60,7 +63,24 @@ SNIFF: list[tuple[str, str, tuple[str, ...], tuple[str, ...]]] = [
         ("AWSTemplateFormatVersion", "AWS::"),
     ),
 ]
-K8S_DIRS = {"k8s", "kubernetes", "manifests", "deploy", "deployment", "deployments", "kube", "base", "overlays"}
+CFN_DIRS = {"cloudformation", "cfn", "templates", "stacks", "sam", "infra", "infrastructure"}
+K8S_DIRS = {
+    "argocd",
+    "argo",
+    "flux",
+    "flux-system",
+    "gitops",
+    "clusters",
+    "k8s",
+    "kubernetes",
+    "manifests",
+    "deploy",
+    "deployment",
+    "deployments",
+    "kube",
+    "base",
+    "overlays",
+}
 
 
 def _match(name: str, globs: tuple[str, ...]) -> bool:
@@ -94,7 +114,20 @@ def classify(root: Path, rel: str, sniff_all: bool = False) -> tuple[str, str] |
     if name.endswith((".yaml", ".yml")) and parts[0] != ".github" and (sniff_all or any(p.lower() in K8S_DIRS for p in parts[:-1])):
         head = _head(root, rel)
         if "apiVersion:" in head and "kind:" in head:
+            # GitOps controllers are Kubernetes manifests too, but they are their own tool (B-205)
+            if "argoproj.io/" in head:
+                return "iac", "argocd"
+            if "fluxcd.io/" in head:
+                return "iac", "flux"
             return "iac", "kubernetes"
+    if name.endswith((".yaml", ".yml", ".json", ".template")) and parts[0] != ".github":
+        in_iac_dir = any(p.lower() in CFN_DIRS for p in parts[:-1])
+        if sniff_all or in_iac_dir:
+            head = _head(root, rel)
+            if "AWSTemplateFormatVersion" in head or "AWS::Serverless-" in head:
+                return "iac", "cloudformation"
+            if name.endswith(".json") and "deploymentTemplate.json" in head:
+                return "iac", "arm"
     if name == "main.yml" and "tasks" in parts[:-1] and "roles" in parts[:-2]:
         return "iac", "ansible"
     return None
@@ -125,6 +158,10 @@ def detect(root: Path) -> dict:
         if not hit:
             continue
         scope = str(PurePosixPath(rel).parent)
+        if hit[1] == "ansible" and "roles" in scope.split("/"):
+            # a role's tasks, handlers and templates belong to the playbook project that holds the roles directory
+            parts = scope.split("/")
+            scope = "/".join(parts[: parts.index("roles")]) or "."
         entries.setdefault((hit[0], hit[1], scope), []).append(rel)
     detected = []
     for (kind, tool, scope), files in sorted(entries.items()):

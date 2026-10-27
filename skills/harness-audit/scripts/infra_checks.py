@@ -637,7 +637,12 @@ def kubernetes_checks(repo: Repo, scope: str, files: list[str]) -> list[dict]:
 def ansible_checks(repo: Repo, scope: str, files: list[str]) -> list[dict]:
     first = files[0]
     yml = [f for f in files if f.endswith((".yml", ".yaml"))]
-    req = [f for f in repo.files if re.search(r"(^|/)(requirements|collections/requirements)\.ya?ml$", f)]
+    pre = "" if scope == "." else scope + "/"
+    req = [
+        f
+        for f in repo.files
+        if re.search(r"(^|/)(requirements|collections/requirements)\.ya?ml$", f) and (f.startswith(pre) or "/" not in f)
+    ]
     versioned = bool(req) and any(re.search(r"version:|==|>=", repo.text(f)) for f in req)
     out = [
         finding(
@@ -698,12 +703,35 @@ def cloudformation_checks(repo: Repo, scope: str, files: list[str]) -> list[dict
         )
     )
     bad = []
+    secret = re.compile(r"(password|secret|token|apikey|privatekey)", re.I)
     for f in files:
-        lines = repo.text(f).splitlines()
-        for i, ln in enumerate(lines, 1):
-            m = re.match(r"\s{2,}([A-Za-z0-9]*(Password|Secret|Token|ApiKey|PrivateKey)[A-Za-z0-9]*):\s*$", ln)
-            if m and "NoEcho" not in "\n".join(lines[i : i + 6]) and i > 1 and "Parameters" in "\n".join(lines[max(0, i - 40) : i]):
-                bad.append(ev(f, m.group(1) + " without NoEcho", i))
+        text = repo.text(f)
+        if f.endswith(".json"):
+            try:
+                params = (json.loads(text) or {}).get("Parameters") or {}
+            except ValueError:
+                params = {}
+            for name, spec in params.items():
+                if secret.search(name) and isinstance(spec, dict) and str(spec.get("NoEcho")).lower() != "true":
+                    bad.append(ev(f, f"{name} without NoEcho"))
+            continue
+        lines = text.splitlines()
+        start = next((i for i, ln in enumerate(lines) if re.match(r"Parameters:\s*$", ln)), None)
+        if start is None:
+            continue
+        end = next((i for i in range(start + 1, len(lines)) if re.match(r"\S", lines[i]) and not lines[i].startswith("#")), len(lines))
+        block = lines[start + 1 : end]
+        for j, ln in enumerate(block):
+            m = re.match(r"  ([A-Za-z0-9]+):\s*$", ln)
+            if not (m and secret.search(m.group(1))):
+                continue
+            body = []
+            for nxt in block[j + 1 :]:
+                if re.match(r"  \S", nxt):
+                    break
+                body.append(nxt)
+            if not re.search(r"NoEcho:\s*[\"']?true", "\n".join(body), re.I):
+                bad.append(ev(f, m.group(1) + " without NoEcho", start + j + 2))
     out.append(finding("INF-F03", scope, "fail" if bad else "pass", bad or [ev(first, "secret-like parameters use NoEcho")]))
     return out
 
@@ -720,14 +748,27 @@ def pulumi_checks(repo: Repo, scope: str, files: list[str]) -> list[dict]:
             f,
         )
     ]
-    out = [
-        finding(
-            "INF-P01",
-            scope,
-            "pass" if locks else "fail",
-            [ev(locks[0], "lock file")] if locks else [ev(first, "no lock file next to the program")],
-        )
-    ]
+    runtime = ""
+    for f in files:
+        if PurePosixPath(f).name.lower() in ("pulumi.yaml", "pulumi.yml"):
+            try:
+                doc = yaml.safe_load(repo.text(f)) if yaml else None
+            except yaml.YAMLError:
+                doc = None
+            rt = doc.get("runtime") if isinstance(doc, dict) else None
+            runtime = str(rt.get("name") if isinstance(rt, dict) else rt or "").lower()
+            break
+    if runtime in ("yaml", "hcl", "java"):  # no package manager lock file to expect
+        out = [finding("INF-P01", scope, "not_applicable", [], f"runtime {runtime} has no lock file")]
+    else:
+        out = [
+            finding(
+                "INF-P01",
+                scope,
+                "pass" if locks else "fail",
+                [ev(locks[0], "lock file")] if locks else [ev(first, "no lock file next to the program")],
+            )
+        ]
     prev = repo.has(r"pulumi\s+preview|pulumi/actions|pulumi-preview")
     out.append(
         finding(
@@ -776,6 +817,93 @@ def _only_references(repo: Repo, rel: str) -> bool:
     return bool(values) and all(not v or v.startswith(("op://", "${", "$(", "vault:", "ref+")) for v in values)
 
 
+RENOVATE_MANAGER = {
+    "terraform": "terraform",
+    "docker": "dockerfile",
+    "docker-compose": "docker-compose",
+    "helm": "helmv3",
+    "devcontainers": "devcontainer",
+}
+
+
+def _renovate_config(text: str) -> dict | None:
+    """Parse a renovate.json or json5 file well enough to read managers and ignore paths."""
+    t = re.sub(r"^\s*//.*$", "", text, flags=re.M)
+    t = re.sub(r"/\*.*?\*/", "", t, flags=re.S)
+    t = re.sub(r",(\s*[}\]])", r"\1", t)
+    try:
+        doc = json.loads(t)
+    except ValueError:
+        return None
+    return doc if isinstance(doc, dict) else None
+
+
+def renovate_finding(repo: Repo, rel: str, needed: list[str], scopes: list[str]) -> dict:
+    cfg = _renovate_config(repo.text(rel))
+    if cfg is None:
+        return finding("INF-X01", "repository", "unknown", [ev(rel, "Renovate config could not be parsed")], "json5 syntax beyond comments")
+    problems = []
+    enabled, disabled = cfg.get("enabledManagers"), cfg.get("disabledManagers") or []
+    for eco in needed:
+        mgr = RENOVATE_MANAGER.get(eco)
+        if not mgr:
+            continue
+        if isinstance(enabled, list) and mgr not in enabled:
+            problems.append(f"manager {mgr} is not in enabledManagers")
+        if mgr in disabled:
+            problems.append(f"manager {mgr} is disabled")
+    for pat in cfg.get("ignorePaths") or []:
+        base = str(pat).strip("/*")
+        if base and any(sc == base or sc.startswith(base + "/") for sc in scopes):
+            problems.append(f"ignorePaths excludes {pat}")
+    if problems:
+        return finding("INF-X01", "repository", "fail", [ev(rel, x) for x in problems])
+    return finding("INF-X01", "repository", "pass", [ev(rel, "Renovate config covers the infrastructure managers")])
+
+
+def _glob_regex(pattern: str) -> re.Pattern:
+    """GitHub Actions path filter glob: `**` crosses directories, `*` and `?` do not."""
+    out, i = "", 0
+    pattern = pattern.lstrip("/")
+    while i < len(pattern):
+        c = pattern[i]
+        if pattern.startswith("**/", i):
+            out += "(?:.*/)?"
+            i += 3
+            continue
+        if pattern.startswith("**", i):
+            out += ".*"
+            i += 2
+            continue
+        out += "[^/]*" if c == "*" else "[^/]" if c == "?" else re.escape(c)
+        i += 1
+    return re.compile(out + "$")
+
+
+def workflow_paths(text: str) -> list[str] | None:
+    """Path filters of push and pull_request triggers; None when the workflow cannot be parsed."""
+    if yaml is None:
+        return None
+    try:
+        doc = yaml.safe_load(text)
+    except yaml.YAMLError:
+        return None
+    if not isinstance(doc, dict):
+        return None
+    on = doc.get("on", doc.get(True))
+    if not isinstance(on, dict):
+        return []
+    out: list[str] = []
+    for trigger in ("push", "pull_request", "pull_request_target"):
+        cfg = on.get(trigger)
+        if isinstance(cfg, dict) and isinstance(cfg.get("paths"), list):
+            out += [str(x) for x in cfg["paths"] if not str(x).startswith("!")]
+    return out
+
+
+DEDICATED_WORKFLOW = re.compile(r"(terraform|tofu|infra|bicep|helm|k8s|kube|ansible|docker|deploy|container|pulumi)", re.I)
+
+
 def cross_cutting_checks(repo: Repo, detected: list[dict]) -> list[dict]:
     real = [d for d in detected if not d["sample"]]
     scopes = sorted({d["scope"] for d in real})
@@ -787,7 +915,7 @@ def cross_cutting_checks(repo: Repo, detected: list[dict]) -> list[dict]:
     if not needed:
         out.append(finding("INF-X01", label, "not_applicable", [], "no dependabot-supported infrastructure ecosystem"))
     elif ren:
-        out.append(finding("INF-X01", label, "pass", [ev(ren[0], "Renovate config present")]))
+        out.append(renovate_finding(repo, ren[0], needed, scopes))
     elif dep:
         text = repo.text(dep[0])
         missing = [e for e in needed if not re.search(rf"package-ecosystem:\s*[\"']?{re.escape(e)}[\"']?\s*$", text, re.M)]
@@ -818,23 +946,32 @@ def cross_cutting_checks(repo: Repo, detected: list[dict]) -> list[dict]:
                 [ev(co[0], "rule " + hit[0])] if hit else [ev(co[0], "no rule matches infrastructure paths")],
             )
         )
-    filtered = False
+    infra_files = [f for d in real for f in d["files"]]
+    matched, dedicated = None, None
     for f in repo.files:
-        if f.startswith(".github/workflows/") and f.endswith((".yml", ".yaml")):
+        if not (f.startswith(".github/workflows/") and f.endswith((".yml", ".yaml"))):
+            continue
+        patterns = workflow_paths(repo.text(f))
+        if patterns is None:  # unparsable: fall back to reading the text
             t = repo.text(f)
-            if re.search(r"^\s+paths:", t, re.M) and re.search(
-                r"(\*\.tf|\.bicep|Dockerfile|compose|devcontainer|helm|k8s|kubernetes|terraform|infra|deploy|ansible|\.tf)", t, re.I
-            ):
-                filtered = True
-                break
+            if re.search(r"^\s+paths:", t, re.M) and DEDICATED_WORKFLOW.search(t):
+                matched = matched or (f, "paths filter for infrastructure (text match)")
+            continue
+        rx = [_glob_regex(p) for p in patterns]
+        hit = next((x for x in infra_files if any(r.match(x) for r in rx)), None)
+        if hit:
+            matched = matched or (f, f"paths filter reaches {hit}")
+        if DEDICATED_WORKFLOW.search(PurePosixPath(f).stem):
+            dedicated = dedicated or (f, "dedicated workflow for infrastructure")
+    found = matched or dedicated
     out.append(
         finding(
             "INF-X03",
             label,
-            "pass" if filtered else "fail",
-            [ev(f, "paths filter for infrastructure")]
-            if filtered
-            else [ev(".github/workflows/", "no path-filtered infrastructure workflow")],
+            "pass" if found else "fail",
+            [ev(found[0], found[1])]
+            if found
+            else [ev(".github/workflows/", "no workflow filters on or is dedicated to infrastructure paths")],
         )
     )
     cfg = [
@@ -958,6 +1095,25 @@ def entropy_checks(repo: Repo, detected: list[dict]) -> list[dict]:
 # ---- entry point ---------------------------------------------------------------------------------
 
 
+# Checks that only read CI and hook text give the same answer in every location, so they are reported once (B-209).
+CI_WIDE = {
+    "INF-D05", "INF-D07", "INF-C05", "INF-V06", "INF-T03", "INF-T04", "INF-T05", "INF-B03", "INF-B04",
+    "INF-K05", "INF-A02", "INF-A04", "INF-F01", "INF-F02", "INF-P02",
+}  # fmt: skip
+
+
+def collapse_ci_wide(findings: list[dict]) -> list[dict]:
+    out, seen = [], set()
+    for f in findings:
+        if f["check_id"] in CI_WIDE:
+            if f["check_id"] in seen:
+                continue
+            seen.add(f["check_id"])
+            f = {**f, "scope": "repository (CI)"}
+        out.append(f)
+    return out
+
+
 def run(root: Path, files: list[str], detected: list[dict]) -> dict:
     repo = Repo(root, files)
     findings: list[dict] = []
@@ -1000,6 +1156,7 @@ def run(root: Path, files: list[str], detected: list[dict]) -> dict:
     if any(not d["sample"] for d in detected):
         findings += cross_cutting_checks(repo, detected)
         findings += entropy_checks(repo, detected)
+    findings = collapse_ci_wide(findings)
     return {"findings": findings, **summarize(findings)}
 
 

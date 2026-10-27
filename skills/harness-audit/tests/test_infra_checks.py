@@ -139,7 +139,7 @@ class TerraformTests(unittest.TestCase):
             }
         )
         for cid in ("INF-T01", "INF-T02", "INF-T03", "INF-T04", "INF-T05", "INF-T06", "INF-T07"):
-            self.assertEqual(status(r, cid, "infra"), "pass", cid)
+            self.assertEqual(status(r, cid, None if cid in infra_checks.CI_WIDE else "infra"), "pass", cid)
 
     def test_bare_module_fails_basics(self):
         r = run({"infra/main.tf": 'resource "x" "y" {}\n', "infra/terraform.tfstate": "{}"})
@@ -400,6 +400,83 @@ class CrossCuttingTests(unittest.TestCase):
 
     def test_not_run_without_infra(self):
         self.assertEqual([f for f in run({"app.py": "x=1\n"})["findings"]], [])
+
+
+class CiMappingTests(unittest.TestCase):
+    BASE = {"infra/main.tf": "", "Dockerfile": "FROM x:1\n"}
+
+    def test_path_filter_must_reach_an_infrastructure_file(self):
+        wf = "on:\n  push:\n    paths:\n      - 'docs/**'\n"
+        self.assertEqual(status(run({**self.BASE, ".github/workflows/ci.yml": wf}), "INF-X03"), "fail")
+        wf = "on:\n  pull_request:\n    paths:\n      - '**/*.tf'\n"
+        self.assertEqual(status(run({**self.BASE, ".github/workflows/ci.yml": wf}), "INF-X03"), "pass")
+
+    def test_a_dedicated_workflow_name_counts(self):
+        r = run({**self.BASE, ".github/workflows/terraform-plan.yml": "on: push\n"})
+        self.assertEqual(status(r, "INF-X03"), "pass")
+
+    def test_single_star_does_not_cross_directories(self):
+        wf = "on:\n  push:\n    paths:\n      - 'infra/*.yaml'\n"
+        self.assertEqual(status(run({**self.BASE, ".github/workflows/ci.yml": wf}), "INF-X03"), "fail")
+
+
+class RenovateTests(unittest.TestCase):
+    BASE = {"main.tf": "", "Dockerfile": "FROM x:1\n"}
+
+    def x01(self, cfg):
+        return status(run({**self.BASE, "renovate.json": cfg}), "INF-X01")
+
+    def test_default_config_passes(self):
+        self.assertEqual(self.x01('{"extends": ["config:recommended"]}'), "pass")
+
+    def test_enabled_managers_must_include_the_infrastructure_ones(self):
+        self.assertEqual(self.x01('{"enabledManagers": ["npm", "dockerfile"]}'), "fail")
+        self.assertEqual(self.x01('{"enabledManagers": ["terraform", "dockerfile"]}'), "pass")
+
+    def test_disabled_manager_and_ignored_path_fail(self):
+        self.assertEqual(self.x01('{"disabledManagers": ["terraform"]}'), "fail")
+        tree = {"infra/main.tf": "", "renovate.json": '{"ignorePaths": ["infra/**"]}'}
+        self.assertEqual(status(run(tree), "INF-X01"), "fail")
+
+    def test_json5_comments_are_tolerated_and_garbage_is_unknown(self):
+        self.assertEqual(self.x01('{\n // note\n "extends": ["config:base"],\n}'), "pass")
+        self.assertEqual(self.x01("not json"), "unknown")
+
+
+class RealRepoRegressionTests(unittest.TestCase):
+    def test_ci_wide_checks_are_reported_once(self):
+        tree = {"a/Pulumi.yaml": "name: a\nruntime: nodejs\n", "b/Pulumi.yaml": "name: b\nruntime: nodejs\n"}
+        r = run(tree)
+        self.assertEqual(len([f for f in r["findings"] if f["check_id"] == "INF-P02"]), 1)
+        self.assertEqual(len([f for f in r["findings"] if f["check_id"] == "INF-P01"]), 2)
+
+    def test_pulumi_yaml_runtime_needs_no_lock_file(self):
+        r = run({"Pulumi.yaml": "name: a\nruntime: yaml\n"})
+        self.assertEqual(status(r, "INF-P01"), "not_applicable")
+        r = run({"Pulumi.yaml": "name: a\nruntime:\n  name: python\n"})
+        self.assertEqual(status(r, "INF-P01"), "fail")
+
+    def test_ansible_roles_belong_to_one_project(self):
+        tree = {"site.yml": "- hosts: all\n", "roles/a/tasks/main.yml": "- debug: {}\n", "roles/b/tasks/main.yml": "- debug: {}\n"}
+        r = run(tree)
+        self.assertEqual(len([f for f in r["findings"] if f["check_id"] == "INF-A03"]), 1)
+
+    def test_requirements_of_another_project_do_not_count(self):
+        tree = {"a/site.yml": "- hosts: all\n", "b/requirements.yml": "collections:\n  - name: x\n    version: 1.0\n"}
+        self.assertEqual(status(run(tree), "INF-A01", "a"), "fail")
+
+
+class CloudFormationNoEchoTests(unittest.TestCase):
+    TPL = "AWSTemplateFormatVersion: '2010-09-09'\nParameters:\n  DBPassword:\n    Type: String\n{extra}Resources:\n  S:\n    Type: AWS::SecretsManager::Secret\n    Properties:\n      GenerateSecretString:\n        PasswordLength: 16\n"
+
+    def test_parameter_without_noecho_fails_and_resource_property_is_ignored(self):
+        r = run({"template.yaml": self.TPL.format(extra="")})
+        f = next(x for x in r["findings"] if x["check_id"] == "INF-F03")
+        self.assertEqual([e["snippet"] for e in f["evidence"]], ["DBPassword without NoEcho"])
+
+    def test_noecho_true_passes(self):
+        r = run({"template.yaml": self.TPL.format(extra="    NoEcho: true\n")})
+        self.assertEqual(status(r, "INF-F03"), "pass")
 
 
 class InfraEntropyTests(unittest.TestCase):
