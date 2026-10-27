@@ -80,3 +80,12 @@ Structural inspection found 62 GLB files with embedded resources. The source
 roadmap body was preserved, and 0001 contains an empty .gitkeep. Integrity and
 publication-pattern checks pass; these do not constitute a security guarantee.
 Remote CI results are verified separately after the first push.
+
+## Runtime Changes
+
+Intentional changes to copied runtime files are recorded in the manifest as
+`adapted-runtime`: `source_sha256` keeps the imported baseline and `sha256` the
+reviewed new content, which `task integrity` verifies. The Harness City page,
+adapter and app README were adapted on 2026-10-27 to explain districts, levels,
+traffic, rail, power line and a new transit network, and to show per-check
+findings and evidence. The synthetic demo still contains no findings.

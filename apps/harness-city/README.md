@@ -37,7 +37,9 @@ Rebuild it after every data change.
 
 ## data/cities.json
 
-    { "meta":   { "title", "tool", "scanDate", "source" },        // all optional
+    { "meta":   { "title", "tool", "scanDate", "source",         // all optional
+                  "checks": { "ORI-04": {"p": 1, "l": 2, "g": true, "a": "all",
+                                         "t": "title", "w": "why it matters"} } },  // from the catalog
       "cities": [ { "id": "repo", "score": 87,
                     "L": [3,2,3,3,3,2,1],      // verification, orientation, static_guardrails,
                                                // workflow_entry_points, automatic_triggers,
@@ -46,10 +48,30 @@ Rebuild it after every data change.
                     "gut": 80, "done": 93, "set": "calibration",           // optional
                     "steps": [ {"c": "CIP-05", "t": "text", "p": 3.3} ],   // next fixes (construction sites)
                     "ent":   [ {"c": "ENR-04", "p": "path"} ],             // decay: ENR-01 wagon, ENR-02 graffiti, ENR-04 pylon
-                    "caps":  ["no-tests"] } ] }                            // score cap: closes the hospital
+                    "caps":  ["no-tests"],                                  // score cap: closes the hospital
+                    "f":     [ {"c": "ORI-04", "s": "fail", "m": "component", "n": "note",
+                                "e": [ {"k": "searched", "p": "AGENTS.md", "l": null, "x": "snippet"} ]} ],
+                    "G":     [["VER-06"], [], [], [], [], [], []],      // gate failures per pillar
+                    "lim":   ["scan limitation"] } ] }                  // f, G, lim optional
 
 A fix's check id prefix (VER, ORI, STA, ENT, TRG, CIP, DOC) decides which district gets the
 construction site. Tiers: Thriving ≥ 80, Prosperous ≥ 60, Working ≥ 45, Neglected below.
+
+`meta.checks` is read from `skills/harness-audit/checks/catalog.yaml` (or `--catalog`) and
+lists every check per pillar and level. `f` carries the report findings with their evidence
+("searched" evidence is what was looked for and not found). Without findings, a district
+still shows the checks needed for each level.
+
+## Exploring a city
+
+Click a building, its street, a bus, a construction site, the rail line or the power line;
+the side panel explains what it stands for and lists the district's issues, missing files
+and per-level checks. Click the city name for the score breakdown.
+
+Public transport runs from the central station (workflow entry points) to every district.
+A line's level is the lower of the station level and the district level: none (L0), one
+bus (L1), frequent buses with shelters (L2), an underground metro shown as a see-through
+train plus buses (L3).
 
 ## Layout
 

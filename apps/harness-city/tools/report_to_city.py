@@ -10,6 +10,9 @@ Usage:
   python3 tools/report_to_city.py harness-scan-compact.json -o data/cities.json
   python3 tools/report_to_city.py reports/ --title "Acme Harness City" --source "nightly scan"
   python3 tools/report_to_city.py a.json b.json --gut gut.json   # gut.json: {"repo-name": 70, ...}
+
+Check titles and levels come from the harness-audit catalog (--catalog, default: the
+sibling skill's checks/catalog.yaml when present) so the page can explain every level.
 """
 import argparse, json, sys, re
 from pathlib import Path
@@ -18,6 +21,45 @@ PILLARS = ["verification", "orientation", "static_guardrails", "workflow_entry_p
            "automatic_triggers", "pipeline_parity", "doc_hygiene"]
 RENDERED_DECAY = {"ENR-01", "ENR-02", "ENR-04"}   # the decay kinds the page can draw
 MAX_STEPS = 3
+MAX_EVIDENCE = 3
+MAX_SNIPPET = 200
+DEFAULT_CATALOG = Path(__file__).resolve().parents[3] / "skills/harness-audit/checks/catalog.yaml"
+
+
+def catalog_checks(path):
+    """Read id, pillar, level, gate, applies_to, title and rationale of each pillar check (no YAML package needed)."""
+    checks, cur = {}, None
+    for line in Path(path).read_text(encoding="utf-8").splitlines():
+        m = re.match(r"^  - id:\s*(\S+)", line)
+        if m:
+            cur = checks.setdefault(m.group(1), {})
+            continue
+        if re.match(r"^\S", line):
+            cur = None
+        m = re.match(r"^    (pillar|level|gate|applies_to|title|rationale):\s*(.*?)\s*$", line)
+        if cur is not None and m:
+            cur[m.group(1)] = m.group(2)
+    out = {}
+    for cid, c in checks.items():
+        if c.get("pillar") not in PILLARS:
+            continue
+        out[cid] = {"p": PILLARS.index(c["pillar"]), "l": int(c.get("level", 0)), "g": c.get("gate") == "true",
+                    "a": c.get("applies_to", "[all]").strip("[]"), "t": c.get("title", ""), "w": c.get("rationale", "")}
+    return out
+
+
+def findings(items):
+    out = []
+    for f in items or []:
+        ev = [{"k": e.get("kind", ""), "p": e.get("path", ""), "l": e.get("line"), "x": (e.get("snippet") or "")[:MAX_SNIPPET]}
+              for e in (f.get("evidence") or [])[:MAX_EVIDENCE]]
+        item = {"c": f["check_id"], "s": f.get("status", "unknown"), "e": ev}
+        if f.get("component"):
+            item["m"] = f["component"]
+        if f.get("note"):
+            item["n"] = f["note"][:MAX_SNIPPET]
+        out.append(item)
+    return out
 
 
 def short(text):
@@ -61,13 +103,14 @@ def from_export_repo(r, warn):
         "score": s["score"], "L": L, "comp": s.get("components", 1), "files": s.get("tracked_files", 0),
         "pen": s.get("entropy_penalty", 0), "done": fp.get("score_if_all_steps_done"),
         "steps": steps_from_export(r), "ent": entropy((r.get("entropy") or {}).get("items"), warn, r["id"]),
-        "caps": caps,
+        "caps": caps, "f": findings(r.get("findings")),
     }
 
 
 def from_report(d, warn):
     name = d["repo"]["name"]
     by = {p["pillar"]: p["level"] for p in d["pillars"]}
+    gates = {p["pillar"]: p.get("gate_failures", []) for p in d["pillars"]}
     comps = d.get("stack", {}).get("components", [])
     sc = d["score"]
     return {
@@ -78,6 +121,8 @@ def from_report(d, warn):
         "steps": [{"c": g["check_id"], "t": short(g.get("fix")), "p": None} for g in d.get("top_gaps", [])[:MAX_STEPS]],
         "ent": entropy(d.get("entropy", {}).get("items"), warn, name),
         "caps": [cap.get("id", "") if isinstance(cap, dict) else str(cap) for cap in sc.get("caps_applied", [])],
+        "G": [gates.get(p, []) for p in PILLARS], "f": findings(d.get("findings")),
+        "lim": d.get("limitations", []),
     }
 
 
@@ -93,9 +138,17 @@ def main():
     ap.add_argument("--title", default="Harness City")
     ap.add_argument("--source", default="")
     ap.add_argument("--gut", help="JSON file {repo id: human score} merged into the cities")
+    ap.add_argument("--catalog", help="harness-audit checks/catalog.yaml (check titles for the explanations)")
     a = ap.parse_args()
 
     warn, cities, meta = [], [], {"title": a.title}
+    catalog = Path(a.catalog) if a.catalog else DEFAULT_CATALOG
+    if catalog.is_file():
+        meta["checks"] = catalog_checks(catalog)
+    elif a.catalog:
+        sys.exit(f"catalog not found: {catalog}")
+    else:
+        warn.append("no check catalog found: the page shows levels without per-check explanations")
     for f in collect(a.inputs):
         d = json.loads(Path(f).read_text())
         if "repos" in d:
@@ -117,6 +170,8 @@ def main():
             if c["id"] in gut:
                 c["gut"] = gut[c["id"]]
     meta["source"] = a.source or ", ".join(Path(f).name for f in collect(a.inputs))
+    if "checks" in meta:
+        meta["checks"] = meta.pop("checks")
     ids = [c["id"] for c in cities]
     for i in {x for x in ids if ids.count(x) > 1}:
         warn.append(f"duplicate city id {i}: the page needs unique ids")
