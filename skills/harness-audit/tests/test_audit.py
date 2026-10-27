@@ -68,7 +68,7 @@ class AuditTests(unittest.TestCase):
         self.assertEqual([p["level"] for p in a["pillars"]], [p["level"] for p in b["pillars"]])
         self.assertEqual(audit.validate(b), [])
         self.assertEqual(b["infra"]["tools"], ["devcontainer", "docker", "terraform"])
-        self.assertTrue(any("not scored" in x for x in b["limitations"]))
+        self.assertTrue(any("not part of the score" in x for x in b["limitations"]))
         self.assertIn("## Infrastructure (detected, not scored)", (with_infra / "report.md").read_text())
 
     def test_second_pass_with_llm_answers(self):

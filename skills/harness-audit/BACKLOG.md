@@ -354,3 +354,13 @@ Full map: `docs/0005/Infrastructure-Coverage-Map.md`. Today the catalog has no i
 - B-181, B-184 (done): `report.json` has an optional `infra` block (schema updated), `report.md` has an "Infrastructure (detected, not scored)" table and a limitation line. A test pins that infra files never change the score or pillar levels (B-190 invariant); immich 57 and n8n 78 are unchanged.
 - B-192: Detection is by location; a monorepo's infra is not yet attributed to the Python/Node component that owns it (B-170).
 - B-193: Compose files inside CI folders (`.github/`) and benchmark folders are listed as normal locations; add noise filters after seeing more repos.
+
+### 4x. Infrastructure checks, first set (2026-10-27)
+- B-171, B-175, B-176, B-177 (first version done): `scripts/infra_checks.py` evaluates Dockerfile (INF-D01..D07), Compose (INF-C01..C05), devcontainer (INF-V01..V06) and Terraform/OpenTofu (INF-T01..T07) from file contents only. Results are in `report.json` under `infra.checks` and `infra.summary` and in `report.md`; none of it changes the 0-100 score or pillar levels (tests pin this).
+- Real-repo smoke test: immich 91 findings, n8n 151, home-assistant-core 34. Spot checks matched the files; a locally built compose image (`build:` plus `image:`) is no longer flagged as unpinned.
+- B-194: Findings are per file and per location, so a monorepo with many Dockerfiles gets many rows. Add per-area roll-up (worst file, count of files) in the report and the city.
+- B-195: Compose override files and files without `services` yield only not_applicable rows; consider folding them into their base file.
+- B-196: Checks use text and regex, not full parsers: Dockerfile line continuations, `ARG`-based image names and multi-document YAML are approximations. Add a small Dockerfile parser before using these checks for gating.
+- B-197: No tools-in-CI mapping to the right directory yet: INF-T03/T04/T05/D05/D07 look at all CI text, not at the job that touches the directory.
+- B-198: Overlay has pass rates per area but no level or 0-100 number yet; decide after seeing results on more repos (question open with the owner).
+- B-199: Not yet implemented: Bicep (B-172), Kubernetes/Helm (B-173), Pulumi/CloudFormation/Ansible (B-174), cross-cutting (B-178), infra entropy (B-179), infra judgement prompt (B-180).

@@ -21,6 +21,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import detect_infra  # noqa: E402
 import detect_stack  # noqa: E402
 import git_signals  # noqa: E402
+import infra_checks  # noqa: E402
 import llm_layer  # noqa: E402
 import run_checks  # noqa: E402
 import score  # noqa: E402
@@ -95,7 +96,7 @@ def infra_limitations(infra: dict) -> list[str]:
     if not real:
         return []
     return [
-        f"Infrastructure found but not scored: {', '.join(infra['tools'])} ({len(real)} locations). "
+        f"Infrastructure found but not part of the score: {', '.join(infra['tools'])} ({len(real)} locations). "
         "The score says nothing about it (see the Infrastructure section)."
     ]
 
@@ -122,6 +123,8 @@ def assemble(root: Path, catalog: dict, name=None, url=None, weight=None, llm_an
     parts = score.build({"findings": findings, "stack": stack}, catalog, entropy)
     meta = repo_meta(root, name, url, weight)
     infra = detect_infra.detect(root)
+    extra = infra_checks.run(root, detect_stack.list_files(root), infra["detected"])
+    infra = {**infra, "checks": extra["findings"], "summary": extra["summary"]}
     stack_out = dict(stack)
     stack_out["ecosystems"] = sorted({c["ecosystem"] for c in stack["components"]})
     return {
@@ -213,7 +216,28 @@ def render_md(r: dict, titles: dict[str, str]) -> str:
     if real:
         lines += ["## Infrastructure (detected, not scored)", "", "| Kind | Tool | Location | Files |", "|---|---|---|---|"]
         lines += [f"| {d['kind']} | {d['tool']} | `{d['scope']}` | {d['file_count']} |" for d in real[:25]]
-        lines += ["", f"{len(real)} locations; the list is capped at 25 rows. Infrastructure checks are planned (B-171 and later).", ""]
+        lines += ["", f"{len(real)} locations; the list is capped at 25 rows.", ""]
+        summary = r["infra"].get("summary", {})
+        if summary:
+            lines += [
+                "### Infrastructure checks (overlay, not in the score)",
+                "",
+                "| Area | Passed | Failed | Pass rate |",
+                "|---|---|---|---|",
+            ]
+            for area, s in sorted(summary.items()):
+                rate = "-" if s["pass_rate"] is None else f"{round(s['pass_rate'] * 100)}%"
+                lines.append(f"| {area} | {s['passed']} | {s['failed']} | {rate} |")
+            lines += [""]
+            worst: dict[str, dict] = {}
+            for c in r["infra"].get("checks", []):
+                if c["status"] == "fail":
+                    worst.setdefault(c["check_id"], {"c": c, "n": 0})["n"] += 1
+            for cid, w in sorted(worst.items(), key=lambda kv: (-kv[1]["n"], kv[0]))[:12]:
+                ev0 = w["c"]["evidence"][0] if w["c"]["evidence"] else None
+                tail = f" - {ev0['path']}: {ev0['snippet']}" if ev0 else ""
+                lines.append(f"- **{cid}** {w['c']['title']} ({w['n']} location{'s' if w['n'] != 1 else ''}){tail}")
+            lines += [""]
     if r["limitations"]:
         lines += ["## Limitations", ""] + [f"- {x}" for x in r["limitations"]] + [""]
     return "\n".join(lines)

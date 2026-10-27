@@ -1,7 +1,7 @@
 {
  "meta": {
   "title": "Synthetic Harness City",
-  "tool": "harness-audit 0.1.0",
+  "tool": "harness-audit 1.2.0",
   "scanDate": "2026-10-27",
   "source": "Illustrative synthetic profiles only; not audited repository results",
   "checks": {
@@ -242,8 +242,8 @@
     "l": 3,
     "g": false,
     "a": "all",
-    "t": "Linter output is actionable (rule ids, file and line)",
-    "w": "Agents fix what they can locate; a wall of text is skipped."
+    "t": "Linter prints actionable findings (rule ids, file and line)",
+    "w": "Agents fix what they can locate. These linters print a rule id with file and line by default; formatters such as black or prettier do not count (B-128)."
    },
    "TRG-01": {
     "p": 4,

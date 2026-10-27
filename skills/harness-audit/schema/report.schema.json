@@ -258,6 +258,107 @@
               }
             }
           }
+        },
+        "checks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "check_id",
+              "area",
+              "level",
+              "title",
+              "scope",
+              "status",
+              "evidence",
+              "note"
+            ],
+            "properties": {
+              "check_id": {
+                "type": "string"
+              },
+              "area": {
+                "enum": [
+                  "dockerfile",
+                  "compose",
+                  "devcontainer",
+                  "terraform"
+                ]
+              },
+              "level": {
+                "type": "integer"
+              },
+              "title": {
+                "type": "string"
+              },
+              "scope": {
+                "type": "string"
+              },
+              "status": {
+                "enum": [
+                  "pass",
+                  "fail",
+                  "not_applicable"
+                ]
+              },
+              "note": {
+                "type": "string"
+              },
+              "evidence": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "path",
+                    "snippet"
+                  ],
+                  "properties": {
+                    "path": {
+                      "type": "string"
+                    },
+                    "snippet": {
+                      "type": "string"
+                    },
+                    "line": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "passed",
+              "failed",
+              "not_applicable",
+              "pass_rate"
+            ],
+            "properties": {
+              "passed": {
+                "type": "integer"
+              },
+              "failed": {
+                "type": "integer"
+              },
+              "not_applicable": {
+                "type": "integer"
+              },
+              "pass_rate": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              }
+            }
+          }
         }
       }
     }
