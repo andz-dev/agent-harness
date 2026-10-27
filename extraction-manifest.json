@@ -251,7 +251,7 @@
       "source": "apps/harness-city/README.md",
       "target": "apps/harness-city/README.md",
       "source_sha256": "db5639596c8225d1cf1ae3c5ca63ee264cc4c381d6482ef0a70f17c33ff39db9",
-      "sha256": "72dfc21c31acb8b56209a8275de7dff62e4711335d0008c671f89c60238a873c",
+      "sha256": "b6303200081ad889a778fcaa7448bc364d6a63fcc317d55cc9ce8b3b6cda763d",
       "kind": "adapted-runtime"
     },
     {
@@ -706,14 +706,14 @@
       "source": "apps/harness-city/index.html",
       "target": "apps/harness-city/index.html",
       "source_sha256": "912ed4af45e312a850a68bfbcca1a2c16a6e7fa07a267ae230dcfc7388d2a322",
-      "sha256": "f31c4408cb927bc69487b1046593d72e6fbda1cc70f11b020255fbbcd35ca9ca",
+      "sha256": "821a3c4156aaf657468787aa6d95b5f72233b8485aa6311ca5f4a0999d94b5cc",
       "kind": "adapted-runtime"
     },
     {
       "source": "apps/harness-city/tools/build_standalone.py",
       "target": "apps/harness-city/tools/build_standalone.py",
-      "source_sha256": "3c2f6443ba18a92e5cc1c40f984c5061842ab7f0ed96d56fca01650082e8ec18",
-      "sha256": "3c2f6443ba18a92e5cc1c40f984c5061842ab7f0ed96d56fca01650082e8ec18",
+      "source_sha256": "95f6b1ae35e207fac0ea1fdb3a35d0e7f9785fabeee9eeb49d45ebcbcc0b9c37",
+      "sha256": "95f6b1ae35e207fac0ea1fdb3a35d0e7f9785fabeee9eeb49d45ebcbcc0b9c37",
       "kind": "unchanged-source"
     },
     {

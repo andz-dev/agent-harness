@@ -73,6 +73,13 @@ A line's level is the lower of the station level and the district level: none (L
 bus (L1), frequent buses with shelters (L2), an underground metro shown as a see-through
 train plus buses (L3).
 
+## Airport prototype (infrastructure overlay)
+
+`index.html?airport` (or `tools/build_standalone.py --airport`) adds an airport east of the
+city with a control bar for the station-link variants, underground layer and gate levels.
+It is a draft and never changes the score. See [DESIGN.md](DESIGN.md) and
+[docs/0007](../../docs/0007/airport-assets.md).
+
 ## Layout
 
     index.html            the page (three.js scene, UI, all styles) - edit this to change the look

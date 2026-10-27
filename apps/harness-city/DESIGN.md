@@ -66,14 +66,25 @@ network and follow the same rule unless this file says otherwise.
 
 ## Infrastructure overlay (airport)
 
-Status: **prototype**, not final. Definition and variants in
-[../../docs/0007/airport-assets.md](../../docs/0007/airport-assets.md). Rules that already hold:
+Status: **prototype** inside the real city, enabled with `?airport` (or the standalone build
+`build_standalone.py --airport`). Not part of the default city yet. Details and open variants:
+[../../docs/0007/airport-assets.md](../../docs/0007/airport-assets.md).
 
-* Infra is shown as an airport outside the city, never inside a district and never in the score.
-* Airport size follows the overall infra level (weakest tool area); each infra area is a gate.
-* Docker and Compose are air freight: cargo apron with containers.
-* The airport is connected to the central station by road and by a station link.
-* Repos without real infrastructure get no airport.
+* The airport is the infrastructure overlay in teal `#0a9cb8`. It is never part of the 0-100 score
+  and never replaces a district.
+* It sits east of the districts, outside the city, on the same rail line and on the road row
+  `z=8`. The station plot (airport station) and the airport plot together take about two
+  district fields. A cross street joins them like the district blocks.
+* Size follows the overall infra level (weakest tool area). Each infra area is a gate; a closed
+  gate (L0) has a barrier. Repo-wide areas get gates too.
+* L0 fenced airstrip, L1 small airfield, L2 regional (terminal, tower, 4 gates), L3 hub (6 gates,
+  canopy, tall tower, charters, crane). Repos without real infrastructure get no airport.
+* The forecourt street follows the district street ladder (closed, one lane, two lanes,
+  boulevard) at the airport level.
+* Docker and Compose are air freight: containers on the cargo apron, capped by level (4, 8, 12).
+* The link to the central station is only as good as both ends (lower of station level and
+  airport level), the same rule as every district line: bus, metro at L3, and in variant C an
+  express train on its own rail platforms.
 
 ## Assets
 
@@ -91,7 +102,11 @@ Status: **prototype**, not final. Definition and variants in
 | train, train car | `trainCar`, `buildRail` | workflow entry points |
 | bus, bus stop | `busModel`, `busStop` | transit line L1-L2 |
 | metro train, M sign | `ghostTrain`, `metroSign` | transit line L3 |
-| airport (planned) | see docs/0007 | infrastructure overlay |
+| airport plot, runway, taxiway | `buildAirportAll`, kit `road-straight` and `pavement` | infrastructure overlay |
+| airplane (prop, jet, business, charter, cargo) | `airPlane`, `airFlight` | infra traffic by level |
+| terminal, tower, jet bridge, hangar | `buildAirportAll` | infra level L2+ / L1+ |
+| airport station, express platforms | `buildAirportAll` | station link |
+| containers, crane | `buildAirportAll` | Docker and Compose |
 
 Add a row when you add an asset.
 

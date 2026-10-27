@@ -6,7 +6,7 @@ It opens by double-click (file://) and can be uploaded anywhere or published as 
 import argparse, json, re, base64
 from pathlib import Path
 root = Path(__file__).resolve().parent.parent
-ap = argparse.ArgumentParser(); ap.add_argument("-o", default=str(root / "dist/harness-city.html")); ap.add_argument("--offline", action="store_true")
+ap = argparse.ArgumentParser(); ap.add_argument("-o", default=str(root / "dist/harness-city.html")); ap.add_argument("--offline", action="store_true"); ap.add_argument("--airport", action="store_true", help="enable the airport prototype overlay")
 a = ap.parse_args()
 html = (root / "index.html").read_text()
 data = json.loads((root / "data/cities.json").read_text())
@@ -23,7 +23,7 @@ if a.offline:
             "three-utils": "data:text/javascript;base64," + base64.b64encode(util_src.encode()).decode(),
             "three/addons/loaders/GLTFLoader.js": "data:text/javascript;base64," + base64.b64encode(gl.encode()).decode()}
     cdn = '<script type="importmap">' + json.dumps({"imports": imap}) + "</script>"
-inline = "<script>window.HARNESS_CITY_DATA=" + json.dumps(data, separators=(",", ":")) + ";window.HARNESS_CITY_ASSETS=" + assets + ";</script>"
+inline = ("<script>window.HARNESS_AIRPORT=true</script>" if a.airport else "") + "<script>window.HARNESS_CITY_DATA=" + json.dumps(data, separators=(",", ":")) + ";window.HARNESS_CITY_ASSETS=" + assets + ";</script>"
 html = re.sub(r'<script type="importmap">.*?</script>', lambda m: cdn + inline, html, count=1, flags=re.S)
 out = Path(a.o); out.parent.mkdir(parents=True, exist_ok=True); out.write_text(html)
 print(f"wrote {out} ({out.stat().st_size/1e6:.1f} MB)")

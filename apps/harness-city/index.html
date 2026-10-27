@@ -133,6 +133,9 @@ table.data tbody tr:hover td{background:color-mix(in srgb,var(--accent) 7%,trans
 .note{font-size:12px;color:var(--muted);max-width:90ch;margin:0}
 .credits{font-size:13px;color:var(--muted);max-width:90ch;display:flex;flex-direction:column;gap:6px}
 .credits a{color:var(--accent)}
+.airbar{border:1px solid var(--line);border-radius:12px;background:var(--panel);padding:10px 12px;margin-top:12px;display:flex;flex-direction:column;gap:8px}
+.agrow{display:flex;flex-wrap:wrap;gap:8px 20px;align-items:flex-start}.ag{display:flex;flex-direction:column;gap:3px}
+.stage.under{background:linear-gradient(180deg,#8aa3b6,#b6c7cf)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 
@@ -279,6 +282,7 @@ function icon(x,k,cx,cy,s,col){x.save();x.fillStyle=col;x.strokeStyle=col;x.line
   case"workflow_entry_points":rr(x,cx-s*.3,cy-s*.42,s*.6,s*.68,s*.12);x.fill();x.fillStyle="#fff";x.fillRect(cx-s*.2,cy-s*.3,s*.4,s*.2);x.beginPath();x.arc(cx-s*.15,cy+s*.12,s*.06,0,7);x.arc(cx+s*.15,cy+s*.12,s*.06,0,7);x.fill();x.fillStyle=col;x.lineWidth=s*.08;x.beginPath();x.moveTo(cx-s*.22,cy+s*.3);x.lineTo(cx-s*.34,cy+s*.46);x.moveTo(cx+s*.22,cy+s*.3);x.lineTo(cx+s*.34,cy+s*.46);x.stroke();break;
   case"automatic_triggers":x.beginPath();x.moveTo(cx,cy-s*.46);x.bezierCurveTo(cx+s*.42,cy-s*.05,cx+s*.36,cy+s*.42,cx,cy+s*.44);x.bezierCurveTo(cx-s*.36,cy+s*.42,cx-s*.38,cy+s*.05,cx-s*.12,cy-s*.16);x.quadraticCurveTo(cx-s*.06,cy+s*.06,cx+s*.02,cy-s*.02);x.quadraticCurveTo(cx+s*.08,cy-s*.22,cx,cy-s*.46);x.fill();break;
   case"pipeline_parity":x.beginPath();x.moveTo(cx+s*.08,cy-s*.46);x.lineTo(cx-s*.28,cy+s*.06);x.lineTo(cx-s*.02,cy+s*.06);x.lineTo(cx-s*.1,cy+s*.46);x.lineTo(cx+s*.28,cy-s*.08);x.lineTo(cx+s*.02,cy-s*.08);x.closePath();x.fill();break;
+  case"airport":{x.translate(cx,cy);x.rotate(Math.PI/4);const h=[[.07,-.3],[.07,-.06],[.44,.16],[.44,.26],[.07,.15],[.06,.34],[.18,.43],[.18,.5],[0,.45]];x.beginPath();x.moveTo(0,-s*.46);for(const [a,c] of h)x.lineTo(a*s,c*s);for(const [a,c] of h.slice().reverse())x.lineTo(-a*s,c*s);x.closePath();x.fill();break}
   case"doc_hygiene":x.lineWidth=s*.07;x.beginPath();x.moveTo(cx,cy-s*.28);x.quadraticCurveTo(cx-s*.2,cy-s*.4,cx-s*.42,cy-s*.32);x.lineTo(cx-s*.42,cy+s*.3);x.quadraticCurveTo(cx-s*.2,cy+s*.22,cx,cy+s*.34);x.quadraticCurveTo(cx+s*.2,cy+s*.22,cx+s*.42,cy+s*.3);x.lineTo(cx+s*.42,cy-s*.32);x.quadraticCurveTo(cx+s*.2,cy-s*.4,cx,cy-s*.28);x.lineTo(cx,cy+s*.34);x.stroke();break;
  }x.restore()}
 const FONT_D='"Bricolage Grotesque","Segoe UI",system-ui,sans-serif',FONT_M='"IBM Plex Mono",ui-monospace,monospace';
@@ -493,17 +497,168 @@ function buildTransit(par,rep){const hub=rep.L[PI.workflow_entry_points];const g
 function buildOutskirts(par,rep){const g=new THREE.Group();par.add(g);const t=tierOf(rep.score);const r=rng(hash(rep.id+"out"));
  groundPlane(g,BOUNDS.x0-60,BOUNDS.z0-50,BOUNDS.x1+60,BOUNDS.z1+50,"#a9cf8f",-.03);
  // meadow trees around the city; denser for richer cities
- const n=rep.score>=60?120:rep.score>=45?80:45;for(let i=0;i<n;i++){let x,z;do{x=BOUNDS.x0-9+r()*(BOUNDS.x1-BOUNDS.x0+18);z=BOUNDS.z0-6+r()*(BOUNDS.z1-BOUNDS.z0+12)}while((x>-1&&x<30&&z>-4.4&&z<17.8));put(g,r()<.6?"tree-pine":"tree-oak",x,z,r()*360,.8+r()*.5)}
+ const n=rep.score>=60?120:rep.score>=45?80:45;for(let i=0;i<n;i++){let x,z;do{x=BOUNDS.x0-9+r()*(BOUNDS.x1-BOUNDS.x0+18);z=BOUNDS.z0-6+r()*(BOUNDS.z1-BOUNDS.z0+12)}while((x>-1&&x<30&&z>-4.4&&z<17.8)||(AIR_ON&&x>33&&x<66&&z>-4.5&&z<9.5));put(g,r()<.6?"tree-pine":"tree-oak",x,z,r()*360,.8+r()*.5)}
  // potholes and weeds in neglected cities
  if(rep.score<45){const ph=new THREE.MeshStandardMaterial({color:"#2a2d33"});for(let i=0;i<Math.round((45-rep.score)*1.5);i++){const keys=[...ROADS];const [x,z]=keys[Math.floor(r()*keys.length)].split(",").map(Number);const m=new THREE.Mesh(new THREE.CircleGeometry(.07+r()*.06,9),ph);m.rotation.x=-Math.PI/2;m.position.set(x+(r()-.5)*.6,.058,z+(r()-.5)*.6);g.add(m)}}
  // conflicting configs: graffiti wall in the police district
  const conf=rep.ent.filter(e=>e.c==="ENR-02");if(conf.length){const b=DIST.static_guardrails;const w=graffitiWall(conf.length);w.position.set(b.x1+.36,0,b.z0+1.6);w.rotation.y=Math.PI/2;w.userData.pick={kind:"ENR-02"};g.add(w);tags.push({pos:new THREE.Vector3(b.x1+.36,.9,b.z0+1.6),text:`${conf.length} conflicting config${conf.length>1?"s":""}`,color:"#b0377f",kind:"ENR-02"})}
  return g}
 
+/* ================= airport overlay (prototype, see DESIGN.md) ================= */
+// Infrastructure overlay: never part of the score. East of the districts, outside the city, on the rail line.
+const AIR_ON=new URLSearchParams(location.search).has("airport")||window.HARNESS_AIRPORT===true;
+const AIRP={k:"airport",n:"Infrastructure",short:"Infra",c:"#0a9cb8",word:"AIRPORT",place:"Airport",b:"Airport and air freight"};
+const AIR_AREAS=[{k:"terraform",n:"Terraform"},{k:"compose",n:"Compose"},{k:"dockerfile",n:"Dockerfile"},{k:"devcontainer",n:"Devcontainer"},{k:"agent",n:"Agent guidance",wide:true},{k:"cross",n:"Cross-cutting",wide:true}];
+const AIR_PRESETS={"n8n-like (Compose + Docker)":{terraform:null,compose:2,dockerfile:2,devcontainer:null,agent:2,cross:1,cont:6},"Terraform + Docker":{terraform:1,compose:2,dockerfile:3,devcontainer:2,agent:2,cross:2,cont:4},"Everything L3":{terraform:3,compose:3,dockerfile:3,devcontainer:3,agent:3,cross:3,cont:12},"All L0":{terraform:0,compose:0,dockerfile:0,devcontainer:0,agent:0,cross:0,cont:3},"No infrastructure":{terraform:null,compose:null,dockerfile:null,devcontainer:null,agent:null,cross:null,cont:0}};
+const AIR={variant:"C",under:false,cont:6,areas:{}};
+const AIR_VARIANTS={A:["A Same network","The airport is one more stop on the transit network: buses on the road, at L3 the see-through metro."],B:["B Underground layer","Like A, plus a layer switch that dims the city so the whole metro network, airport line included, stands out."],C:["C Express line","Like A, plus one dedicated express line on the rail: its own platform at the central station, an airport station, an express train."]};
+const AP={x0:47,x1:63,z0:1,z1:7,sx0:39,sx1:45,CX:55.5,tx:3,rw:1,sz:4.0,exitX:61.2};
+const AIR_LV=["#8b9690","#e0a22a","#2a9a66","#2a63c9"];
+const AIR_LADDER=["Fenced airstrip: closed runway, barrier, hanging wind sock, no planes.","Small airfield: runway, hangar, two stands, one propeller plane.","Regional airport: terminal, tower, four gates with jet bridges, jet and propeller plane, cargo plane if Docker.","Enterprise hub: large terminal with six gates, canopy, tall tower, business jets, holiday charters, cargo crane."];
+const AIR_LINE=["No service: nothing runs between the central station and the airport.","One bus with long waits.","Buses plus an express train (variant C) with its own platforms.","Two express trains and the underground metro, plus buses."];
+const AIR_ROADS=[];
+function airSetup(){for(const k of AIR_ROADS)ROADS.delete(k);AIR_ROADS.length=0;BOUNDS.x1=AIR_ON?66.5:33.5;if(!AIR_ON)return;
+ const add=(x,z)=>{const k=rk(x,z);if(!ROADS.has(k)){ROADS.add(k);AIR_ROADS.push(k)}};
+ for(let x=34;x<=64;x++)add(x,8);for(let x=34;x<=46;x++)add(x,0);for(let z=1;z<=7;z++)add(46,z)}
+function airInfra(){const list=AIR_AREAS.filter(a=>AIR.areas[a.k]!=null).map(a=>({...a,lv:AIR.areas[a.k]}));const tool=list.filter(a=>!a.wide);const overall=tool.length?Math.min(...tool.map(a=>a.lv)):null;return {list,tool,overall}}
+const homeX=()=>(BOUNDS.x0+BOUNDS.x1)/2;
+function airPlane(kind,col){const yaw=new THREE.Group(),pitch=new THREE.Group();yaw.add(pitch);const m=new THREE.Group();m.position.y=.1;m.scale.setScalar(1.3);pitch.add(m);let prop=null;
+ const hull=(len,r,c,x=0,y=0)=>{const b=new THREE.Mesh(cg(r,r,len,10),mat(c));b.rotation.z=Math.PI/2;b.position.set(x,y,0);b.castShadow=true;m.add(b);const n=new THREE.Mesh(new THREE.ConeGeometry(r,r*1.6,10),mat(c));n.rotation.z=-Math.PI/2;n.position.set(x+len/2+r*.8,y,0);n.castShadow=true;m.add(n)};
+ const eng=(x,z,c="#5d646c",l=.2)=>{const e=new THREE.Mesh(cg(.035,.035,l,8),mat(c));e.rotation.z=Math.PI/2;e.position.set(x,-.02,z);e.castShadow=true;m.add(e)};
+ if(kind==="prop"){hull(.62,.055,"#f4f2ea");box(m,.15,.02,.92,"#d6342a",.04,.03,0);box(m,.1,.14,.025,"#d6342a",-.3,.03,0);box(m,.1,.02,.3,"#d6342a",-.29,.06,0);prop=box(m,.02,.02,.34,"#2a2f33",.47,-.01,0)}
+ else if(kind==="biz"){hull(.6,.05,"#f4f4f6");box(m,.15,.02,.62,"#2c3e63",.0,.0,0);box(m,.12,.17,.025,"#2c3e63",-.28,.03,0);box(m,.1,.02,.26,"#2c3e63",-.26,.17,0);eng(-.27,.1,"#59606b",.16);eng(-.27,-.1,"#59606b",.16)}
+ else{const L=kind==="cargo"?1.1:kind==="charter"?1.05:.9,r=kind==="cargo"?.095:.075;const body=kind==="cargo"?"#f1efe8":"#f6f6f4";const acc=kind==="cargo"?"#e0782b":kind==="charter"?col:"#2a63c9";hull(L,r,body);box(m,.22,.02,kind==="cargo"?1.1:.98,kind==="cargo"?"#d9d6cc":"#dfe3e6",.03,-.01,0);box(m,L*.55,.025,r*2.02,acc,0,r-.01,0);box(m,.15,.2,.03,acc,-L/2+.08,.03,0);box(m,.12,.02,.36,"#e8e8e8",-L/2+.1,.17,0);eng(.1,.22*(L/.9));eng(.1,-.22*(L/.9))}
+ yaw.userData.pick={kind:"AIR:plane:"+kind};return {yaw,pitch,prop,kind}}
+function airFlight(g,anim,pm,sx,sz,phase,rw=AP.rw){const tx=AP.tx;
+ const W=[[43,2.4,rw,1],[48.6,0,rw,3.4],[60.5,0,rw,1.3],[AP.exitX,0,rw,.8],[AP.exitX,0,tx,.7],[sx,0,tx,.8],[sx,0,sz,.45,0,3.2],[sx,0,tx,.45,1],[48.2,0,tx,.8],[48.2,0,rw,.6],[49,0,rw,.5,0,.6],[60,0,rw,2.4],[63,.5,rw,2.6],[76,3.4,rw,3.2]];
+ const segs=[];let tot=0;for(let k=1;k<W.length;k++){const a=W[k-1],b=W[k];const d=Math.hypot(b[0]-a[0],b[1]-a[1],b[2]-a[2]);const t=d/(b[3]||1);segs.push({a,b,t0:tot,t,keep:b[4]});tot+=t;if(b[5]){segs.push({a:b,b,t0:tot,t:b[5],hold:1});tot+=b[5]}}
+ let yaw=0,first=true,last=0;g.add(pm.yaw);
+ anim.push(t=>{const dt=Math.min(.1,Math.max(0,t-last));last=t;const u=(t+phase*tot)%tot;let s=segs[segs.length-1];for(const q of segs)if(u<q.t0+q.t){s=q;break}
+  const f=s.hold?0:Math.min(1,Math.max(0,(u-s.t0)/(s.t||1)));const p=[0,1,2].map(j=>s.a[j]+(s.b[j]-s.a[j])*f);pm.yaw.position.set(p[0],p[1],p[2]);
+  if(!s.hold&&!s.keep){const dx=s.b[0]-s.a[0],dz=s.b[2]-s.a[2];const hl=Math.hypot(dx,dz);if(hl>.01){const ty=Math.atan2(-dz,dx);if(first){yaw=ty;first=false}let d=ty-yaw;d=Math.atan2(Math.sin(d),Math.cos(d));yaw+=d*(1-Math.exp(-dt*7))}pm.pitch.rotation.z=Math.atan2(s.b[1]-s.a[1],hl||1)*.9}else if(s.hold)pm.pitch.rotation.z=0;
+  pm.yaw.rotation.y=yaw;if(pm.prop)pm.prop.rotation.x=t*40})}
+function buildAirportAll(par,rep,rail,transit){
+ const {list,tool,overall}=airInfra();const L=overall==null?0:overall;const hub=rep.L[PI.workflow_entry_points];const qA=overall==null?0:Math.min(hub,L);const V=AIR.variant;
+ const g=new THREE.Group();par.add(g);const anim=[];const air={g,anim,L,overall,qA,list,tool,hub};const col=AIRP.c;
+ const kerb=(x0,x1,z0,z1)=>{const cw=.07;for(const [w,d,x,z] of [[x1-x0+1,cw,(x0+x1)/2,z0-.5+cw/2],[x1-x0+1,cw,(x0+x1)/2,z1+.5-cw/2],[cw,z1-z0+1,x0-.5+cw/2,(z0+z1)/2],[cw,z1-z0+1,x1+.5-cw/2,(z0+z1)/2]]){const m=new THREE.Mesh(bg(w,.06,d),mat(col));m.position.set(x,.03,z);g.add(m)}};
+ const fence=(x0,x1,z0,z1)=>{for(let x=x0;x<=x1;x++){put(g,"fence",x,z0-.42,0,1);put(g,"fence",x,z1+.42,0,1)}for(let z=z0;z<=z1;z++){put(g,"fence",x0-.42,z,90,1);put(g,"fence",x1+.42,z,90,1)}};
+ if(overall==null){const s=textSprite("air-none",["NO AIRPORT","no infrastructure"],{bg:"#f4ecdc",scale:1});s.position.set(55,1.2,4);g.add(s);par.userData.air=air;return air}
+ const ap=new THREE.Group();ap.userData.pick={kind:"AIR"};g.add(ap);
+ // ---- airport plot
+ groundPlane(ap,AP.x0-.5,AP.z0-.5,AP.x1+.5,AP.z1+.5,GROUND[L],.02);kerb(AP.x0,AP.x1,AP.z0,AP.z1);
+ const rwTiles=[];for(let x=48;x<=62;x++)rwTiles.push([x,AP.rw,90]);instanced(ap,"road-straight",rwTiles);
+ for(const x of [48.35,61.65])box(ap,.1,.01,.7,"#f2efe6",x,.055,AP.rw).castShadow=false;
+ // wind sock
+ {const ws=new THREE.Group();ws.position.set(47.6,0,1.95);ap.add(ws);cyl(ws,.018,.018,.7,"#8b939a",0,0,0,6);const sock=new THREE.Group();sock.position.y=.68;ws.add(sock);const cn=new THREE.Mesh(new THREE.ConeGeometry(.07,.34,10,1,true),mat("#e0672b",{side:THREE.DoubleSide}));cn.rotation.z=-Math.PI/2;cn.position.x=.17;cn.castShadow=true;sock.add(cn);
+  if(L===0)sock.rotation.z=-1.3;else anim.push(t=>{sock.rotation.z=Math.sin(t*2.1)*.07;sock.rotation.y=Math.sin(t*1.3)*.12})}
+ if(L===0){fence(AP.x0,AP.x1,AP.z0,AP.z1);barrier(ap,48,AP.rw,90,.9);barrier(ap,62,AP.rw,90,.9);for(let x=49;x<62;x+=1.4)cone(ap,x,AP.rw+(x%2?.2:-.2));
+  const s=textSprite("air-closed",["AIRSTRIP CLOSED","a must-have check fails"],{bg:"#d6342a",fg:"#fff",scale:1});s.position.set(55,1.1,3.3);ap.add(s);for(const [x,z] of [[52,4.6],[58,5.2],[50,6],[60,6.3]])put(ap,"rock",x,z,0,1.3)}
+ else{
+  const shown=list.slice(0,[0,2,4,6][L]);const n=shown.length;const SP=1.5;const gx=i=>AP.CX+(i-(n-1)/2)*SP;
+  // taxiway, apron, curb
+  const tw=[];for(let x=47;x<=63;x++)tw.push([x,AP.tx]);tw.push([48,2],[61,2]);instanced(ap,"pavement",tw);
+  const apr=[];for(let x=(L===1?52:50);x<=(L===1?59:62);x++)apr.push([x,4]);instanced(ap,"pavement",apr);
+  if(L>=2){const cb=[];for(let x=AP.x0;x<=AP.x1;x++)cb.push([x,AP.z1]);instanced(ap,"pavement",cb)}
+  // hangar
+  {const hg=new THREE.Group();hg.userData.pick={kind:"AIR:hangar"};ap.add(hg);box(hg,1.7,.6,1.5,"#d9d6cc",48.6,.05,5.6);const rf=gable(hg,1.55,.5,1.8,"#8d949a",48.6,.65,5.6);rf.rotation.y=Math.PI/2;box(hg,.02,.4,1.0,"#5c6770",49.46,.05,5.6);box(hg,1.75,.05,1.55,col,48.6,.6,5.6)}
+  // terminal + tower
+  if(L>=2){const W=n*SP+1.2,CX=AP.CX;const T=new THREE.Group();T.userData.pick={kind:"AIR:terminal"};ap.add(T);const H=L===2?.8:1.1;
+   box(T,W,H,1.7,"#f3f2ee",CX,.05,5.85);box(T,W*.94,.24,.02,"#5c87b0",CX,.34,4.99);box(T,W*.94,.22,.02,"#5c87b0",CX,.3,6.71);if(L===3)box(T,W*.94,.22,.02,"#5c87b0",CX,.72,6.71);box(T,.02,.22,1.3,"#5c87b0",CX+W/2+.01,.3,5.85);if(L===3)box(T,W*.94,.24,.02,"#5c87b0",CX,.72,4.99);box(T,W+.2,.07,1.9,"#e4e7e9",CX,H+.05,5.85);box(T,W+.22,.12,.05,col,CX,H-.03,4.96);
+   if(L===3){box(T,W*.9,.04,.95,"#9cc6e6",CX,1.0,4.5,{transparent:true,opacity:.55});for(let i=0;i<n;i++)cyl(T,.025,.025,.95,"#5a646b",gx(i)-.7,.05,4.1,8)}
+   const tx=CX+W/2+.55,TH=L===2?1.5:2.3;box(T,.34,TH,.34,"#e6e3dc",tx,.05,6.0);box(T,.5,.3,.5,"#9cc6e6",tx,TH+.05,6.0,{transparent:true,opacity:.8});box(T,.56,.05,.56,"#d6342a",tx,TH+.35,6.0);if(L===3)put(T,"dish",tx,6.0,0,.5,TH+.4);
+   const sg=signSprite(AIRP,.9);sg.position.set(CX,H+.9,5.85);ap.add(sg);(air.signs=air.signs||[]).push(sg)}
+  // gates
+  shown.forEach((a,i)=>{const x=gx(i),c=AIR_LV[a.lv];const gg=new THREE.Group();gg.userData.pick={kind:"AIR:gate:"+a.k};ap.add(gg);
+   box(gg,.04,.012,.7,c,x,.065,AP.sz-.05).castShadow=false;box(gg,.5,.012,.03,"#f2efe6",x,.065,AP.sz-.42).castShadow=false;
+   if(L>=2)box(gg,.2,.22,.5,"#b9c1c7",x,.32,4.76);if(L>=2)box(gg,.24,.05,.1,c,x,.54,4.52);
+   if(a.lv===0){barrier(gg,x,3.55,0,.7)}
+   tags.push({pos:new THREE.Vector3(x,.95,4.0),text:`${a.n} L${a.lv}`,color:a.lv===0?"#6b7570":c==="#e0a22a"?"#b98318":c,kind:"AIR:gate:"+a.k})});
+  if(list.length>shown.length)tags.push({pos:new THREE.Vector3(AP.CX,1.7,5.85),text:`+${list.length-shown.length} more areas`,color:"#586660",kind:"AIR"});
+  // cargo (Docker)
+  const cargoOn=list.some(a=>["compose","dockerfile"].includes(a.k));const nC=cargoOn?Math.min(AIR.cont,[0,4,8,12][L]):0;
+  if(L>=1){const cp=[];for(let x=62;x<=63;x++)for(let z=5;z<=6;z++)cp.push([x,z]);instanced(ap,"pavement",cp)}
+  const cg_=new THREE.Group();cg_.userData.pick={kind:"AIR:cargo"};ap.add(cg_);const pal=["#d6342a","#2a63c9","#e0a22a","#2a9a66","#d9701f","#8a5bb5"];
+  for(let i=0;i<nC;i++){const cI=i%3,rI=Math.floor(i/3)%2,sI=Math.floor(i/6);box(cg_,.5,.2,.24,pal[i%pal.length],62.05+cI*.52,.06+sI*.21,5.15+rI*.55)}
+  if(cargoOn&&nC>0)tags.push({pos:new THREE.Vector3(62.6,.95,5.5),text:`${nC} container${nC>1?"s":""}`,color:"#8a5a3a",kind:"AIR:cargo"});
+  if(cargoOn&&L===3){const cr=crane(ap,61.55,6.7,1.9);anim.push(t=>{cr.userData.top.rotation.y=Math.sin(t*.25)*1.1})}
+  // ground vehicles
+  if(L>=2){const van=put(ap,"delivery-van",52,4.5,90,1);const pth=[[50.5,4.55],[61,4.55]];anim.push(t=>{const cyc=(pathLen(pth)*2)/1.0+3,u=t%cyc;const half=pathLen(pth);let s,dir=1;if(u<half){s=u}else if(u<half+1.5){s=half}else if(u<2*half+1.5){s=half-(u-half-1.5);dir=-1}else s=0;const p=pathAt(pth,s);van.position.set(p.x,0,p.z);van.rotation.y=(dir>0?Math.PI/2:-Math.PI/2)})}
+  if(L===3)put(ap,"truck",49.3,6.6,0,1);
+  // planes
+  const OPEN=shown.filter(a=>a.lv>=1);const ro=[{k:"prop"}];if(L>=2){ro.push({k:"jet"});if(cargoOn)ro.push({k:"cargo",cargo:1})}if(L>=3)ro.push({k:"jet"},{k:"biz"},{k:"charter",col:"#f0b323"},{k:"charter",col:"#1fb5a8"});
+  let gi=0;ro.forEach((pl,i)=>{if(!pl.cargo&&!OPEN.length)return;const pm=airPlane(pl.k,pl.col);const sx=pl.cargo?62.7:gx(shown.indexOf(OPEN[gi++%OPEN.length]));airFlight(ap,anim,pm,sx,pl.cargo?4.05:AP.sz,(i+.3)/ro.length)});
+  air.cap=n}
+ // ---- forecourt traffic: same language as every district street
+ const tr=buildTraffic(par,"airport",L,{x0:AP.x0,x1:AP.x1,z0:AP.z0,z1:AP.z1},hash(rep.id+"airport"));tr.g.userData.pick={kind:"AIR"};air.traffic=tr;
+ // ---- station plot (west of the airport) and the link to the central station
+ const st=new THREE.Group();st.userData.pick={kind:"AIR:link"};g.add(st);const sq=qA;
+ groundPlane(st,AP.sx0-.5,AP.z0-.5,AP.sx1+.5,AP.z1+.5,GROUND[Math.min(3,sq)],.02);kerb(AP.sx0,AP.sx1,AP.z0,AP.z1);
+ if(sq===0){fence(AP.sx0,AP.sx1,AP.z0,AP.z1);const s=textSprite("air-noline",["NO SERVICE","station not connected"],{bg:"#fff",fg:"#d6342a",scale:.85});s.position.set(42,.9,4);st.add(s)}
+ else{box(st,3.6,.9,1.6,"#f3f2ee",42,.05,5.3);box(st,3.4,.22,.02,"#5c87b0",42,.32,4.49);box(st,3.8,.07,1.8,"#e4e7e9",42,.95,5.3);box(st,3.82,.12,.05,col,42,.9,4.38);const sg=signSprite(AIRP,.8);sg.position.set(42,1.6,5.3);st.add(sg);(air.signs=air.signs||[]).push(sg);
+  for(const x of [40,44])put(st,"tree-oak",x,2.5,0,.9)}
+ // buses
+ const route=[[HUB.x,8],[AP.CX,8]];const stopX=42.3;
+ if(sq>=1){const bs=busStop(g,stopX,7.42,col,sq>=2);bs.userData.pick={kind:"AIR:link"};const e=offsetPath(route,.6).at(-1);const bs2=busStop(g,e[0],e[1],col,sq>=2);bs2.userData.pick={kind:"AIR:link"};
+  const nb=sq===1?1:2;for(let i=0;i<nb;i++){const bus=busModel(col);bus.userData.pick={kind:"AIR:link"};g.add(bus);transit.moving.push(shuttle(bus,route,{off:.33,speed:sq===1?1.1:1.9,dwell:sq===1?2.5:1,phase:i/nb+.13,y:0}))}}
+ // metro (L3 only): see-through train like every other district line
+ if(sq>=3){const portalA=[DIST.workflow_entry_points.x1-.25,7.2],B=[AP.sx1-.25,AP.z1+.2];const dx=B[0]-portalA[0],dz=B[1]-portalA[1],Ld=Math.hypot(dx,dz);
+  const rib=new THREE.Mesh(bg(Ld,.02,.15),new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:.5,depthTest:false,depthWrite:false}));rib.position.set((portalA[0]+B[0])/2,.1,(portalA[1]+B[1])/2);rib.rotation.y=Math.atan2(-dz,dx);rib.renderOrder=3;rib.userData.pick={kind:"AIR:link"};g.add(rib);
+  const s=new THREE.Sprite(metroSign());s.scale.set(.34,.34,1);s.position.set(B[0],.55,B[1]);s.userData.pick={kind:"AIR:link"};g.add(s);const trn=ghostTrain(col);trn.userData.pick={kind:"AIR:link"};g.add(trn);transit.moving.push(shuttle(trn,[portalA,B],{speed:4.5,dwell:.8,phase:.3,y:.04}))}
+ // express line on the rail (variant C)
+ if(V==="C"&&sq>=2){const rg=rail.g;for(const t of rail.trains)if(t.z===RAIL_Z[1])rg.remove(t.o);rail.trains=rail.trains.filter(t=>t.z!==RAIL_Z[1]);
+  for(const [x0,x1] of [[DIST.workflow_entry_points.x0+.7,DIST.workflow_entry_points.x1-.7],[AP.sx0+.7,AP.sx1-.7]]){box(rg,x1-x0,.14,.6,"#cfc9bd",(x0+x1)/2,0,-3.62);box(rg,x1-x0,.03,.06,col,(x0+x1)/2,.14,-3.34);for(let x=x0+.4;x<x1;x+=1.2)cyl(rg,.03,.03,.55,"#5a646b",x,.14,-3.62,8);box(rg,x1-x0,.05,.8,col,(x0+x1)/2,.69,-3.62)}
+  const lab=textSprite("air-express",["AIRPORT EXPRESS","platform"],{bg:col,fg:"#fff",scale:.75});lab.position.set(DIST.workflow_entry_points.x0+3.7,1.3,-3.62);rg.add(lab);const lab2=textSprite("air-express2",["CENTRAL STATION","express"],{bg:col,fg:"#fff",scale:.75});lab2.position.set(AP.sx0+3.2,1.3,-3.62);rg.add(lab2);
+  const xa=DIST.workflow_entry_points.x0+1.3,xb=AP.sx1-1.6,Lp=xb-xa;const nt=sq===2?1:2,nc=sq===2?3:4;
+  for(let k=0;k<nt;k++){const grp=new THREE.Group();grp.userData.pick={kind:"AIR:link"};const cars=[];for(let i=0;i<nc;i++){const c=trainCar(i===0?"#e8e6e1":col,i===0);grp.add(c);cars.push(c)}rg.add(grp);grp.traverse(m=>{if(m.isMesh)m.castShadow=true});
+   const sp=sq===2?3.4:5.2,dw=2.5,tt_=Lp/sp,cyc=2*tt_+2*dw;
+   anim.push(t=>{const u=(t+k*cyc/2)%cyc;let s,dir=1;if(u<dw)s=0;else if(u<dw+tt_)s=(u-dw)*sp;else if(u<2*dw+tt_)s=Lp;else{s=Lp-(u-2*dw-tt_)*sp;dir=-1}
+    cars.forEach((c,i)=>{const o=dir>0?-i*1.12:i*1.12;c.position.x=xa+s+o;c.position.y=.1;c.position.z=RAIL_Z[1];c.rotation.y=dir>0?0:Math.PI})})}
+  air.express=true}
+ // plates
+ tags.push({pos:new THREE.Vector3(42,.1,3.2),text:"Airport station",color:col,kind:"AIR:link"});
+ par.userData.air=air;return air}
+let airDimMap=new Map();
+function airDim(on){if(!city)return;stage.classList.toggle("under",on);
+ if(on){city.traverse(o=>{if(!(o.isMesh||o.isInstancedMesh))return;const ms=Array.isArray(o.material)?o.material:[o.material];for(const m of ms){if(!m||m.isMeshBasicMaterial||m.isSpriteMaterial)continue;if(!airDimMap.has(m))airDimMap.set(m,{o:m.opacity,t:m.transparent,w:m.depthWrite});m.transparent=true;m.opacity=Math.min(airDimMap.get(m).o,.3);m.depthWrite=false;m.needsUpdate=true}})}
+ else{airDimMap.forEach((d,m)=>{m.transparent=d.t;m.opacity=d.o;m.depthWrite=d.w;m.needsUpdate=true});airDimMap=new Map()}}
+function airLight(){if(!sun)return;const cx=homeX(),w=AIR_ON?44:26;sun.target.position.set(cx,0,7.5);sun.position.set(cx+11.5,30,22);const sc=sun.shadow.camera;sc.left=-w;sc.right=w;sc.updateProjectionMatrix()}
+// side panel
+function airPanel(rep,kind){const A_=dyn&&dyn.air;if(!A_)return"";const {L,overall,qA,list,hub}=A_;const col=AIRP.c;
+ const lines=(arr,cur)=>`<ul class="plain">${arr.map((l,i)=>`<li class="${i===cur?"cur":""}">L${i} · ${esc(l)}${i===cur?" ← here":""}</li>`).join("")}</ul>`;
+ const weak=A_.tool.length?A_.tool.reduce((m,a)=>a.lv<m.lv?a:m):null;
+ const gate=kind.startsWith("AIR:gate:")?list.find(a=>"AIR:gate:"+a.k===kind):null;
+ let h=`<div class="focus" style="--pc:${col}"><div><div class="eyebrow">Overlay · east of the districts · never part of the score</div>`;
+ if(gate){h+=`<h3>Gate: ${esc(gate.n)} · L${gate.lv}</h3><p>${gate.lv===0?"Closed: a barrier across the stand. A must-have check fails or too few basics pass, so no plane docks here.":gate.lv===1?"Open stand with an amber light: the basics exist, but you have to know about them.":gate.lv===2?"Gate with a jet bridge and a green light: enforced by hooks or CI.":"Gate with a blue light: documented for agents, fast and actionable."}</p><p class="meta">${gate.wide?"Repo-wide area":"Tool area"}. The airport level is the weakest tool area, so one closed tool gate holds the whole airport back.</p></div>`}
+ else if(kind==="AIR:cargo"){h+=`<h3>Air freight: Docker</h3><p>One container per Compose service or image, capped by the airport level (4, 8 or 12). Cargo plane and crane move them. Containers need a Docker or Compose area.</p></div>`}
+ else if(kind==="AIR:link"){h+=`<h3>Station link: L${qA}</h3><p>The central station (workflow entry points, L${hub}) is connected to the airport (${overall==null?"none":"L"+overall}). A line is only as good as both ends, the same rule as every district line.</p></div>${lines(AIR_LINE,qA)}<p class="meta">${AIR.variant==="C"?"Variant C: the express train runs on its own platform on the rail line.":AIR.variant==="B"?"Variant B: switch on the underground layer to see the metro network.":"Variant A: the airport is one more stop on the bus and metro network."}</p>`}
+ else if(kind.startsWith("AIR:plane")){const t=kind.split(":")[2];const d={prop:"Propeller plane: small-airfield traffic.",jet:"Regional jet: a working infrastructure harness.",biz:"Business jet: L3 only.",charter:"Holiday charter: L3 only, the harness is thriving.",cargo:"Cargo plane: Docker and Compose images."}[t];h+=`<h3>${esc(d)}</h3><p>Planes arrive, dock, push back and depart like trains and cars. More planes at higher levels; none at L0.</p></div>`}
+ else{h+=`<h3>Infrastructure: ${overall==null?"no airport":"L"+overall}</h3>${overall==null?"<p>No infrastructure was detected, so there is nothing to draw. The airport only exists for repositories with real infrastructure.</p></div>":`<p>Airport size follows the weakest tool area${weak?" ("+esc(weak.n)+")":""}. Every infrastructure area has a gate; repo-wide areas are shown beside the tool areas.</p></div>${lines(AIR_LADDER,L)}`}`}
+ if(overall!=null&&!gate&&kind!=="AIR:link"&&!kind.startsWith("AIR:plane")&&kind!=="AIR:cargo"){h+=`<div class="eyebrow">Gates · infrastructure areas</div><table class="dtab">${list.map(a=>`<tr data-kind="AIR:gate:${a.k}"><td><span class="sw" style="background:${AIR_LV[a.lv]}"></span>${esc(a.n)}${a.wide?' <span class="meta">repo-wide</span>':""}</td><td class="lv">L${a.lv}</td></tr>`).join("")}</table>`}
+ h+=`<button class="btnlink" id="clr">Show the whole city</button></div>`;return h}
+function airCard(rep){if(!AIR_ON)return"";const A_=dyn&&dyn.air;if(!A_)return"";const {overall,qA}=A_;return `<div class="about" style="border-left:4px solid ${AIRP.c}"><h3>Airport · infrastructure overlay</h3><p>${overall==null?"No infrastructure detected: no airport.":`Level <b>L${overall}</b> (weakest tool area). Link to the central station: <b>L${qA}</b>, ${esc(AIR_LINE[qA].split(":")[0].toLowerCase())}.`} Not part of the score.</p><button class="btnlink" data-kind="AIR">Go to the airport</button></div>`}
+function airBar(){if(!AIR_ON)return;const bar=document.createElement("section");bar.className="airbar";bar.id="airbar";const mq=matchMedia("(max-width:980px)");const place=()=>{if(mq.matches)document.querySelector(".main").after(bar);else document.getElementById("picker").after(bar)};place();mq.addEventListener("change",place);
+ const chip=(t,on,fn,ttl)=>{const b=document.createElement("button");b.className="chip";b.style.padding="4px 10px";b.textContent=t;b.title=ttl||"";b.setAttribute("aria-pressed",on);b.onclick=fn;return b};
+ const grp=(label,items)=>{const d=document.createElement("div");d.className="ag";const l=document.createElement("span");l.className="eyebrow";l.textContent=label;d.appendChild(l);const r=document.createElement("div");r.className="picker";items.forEach(i=>r.appendChild(i));d.appendChild(r);return d};
+ const draw=()=>{bar.innerHTML="";const hd=document.createElement("div");hd.innerHTML=`<div class="eyebrow">Airport prototype · draft, not scored</div><p class="meta" style="margin:2px 0 0;max-width:80ch">${esc(AIR_VARIANTS[AIR.variant][1])} Pick another repository above to see how the station level changes the link.</p>`;bar.appendChild(hd);
+  const rows=document.createElement("div");rows.className="agrow";bar.appendChild(rows);
+  rows.appendChild(grp("Station link",Object.keys(AIR_VARIANTS).map(k=>chip(AIR_VARIANTS[k][0],AIR.variant===k,()=>{AIR.variant=k;if(k==="B")AIR.under=true;else if(k==="A")AIR.under=false;rebuildAir()}))));
+  rows.appendChild(grp("Underground layer",[chip("Off",!AIR.under,()=>{AIR.under=false;rebuildAir()}),chip("On",AIR.under,()=>{AIR.under=true;rebuildAir()})]));
+  rows.appendChild(grp("Presets",Object.keys(AIR_PRESETS).map(n=>chip(n,false,()=>{const p=AIR_PRESETS[n];for(const a of AIR_AREAS)AIR.areas[a.k]=p[a.k];AIR.cont=p.cont;rebuildAir()}))));
+  const ar=document.createElement("div");ar.className="agrow";bar.appendChild(ar);
+  for(const a of AIR_AREAS)ar.appendChild(grp(a.n+(a.wide?" · repo-wide":""),[[null,"–"],[0,"0"],[1,"1"],[2,"2"],[3,"3"]].map(([v,t])=>chip(t,(AIR.areas[a.k]??null)===v,()=>{AIR.areas[a.k]=v;rebuildAir()}))));
+  const cr=document.createElement("div");cr.className="ag";cr.innerHTML=`<span class="eyebrow">Containers</span>`;const rg=document.createElement("input");rg.type="range";rg.min=0;rg.max=12;rg.value=AIR.cont;rg.oninput=()=>{AIR.cont=+rg.value;rebuildAir(true)};cr.appendChild(rg);ar.appendChild(cr);
+  const go=document.createElement("div");go.className="ag";go.innerHTML=`<span class="eyebrow">View</span>`;const r2=document.createElement("div");r2.className="picker";r2.appendChild(chip("Airport",false,()=>select(null,"AIR")));r2.appendChild(chip("Whole city",false,()=>{select(null);document.getElementById("fit").click()}));go.appendChild(r2);ar.appendChild(go)};
+ window.__airDraw=draw;draw()}
+function rebuildAir(keepBar){if(current)build(current);if(window.__airDraw&&!keepBar)window.__airDraw();renderPanel()}
+if(AIR_ON)Object.assign(AIR.areas,Object.fromEntries(AIR_AREAS.map(a=>[a.k,AIR_PRESETS["n8n-like (Compose + Docker)"][a.k]])))
+
+airSetup();
+window.__air={AIR,AIR_AREAS,AIR_PRESETS,rebuildAir};
+
 /* ================= scene ================= */
 const stage=document.getElementById("stage"),canvas=document.getElementById("city"),labelsEl=document.getElementById("labels");
 let renderer,scene,camera,sun,city=null,dyn=null,tags=[],plates=[],current=null,sel=null;
-const view={az:45,zoom:1,target:new THREE.Vector3(14.5,0,7.5)};
+const view={az:45,zoom:1,target:new THREE.Vector3(homeX(),0,7.5)};
 function initScene(){renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true,preserveDrawingBuffer:true});renderer.setPixelRatio(Math.min(2,window.devicePixelRatio||1));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
  scene=new THREE.Scene();
  scene.add(new THREE.HemisphereLight("#f4f8ff","#8aa77a",1.35));sun=new THREE.DirectionalLight("#fff3dd",2.5);sun.position.set(26,30,22);sun.target.position.set(14.5,0,7.5);sun.castShadow=true;sun.shadow.mapSize.set(4096,4096);const sc=sun.shadow.camera;sc.left=-26;sc.right=26;sc.top=24;sc.bottom=-24;sc.near=1;sc.far=90;sun.shadow.bias=-.0004;sun.shadow.normalBias=.02;scene.add(sun,sun.target);
@@ -511,26 +666,28 @@ function initScene(){renderer=new THREE.WebGLRenderer({canvas,antialias:true,alp
 function placeCamera(){const a=view.az*Math.PI/180,d=60;camera.position.set(view.target.x+Math.sin(a)*d,view.target.y+d*.82,view.target.z+Math.cos(a)*d);camera.lookAt(view.target);const w=stage.clientWidth,h=stage.clientHeight;const s=fitSize(w/h)/view.zoom;camera.left=-s*w/h;camera.right=s*w/h;camera.top=s;camera.bottom=-s;camera.updateProjectionMatrix()}
 function fitSize(aspect){// half-height in world units so the whole city (incl. rail and power line) fits the stage
  const a=view.az*Math.PI/180;const dir=new THREE.Vector3(Math.sin(a),.82,Math.cos(a)).normalize();const right=new THREE.Vector3().crossVectors(new THREE.Vector3(0,1,0),dir).normalize();const up=new THREE.Vector3().crossVectors(dir,right);
- const c0=new THREE.Vector3(14.5,0,7.5);let mx=0,my=0;for(const x of [BOUNDS.x0+1,BOUNDS.x1])for(const z of [BOUNDS.z0+.5,BOUNDS.z1-1])for(const y of [0,2.2]){const v=new THREE.Vector3(x,y,z).sub(c0);mx=Math.max(mx,Math.abs(v.dot(right)));my=Math.max(my,Math.abs(v.dot(up)))}
+ const c0=new THREE.Vector3(homeX(),0,7.5);let mx=0,my=0;for(const x of [BOUNDS.x0+1,BOUNDS.x1])for(const z of [BOUNDS.z0+.5,BOUNDS.z1-1])for(const y of [0,2.2]){const v=new THREE.Vector3(x,y,z).sub(c0);mx=Math.max(mx,Math.abs(v.dot(right)));my=Math.max(my,Math.abs(v.dot(up)))}
  return Math.max(my,mx/aspect)*1.0}
 function resize(){const w=stage.clientWidth,h=stage.clientHeight;renderer.setSize(w,h,false);placeCamera()}
-function build(rep){if(city){scene.remove(city)}tags=[];city=new THREE.Group();scene.add(city);
+function build(rep){airSetup();if(city){scene.remove(city)}tags=[];city=new THREE.Group();scene.add(city);
  buildOutskirts(city,rep);buildRoads(city,rep);const rail=buildRail(city,rep);const grid=buildGrid(city,rep);const transit=buildTransit(city,rep);
- const districts={},traffic=[];
+ const air=AIR_ON?buildAirportAll(city,rep,rail,transit):null;
+ const districts={},traffic=[];if(air&&air.traffic)traffic.push(air.traffic);
  for(const p of PILLARS){const lvl=rep.L[PI[p.k]];const st=stepsFor(rep,p);const cap=p.k==="verification"&&rep.caps.length?rep.caps[0]:null;
   const d=buildDistrict(city,p.k,lvl,DIST[p.k],rep,hash(rep.id+p.k),{steps:st,cap});districts[p.k]=d;
   traffic.push(buildTraffic(city,p.k,lvl,DIST[p.k],hash(rep.id+p.k+"t")));
   const b=DIST[p.k];const pick=new THREE.Mesh(bg(b.x1-b.x0+1,1.2,b.z1-b.z0+1),new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false}));pick.position.set((b.x0+b.x1)/2,.6,(b.z0+b.z1)/2);pick.userData.pick={kind:"district",k:p.k};city.add(pick)}
  const selLine=new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(),new THREE.Vector3(.1,0,0),new THREE.Vector3(0,0,.1)]),new THREE.LineBasicMaterial({color:"#111"}));selLine.visible=false;city.add(selLine);
- dyn={rail,grid,transit,districts,traffic,selLine,t0:performance.now(),signs:[]};
- makePlates(rep);updateSelection()}
+ dyn={rail,grid,transit,districts,traffic,selLine,t0:performance.now(),signs:[],air};
+ airLight();airDim(AIR_ON&&AIR.under);makePlates(rep);updateSelection()}
 function makePlates(rep){labelsEl.innerHTML="";plates=[];
  for(const p of PILLARS){const lvl=rep.L[PI[p.k]];const b=DIST[p.k];const el=document.createElement("div");el.className="plate";el.style.setProperty("--pc",p.c);
   el.innerHTML=`<span class="pn"><img class="pi" alt="" src="${iconURL(p)}"><span class="pt">${p.place}</span><span class="lvb">L${lvl}</span></span><span class="pl">${p.n} · <span class="pips">${[1,2,3].map(n=>`<i style="${n<=lvl?`background:${p.c}`:""}"></i>`).join("")}</span>L${lvl} ${LEVEL[lvl]}</span>`;
   el.addEventListener("click",()=>select(sel===p.k?null:p.k));labelsEl.appendChild(el);plates.push({el,pos:new THREE.Vector3(b.x0+1.6,0,b.z1+.5),k:p.k})}
- for(const t of tags){const el=document.createElement("div");el.className="tag3d";el.style.background=t.color;el.textContent=t.text;el.addEventListener("click",()=>select(null,t.kind));labelsEl.appendChild(el);plates.push({el,pos:t.pos,k:null})}}
+ if(AIR_ON&&dyn&&dyn.air){const el=document.createElement("div");el.className="plate";el.style.setProperty("--pc",AIRP.c);const ov=dyn.air.overall;el.innerHTML=`<span class="pn"><img class="pi" alt="" src="${iconURL(AIRP)}"><span class="pt">${AIRP.place}</span><span class="lvb">${ov==null?"–":"L"+ov}</span></span><span class="pl">${AIRP.n} · ${ov==null?"none detected":"L"+ov+" "+LEVEL[ov]} · overlay</span>`;el.addEventListener("click",()=>select(null,"AIR"));labelsEl.appendChild(el);plates.push({el,pos:new THREE.Vector3(AP.x0+1.6,0,AP.z1+.5),k:"__air"})}
+ for(const t of tags){const el=document.createElement("div");el.className="tag3d";el.style.background=t.color;el.textContent=t.text;el.addEventListener("click",()=>select(null,t.kind));labelsEl.appendChild(el);plates.push({el,pos:t.pos,k:null,gate:t.kind.startsWith("AIR:gate")||t.kind==="AIR:cargo"})}}
 const v3=new THREE.Vector3();
-function updateLabels(){const w=stage.clientWidth,h=stage.clientHeight;if(dyn){const on=view.zoom>=1.45;dyn.signs.forEach(s=>s.visible=on)}const small=view.zoom<1.3||w<640;const tiny=w<560&&view.zoom<1.8;for(const pl of plates){v3.copy(pl.pos).project(camera);const x=(v3.x+1)/2*w,y=(1-v3.y)/2*h;const vis=v3.z<1&&x>-80&&x<w+80&&y>-20&&y<h+60;pl.el.style.display=vis?"":"none";if(vis)pl.el.style.transform=`translate(${x}px,${y}px) translate(-50%,-100%)`;if(pl.k){pl.el.classList.toggle("sel",sel===pl.k);pl.el.classList.toggle("small",small);pl.el.classList.toggle("tiny",tiny)}}}
+function updateLabels(){const w=stage.clientWidth,h=stage.clientHeight;if(dyn){const on=view.zoom>=1.45;dyn.signs.forEach(s=>s.visible=on)}const small=view.zoom<1.3||w<640;const tiny=w<560&&view.zoom<1.8;for(const pl of plates){v3.copy(pl.pos).project(camera);const x=(v3.x+1)/2*w,y=(1-v3.y)/2*h;const vis=v3.z<1&&x>-80&&x<w+80&&y>-20&&y<h+60&&!(pl.gate&&view.zoom<1.6);pl.el.style.display=vis?"":"none";if(vis)pl.el.style.transform=`translate(${x}px,${y}px) translate(-50%,-100%)`;if(pl.k){pl.el.classList.toggle("sel",sel===pl.k);pl.el.classList.toggle("small",small);pl.el.classList.toggle("tiny",tiny)}}}
 function updateSelection(){const L=dyn&&dyn.selLine;if(!L)return;if(!sel){L.visible=false;return}const b=DIST[sel];const y=.08,pad=.5;const pts=[[b.x0-pad,b.z0-pad],[b.x1+pad,b.z0-pad],[b.x1+pad,b.z1+pad],[b.x0-pad,b.z1+pad]].map(([x,z])=>new THREE.Vector3(x,y,z));L.geometry.setFromPoints(pts);L.material.color.set(PILLARS[PI[sel]].c);L.visible=true}
 // animation
 const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -547,6 +704,7 @@ function animate(now){if(!dyn)return;const t=(now-dyn.t0)/1000;const tt=reduce?3
  for(const [k,d] of Object.entries(dyn.districts)){if(d.userData.crane&&!reduce)d.userData.crane.userData.top.rotation.y=Math.sin(t*.25+k.length)*1.1;if(d.userData.lm.userData.siren)d.userData.lm.userData.siren.material.emissiveIntensity=reduce?1:(Math.sin(t*6)>0?1.6:.2)}
  for(const sp of dyn.grid.sparks){sp.material.opacity=reduce?.9:(Math.random()<.5?1:.25);sp.scale.setScalar(reduce?.5:.35+Math.random()*.3)}
  for(const s of dyn.transit.moving)moveShuttle(s,tt);
+ if(dyn.air)for(const f of dyn.air.anim)f(tt);
  steam(t)}
 const puffs=[];function steam(t){if(!dyn)return;const d=dyn.districts.pipeline_parity;if(!d||!d.userData.lm.userData.steam)return;if(!puffs.length||puffs.owner!==d){puffs.forEach(p=>p.parent&&p.parent.remove(p));puffs.length=0;puffs.owner=d;for(let i=0;i<10;i++){const s=new THREE.Sprite(steamMat());s.material=s.material.clone();d.userData.lm.add(s);puffs.push(s)}}
  const lvl=current.L[PI.pipeline_parity];const H=1.3+lvl*.25;puffs.forEach((s,i)=>{const u=((reduce?.5:t*.18)+i/10)%1;s.position.set(.7+Math.sin(i*7+u*3)*.12,H+u*1.4,-.1);s.scale.setScalar(.45+u*.9);s.material.opacity=(1-u)*.8})}
@@ -562,17 +720,17 @@ canvas.addEventListener("wheel",e=>{e.preventDefault();zoomBy(e.deltaY<0?1.12:1/
 let pinch=null;canvas.addEventListener("touchstart",e=>{if(e.touches.length===2){pinch=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);drag=null}},{passive:true});
 canvas.addEventListener("touchmove",e=>{if(pinch&&e.touches.length===2){const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);zoomBy(d/pinch);pinch=d}},{passive:true});
 canvas.addEventListener("touchend",()=>{pinch=null});
-function clampTarget(){view.target.x=Math.max(-2,Math.min(31,view.target.x));view.target.z=Math.max(-3,Math.min(18,view.target.z))}
+function clampTarget(){view.target.x=Math.max(-2,Math.min(Math.max(31,BOUNDS.x1-4),view.target.x));view.target.z=Math.max(-3,Math.min(18,view.target.z))}
 function zoomBy(f){view.zoom=Math.max(.7,Math.min(4,view.zoom*f));placeCamera()}
 let rotAnim=null;function rotate(d){const from=view.az,to=view.az+d;const t0=performance.now();cancelAnimationFrame(rotAnim);const step=now=>{const u=Math.min(1,(now-t0)/450);const e=u<.5?2*u*u:1-Math.pow(-2*u+2,2)/2;view.az=from+(to-from)*(reduce?1:e);placeCamera();if(u<1&&!reduce)rotAnim=requestAnimationFrame(step)};rotAnim=requestAnimationFrame(step)}
 document.getElementById("rotL").onclick=()=>rotate(-90);document.getElementById("rotR").onclick=()=>rotate(90);
 document.getElementById("zin").onclick=()=>zoomBy(1.25);document.getElementById("zout").onclick=()=>zoomBy(.8);
-document.getElementById("fit").onclick=()=>{view.zoom=1;view.target.set(14.5,0,7.5);placeCamera()};
+document.getElementById("fit").onclick=()=>{view.zoom=1;view.target.set(homeX(),0,7.5);placeCamera()};
 document.getElementById("lbl").onclick=e=>{const on=stage.classList.toggle("hide-labels");e.currentTarget.setAttribute("aria-pressed",String(!on))};
 document.getElementById("cityplate").onclick=()=>select(null,"city");
 function focusDistrict(k){const b=DIST[k];view.target.set((b.x0+b.x1)/2,0,(b.z0+b.z1)/2+.5);view.zoom=Math.max(view.zoom,1.7);placeCamera()}
 let selKind=null,about=null;const KIND_PILLAR={rail:"workflow_entry_points",grid:"pipeline_parity"};
-function select(k,kind){if(KIND_PILLAR[kind])k=KIND_PILLAR[kind];sel=k||null;selKind=kind&&kind.startsWith("ENR")?kind:null;about=sel&&kind&&kind!=="district"?kind:null;if(sel&&!KIND_PILLAR[kind])focusDistrict(sel);updateSelection();renderPanel()}
+function select(k,kind){if(KIND_PILLAR[kind])k=KIND_PILLAR[kind];sel=k||null;selKind=kind&&(kind.startsWith("ENR")||kind.startsWith("AIR"))?kind:null;about=sel&&kind&&kind!=="district"?kind:null;if(sel&&!KIND_PILLAR[kind])focusDistrict(sel);if(selKind&&selKind.startsWith("AIR")){view.target.set(selKind==="AIR:link"?43:55,0,4.5);view.zoom=selKind==="AIR:link"?1.7:2.2;placeCamera()}updateSelection();renderPanel()}
 
 /* ================= panel, picker, table ================= */
 const fmt=n=>n==null?"":`+${n.toFixed(1)}`;
@@ -619,8 +777,10 @@ function renderPanel(){const rep=current,pn=document.getElementById("panel");con
   <div class="eyebrow">Level ladder · checks per level</div>${ladderHTML(rep,i)}
   ${st.length?`<div class="eyebrow">Next fixes here</div><ul class="plain">${st.map(s=>`<li class="wi"><span class="tag">${esc(s.c)}</span><span>${esc(s.t)} <span class="meta">${fmt(s.p)}</span></span></li>`).join("")}</ul>`:""}
   <button class="btnlink" id="clr">Show the whole city</button></div>`}
- if(selKind){const items=rep.ent.filter(e=>e.c===selKind);h+=`<div class="focus" style="--pc:#b0377f"><div><div class="eyebrow">${ENR[selKind].where}</div><h3>${items.length} ${ENR[selKind].t}${items.length>1?"s":""}</h3></div><ul class="plain">${items.map(e=>`<li class="path">${esc(e.p)}</li>`).join("")}</ul><p class="meta">The tool only reports; a person decides whether to delete or wire it up.</p><button class="btnlink" id="clr">Show the whole city</button></div>`}
+ if(selKind&&selKind.startsWith("AIR"))h+=airPanel(rep,selKind);
+ if(selKind&&selKind.startsWith("ENR")){const items=rep.ent.filter(e=>e.c===selKind);h+=`<div class="focus" style="--pc:#b0377f"><div><div class="eyebrow">${ENR[selKind].where}</div><h3>${items.length} ${ENR[selKind].t}${items.length>1?"s":""}</h3></div><ul class="plain">${items.map(e=>`<li class="path">${esc(e.p)}</li>`).join("")}</ul><p class="meta">The tool only reports; a person decides whether to delete or wire it up.</p><button class="btnlink" id="clr">Show the whole city</button></div>`}
  if(!sel&&!selKind)h+=cityHTML(rep);
+ if(!selKind||!selKind.startsWith("AIR"))h+=airCard(rep);
  const hasF=rep.f.length>0;
  h+=`<div><div class="eyebrow">Districts${hasF?" · open issues":""}</div><table class="dtab">${PILLARS.map((p,i)=>{const n=issuesOf(rep,i).length;return `<tr data-k="${p.k}" class="${sel===p.k?"sel":""}"><td><span class="sw" style="background:${p.c}"></span>${p.n}</td><td class="lv">L${rep.L[i]}</td>${hasF?`<td class="num" style="color:var(--bad)">${n?n+" ✗":""}</td>`:""}<td class="num">${pts[i].toFixed(1)}/${p.w}</td></tr>`}).join("")}</table></div>`;
  const groups={};for(const e of rep.ent)(groups[e.c]=groups[e.c]||[]).push(e);
@@ -632,7 +792,7 @@ function renderPicker(){const el=document.getElementById("picker");const sorted=
 function renderTable(){const t=document.getElementById("dtable");const sorted=[...REPOS].sort((a,b)=>b.score-a.score);
  t.innerHTML=`<thead><tr><th>Repository</th><th>Set</th><th>Score</th><th>Gut</th><th>Tier</th>${PILLARS.map(p=>`<th title="${p.n}">${p.short}</th>`).join("")}<th>Penalty</th><th>Decay</th><th>All fixes</th></tr></thead><tbody>${sorted.map(r=>`<tr data-id="${esc(r.id)}"><td>${esc(r.id)}</td><td>${esc(r.set)}</td><td class="num">${r.score}</td><td class="num">${r.gut??"–"}</td><td>${tierOf(r.score).n}</td>${r.L.map(l=>`<td class="l">L${l}</td>`).join("")}<td class="num">${r.pen.toFixed(1)}</td><td class="num">${r.ent.length}</td><td class="num">${r.done??"–"}</td></tr>`).join("")}</tbody>`;
  t.querySelectorAll("tbody tr").forEach(tr=>tr.onclick=()=>{choose(tr.dataset.id,true);stage.scrollIntoView({behavior:reduce?"auto":"smooth",block:"center"})})}
-function choose(id,push){const r=REPOS.find(x=>x.id===id);if(!r)return;current=r;sel=null;selKind=null;about=null;if(push){try{history.replaceState(null,"","#"+id)}catch(e){location.hash=id}}renderPicker();renderPanel();if(scene){view.zoom=1;view.target.set(14.5,0,7.5);placeCamera();build(r)}}
+function choose(id,push){const r=REPOS.find(x=>x.id===id);if(!r)return;current=r;sel=null;selKind=null;about=null;if(push){try{history.replaceState(null,"","#"+id)}catch(e){location.hash=id}}renderPicker();renderPanel();if(scene){view.zoom=1;view.target.set(homeX(),0,7.5);placeCamera();build(r)}}
 
 /* ================= offscreen thumbnails (asset sheet + key) ================= */
 async function renderThumbs(){const tr=new THREE.WebGLRenderer({antialias:true,alpha:true,preserveDrawingBuffer:true});tr.setPixelRatio(1);tr.setSize(480,360);tr.outputColorSpace=THREE.SRGBColorSpace;tr.shadowMap.enabled=true;tr.shadowMap.type=THREE.PCFSoftShadowMap;
@@ -670,7 +830,7 @@ async function loadData(){
  try{await loadData()}catch(err){document.getElementById("loading").textContent="Could not load city data ("+err.message+"). Serve this folder over http (python3 tools/serve.py) or open the standalone file from dist/.";console.error(err);return}
  renderTable();const fromHash=decodeURIComponent(location.hash.slice(1));current=REPOS.find(r=>r.id===fromHash)||REPOS[0];renderPicker();renderPanel();
  try{await Promise.race([Promise.all([document.fonts.load(`800 40px ${FONT_D}`),document.fonts.load(`600 30px ${FONT_M}`)]),new Promise(r=>setTimeout(r,2500))])}catch(e){}
- try{initScene();await loadAssets();build(current);document.getElementById("loading").hidden=true;requestAnimationFrame(loop);window.__ready=true;window.__t={view,placeCamera,choose,select,camera,renderer,scene};
+ try{initScene();await loadAssets();airBar();build(current);document.getElementById("loading").hidden=true;requestAnimationFrame(loop);window.__ready=true;window.__t={view,placeCamera,choose,select,camera,renderer,scene};
   new ResizeObserver(()=>{resize()}).observe(stage);
   setTimeout(()=>renderThumbs().then(()=>{window.__thumbs=true}),50)}
  catch(err){document.getElementById("loading").textContent="The 3D view needs WebGL, which this browser could not start. The data table below has every number.";console.error(err)}

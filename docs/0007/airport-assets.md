@@ -39,10 +39,16 @@ with its own level. Repos without real infrastructure get no airport.
 
 ## Prototype
 
-`apps/harness-city/prototypes/airport.html` is a clickable prototype of all tiers and the three
-station-link variants (A/B/C, underground toggle, per-area gate levels, container count, presets).
-It is standalone and not part of the real city yet. Capacity: L1 2 stands, L2 4 gates, L3 6 gates;
-more areas are summarised on a sign. At L3 the second runway extends the plot beyond two fields.
+The airport is built **inside the real city app** (same kit models, roads, rail, lighting, labels,
+side panel), not as a separate page. Enable it with `index.html?airport`, or build the standalone
+file with `python3 tools/build_standalone.py --offline --airport`. A control bar above the city
+switches the station-link variant (A/B/C), the underground layer, per-area gate levels, container
+count and presets. Pick another repository to see how the station level changes the link.
+
+Decisions made in the prototype: one runway at every level (L3 differs by terminal, gates,
+tower, planes and crane); the airport station is a plot west of the airport and the express
+line uses the existing rail line with its own platforms; capacity is 2 stands (L1), 4 gates (L2),
+6 gates (L3), extra areas are summarised on a tag.
 
 ## Gates
 
