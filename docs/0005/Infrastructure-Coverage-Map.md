@@ -40,7 +40,13 @@ Confirmed by the owner on 2026-10-27: D1 overlay, D3 order as recommended. Go is
 
 ## Tracks
 
-Status key: `todo` = nothing built; `partly done` = some items built. Track A is partly done (detection of all listed tools, reported as an unscored overlay: `scripts/detect_infra.py`, B-166 to B-169 and B-184 done). The component model (B-170) and everything else are `todo`.
+Status key: `todo` = nothing built; `partly done` = some items built. Done so far (all as an overlay that never changes the score):
+
+- Track A, detection of all listed tools: `scripts/detect_infra.py` (B-166 to B-169, B-184).
+- Track B, first set of checks for Dockerfile, Compose, devcontainer and Terraform/OpenTofu: `scripts/infra_checks.py`, 25 checks (B-171, B-175 to B-177), with a per-check roll-up (B-194).
+- Track E, the `infra` block in `report.json` and the Infrastructure section in `report.md` (B-181).
+
+Still `todo`: the component model (B-170), Bicep, Kubernetes/Helm and the other IaC checks (B-172 to B-174), cross-cutting checks (B-178), infra entropy (B-179), the judgement prompt (B-180), the city adapter (B-182, B-183), the adoption skill (Track F), fixtures and calibration (Track G).
 
 ### Track A: Detection (prerequisite for everything)
 

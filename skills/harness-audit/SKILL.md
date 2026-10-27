@@ -61,7 +61,22 @@ project rules. Python and Node only; monorepos get root-level files for the domi
 - The judgement answers come from a model. For anything important, have a second, independent model answer the same tasks blind and compare (they agreed on 34 of 51 in testing; the rest were mostly `unknown` versus a verdict).
 - Static detection is heuristic: always show the evidence (path, line, snippet) rather than just the verdict.
 
+## Infrastructure overlay
+
+Besides the score, every report has an `infra` block and an "Infrastructure" section. It lists the infrastructure
+files found (Terraform/OpenTofu, Bicep/ARM, Kubernetes/Helm/Kustomize, Pulumi, CloudFormation/CDK, Ansible,
+Dockerfile, Compose, devcontainers, gitpod, nix, mise) and, for Dockerfile, Compose, devcontainer and Terraform,
+25 checks (`INF-D*`, `INF-C*`, `INF-V*`, `INF-T*`) with pass, fail or not applicable and quoted evidence.
+
+- It is an overlay: it never changes the 0-100 score or the pillar levels. A repo with a perfect score can still have
+  weak infrastructure, and the report says so under Limitations. Do not add the two together.
+- Other tools (Bicep, Kubernetes, Helm, Pulumi, CloudFormation, Ansible) are detected and listed, but not checked yet.
+- Files are only read. Nothing is built, planned, validated or started.
+- Checks use text matching and look at all CI text, not the job for one directory; use them as a list of leads.
+- Per-check roll-up (`infra.rollup`) shows in how many locations each check fails; per-area pass rates are in
+  `infra.summary`.
+
 ## Files
 
-`scripts/` pipeline (`triage.py` fix plan, `bootstrap.py` file proposals), `checks/catalog.yaml` checks, `checks/fixes.yaml` effort and action per check, `schema/report.schema.json` report contract, `prompts/` LLM
+`scripts/` pipeline (`triage.py` fix plan, `bootstrap.py` file proposals, `detect_infra.py` and `infra_checks.py` infrastructure overlay, `agreement.py` compares two judgement runs), `checks/catalog.yaml` checks, `checks/fixes.yaml` effort and action per check, `schema/report.schema.json` report contract, `prompts/` LLM
 prompts, `BACKLOG.md` known gaps. Developing the skill itself: see `AGENTS.md` (`task check`).

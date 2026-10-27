@@ -424,4 +424,28 @@ def run(root: Path, files: list[str], detected: list[dict]) -> dict:
     for s in summary.values():
         total = s["passed"] + s["failed"]
         s["pass_rate"] = round(s["passed"] / total, 2) if total else None
-    return {"findings": findings, "summary": summary}
+    return {"findings": findings, "summary": summary, "rollup": rollup(findings)}
+
+
+def rollup(findings: list[dict]) -> list[dict]:
+    """One row per check: how many locations pass, fail or do not apply, and the failing paths (B-194)."""
+    rows: dict[str, dict] = {}
+    for f in findings:
+        row = rows.setdefault(
+            f["check_id"],
+            {
+                "check_id": f["check_id"],
+                "area": f["area"],
+                "level": f["level"],
+                "title": f["title"],
+                "passed": 0,
+                "failed": 0,
+                "not_applicable": 0,
+                "failing": [],
+            },
+        )
+        key = {"pass": "passed", "fail": "failed"}.get(f["status"], "not_applicable")
+        row[key] += 1
+        if f["status"] == "fail" and len(row["failing"]) < 5:
+            row["failing"].append(f["scope"])
+    return sorted(rows.values(), key=lambda r: (-r["failed"], r["check_id"]))

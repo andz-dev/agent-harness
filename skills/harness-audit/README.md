@@ -43,4 +43,10 @@ gut scores: mean error about 5 points. Known gaps and next steps are in `BACKLOG
 
 ## Infrastructure overlay
 
-`scripts/detect_infra.py` lists infrastructure-as-code, container and devcontainer files and the report shows them under "Infrastructure (detected, not scored)". They never change the score. Checks for them are planned; see `docs/0005/Infrastructure-Coverage-Map.md` in the repository root.
+`scripts/detect_infra.py` finds infrastructure-as-code, container and dev-environment files. `scripts/infra_checks.py`
+runs 25 checks on Dockerfiles (`INF-D01..D07`), Compose files (`INF-C01..C05`), devcontainers (`INF-V01..V06`) and
+Terraform/OpenTofu directories (`INF-T01..T07`). The report shows the result under "Infrastructure" and in the `infra`
+block of `report.json` (`checks`, `summary`, `rollup`).
+
+It never changes the score (decision D1; a test pins it). Other IaC tools are detected but not checked yet. Plan and
+backlog: `docs/0005/Infrastructure-Coverage-Map.md` in the repository root and `BACKLOG.md` sections 4v to 4x.

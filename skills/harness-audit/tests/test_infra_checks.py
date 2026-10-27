@@ -169,7 +169,19 @@ class SummaryTests(unittest.TestCase):
         self.assertGreater(s["pass_rate"], 0)
 
     def test_no_infra_no_findings(self):
-        self.assertEqual(run({"app.py": "x=1\n"}), {"findings": [], "summary": {}})
+        self.assertEqual(run({"app.py": "x=1\n"}), {"findings": [], "summary": {}, "rollup": []})
+
+
+class RollupTests(unittest.TestCase):
+    def test_rollup_counts_locations_per_check(self):
+        r = run({"a/Dockerfile": "FROM node\nUSER app\n", "b/Dockerfile": "FROM python:3.12\nUSER app\n"})
+        row = next(x for x in r["rollup"] if x["check_id"] == "INF-D02")
+        self.assertEqual((row["passed"], row["failed"]), (1, 1))
+        self.assertEqual(row["failing"], ["a/Dockerfile"])
+        self.assertEqual(r["rollup"][0]["failed"], max(x["failed"] for x in r["rollup"]))
+
+    def test_empty(self):
+        self.assertEqual(run({"app.py": "x=1\n"})["rollup"], [])
 
 
 if __name__ == "__main__":

@@ -364,3 +364,5 @@ Full map: `docs/0005/Infrastructure-Coverage-Map.md`. Today the catalog has no i
 - B-197: No tools-in-CI mapping to the right directory yet: INF-T03/T04/T05/D05/D07 look at all CI text, not at the job that touches the directory.
 - B-198: Overlay has pass rates per area but no level or 0-100 number yet; decide after seeing results on more repos (question open with the owner).
 - B-199: Not yet implemented: Bicep (B-172), Kubernetes/Helm (B-173), Pulumi/CloudFormation/Ansible (B-174), cross-cutting (B-178), infra entropy (B-179), infra judgement prompt (B-180).
+- B-194 (done): `infra.rollup` gives one row per check (locations passed, failed, not applicable, up to 5 failing paths); `report.md` lists the most failing checks from it.
+- B-200 (done): Overlay documented in SKILL.md, README.md and the coverage map.

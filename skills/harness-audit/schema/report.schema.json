@@ -359,6 +359,52 @@
               }
             }
           }
+        },
+        "rollup": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "check_id",
+              "area",
+              "level",
+              "title",
+              "passed",
+              "failed",
+              "not_applicable",
+              "failing"
+            ],
+            "properties": {
+              "check_id": {
+                "type": "string"
+              },
+              "area": {
+                "type": "string"
+              },
+              "level": {
+                "type": "integer"
+              },
+              "title": {
+                "type": "string"
+              },
+              "passed": {
+                "type": "integer"
+              },
+              "failed": {
+                "type": "integer"
+              },
+              "not_applicable": {
+                "type": "integer"
+              },
+              "failing": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
         }
       }
     }

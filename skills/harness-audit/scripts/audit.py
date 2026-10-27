@@ -124,7 +124,7 @@ def assemble(root: Path, catalog: dict, name=None, url=None, weight=None, llm_an
     meta = repo_meta(root, name, url, weight)
     infra = detect_infra.detect(root)
     extra = infra_checks.run(root, detect_stack.list_files(root), infra["detected"])
-    infra = {**infra, "checks": extra["findings"], "summary": extra["summary"]}
+    infra = {**infra, "checks": extra["findings"], "summary": extra["summary"], "rollup": extra["rollup"]}
     stack_out = dict(stack)
     stack_out["ecosystems"] = sorted({c["ecosystem"] for c in stack["components"]})
     return {
@@ -229,14 +229,11 @@ def render_md(r: dict, titles: dict[str, str]) -> str:
                 rate = "-" if s["pass_rate"] is None else f"{round(s['pass_rate'] * 100)}%"
                 lines.append(f"| {area} | {s['passed']} | {s['failed']} | {rate} |")
             lines += [""]
-            worst: dict[str, dict] = {}
-            for c in r["infra"].get("checks", []):
-                if c["status"] == "fail":
-                    worst.setdefault(c["check_id"], {"c": c, "n": 0})["n"] += 1
-            for cid, w in sorted(worst.items(), key=lambda kv: (-kv[1]["n"], kv[0]))[:12]:
-                ev0 = w["c"]["evidence"][0] if w["c"]["evidence"] else None
-                tail = f" - {ev0['path']}: {ev0['snippet']}" if ev0 else ""
-                lines.append(f"- **{cid}** {w['c']['title']} ({w['n']} location{'s' if w['n'] != 1 else ''}){tail}")
+            for row in [x for x in r["infra"].get("rollup", []) if x["failed"]][:12]:
+                where = ", ".join(f"`{x}`" for x in row["failing"][:3]) + ("…" if row["failed"] > 3 else "")
+                lines.append(
+                    f"- **{row['check_id']}** {row['title']}: fails in {row['failed']} of {row['passed'] + row['failed']} locations ({where})"
+                )
             lines += [""]
     if r["limitations"]:
         lines += ["## Limitations", ""] + [f"- {x}" for x in r["limitations"]] + [""]

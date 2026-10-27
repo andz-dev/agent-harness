@@ -20,22 +20,22 @@
       "source": "agents/skills/engineering/harness-audit/BACKLOG.md",
       "target": "skills/harness-audit/BACKLOG.md",
       "source_sha256": "e6585aecc04e06097ac13de92215c0f31635c848af6e49cf681782c72657d17d",
-      "sha256": "58b9db83e4fa8bda0ca18a6df8570fc2e489aaf058bcce8256ac82afe3876154",
+      "sha256": "057d2b41a878d99d8bdda210d288f3101ff59fe065d1eee41538278e15da554d",
       "kind": "adapted-runtime"
     },
     {
       "source": "agents/skills/engineering/harness-audit/README.md",
       "target": "skills/harness-audit/README.md",
       "source_sha256": "3594260f92aa199367737493a11f6789e266c6a23218cef96b3da465514be810",
-      "sha256": "517d76b7cd08cec614b93f1683028c0a4a8eb51965efa74ca3fe56aa64335c51",
+      "sha256": "fd0e9479fa53693b7ce5d45442f9c258843d6c1f933988eba3de34270e202fa9",
       "kind": "adapted-runtime"
     },
     {
       "source": "agents/skills/engineering/harness-audit/SKILL.md",
       "target": "skills/harness-audit/SKILL.md",
       "source_sha256": "d9899e2e4c8328c7b781a55caefc2459b0192651c6de06feb3dd53dc5c49aa57",
-      "sha256": "d9899e2e4c8328c7b781a55caefc2459b0192651c6de06feb3dd53dc5c49aa57",
-      "kind": "unchanged-source"
+      "sha256": "f3805e12910a81de5b47235d7cc60d21bbc54f4972f5c327255516590603c284",
+      "kind": "adapted-runtime"
     },
     {
       "source": "agents/skills/engineering/harness-audit/Taskfile.yml",
@@ -111,14 +111,14 @@
       "source": "agents/skills/engineering/harness-audit/schema/report.schema.json",
       "target": "skills/harness-audit/schema/report.schema.json",
       "source_sha256": "303bb0a324331f1bb0541ec15eccfd2a070f1d0a8e8368e255fa0f30c47eb135",
-      "sha256": "70d4cd8b09ec5078e15615ae24bc0dcbe68f5507bf56877eb7ee2a168ffd71d5",
+      "sha256": "d8bdc18aad7e8b3181f587bf84acc9f2377ad59dd133a4db114e145b05310a60",
       "kind": "adapted-runtime"
     },
     {
       "source": "agents/skills/engineering/harness-audit/scripts/audit.py",
       "target": "skills/harness-audit/scripts/audit.py",
       "source_sha256": "329a9623db89b1a76e8f23202c69ad54a05ac141c1b3aba56eff855743042d6f",
-      "sha256": "e35989927dd056e027ef1c718a3e576597ab0977ab1e730a3c63c5c442ae237a",
+      "sha256": "71a8e789a8b846d465a98eab6f54dc5fad7faa83dd6ce856acdf5c0778831002",
       "kind": "adapted-runtime"
     },
     {
@@ -1147,7 +1147,7 @@
       "source": "session:harness-audit-v1.2",
       "target": "docs/0005/Infrastructure-Coverage-Map.md",
       "source_sha256": "66c6d7288ab89e05bdca61c79c70299c1067818dd3f22e58d4c92f77b8d1ae61",
-      "sha256": "66c6d7288ab89e05bdca61c79c70299c1067818dd3f22e58d4c92f77b8d1ae61",
+      "sha256": "5a67754da260eacae57e3cbcd4f5e743551147fdadfef94377a8ac64be2bbb0e",
       "kind": "adapted-runtime"
     },
     {
@@ -1168,14 +1168,14 @@
       "source": "session:harness-audit-v1.2",
       "target": "skills/harness-audit/scripts/infra_checks.py",
       "source_sha256": "c61688b62c784d257175906a544c7b66c56d965ce451b1008c53e98f243068e6",
-      "sha256": "c61688b62c784d257175906a544c7b66c56d965ce451b1008c53e98f243068e6",
+      "sha256": "e9c3a93ce7b0133c5dcdb904188f2091163ca2dc821da4f6562a96a5e91d7868",
       "kind": "adapted-runtime"
     },
     {
       "source": "session:harness-audit-v1.2",
       "target": "skills/harness-audit/tests/test_infra_checks.py",
       "source_sha256": "5f92c11e90811426c8f40aa4a787d5710596fc8d12290b1827dead705bac31e0",
-      "sha256": "5f92c11e90811426c8f40aa4a787d5710596fc8d12290b1827dead705bac31e0",
+      "sha256": "10b3896a221d2bb30dd7e12d17888ab1b3b6c8ee155be7f7644075d226773c7e",
       "kind": "adapted-runtime"
     }
   ]
