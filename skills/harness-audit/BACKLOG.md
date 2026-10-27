@@ -337,8 +337,8 @@ Full map: `docs/0005/Infrastructure-Coverage-Map.md`. Today the catalog has no i
 - B-179: Done in part: INF-E01 (Dockerfile referenced by Compose, CI, script or doc), INF-E02 (Terraform variable used), INF-E03 (local module referenced), reported as the repo-wide area `infra-entropy`. Open: unused Compose services, stale lockfile, env drift.
 - B-180: Judgement prompt `infra_quality.md` (safe plan/apply workflow, environments, forbidden commands).
 - B-181: `infra` block in report.json and scan export; schema version bump.
-- B-182: Harness City adapter: infra district or layer.
-- B-183: Synthetic infra fixtures for demo cities.
+- B-182 (done): Harness City adapter: infra harbor east of the districts (one pad per area, overall level flag, panel card), fed by `report_to_city.py` from `report.infra`. Overlay only, never scored.
+- B-183 (done): Synthetic infra fixtures for the four demo cities in `tools/make_demo.py`; `make_demo.py --check` compares them byte for byte.
 - B-184: Report limitations list unsupported or unscored infra so a score never implies infra is fine.
 - B-185: Harness adoption skill shell (`harness-adopt`) reading report.json and triage.json. NOT STARTED.
 - B-186: Infra proposals in adoption (devcontainer, dockerignore, hadolint, Compose healthchecks, Terraform CI job, tflint, Dependabot).

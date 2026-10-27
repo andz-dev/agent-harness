@@ -489,7 +489,70 @@
    "f": [],
    "lim": [
     "Illustrative synthetic levels only; no repository was audited and no checks or runtime behavior were observed."
-   ]
+   ],
+   "infra": {
+    "l": 3,
+    "w": "compose",
+    "n": 5,
+    "tools": [
+     "compose",
+     "devcontainer",
+     "docker",
+     "kubernetes",
+     "terraform"
+    ],
+    "a": [
+     {
+      "k": "compose",
+      "l": 3,
+      "b": [],
+      "wide": false
+     },
+     {
+      "k": "devcontainer",
+      "l": 3,
+      "b": [],
+      "wide": false
+     },
+     {
+      "k": "dockerfile",
+      "l": 3,
+      "b": [],
+      "wide": false
+     },
+     {
+      "k": "kubernetes",
+      "l": 3,
+      "b": [],
+      "wide": false
+     },
+     {
+      "k": "terraform",
+      "l": 3,
+      "b": [],
+      "wide": false
+     },
+     {
+      "k": "agent-guidance",
+      "l": 3,
+      "b": [],
+      "wide": true
+     },
+     {
+      "k": "cross-cutting",
+      "l": 2,
+      "b": [],
+      "wide": true
+     },
+     {
+      "k": "infra-entropy",
+      "l": 3,
+      "b": [],
+      "wide": true
+     }
+    ],
+    "r": []
+   }
   },
   {
    "id": "prosperous-demo",
@@ -524,7 +587,88 @@
    "f": [],
    "lim": [
     "Illustrative synthetic levels only; no repository was audited and no checks or runtime behavior were observed."
-   ]
+   ],
+   "infra": {
+    "l": 2,
+    "w": "compose",
+    "n": 4,
+    "tools": [
+     "compose",
+     "devcontainer",
+     "docker",
+     "terraform"
+    ],
+    "a": [
+     {
+      "k": "compose",
+      "l": 2,
+      "b": [],
+      "wide": false
+     },
+     {
+      "k": "devcontainer",
+      "l": 3,
+      "b": [],
+      "wide": false
+     },
+     {
+      "k": "dockerfile",
+      "l": 2,
+      "b": [],
+      "wide": false
+     },
+     {
+      "k": "terraform",
+      "l": 2,
+      "b": [],
+      "wide": false
+     },
+     {
+      "k": "agent-guidance",
+      "l": 2,
+      "b": [],
+      "wide": true
+     },
+     {
+      "k": "cross-cutting",
+      "l": 2,
+      "b": [],
+      "wide": true
+     }
+    ],
+    "r": [
+     {
+      "c": "INF-D04",
+      "t": "HEALTHCHECK is defined",
+      "a": "dockerfile",
+      "f": 1,
+      "p": 1,
+      "x": [
+       "."
+      ]
+     },
+     {
+      "c": "INF-C02",
+      "t": "Every service defines a healthcheck",
+      "a": "compose",
+      "f": 1,
+      "p": 1,
+      "x": [
+       "."
+      ]
+     },
+     {
+      "c": "INF-T05",
+      "t": "A security scanner (tflint, trivy, tfsec, checkov) is configured or runs in CI",
+      "a": "terraform",
+      "f": 1,
+      "p": 1,
+      "x": [
+       "."
+      ]
+     }
+    ]
+   }
   },
   {
    "id": "working-demo",
@@ -559,7 +703,85 @@
    "f": [],
    "lim": [
     "Illustrative synthetic levels only; no repository was audited and no checks or runtime behavior were observed."
-   ]
+   ],
+   "infra": {
+    "l": 1,
+    "w": "ansible",
+    "n": 3,
+    "tools": [
+     "ansible",
+     "compose",
+     "docker"
+    ],
+    "a": [
+     {
+      "k": "ansible",
+      "l": 1,
+      "b": [],
+      "wide": false
+     },
+     {
+      "k": "compose",
+      "l": 1,
+      "b": [],
+      "wide": false
+     },
+     {
+      "k": "dockerfile",
+      "l": 2,
+      "b": [],
+      "wide": false
+     },
+     {
+      "k": "cross-cutting",
+      "l": 1,
+      "b": [],
+      "wide": true
+     }
+    ],
+    "r": [
+     {
+      "c": "INF-C01",
+      "t": "Service images are pinned to a tag or digest",
+      "a": "compose",
+      "f": 2,
+      "p": 1,
+      "x": [
+       "."
+      ]
+     },
+     {
+      "c": "INF-D05",
+      "t": "hadolint is configured or runs in CI or a hook",
+      "a": "dockerfile",
+      "f": 1,
+      "p": 0,
+      "x": [
+       "."
+      ]
+     },
+     {
+      "c": "INF-A02",
+      "t": "ansible-lint is configured or runs in CI or a hook",
+      "a": "ansible",
+      "f": 1,
+      "p": 0,
+      "x": [
+       "."
+      ]
+     },
+     {
+      "c": "INF-X04",
+      "t": "Secret scanning is configured (gitleaks, trufflehog, detect-secrets)",
+      "a": "cross-cutting",
+      "f": 1,
+      "p": 0,
+      "x": [
+       "."
+      ]
+     }
+    ]
+   }
   },
   {
    "id": "absent-demo",
@@ -594,7 +816,78 @@
    "f": [],
    "lim": [
     "Illustrative synthetic levels only; no repository was audited and no checks or runtime behavior were observed."
-   ]
+   ],
+   "infra": {
+    "l": 0,
+    "w": "dockerfile",
+    "n": 2,
+    "tools": [
+     "docker",
+     "terraform"
+    ],
+    "a": [
+     {
+      "k": "dockerfile",
+      "l": 0,
+      "b": [],
+      "wide": false
+     },
+     {
+      "k": "terraform",
+      "l": 0,
+      "b": [],
+      "wide": false
+     },
+     {
+      "k": "cross-cutting",
+      "l": 0,
+      "b": [],
+      "wide": true
+     }
+    ],
+    "r": [
+     {
+      "c": "INF-D02",
+      "t": "Base images are pinned to a tag or digest (no latest, no bare name)",
+      "a": "dockerfile",
+      "f": 1,
+      "p": 0,
+      "x": [
+       "."
+      ]
+     },
+     {
+      "c": "INF-T01",
+      "t": "Provider lock file (.terraform.lock.hcl) is committed",
+      "a": "terraform",
+      "f": 1,
+      "p": 0,
+      "x": [
+       "."
+      ]
+     },
+     {
+      "c": "INF-T02",
+      "t": "required_providers declares version constraints",
+      "a": "terraform",
+      "f": 1,
+      "p": 0,
+      "x": [
+       "."
+      ]
+     },
+     {
+      "c": "INF-X05",
+      "t": "No private keys, .env files or credential files are tracked",
+      "a": "cross-cutting",
+      "f": 1,
+      "p": 0,
+      "x": [
+       "."
+      ]
+     }
+    ]
+   }
   }
  ]
 }
