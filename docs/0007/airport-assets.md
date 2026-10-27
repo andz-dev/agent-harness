@@ -1,3 +1,15 @@
+---
+type: 'Design Proposal'
+title: 'Harness City airport assets'
+status: 'draft'
+created: '2026-10-27'
+updated: '2026-10-27'
+generated: 'agent'
+verified: 'unverified'
+owner: 'Andreas Elser'
+---
+
+<!-- markdownlint-disable-next-line MD025 -->
 # Harness City airport: asset definition (draft)
 
 Status: proposal for review. The earlier harbor overlay was reverted; the airport replaces it.

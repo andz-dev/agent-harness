@@ -23,6 +23,12 @@ skill's own AGENTS.md before working inside it, and the app README before app wo
 - `task integrity` verifies the imported runtime snapshot.
 - `task serve` runs the app on port 8001; set PORT for another available port.
 
+## Harness City design
+
+Any change to `apps/harness-city/` follows `apps/harness-city/DESIGN.md` and
+`apps/harness-city/AGENTS.md`. Update the design file first when a decision changes.
+`tools/check.py` fails if the design files or these references are missing.
+
 ## Boundaries
 
 The audit is read-only and never executes audited repository code. Repository

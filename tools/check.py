@@ -65,6 +65,29 @@ def documents(root):
     return failures
 
 
+def design(root):
+    failures = []
+    city = root / "apps/harness-city"
+    text = (city / "DESIGN.md").read_text(encoding="utf-8") if (city / "DESIGN.md").is_file() else ""
+    for heading in ("## Principles", "## Structure", "## Assets", "### Asset registry", "## Animation", "## Change checklist"):
+        if heading not in text:
+            failures.append("DESIGN.md missing section " + heading)
+    html = (city / "index.html").read_text(encoding="utf-8") if (city / "index.html").is_file() else ""
+    for key, color in re.findall(r'k:"(\w+)".*?c:"(#[0-9a-fA-F]{6})"', html):
+        if color.lower() not in text.lower():
+            failures.append("DESIGN.md does not list pillar colour " + color + " (" + key + ")")
+    refs = {
+        "AGENTS.md": "apps/harness-city/DESIGN.md",
+        "CLAUDE.md": "@AGENTS.md",
+        "apps/harness-city/AGENTS.md": "DESIGN.md",
+    }
+    for name, needle in refs.items():
+        path = root / name
+        if not path.is_file() or needle not in path.read_text(encoding="utf-8"):
+            failures.append(name + " must exist and reference " + needle)
+    return failures
+
+
 def demo(root):
     path = root / "apps/harness-city/data/cities.json"
     if not path.is_file():
@@ -134,7 +157,7 @@ def main():
     arguments = parser.parse_args()
     failures = integrity(ROOT)
     if not arguments.integrity_only:
-        failures += documents(ROOT) + demo(ROOT) + publication(ROOT)
+        failures += documents(ROOT) + design(ROOT) + demo(ROOT) + publication(ROOT)
     for failure in failures:
         print("FAIL: " + failure)
     if failures:

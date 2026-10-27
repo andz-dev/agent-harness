@@ -1,0 +1,116 @@
+---
+type: 'Design'
+title: 'Harness City Design'
+status: 'active'
+created: '2026-10-27'
+updated: '2026-10-27'
+generated: 'agent'
+verified: 'unverified'
+owner: 'Andreas Elser'
+---
+
+<!-- markdownlint-disable-next-line MD025 -->
+# Harness City Design
+
+The single source of truth for what the city shows and how. Every change to the city
+starts here (see [AGENTS.md](AGENTS.md)). If code and this file disagree, fix one of them
+in the same change.
+
+## Purpose
+
+A repository is a city. The city makes an audit result readable at a glance, and every
+visible object explains itself when clicked. It is a view of the audit, never a second
+scoring system.
+
+## Principles
+
+1. **Metaphor is data.** Each object stands for one audit fact. No decoration without
+   meaning, except trees and ground.
+2. **Level grows the thing.** Every area has levels L0 to L3: vacant fenced lot, small,
+   working, agent-native. The same ladder applies everywhere (buildings, roads, transit,
+   rail, airport).
+3. **Reach shows as traffic.** Roads, buses, metro and trains show how well work reaches
+   an area. A link is only as good as both ends (lower of the two levels).
+4. **Next fix shows as construction.** Cranes and construction sites mark the next planned
+   fix. **Decay shows entropy.** Wagons, graffiti, broken pylons.
+5. **Overlays are not scored.** The 0-100 score comes from the seven pillars only. The
+   infrastructure overlay has its own L0-L3 and is drawn outside the districts.
+6. **Everything is explained.** Each clickable object has a side-panel text: question,
+   what it stands for, what each level looks like (`levelList`). Add the text with the object.
+7. **Deterministic.** Layout and randomness come from the repo id (`hash`, `rng`). The same
+   data always draws the same city. No `Math.random` in scene building; cosmetic flicker in the animation loop is allowed.
+8. **Honest.** Limits of the scan are listed (`lim`). Unknown is not drawn as good.
+
+## Structure
+
+| Pillar | Weight | Place | Colour |
+|---|---|---|---|
+| Verification | 25 | Hospital and test labs | `#d64545` |
+| Orientation | 20 | City hall and visitor info | `#2f86c9` |
+| Static guardrails | 15 | Police headquarters | `#33489c` |
+| Workflow entry points | 15 | Central station and rail (transit hub) | `#24946a` |
+| Automatic triggers | 10 | Fire and alarm station | `#e0672b` |
+| Pipeline parity | 10 | Power plant and grid | `#d9a42a` |
+| Doc hygiene | 5 | Public library | `#8a5bb5` |
+
+Score = sum of level / 3 x weight, minus entropy penalty. Tiers: Thriving 80+,
+Prosperous 60+, Working 45+, Neglected below. Pillar colours are fixed; do not reuse them
+for other meanings. The pillar list lives in `PILLARS` in `index.html` and must match this table.
+
+## Transit
+
+The central station is the hub. Line level = lower of station level and district level:
+none (L0), one bus (L1), frequent buses with shelters (L2), underground metro shown as a
+see-through train plus buses (L3). New destinations (for example the airport) join this
+network and follow the same rule unless this file says otherwise.
+
+## Infrastructure overlay (airport)
+
+Status: **prototype**, not final. Definition and variants in
+[../../docs/0007/airport-assets.md](../../docs/0007/airport-assets.md). Rules that already hold:
+
+* Infra is shown as an airport outside the city, never inside a district and never in the score.
+* Airport size follows the overall infra level (weakest tool area); each infra area is a gate.
+* Docker and Compose are air freight: cargo apron with containers.
+* The airport is connected to the central station by road and by a station link.
+* Repos without real infrastructure get no airport.
+
+## Assets
+
+* Kit models (Kenney, Quaternius, CC0) live in `assets/` and are loaded with `put` and
+  `instanced`. Credits stay in `NOTICE.md`.
+* Anything not in a kit (trains, planes, cranes, signs) is generated in code with the
+  helpers `box`, `cyl`, `barrier`, `cone`, `textSprite`, `groundPlane`. No new binary
+  assets or fonts without a `NOTICE.md` entry and a licence.
+* Every generated asset has one builder function and is listed in the registry below.
+
+### Asset registry
+
+| Asset | Builder | Stands for |
+|---|---|---|
+| train, train car | `trainCar`, `buildRail` | workflow entry points |
+| bus, bus stop | `busModel`, `busStop` | transit line L1-L2 |
+| metro train, M sign | `ghostTrain`, `metroSign` | transit line L3 |
+| airport (planned) | see docs/0007 | infrastructure overlay |
+
+Add a row when you add an asset.
+
+## Animation
+
+Moving objects use the `shuttle` model (route, speed, dwell, phase) or the rail loop.
+Speed and count rise with level; L0 means no traffic. Animation depends on time only, not
+on frame rate, and must stop when the tab is hidden.
+
+## Data contract
+
+The page reads `data/cities.json` (format in [README.md](README.md)). New visual features
+need data fields that are optional, so old files still render. Demo data is synthetic
+(`tools/make_demo.py`) and covers every level of every new feature.
+
+## Change checklist
+
+1. Update this file (principle, table or registry).
+2. Add the click explanation and level ladder text.
+3. Add optional data fields to the converter and README.
+4. Extend the synthetic demo so every level shows.
+5. `task check`, then look at a screenshot of each demo tier.

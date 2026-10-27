@@ -82,6 +82,8 @@ train plus buses (L3).
     tools/                serve.py, report_to_city.py, build_standalone.py,
                           convert_assets.mjs (re-creates the models from the Kenney and
                           Quaternius packs; paths at the top, needs @gltf-transform/*)
+    DESIGN.md             design principles, pillar table, asset registry (read before changing)
+    AGENTS.md             rules for agents working on the city
     NOTICE.md             licences and credits - keep it with any redistribution
 
 ## Notes
