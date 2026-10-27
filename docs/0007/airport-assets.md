@@ -69,6 +69,30 @@ L0 has no traffic. Lights blink; wind sock follows a slow sine.
   `tools/report_to_city.py` (same shape as the reverted harbor: `l`, `w`, `n`, `tools`, `a`, `r`).
 * Demo cities get synthetic infra (thriving L3, prosperous L2, working L1, absent L0 or none).
 
+## Station link: what exists, what to prototype
+
+Found in git (`a3f9c69`, already on main): the central station is the transit hub
+(`buildTransit` in `index.html`). Each district gets a line whose quality is the lower of the
+station level and the district level: bus at L1/L2 on the road, and at L3 an **underground metro**
+drawn as a see-through ghost train on a ribbon between an "M" portal at the station and an "M"
+sign at the district. There is no layer switch yet; the metro is always visible, semi-transparent.
+
+The airport and its cargo (Docker containers) become two more stops on this network.
+Three variants to try in a prototype page, switchable at runtime:
+
+| Variant | Idea | Pro | Con |
+|---|---|---|---|
+| A. Same network | Airport = one more district stop: bus on the access road (L1-L2), metro (L3). Cargo apron beside the terminal | Cheapest, consistent with districts | Metro and road look alike, "connection of harness and infra" is easy to miss |
+| B. Underground layer | A toggle "Underground" fades the city to a ghost, shows all metro lines incl. airport line and station boxes; trains run in it | Shows the whole network, makes the harness-to-infra link explicit | One more mode to learn; needs layer toggle and camera handling |
+| C. Dedicated airport line | One distinct colored express line (road + rail/metro) from the central station to the airport station, always visible, plus an optional underground layer for the rest | Strongest message: the repo harness is wired to the infrastructure | Special case outside the "lower of both ends" rule |
+
+Docker and containers: air freight. Cargo hangar with stacked shipping containers per
+Dockerfile/Compose service (count by detected images), cargo planes and trucks between
+apron and hangar. This keeps "container = Docker" literal.
+
+Recommendation to test first: C with the underground toggle from B, because the user goal is
+to show the harness and the infrastructure as connected, not only adjacent.
+
 ## Open points
 
 * "Road and central station asset": I read this as an access road plus an airport station.
