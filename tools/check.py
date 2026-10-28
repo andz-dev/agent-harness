@@ -10,7 +10,20 @@ from pathlib import Path
 from urllib.parse import unquote, urlsplit
 
 ROOT = Path(__file__).resolve().parent.parent
-SKIP = {".git", ".venv", "__pycache__", ".pytest_cache", ".ruff_cache", "node_modules", "dist", "build"}
+SKIP = {
+    ".git",
+    ".venv",
+    ".data",
+    "__pycache__",
+    ".pytest_cache",
+    ".ruff_cache",
+    "node_modules",
+    "dist",
+    "build",
+    "reports",
+    "playwright-report",
+    "test-results",
+}
 
 
 def integrity(root):

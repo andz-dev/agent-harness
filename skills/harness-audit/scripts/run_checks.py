@@ -20,11 +20,14 @@ Exit codes: 0 ok, 2 bad arguments, 3 no supported component.
 from __future__ import annotations
 
 import argparse
+import ast
 import bisect
 import configparser
+import io
 import json
 import re
 import sys
+import tokenize
 import tomllib
 from pathlib import Path, PurePosixPath
 
@@ -848,6 +851,28 @@ DEFERRED = {"git_signal": "needs git history (later phase)", "llm": "needs the L
 PLACEHOLDER = "TODO(human)"
 
 
+def placeholder_count(path: str, text: str) -> int:
+    if not path.endswith(".py"):
+        return text.count(PLACEHOLDER)
+    try:
+        tree = ast.parse(text)
+        comments = [token.string for token in tokenize.generate_tokens(io.StringIO(text).readline) if token.type == tokenize.COMMENT]
+        active = comments + [
+            ast.get_docstring(node) or ""
+            for node in ast.walk(tree)
+            if isinstance(node, (ast.Module, ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef))
+        ]
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Raise) and isinstance(node.exc, ast.Call):
+                function = node.exc.func
+                name = function.id if isinstance(function, ast.Name) else function.attr if isinstance(function, ast.Attribute) else ""
+                if name == "NotImplementedError":
+                    active.append(ast.get_source_segment(text, node.exc) or "")
+        return sum(value.count(PLACEHOLDER) for value in active)
+    except (SyntaxError, tokenize.TokenError, IndentationError):
+        return text.count(PLACEHOLDER)
+
+
 def downgrade_placeholders(ctx: Ctx, findings: list[dict]) -> None:
     """A check does not pass on a file that still holds `TODO(human)` placeholders (bootstrap stubs, B-150)."""
     cache: dict[str, int] = {}
@@ -859,7 +884,7 @@ def downgrade_placeholders(ctx: Ctx, findings: list[dict]) -> None:
                 continue
             path = ev["path"]
             if path not in cache:
-                cache[path] = (ctx.text(path) or "").count(PLACEHOLDER)
+                cache[path] = placeholder_count(path, ctx.text(path) or "")
             if cache[path]:
                 f["status"] = "fail"
                 f["evidence"].append(searched(path, f"{cache[path]} {PLACEHOLDER} placeholder(s); fill them in"))

@@ -23,6 +23,9 @@ plan, and explore the results in Harness City.
 - [Adoption documentation](docs/0002/README.md) records the source implementation
   and its limitations. [Next steps](docs/0003/Repo%20Harness%20Next%20Steps.md)
   remain proposals, not implemented capabilities.
+- [History and quality](docs/0008-v0.1-harness-history-and-quality/Map.md) reconstructs
+  local commits and the current implementation in a basic versioned spec bundle.
+- [Development guide](CONTRIBUTING.md) explains automated browser tests and safe audit history.
 
 The demo includes four illustrative cities: Absent/Neglected, Working,
 Prosperous, and Thriving. Together they show district levels L0 through L3;
@@ -43,6 +46,11 @@ task setup
 task check
 task serve
 ```
+
+Setup includes the locked city browser-test package and matching Chromium. Node 22+
+is required (CI uses Node 24). `task check` executes the Python suite, local tool
+regressions and real desktop/mobile browser tests, not only file-presence checks.
+Use `task app:test` for city-only browser verification. Test output stays ignored.
 
 `task serve` opens the static app at <http://localhost:8001>. Set `PORT` to use
 another available port. No cloud service or API key is required for the demo.
@@ -77,11 +85,12 @@ modules and optional remote fonts.
 
 | Path | Purpose |
 | --- | --- |
-| `skills/harness-audit/` | Unchanged audit implementation, catalog, schema, prompts and tests |
+| `skills/harness-audit/` | Audit implementation, catalog, schema, prompts and tests; intentional adaptations are hash-pinned |
 | `apps/harness-city/` | Static visualization, model assets and report adapter |
 | `docs/0001/.gitkeep` | Reserved empty documentation scaffold |
 | `docs/0002/` | Imported and relocated 0039 as-built documentation |
 | `docs/0003/` | Owner-provided future roadmap |
+| `docs/0008-v0.1-harness-history-and-quality/` | Basic retrospective and current quality implementation |
 | `tools/` | Extraction integrity, public-demo and documentation checks |
 
 This repository starts from an allowlisted snapshot, not the source monorepo's

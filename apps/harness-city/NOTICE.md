@@ -11,6 +11,8 @@ type: 'Attribution'
   package, which records each pack's licence.
 * three.js and GLTFLoader (vendor/): MIT, (c) three.js authors.
 * Landmarks, rail line, trains, traffic lights, cones, barriers, cranes, pylons and the page
-  itself are generated in code.
+  itself are generated in code. Airport planes, terminals, hangars, tower, gates and the
+  closed central station, developer side-terminal and agent guidance office are also
+  generated in code; no new external assets are used.
 
 CC0 needs no attribution; it is given here out of courtesy and so the origin stays traceable.

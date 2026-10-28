@@ -47,6 +47,12 @@ h3{font-family:var(--f-display);font-weight:600;font-size:17px;margin:0}
 .tools button{all:unset;cursor:pointer;width:34px;height:34px;display:grid;place-items:center;border-radius:8px;background:rgba(255,255,255,.94);color:#1b2420;box-shadow:0 2px 8px rgba(20,40,30,.14);font-family:var(--f-mono);font-size:15px;font-weight:600}
 .tools button:focus-visible{outline:2px solid #2a63c9;outline-offset:1px}
 .tools button[aria-pressed="true"]{background:#1b2420;color:#fff}
+.viewbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:-10px}
+.layers{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.layers button{border:0;background:var(--panel);color:var(--ink);font:500 13px var(--f-body);padding:7px 12px;min-height:34px;cursor:pointer}
+.layers button[aria-pressed="true"]{background:var(--ink);color:var(--panel)}
+.layers button:focus-visible{outline:2px solid var(--accent);outline-offset:-3px}
+#exportStatus{margin:0;max-width:65ch;overflow-wrap:anywhere}
 .labels{position:absolute;inset:0;pointer-events:none;overflow:hidden}
 .plate{position:absolute;left:0;top:0;transform:translate(-50%,-100%);white-space:nowrap;pointer-events:auto;cursor:pointer;background:rgba(255,255,255,.95);color:#18211c;border-radius:8px;padding:5px 9px 6px;box-shadow:0 2px 8px rgba(15,35,25,.22);border-left:5px solid var(--pc);display:flex;flex-direction:column;gap:2px;transition:box-shadow .15s}
 .plate .pn{font-family:var(--f-display);font-weight:700;font-size:15px;line-height:1.1;display:flex;align-items:center;gap:6px}
@@ -151,6 +157,13 @@ table.data tbody tr:hover td{background:color-mix(in srgb,var(--accent) 7%,trans
 
   <nav class="picker" id="picker" aria-label="Repositories"></nav>
 
+  <div class="viewbar">
+    <div class="layers" role="group" aria-label="City layer">
+      <button id="surface" aria-pressed="true">Surface</button>
+      <button id="underground" aria-pressed="false">Underground</button>
+    </div>
+    <p id="exportStatus" class="meta" role="status"></p>
+  </div>
   <div class="main">
     <div class="stage" id="stage">
       <canvas id="city" aria-label="3D city map of the selected repository"></canvas>
@@ -164,6 +177,7 @@ table.data tbody tr:hover td{background:color-mix(in srgb,var(--accent) 7%,trans
           <button id="zout" title="Zoom out" aria-label="Zoom out">−</button>
           <button id="fit" title="Fit city" aria-label="Fit city">⤢</button>
           <button id="lbl" title="Show or hide labels" aria-label="Show or hide labels" aria-pressed="true">Aa</button>
+          <button id="exportPNG" title="Export map and description to PNG" aria-label="Export PNG">↓</button>
         </div>
       </div>
       <div class="hint">Drag to move · scroll or pinch to zoom · click a building, street, bus, rail or power line</div>
@@ -232,7 +246,7 @@ const ABOUT={
  pipeline_parity:{q:"Does CI run what developers run locally?",b:"The power plant is CI. Cooling towers grow when CI runs lint and tests on every pull request and calls the same entry points developers use locally; the power line carries it into the city."},
  doc_hygiene:{q:"Is the docs layer machine-readable and current?",b:"The library holds the docs. Books on the roof are documentation practices in place: link checks, Markdown lint, front matter, decision records."}};
 const BUILDING=["Vacant, fenced lot: nothing has been built.","A small building: the basics exist, but you have to know about them.","A working building with mid-rise blocks and green space: it runs automatically.","A flagship with towers and paved plazas: agents can use it directly."];
-const TRANSIT=["No service: nothing departs from the central station to this district.","One bus with long waits at a plain stop sign.","Two buses that keep moving, with shelters at both stops.","An underground metro straight from the station (the see-through train), plus buses."];
+const TRANSIT=["No service: nothing departs from the central station to this district.","One bus with long waits at a plain stop sign.","Underground metro from the central station, plus two buses with shelters.","Frequent underground metro from the central station, plus buses with shelters."];
 const RAIL=["One rusty track and no trains: no task runner target exists.","A single-car train that stops at the platform: a runner exists, but you have to know about it.","A three-car train, a platform canopy and a footbridge: standard targets (test, lint, check, setup) are defined and documented.","Two express lines without waiting: one documented entry point for agents, with preflight and scoped runs."];
 const GRID=["No power line: no CI definition exists.","A small generator: CI exists.","A cooling tower with steam: CI runs lint and tests on pull requests and the default branch.","Two cooling towers: CI calls the local entry points, covers the version matrix and keeps dependencies updated."];
 const STATUS={pass:["✓","passed"],fail:["✗","failed"],error:["!","error"],unknown:["?","unknown, needs a human"],not_applicable:["–","not applicable"],none:["·","no finding in this data"]};
@@ -285,7 +299,7 @@ function icon(x,k,cx,cy,s,col){x.save();x.fillStyle=col;x.strokeStyle=col;x.line
   case"airport":{x.translate(cx,cy);x.rotate(Math.PI/4);const h=[[.07,-.3],[.07,-.06],[.44,.16],[.44,.26],[.07,.15],[.06,.34],[.18,.43],[.18,.5],[0,.45]];x.beginPath();x.moveTo(0,-s*.46);for(const [a,c] of h)x.lineTo(a*s,c*s);for(const [a,c] of h.slice().reverse())x.lineTo(-a*s,c*s);x.closePath();x.fill();break}
   case"doc_hygiene":x.lineWidth=s*.07;x.beginPath();x.moveTo(cx,cy-s*.28);x.quadraticCurveTo(cx-s*.2,cy-s*.4,cx-s*.42,cy-s*.32);x.lineTo(cx-s*.42,cy+s*.3);x.quadraticCurveTo(cx-s*.2,cy+s*.22,cx,cy+s*.34);x.quadraticCurveTo(cx+s*.2,cy+s*.22,cx+s*.42,cy+s*.3);x.lineTo(cx+s*.42,cy-s*.32);x.quadraticCurveTo(cx+s*.2,cy-s*.4,cx,cy-s*.28);x.lineTo(cx,cy+s*.34);x.stroke();break;
  }x.restore()}
-const FONT_D='"Bricolage Grotesque","Segoe UI",system-ui,sans-serif',FONT_M='"IBM Plex Mono",ui-monospace,monospace';
+const FONT_D='"Bricolage Grotesque","Segoe UI",system-ui,sans-serif',FONT_M='"IBM Plex Mono",ui-monospace,monospace',FONT_B='"IBM Plex Sans",system-ui,sans-serif';
 // landmark billboard: icon + word, always faces the camera
 const ICONS={};function iconURL(p){if(ICONS[p.k])return ICONS[p.k];const c=document.createElement("canvas");c.width=c.height=72;const x=c.getContext("2d");rr(x,0,0,72,72,14);x.fillStyle=p.c;x.fill();icon(x,p.k,36,36,48,"#fff");return ICONS[p.k]=c.toDataURL()}
 function signSprite(p,scale=1){const t=canvasTex("sign-"+p.k,640,176,(x,W,H)=>{rr(x,6,6,W-12,H-12,30);x.fillStyle="#fff";x.fill();x.lineWidth=6;x.strokeStyle=p.c;x.stroke();rr(x,18,18,H-36,H-36,22);x.fillStyle=p.c;x.fill();icon(x,p.k,18+(H-36)/2,H/2,H-60,"#fff");x.fillStyle="#18211c";x.font=`800 ${p.word.length>8?64:74}px ${FONT_D}`;x.textBaseline="middle";x.fillText(p.word,H+4,H/2+3)});
@@ -331,6 +345,12 @@ function clockTex(){return canvasTex("clock",64,64,(x)=>{x.fillStyle="#fff";x.be
 
 /* ================= landmarks (front faces +z, centred on 0,0) ================= */
 function landmark(k,lvl,rep){const g=new THREE.Group();let top=1;const p=PILLARS[PI[k]];
+ if(k==="workflow_entry_points")g.name="central-station-L"+lvl;
+ if(lvl===0&&k==="workflow_entry_points"){
+  g.name="central-station-L0";box(g,1.8,.42,1.1,"#bdc1bb",0,0,0);gable(g,2,.3,1.3,"#65756b",0,.42,0);
+  box(g,.45,.3,.025,"#5a646b",0,0,.56);barrier(g,0,.85,0,1.5);
+  const sign=textSprite("station-closed",["CENTRAL STATION","closed - L0"],{bg:"#24946a",fg:"#fff",scale:.7});sign.position.set(0,1.1,0);g.add(sign);
+  g.userData.top=1.2;return g}
  if(lvl===0){// foundation outline + survey sign: the district keeps its identity even when empty
   box(g,2.6,.04,1.6,"#c9b48e",0,0,0);for(const [x,z] of [[-1.3,-.8],[1.3,-.8],[-1.3,.8],[1.3,.8]])box(g,.05,.32,.05,"#7a5a36",x,0,z);top=.5;g.userData.top=top;return g}
  switch(k){
@@ -466,7 +486,7 @@ function buildGrid(par,rep){// power line from the plant to the city along the s
   prev={x,br}});
  if(stale.length)tags.push({pos:new THREE.Vector3(xs[Math.min(xs.length-1,2)],1.9,zl),text:`${stale.length} stale CI workflow${stale.length>1?"s":""}`,color:"#b23526",kind:"ENR-04"});
  return {g,sparks}}
-/* public transport: line quality = min(station level, district level); bus L1-L3, metro L3 */
+/* public transport: line quality = min(station level, district level); bus L1+, metro L2+ */
 const HUB={x:4.5,z:8},LINK_X=[0,9,16,24,29];
 function busRoute(k){const b=DIST[k];const cx=(b.x0+b.x1)/2;if(b.z1<8)return [[HUB.x,8],[cx,8]];let xc=LINK_X[0],best=1e9;for(const x of LINK_X){const d=Math.abs(x-HUB.x)+Math.abs(x-cx);if(d<best){best=d;xc=x}}return [[HUB.x,8],[xc,8],[xc,16],[cx,16]]}
 // shift a right-angled route to the right-hand side of travel
@@ -477,22 +497,22 @@ function shuttle(o,pts,{off=0,speed=1,dwell=1,phase=0,y=0}){const F=off?offsetPa
 function moveShuttle(s,t){const tf=s.LF/s.speed,tb=s.LB/s.speed,cyc=tf+tb+2*s.dwell;const u=(t+s.phase)%cyc;let p;
  if(u<s.dwell)p=pathAt(s.F,0);else if(u<s.dwell+tf)p=pathAt(s.F,(u-s.dwell)*s.speed);else if(u<2*s.dwell+tf)p=pathAt(s.F,s.LF);else p=pathAt(s.B,(u-2*s.dwell-tf)*s.speed);
  s.o.position.set(p.x,s.y,p.z);s.o.rotation.y=p.r}
-function busModel(color){const g=new THREE.Group();box(g,.62,.19,.22,color,0,.05,0);box(g,.58,.07,.226,"#bfe0f2",0,.15,0);box(g,.02,.07,.18,"#bfe0f2",.315,.15,0);box(g,.6,.03,.2,"#f4f4f2",0,.24,0);for(const dx of [-.19,.19])box(g,.11,.06,.23,"#1f2326",dx,0,0);return g}
+function busModel(color){const g=new THREE.Group();g.name="bus";box(g,.62,.19,.22,color,0,.05,0);box(g,.58,.07,.226,"#bfe0f2",0,.15,0);box(g,.02,.07,.18,"#bfe0f2",.315,.15,0);box(g,.6,.03,.2,"#f4f4f2",0,.24,0);for(const dx of [-.19,.19])box(g,.11,.06,.23,"#1f2326",dx,0,0);return g}
 function busStop(par,x,z,color,shelter){const g=new THREE.Group();cyl(g,.015,.015,.5,"#5a646b",0,0,0,6);const s=new THREE.Mesh(new THREE.CircleGeometry(.08,16),mat(color,{side:THREE.DoubleSide}));s.position.y=.5;g.add(s);
  if(shelter){box(g,.5,.02,.24,"#5a646b",.32,.36,0);box(g,.5,.34,.02,"#9cc6e6",.32,.02,-.11,{transparent:true,opacity:.6});box(g,.36,.04,.08,"#7a5a36",.32,.1,-.05)}g.position.set(x,0,z);par.add(g);return g}
 const metroSign=()=>new THREE.SpriteMaterial({map:canvasTex("metro",64,64,(x)=>{rr(x,2,2,60,60,12);x.fillStyle="#2a63c9";x.fill();x.fillStyle="#fff";x.font=`800 44px ${FONT_D}`;x.textAlign="center";x.textBaseline="middle";x.fillText("M",32,35)})});
-function ghostTrain(color){const g=new THREE.Group();const m=new THREE.MeshBasicMaterial({color,transparent:true,opacity:.8,depthTest:false});for(let i=0;i<2;i++){const c=new THREE.Mesh(bg(.48,.13,.16),m);c.position.set(-i*.52,.07,0);c.renderOrder=4;g.add(c)}return g}
+function ghostTrain(color){const g=new THREE.Group();g.name="metro-train";const m=new THREE.MeshBasicMaterial({color,transparent:true,opacity:.8,depthTest:false});for(let i=0;i<2;i++){const c=new THREE.Mesh(bg(.48,.13,.16),m);c.position.set(-i*.52,.07,0);c.renderOrder=4;g.add(c)}return g}
 function buildTransit(par,rep){const hub=rep.L[PI.workflow_entry_points];const g=new THREE.Group();par.add(g);const moving=[];if(hub===0)return {g,moving};
  const sb=DIST.workflow_entry_points;const hubPick={kind:"transit",k:"workflow_entry_points"};
  const hs=busStop(g,HUB.x-1.1,7.42,"#24946a",hub>=2);hs.userData.pick=hubPick;
- const portalA=[sb.x1-.25,7.2];if(hub===3){const s=new THREE.Sprite(metroSign());s.scale.set(.34,.34,1);s.position.set(portalA[0],.55,portalA[1]);s.userData.pick=hubPick;g.add(s)}
+ const portalA=[sb.x1-.25,7.2];if(hub>=2){const s=new THREE.Sprite(metroSign());s.scale.set(.34,.34,1);s.position.set(portalA[0],.55,portalA[1]);s.userData.pick=hubPick;g.add(s)}
  for(const p of PILLARS){if(p.k==="workflow_entry_points")continue;const q=transitQ(rep,p.k);if(q===0)continue;const lg=new THREE.Group();lg.userData.pick={kind:"transit",k:p.k};g.add(lg);const b=DIST[p.k];
   const route=busRoute(p.k);const end=offsetPath(route,.6).at(-1);busStop(lg,end[0],end[1],p.c,q>=2);
   const nb=q===1?1:2;for(let i=0;i<nb;i++){const bus=busModel(p.c);lg.add(bus);moving.push(shuttle(bus,route,{off:.33,speed:q===1?.7:1.1,dwell:q===1?2.5:1,phase:i/nb+hash(p.k)%7/7}))}
-  if(q===3){const B=[b.x1-.25,b.z1+.2];const dx=B[0]-portalA[0],dz=B[1]-portalA[1],L=Math.hypot(dx,dz);
+  if(q>=2){const B=[b.x1-.25,b.z1+.2];const dx=B[0]-portalA[0],dz=B[1]-portalA[1],L=Math.hypot(dx,dz);
    const rib=new THREE.Mesh(bg(L,.02,.15),new THREE.MeshBasicMaterial({color:p.c,transparent:true,opacity:.5,depthTest:false,depthWrite:false}));rib.position.set((portalA[0]+B[0])/2,.1,(portalA[1]+B[1])/2);rib.rotation.y=Math.atan2(-dz,dx);rib.renderOrder=3;lg.add(rib);
    const s=new THREE.Sprite(metroSign());s.scale.set(.34,.34,1);s.position.set(B[0],.55,B[1]);lg.add(s);
-   const tr=ghostTrain(p.c);lg.add(tr);moving.push(shuttle(tr,[portalA,B],{speed:3,dwell:.8,phase:hash(p.k+"m")%5/5,y:.04}))}}
+  const tr=ghostTrain(p.c);lg.add(tr);moving.push(shuttle(tr,[portalA,B],{speed:q===2?3:4.5,dwell:q===2?1.2:.8,phase:hash(p.k+"m")%5/5,y:.04}))}}
  return {g,moving}}
 function buildOutskirts(par,rep){const g=new THREE.Group();par.add(g);const t=tierOf(rep.score);const r=rng(hash(rep.id+"out"));
  groundPlane(g,BOUNDS.x0-60,BOUNDS.z0-50,BOUNDS.x1+60,BOUNDS.z1+50,"#a9cf8f",-.03);
@@ -508,19 +528,23 @@ function buildOutskirts(par,rep){const g=new THREE.Group();par.add(g);const t=ti
 // Infrastructure overlay: never part of the score. East of the districts, outside the city, on the rail line.
 const AIR_ON=new URLSearchParams(location.search).has("airport")||window.HARNESS_AIRPORT===true;
 const AIRP={k:"airport",n:"Infrastructure",short:"Infra",c:"#0a9cb8",word:"AIRPORT",place:"Airport",b:"Airport and air freight"};
-const AIR_AREAS=[{k:"terraform",n:"Terraform"},{k:"compose",n:"Compose"},{k:"dockerfile",n:"Dockerfile"},{k:"devcontainer",n:"Devcontainer"},{k:"agent",n:"Agent guidance",wide:true},{k:"cross",n:"Cross-cutting",wide:true}];
+const AIR_AREAS=[{k:"terraform",n:"Terraform",core:true},{k:"compose",n:"Compose",core:true},{k:"dockerfile",n:"Dockerfile",core:true},{k:"devcontainer",n:"Devcontainer",support:true},{k:"agent",n:"Agent guidance",wide:true,support:true},{k:"cross",n:"Cross-cutting",wide:true}];
+const AIR_SUPPORT={devcontainer:{n:"Developer side-terminal",label:"DEV TERMINAL",x:65.15,z:3.35},agent:{n:"Agent guidance office",label:"AGENT OPS",x:65.15,z:5.6}};
+const AIR_SUPPORT_LADDER=["Closed supporting facility with a barrier; the core airport is unaffected.","Small supporting facility: the basic capability is present.","Working supporting facility with windows and an entrance canopy.","Expanded supporting facility with an upper floor and connected equipment."];
 const AIR_PRESETS={"n8n-like (Compose + Docker)":{terraform:null,compose:2,dockerfile:2,devcontainer:null,agent:2,cross:1,cont:6},"Terraform + Docker":{terraform:1,compose:2,dockerfile:3,devcontainer:2,agent:2,cross:2,cont:4},"Everything L3":{terraform:3,compose:3,dockerfile:3,devcontainer:3,agent:3,cross:3,cont:12},"All L0":{terraform:0,compose:0,dockerfile:0,devcontainer:0,agent:0,cross:0,cont:3},"No infrastructure":{terraform:null,compose:null,dockerfile:null,devcontainer:null,agent:null,cross:null,cont:0}};
-const AIR={variant:"C",under:false,cont:6,areas:{}};
-const AIR_VARIANTS={A:["A Same network","The airport is one more stop on the transit network: buses on the road, at L3 the see-through metro."],B:["B Underground layer","Like A, plus a layer switch that dims the city so the whole metro network, airport line included, stands out."],C:["C Express line","Like A, plus one dedicated express line on the rail: its own platform at the central station, an airport station, an express train."]};
+const DISPLAY={under:false};
+const AIR={variant:"C",get under(){return DISPLAY.under},set under(value){DISPLAY.under=!!value},cont:6,areas:{}};
+const AIR_VARIANTS={A:["A Same network","The airport joins the city network: buses at L1+, underground metro at L2+."],B:["B Underground layer","The same network, with the permanent underground view available for every city."],C:["C Express line","Like A, plus one dedicated express line on the rail: its own platform at the central station, an airport station, an express train."]};
 const AP={x0:47,x1:63,z0:1,z1:7,sx0:39,sx1:45,CX:55.5,tx:3,rw:1,sz:4.0,exitX:61.2};
 const AIR_LV=["#8b9690","#e0a22a","#2a9a66","#2a63c9"];
-const AIR_LADDER=["Fenced airstrip: closed runway, barrier, hanging wind sock, no planes.","Small airfield: runway, hangar, two stands, one propeller plane.","Regional airport: terminal, tower, four gates with jet bridges, jet and propeller plane, cargo plane if Docker.","Enterprise hub: large terminal with six gates, canopy, tall tower, business jets, holiday charters, cargo crane."];
-const AIR_LINE=["No service: nothing runs between the central station and the airport.","One bus with long waits.","Buses plus an express train (variant C) with its own platforms.","Two express trains and the underground metro, plus buses."];
+const AIR_AREA_LADDER=["Grey pylon and a barrier: the area's basics are absent or blocked.","Short amber pylon with one band: the basics exist.","Taller green pylon with two bands: enforced by hooks or CI.","Tall blue pylon with three bands: documented for agents, fast and actionable."];
+const AIR_LADDER=["Fenced airstrip: closed runway, barrier, hanging wind sock, no planes.","Small airfield: runway, visible hangar and passenger building, two stands, one propeller plane.","Regional airport: terminal, tower, four stands with jet bridges, jet and propeller plane, cargo plane if Docker.","Enterprise hub: large terminal with six stands, canopy, tall tower, business jets, holiday charters, cargo crane."];
+const AIR_LINE=["No service: nothing runs between the central station and the airport.","One bus with long waits.","Underground metro and buses; variant C adds an express train on its own platforms.","Frequent underground metro and buses; variant C adds two express trains."];
 const AIR_ROADS=[];
 function airSetup(){for(const k of AIR_ROADS)ROADS.delete(k);AIR_ROADS.length=0;BOUNDS.x1=AIR_ON?66.5:33.5;if(!AIR_ON)return;
  const add=(x,z)=>{const k=rk(x,z);if(!ROADS.has(k)){ROADS.add(k);AIR_ROADS.push(k)}};
  for(let x=34;x<=64;x++)add(x,8);for(let x=34;x<=46;x++)add(x,0);for(let z=1;z<=7;z++)add(46,z)}
-function airInfra(){const list=AIR_AREAS.filter(a=>AIR.areas[a.k]!=null).map(a=>({...a,lv:AIR.areas[a.k]}));const tool=list.filter(a=>!a.wide);const overall=tool.length?Math.min(...tool.map(a=>a.lv)):null;return {list,tool,overall}}
+function airInfra(){const list=AIR_AREAS.filter(a=>AIR.areas[a.k]!=null).map(a=>({...a,lv:AIR.areas[a.k]}));const tool=list.filter(a=>a.core);const overall=tool.length?Math.min(...tool.map(a=>a.lv)):null;return {list,tool,overall}}
 const homeX=()=>(BOUNDS.x0+BOUNDS.x1)/2;
 function airPlane(kind,col){const yaw=new THREE.Group(),pitch=new THREE.Group();yaw.add(pitch);const m=new THREE.Group();m.position.y=.1;m.scale.setScalar(1.3);pitch.add(m);let prop=null;
  const hull=(len,r,c,x=0,y=0)=>{const b=new THREE.Mesh(cg(r,r,len,10),mat(c));b.rotation.z=Math.PI/2;b.position.set(x,y,0);b.castShadow=true;m.add(b);const n=new THREE.Mesh(new THREE.ConeGeometry(r,r*1.6,10),mat(c));n.rotation.z=-Math.PI/2;n.position.set(x+len/2+r*.8,y,0);n.castShadow=true;m.add(n)};
@@ -537,13 +561,40 @@ function airFlight(g,anim,pm,sx,sz,phase,rw=AP.rw){const tx=AP.tx;
   const f=s.hold?0:Math.min(1,Math.max(0,(u-s.t0)/(s.t||1)));const p=[0,1,2].map(j=>s.a[j]+(s.b[j]-s.a[j])*f);pm.yaw.position.set(p[0],p[1],p[2]);
   if(!s.hold&&!s.keep){const dx=s.b[0]-s.a[0],dz=s.b[2]-s.a[2];const hl=Math.hypot(dx,dz);if(hl>.01){const ty=Math.atan2(-dz,dx);if(first){yaw=ty;first=false}let d=ty-yaw;d=Math.atan2(Math.sin(d),Math.cos(d));yaw+=d*(1-Math.exp(-dt*7))}pm.pitch.rotation.z=Math.atan2(s.b[1]-s.a[1],hl||1)*.9}else if(s.hold)pm.pitch.rotation.z=0;
   pm.yaw.rotation.y=yaw;if(pm.prop)pm.prop.rotation.x=t*40})}
+function buildAirportSupport(par,area){
+ const site=AIR_SUPPORT[area.k],level=area.lv,color=AIR_LV[level];
+ const facility=new THREE.Group();facility.name="airport-support-"+area.k;facility.userData.pick={kind:"AIR:gate:"+area.k};facility.position.set(site.x,0,site.z);par.add(facility);
+ groundPlane(facility,-1.05,-.8,1.05,.8,"#d1e1df",.025);
+ const width=1.25+level*.15,height=level===0?.18:.34+level*.16;
+ box(facility,width,height,1.05,level===0?"#a3ada8":"#e4e9e7",0,.05,0);
+ box(facility,width+.12,.07,1.15,color,0,height+.05,0);
+ if(level===0)barrier(facility,0,.7,0,1.4);
+ else{
+  windowsBand(facility,width,1.05,.08,1,height*.85);
+  box(facility,.25,height*.75,.03,"#536e7b",0,.05,.54);
+  if(area.k==="devcontainer")for(let rib=0;rib<6;rib++)box(facility,.025,height*.85,.025,"#708589",-width*.43+rib*width*.172,.08,.54);
+  if(level>=2){box(facility,width*.8,.045,.45,color,0,height*.8,.66);for(const x of [-width*.35,width*.35])cyl(facility,.018,.018,height*.8,"#65756b",x,.05,.8,6);}
+  if(level===3){box(facility,width*.6,.35,.7,"#e4e9e7",-.1,height+.12,-.1);box(facility,width*.65,.05,.8,color,-.1,height+.47,-.1);put(facility,"dish",.45,-.2,0,.35,height+.12);}
+ }
+ const sign=textSprite("support-"+area.k+"-"+level,[site.label,`L${level} - benefit`],{bg:color,fg:level===1?"#18211c":"#fff",scale:.62});sign.position.set(0,height+.85,0);facility.add(sign);
+ return facility;
+}
 function buildAirportAll(par,rep,rail,transit){
  const {list,tool,overall}=airInfra();const L=overall==null?0:overall;const hub=rep.L[PI.workflow_entry_points];const qA=overall==null?0:Math.min(hub,L);const V=AIR.variant;
  const g=new THREE.Group();par.add(g);const anim=[];const air={g,anim,L,overall,qA,list,tool,hub};const col=AIRP.c;
  const kerb=(x0,x1,z0,z1)=>{const cw=.07;for(const [w,d,x,z] of [[x1-x0+1,cw,(x0+x1)/2,z0-.5+cw/2],[x1-x0+1,cw,(x0+x1)/2,z1+.5-cw/2],[cw,z1-z0+1,x0-.5+cw/2,(z0+z1)/2],[cw,z1-z0+1,x1+.5-cw/2,(z0+z1)/2]]){const m=new THREE.Mesh(bg(w,.06,d),mat(col));m.position.set(x,.03,z);g.add(m)}};
  const fence=(x0,x1,z0,z1)=>{for(let x=x0;x<=x1;x++){put(g,"fence",x,z0-.42,0,1);put(g,"fence",x,z1+.42,0,1)}for(let z=z0;z<=z1;z++){put(g,"fence",x0-.42,z,90,1);put(g,"fence",x1+.42,z,90,1)}};
- if(overall==null){const s=textSprite("air-none",["NO AIRPORT","no infrastructure"],{bg:"#f4ecdc",scale:1});s.position.set(55,1.2,4);g.add(s);par.userData.air=air;return air}
  const ap=new THREE.Group();ap.userData.pick={kind:"AIR"};g.add(ap);
+ for(const area of list){
+  if(area.support)buildAirportSupport(ap,area);
+  const status=new THREE.Group();status.name="airport-area-"+area.k;status.userData.pick={kind:"AIR:gate:"+area.k};ap.add(status);
+  const slot=AIR_AREAS.findIndex(candidate=>candidate.k===area.k),x=50.25+slot*2,height=.18+area.lv*.16,color=AIR_LV[area.lv];
+  box(status,.65,.06,.42,"#f3f2ee",x,.035,7.05);box(status,.32,height,.18,color,x,.095,7.05);box(status,.48,.06,.24,color,x,.095+height,7.05);
+  for(let band=0;band<area.lv;band++)box(status,.42,.025,.22,"#f4f4f2",x,.16+band*.16,7.05);
+  if(area.lv===0)barrier(status,x,7.3,0,.65);
+  tags.push({pos:new THREE.Vector3(x,height+.4,7.05),text:`${area.n} L${area.lv}`,color:area.lv===0?"#6b7570":color,kind:"AIR:gate:"+area.k});
+ }
+ if(overall==null){const s=textSprite("air-none",["NO MAIN AIRPORT","no core infrastructure"],{bg:"#f4ecdc",scale:1});s.position.set(55,1.2,4);g.add(s);par.userData.air=air;return air}
  // ---- airport plot
  groundPlane(ap,AP.x0-.5,AP.z0-.5,AP.x1+.5,AP.z1+.5,GROUND[L],.02);kerb(AP.x0,AP.x1,AP.z0,AP.z1);
  const rwTiles=[];for(let x=48;x<=62;x++)rwTiles.push([x,AP.rw,90]);instanced(ap,"road-straight",rwTiles);
@@ -554,26 +605,27 @@ function buildAirportAll(par,rep,rail,transit){
  if(L===0){fence(AP.x0,AP.x1,AP.z0,AP.z1);barrier(ap,48,AP.rw,90,.9);barrier(ap,62,AP.rw,90,.9);for(let x=49;x<62;x+=1.4)cone(ap,x,AP.rw+(x%2?.2:-.2));
   const s=textSprite("air-closed",["AIRSTRIP CLOSED","a must-have check fails"],{bg:"#d6342a",fg:"#fff",scale:1});s.position.set(55,1.1,3.3);ap.add(s);for(const [x,z] of [[52,4.6],[58,5.2],[50,6],[60,6.3]])put(ap,"rock",x,z,0,1.3)}
  else{
-  const shown=list.slice(0,[0,2,4,6][L]);const n=shown.length;const SP=1.5;const gx=i=>AP.CX+(i-(n-1)/2)*SP;
+  const n=[0,2,4,6][L];const SP=1.5;const gx=i=>AP.CX+(i-(n-1)/2)*SP;
   // taxiway, apron, curb
   const tw=[];for(let x=47;x<=63;x++)tw.push([x,AP.tx]);tw.push([48,2],[61,2]);instanced(ap,"pavement",tw);
   const apr=[];for(let x=(L===1?52:50);x<=(L===1?59:62);x++)apr.push([x,4]);instanced(ap,"pavement",apr);
   if(L>=2){const cb=[];for(let x=AP.x0;x<=AP.x1;x++)cb.push([x,AP.z1]);instanced(ap,"pavement",cb)}
   // hangar
-  {const hg=new THREE.Group();hg.userData.pick={kind:"AIR:hangar"};ap.add(hg);box(hg,1.7,.6,1.5,"#d9d6cc",48.6,.05,5.6);const rf=gable(hg,1.55,.5,1.8,"#8d949a",48.6,.65,5.6);rf.rotation.y=Math.PI/2;box(hg,.02,.4,1.0,"#5c6770",49.46,.05,5.6);box(hg,1.75,.05,1.55,col,48.6,.6,5.6)}
+  {const hg=new THREE.Group();hg.name="airport-hangar";hg.userData.pick={kind:"AIR:hangar"};ap.add(hg);box(hg,2.4,.85,1.8,"#d9d6cc",48.8,.05,5.6);gable(hg,2.6,.45,2,"#8d949a",48.8,.9,5.6);box(hg,1.8,.65,.025,"#5c6770",48.8,.05,4.69);box(hg,2.45,.08,1.85,col,48.8,.82,5.6)}
+  if(L===1){const small=new THREE.Group();small.name="airport-small-terminal";small.userData.pick={kind:"AIR:terminal"};ap.add(small);
+   box(small,3,.6,1.5,"#f3f2ee",55.5,.05,5.85);box(small,2.65,.24,.025,"#5c87b0",55.5,.27,5.09);box(small,3.2,.1,1.7,col,55.5,.65,5.85);
+   const sign=textSprite("airfield",["AIRFIELD","passenger office - L1"],{bg:col,fg:"#fff",scale:.8});sign.position.set(55.5,1.25,5.85);small.add(sign)}
   // terminal + tower
-  if(L>=2){const W=n*SP+1.2,CX=AP.CX;const T=new THREE.Group();T.userData.pick={kind:"AIR:terminal"};ap.add(T);const H=L===2?.8:1.1;
+  if(L>=2){const W=n*SP+1.2,CX=AP.CX;const T=new THREE.Group();T.name="airport-terminal";T.userData.pick={kind:"AIR:terminal"};ap.add(T);const H=L===2?.8:1.1;
    box(T,W,H,1.7,"#f3f2ee",CX,.05,5.85);box(T,W*.94,.24,.02,"#5c87b0",CX,.34,4.99);box(T,W*.94,.22,.02,"#5c87b0",CX,.3,6.71);if(L===3)box(T,W*.94,.22,.02,"#5c87b0",CX,.72,6.71);box(T,.02,.22,1.3,"#5c87b0",CX+W/2+.01,.3,5.85);if(L===3)box(T,W*.94,.24,.02,"#5c87b0",CX,.72,4.99);box(T,W+.2,.07,1.9,"#e4e7e9",CX,H+.05,5.85);box(T,W+.22,.12,.05,col,CX,H-.03,4.96);
    if(L===3){box(T,W*.9,.04,.95,"#9cc6e6",CX,1.0,4.5,{transparent:true,opacity:.55});for(let i=0;i<n;i++)cyl(T,.025,.025,.95,"#5a646b",gx(i)-.7,.05,4.1,8)}
    const tx=CX+W/2+.55,TH=L===2?1.5:2.3;box(T,.34,TH,.34,"#e6e3dc",tx,.05,6.0);box(T,.5,.3,.5,"#9cc6e6",tx,TH+.05,6.0,{transparent:true,opacity:.8});box(T,.56,.05,.56,"#d6342a",tx,TH+.35,6.0);if(L===3)put(T,"dish",tx,6.0,0,.5,TH+.4);
    const sg=signSprite(AIRP,.9);sg.position.set(CX,H+.9,5.85);ap.add(sg);(air.signs=air.signs||[]).push(sg)}
   // gates
-  shown.forEach((a,i)=>{const x=gx(i),c=AIR_LV[a.lv];const gg=new THREE.Group();gg.userData.pick={kind:"AIR:gate:"+a.k};ap.add(gg);
-   box(gg,.04,.012,.7,c,x,.065,AP.sz-.05).castShadow=false;box(gg,.5,.012,.03,"#f2efe6",x,.065,AP.sz-.42).castShadow=false;
-   if(L>=2)box(gg,.2,.22,.5,"#b9c1c7",x,.32,4.76);if(L>=2)box(gg,.24,.05,.1,c,x,.54,4.52);
-   if(a.lv===0){barrier(gg,x,3.55,0,.7)}
-   tags.push({pos:new THREE.Vector3(x,.95,4.0),text:`${a.n} L${a.lv}`,color:a.lv===0?"#6b7570":c==="#e0a22a"?"#b98318":c,kind:"AIR:gate:"+a.k})});
-  if(list.length>shown.length)tags.push({pos:new THREE.Vector3(AP.CX,1.7,5.85),text:`+${list.length-shown.length} more areas`,color:"#586660",kind:"AIR"});
+  for(let i=0;i<n;i++){const x=gx(i);const gg=new THREE.Group();gg.name="airport-stand-"+i;gg.userData.pick={kind:"AIR:terminal"};ap.add(gg);
+   box(gg,.04,.012,.7,col,x,.065,AP.sz-.05).castShadow=false;box(gg,.5,.012,.03,"#f2efe6",x,.065,AP.sz-.42).castShadow=false;
+  if(L>=2)box(gg,.2,.22,.5,"#b9c1c7",x,.32,4.76);if(L>=2)box(gg,.24,.05,.1,col,x,.54,4.52);
+  }
   // cargo (Docker)
   const cargoOn=list.some(a=>["compose","dockerfile"].includes(a.k));const nC=cargoOn?Math.min(AIR.cont,[0,4,8,12][L]):0;
   if(L>=1){const cp=[];for(let x=62;x<=63;x++)for(let z=5;z<=6;z++)cp.push([x,z]);instanced(ap,"pavement",cp)}
@@ -585,8 +637,8 @@ function buildAirportAll(par,rep,rail,transit){
   if(L>=2){const van=put(ap,"delivery-van",52,4.5,90,1);const pth=[[50.5,4.55],[61,4.55]];anim.push(t=>{const cyc=(pathLen(pth)*2)/1.0+3,u=t%cyc;const half=pathLen(pth);let s,dir=1;if(u<half){s=u}else if(u<half+1.5){s=half}else if(u<2*half+1.5){s=half-(u-half-1.5);dir=-1}else s=0;const p=pathAt(pth,s);van.position.set(p.x,0,p.z);van.rotation.y=(dir>0?Math.PI/2:-Math.PI/2)})}
   if(L===3)put(ap,"truck",49.3,6.6,0,1);
   // planes
-  const OPEN=shown.filter(a=>a.lv>=1);const ro=[{k:"prop"}];if(L>=2){ro.push({k:"jet"});if(cargoOn)ro.push({k:"cargo",cargo:1})}if(L>=3)ro.push({k:"jet"},{k:"biz"},{k:"charter",col:"#f0b323"},{k:"charter",col:"#1fb5a8"});
-  let gi=0;ro.forEach((pl,i)=>{if(!pl.cargo&&!OPEN.length)return;const pm=airPlane(pl.k,pl.col);const sx=pl.cargo?62.7:gx(shown.indexOf(OPEN[gi++%OPEN.length]));airFlight(ap,anim,pm,sx,pl.cargo?4.05:AP.sz,(i+.3)/ro.length)});
+  const ro=[{k:"prop"}];if(L>=2){ro.push({k:"jet"});if(cargoOn)ro.push({k:"cargo",cargo:1})}if(L>=3)ro.push({k:"jet"},{k:"biz"},{k:"charter",col:"#f0b323"},{k:"charter",col:"#1fb5a8"});
+  let gi=0;ro.forEach((pl,i)=>{const pm=airPlane(pl.k,pl.col);const sx=pl.cargo?62.7:gx(gi++%n);airFlight(ap,anim,pm,sx,pl.cargo?4.05:AP.sz,(i+.3)/ro.length)});
   air.cap=n}
  // ---- forecourt traffic: same language as every district street
  const tr=buildTraffic(par,"airport",L,{x0:AP.x0,x1:AP.x1,z0:AP.z0,z1:AP.z1},hash(rep.id+"airport"));tr.g.userData.pick={kind:"AIR"};air.traffic=tr;
@@ -600,10 +652,10 @@ function buildAirportAll(par,rep,rail,transit){
  const route=[[HUB.x,8],[AP.CX,8]];const stopX=42.3;
  if(sq>=1){const bs=busStop(g,stopX,7.42,col,sq>=2);bs.userData.pick={kind:"AIR:link"};const e=offsetPath(route,.6).at(-1);const bs2=busStop(g,e[0],e[1],col,sq>=2);bs2.userData.pick={kind:"AIR:link"};
   const nb=sq===1?1:2;for(let i=0;i<nb;i++){const bus=busModel(col);bus.userData.pick={kind:"AIR:link"};g.add(bus);transit.moving.push(shuttle(bus,route,{off:.33,speed:sq===1?1.1:1.9,dwell:sq===1?2.5:1,phase:i/nb+.13,y:0}))}}
- // metro (L3 only): see-through train like every other district line
- if(sq>=3){const portalA=[DIST.workflow_entry_points.x1-.25,7.2],B=[AP.sx1-.25,AP.z1+.2];const dx=B[0]-portalA[0],dz=B[1]-portalA[1],Ld=Math.hypot(dx,dz);
+ // metro: same weaker-endpoint rule as every district line
+ if(sq>=2){const portalA=[DIST.workflow_entry_points.x1-.25,7.2],B=[AP.sx1-.25,AP.z1+.2];const dx=B[0]-portalA[0],dz=B[1]-portalA[1],Ld=Math.hypot(dx,dz);
   const rib=new THREE.Mesh(bg(Ld,.02,.15),new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:.5,depthTest:false,depthWrite:false}));rib.position.set((portalA[0]+B[0])/2,.1,(portalA[1]+B[1])/2);rib.rotation.y=Math.atan2(-dz,dx);rib.renderOrder=3;rib.userData.pick={kind:"AIR:link"};g.add(rib);
-  const s=new THREE.Sprite(metroSign());s.scale.set(.34,.34,1);s.position.set(B[0],.55,B[1]);s.userData.pick={kind:"AIR:link"};g.add(s);const trn=ghostTrain(col);trn.userData.pick={kind:"AIR:link"};g.add(trn);transit.moving.push(shuttle(trn,[portalA,B],{speed:4.5,dwell:.8,phase:.3,y:.04}))}
+  const s=new THREE.Sprite(metroSign());s.scale.set(.34,.34,1);s.position.set(B[0],.55,B[1]);s.userData.pick={kind:"AIR:link"};g.add(s);const trn=ghostTrain(col);trn.userData.pick={kind:"AIR:link"};g.add(trn);transit.moving.push(shuttle(trn,[portalA,B],{speed:sq===2?3:4.5,dwell:sq===2?1.2:.8,phase:.3,y:.04}))}
  // express line on the rail (variant C)
  if(V==="C"&&sq>=2){const rg=rail.g;for(const t of rail.trains)if(t.z===RAIL_Z[1])rg.remove(t.o);rail.trains=rail.trains.filter(t=>t.z!==RAIL_Z[1]);
   for(const [x0,x1] of [[DIST.workflow_entry_points.x0+.7,DIST.workflow_entry_points.x1-.7],[AP.sx0+.7,AP.sx1-.7]]){box(rg,x1-x0,.14,.6,"#cfc9bd",(x0+x1)/2,0,-3.62);box(rg,x1-x0,.03,.06,col,(x0+x1)/2,.14,-3.34);for(let x=x0+.4;x<x1;x+=1.2)cyl(rg,.03,.03,.55,"#5a646b",x,.14,-3.62,8);box(rg,x1-x0,.05,.8,col,(x0+x1)/2,.69,-3.62)}
@@ -628,24 +680,23 @@ function airPanel(rep,kind){const A_=dyn&&dyn.air;if(!A_)return"";const {L,overa
  const weak=A_.tool.length?A_.tool.reduce((m,a)=>a.lv<m.lv?a:m):null;
  const gate=kind.startsWith("AIR:gate:")?list.find(a=>"AIR:gate:"+a.k===kind):null;
  let h=`<div class="focus" style="--pc:${col}"><div><div class="eyebrow">Overlay · east of the districts · never part of the score</div>`;
- if(gate){h+=`<h3>Gate: ${esc(gate.n)} · L${gate.lv}</h3><p>${gate.lv===0?"Closed: a barrier across the stand. A must-have check fails or too few basics pass, so no plane docks here.":gate.lv===1?"Open stand with an amber light: the basics exist, but you have to know about them.":gate.lv===2?"Gate with a jet bridge and a green light: enforced by hooks or CI.":"Gate with a blue light: documented for agents, fast and actionable."}</p><p class="meta">${gate.wide?"Repo-wide area":"Tool area"}. The airport level is the weakest tool area, so one closed tool gate holds the whole airport back.</p></div>`}
+ if(gate){h+=`<h3>${gate.support?esc(AIR_SUPPORT[gate.k].n):"Gate: "+esc(gate.n)} · L${gate.lv}</h3><p>${esc((gate.support?AIR_SUPPORT_LADDER:AIR_AREA_LADDER)[gate.lv])}</p><p class="meta">${gate.support?"Optional benefit: grows independently and never blocks or lowers the core airport.":gate.core?"Core infrastructure area: can limit the main airport level.":"Repo-wide area: changes this status pylon, not the airport's overall level."} Every applicable area stays visible at every level. Aircraft stand capacity is separate.</p></div>${lines(gate.support?AIR_SUPPORT_LADDER:AIR_AREA_LADDER,gate.lv)}`}
  else if(kind==="AIR:cargo"){h+=`<h3>Air freight: Docker</h3><p>One container per Compose service or image, capped by the airport level (4, 8 or 12). Cargo plane and crane move them. Containers need a Docker or Compose area.</p></div>`}
  else if(kind==="AIR:link"){h+=`<h3>Station link: L${qA}</h3><p>The central station (workflow entry points, L${hub}) is connected to the airport (${overall==null?"none":"L"+overall}). A line is only as good as both ends, the same rule as every district line.</p></div>${lines(AIR_LINE,qA)}<p class="meta">${AIR.variant==="C"?"Variant C: the express train runs on its own platform on the rail line.":AIR.variant==="B"?"Variant B: switch on the underground layer to see the metro network.":"Variant A: the airport is one more stop on the bus and metro network."}</p>`}
  else if(kind.startsWith("AIR:plane")){const t=kind.split(":")[2];const d={prop:"Propeller plane: small-airfield traffic.",jet:"Regional jet: a working infrastructure harness.",biz:"Business jet: L3 only.",charter:"Holiday charter: L3 only, the harness is thriving.",cargo:"Cargo plane: Docker and Compose images."}[t];h+=`<h3>${esc(d)}</h3><p>Planes arrive, dock, push back and depart like trains and cars. More planes at higher levels; none at L0.</p></div>`}
- else{h+=`<h3>Infrastructure: ${overall==null?"no airport":"L"+overall}</h3>${overall==null?"<p>No infrastructure was detected, so there is nothing to draw. The airport only exists for repositories with real infrastructure.</p></div>":`<p>Airport size follows the weakest tool area${weak?" ("+esc(weak.n)+")":""}. Every infrastructure area has a gate; repo-wide areas are shown beside the tool areas.</p></div>${lines(AIR_LADDER,L)}`}`}
- if(overall!=null&&!gate&&kind!=="AIR:link"&&!kind.startsWith("AIR:plane")&&kind!=="AIR:cargo"){h+=`<div class="eyebrow">Gates · infrastructure areas</div><table class="dtab">${list.map(a=>`<tr data-kind="AIR:gate:${a.k}"><td><span class="sw" style="background:${AIR_LV[a.lv]}"></span>${esc(a.n)}${a.wide?' <span class="meta">repo-wide</span>':""}</td><td class="lv">L${a.lv}</td></tr>`).join("")}</table>`}
+ else{h+=`<h3>Infrastructure: ${overall==null?"no main airport":"L"+overall}</h3>${overall==null?"<p>No core infrastructure is applicable, so there is no main airport or airport transport service. Applicable supporting facilities remain visible independently.</p></div>":`<p>Airport size follows the weakest core area${weak?" ("+esc(weak.n)+")":""}: Terraform, Compose or Dockerfile. Devcontainer and Agent guidance add independent supporting facilities; Cross-cutting is also non-blocking.</p></div>${lines(AIR_LADDER,L)}`}`}
+ if(list.length&&!gate&&kind!=="AIR:link"&&!kind.startsWith("AIR:plane")&&kind!=="AIR:cargo"){h+=`<div class="eyebrow">Infrastructure areas and benefits</div><table class="dtab">${list.map(a=>`<tr data-kind="AIR:gate:${a.k}"><td><span class="sw" style="background:${AIR_LV[a.lv]}"></span>${esc(a.n)} <span class="meta">${a.support?"benefit":a.core?"core":"repo-wide"}</span></td><td class="lv">L${a.lv}</td></tr>`).join("")}</table>`}
  h+=`<button class="btnlink" id="clr">Show the whole city</button></div>`;return h}
-function airCard(rep){if(!AIR_ON)return"";const A_=dyn&&dyn.air;if(!A_)return"";const {overall,qA}=A_;return `<div class="about" style="border-left:4px solid ${AIRP.c}"><h3>Airport · infrastructure overlay</h3><p>${overall==null?"No infrastructure detected: no airport.":`Level <b>L${overall}</b> (weakest tool area). Link to the central station: <b>L${qA}</b>, ${esc(AIR_LINE[qA].split(":")[0].toLowerCase())}.`} Not part of the score.</p><button class="btnlink" data-kind="AIR">Go to the airport</button></div>`}
+function airCard(rep){if(!AIR_ON)return"";const A_=dyn&&dyn.air;if(!A_)return"";const {overall,qA}=A_;return `<div class="about" style="border-left:4px solid ${AIRP.c}"><h3>Airport · infrastructure overlay</h3><p>${overall==null?"No core infrastructure: no main airport. Supporting facilities remain independent.":`Level <b>L${overall}</b> (weakest core area). Link to the central station: <b>L${qA}</b>, ${esc(AIR_LINE[qA].split(":")[0].toLowerCase())}.`} Devcontainer and Agent guidance are optional benefits. Not part of the score.</p><button class="btnlink" data-kind="AIR">Go to the airport</button></div>`}
 function airBar(){if(!AIR_ON)return;const bar=document.createElement("section");bar.className="airbar";bar.id="airbar";const mq=matchMedia("(max-width:980px)");const place=()=>{if(mq.matches)document.querySelector(".main").after(bar);else document.getElementById("picker").after(bar)};place();mq.addEventListener("change",place);
  const chip=(t,on,fn,ttl)=>{const b=document.createElement("button");b.className="chip";b.style.padding="4px 10px";b.textContent=t;b.title=ttl||"";b.setAttribute("aria-pressed",on);b.onclick=fn;return b};
  const grp=(label,items)=>{const d=document.createElement("div");d.className="ag";const l=document.createElement("span");l.className="eyebrow";l.textContent=label;d.appendChild(l);const r=document.createElement("div");r.className="picker";items.forEach(i=>r.appendChild(i));d.appendChild(r);return d};
- const draw=()=>{bar.innerHTML="";const hd=document.createElement("div");hd.innerHTML=`<div class="eyebrow">Airport prototype · draft, not scored</div><p class="meta" style="margin:2px 0 0;max-width:80ch">${esc(AIR_VARIANTS[AIR.variant][1])} Pick another repository above to see how the station level changes the link.</p>`;bar.appendChild(hd);
+ const draw=()=>{bar.innerHTML="";const hd=document.createElement("div");const {overall,tool}=airInfra();const limiting=tool.filter(area=>area.lv===overall).map(area=>area.n).join(", ");hd.innerHTML=`<div class="eyebrow">Airport prototype · draft, not scored</div><p id="airportLevel" role="status" style="margin:4px 0;font-weight:600">${overall==null?"No main airport: no applicable core areas.":`Airport L${overall} · limited by ${esc(limiting)} L${overall}`}</p><p class="meta" style="margin:2px 0 0;max-width:80ch">${esc(AIR_VARIANTS[AIR.variant][1])} Pick another repository above to see how the station level changes the link.</p>`;bar.appendChild(hd);
   const rows=document.createElement("div");rows.className="agrow";bar.appendChild(rows);
-  rows.appendChild(grp("Station link",Object.keys(AIR_VARIANTS).map(k=>chip(AIR_VARIANTS[k][0],AIR.variant===k,()=>{AIR.variant=k;if(k==="B")AIR.under=true;else if(k==="A")AIR.under=false;rebuildAir()}))));
-  rows.appendChild(grp("Underground layer",[chip("Off",!AIR.under,()=>{AIR.under=false;rebuildAir()}),chip("On",AIR.under,()=>{AIR.under=true;rebuildAir()})]));
+  rows.appendChild(grp("Station link",Object.keys(AIR_VARIANTS).map(k=>chip(AIR_VARIANTS[k][0],AIR.variant===k,()=>{AIR.variant=k;rebuildAir()}))));
   rows.appendChild(grp("Presets",Object.keys(AIR_PRESETS).map(n=>chip(n,false,()=>{const p=AIR_PRESETS[n];for(const a of AIR_AREAS)AIR.areas[a.k]=p[a.k];AIR.cont=p.cont;rebuildAir()}))));
   const ar=document.createElement("div");ar.className="agrow";bar.appendChild(ar);
-  for(const a of AIR_AREAS)ar.appendChild(grp(a.n+(a.wide?" · repo-wide":""),[[null,"–"],[0,"0"],[1,"1"],[2,"2"],[3,"3"]].map(([v,t])=>chip(t,(AIR.areas[a.k]??null)===v,()=>{AIR.areas[a.k]=v;rebuildAir()}))));
+  for(const a of AIR_AREAS){const group=grp(a.n+(a.wide?" · repo-wide":""),[[null,"–"],[0,"0"],[1,"1"],[2,"2"],[3,"3"]].map(([v,t])=>chip(t,(AIR.areas[a.k]??null)===v,()=>{AIR.areas[a.k]=v;rebuildAir()})));const role=document.createElement("small");role.className="meta";role.textContent=a.support?"optional benefit":a.core?"core infrastructure":"independent";group.appendChild(role);ar.appendChild(group);}
   const cr=document.createElement("div");cr.className="ag";cr.innerHTML=`<span class="eyebrow">Containers</span>`;const rg=document.createElement("input");rg.type="range";rg.min=0;rg.max=12;rg.value=AIR.cont;rg.oninput=()=>{AIR.cont=+rg.value;rebuildAir(true)};cr.appendChild(rg);ar.appendChild(cr);
   const go=document.createElement("div");go.className="ag";go.innerHTML=`<span class="eyebrow">View</span>`;const r2=document.createElement("div");r2.className="picker";r2.appendChild(chip("Airport",false,()=>select(null,"AIR")));r2.appendChild(chip("Whole city",false,()=>{select(null);document.getElementById("fit").click()}));go.appendChild(r2);ar.appendChild(go)};
  window.__airDraw=draw;draw()}
@@ -669,7 +720,18 @@ function fitSize(aspect){// half-height in world units so the whole city (incl. 
  const c0=new THREE.Vector3(homeX(),0,7.5);let mx=0,my=0;for(const x of [BOUNDS.x0+1,BOUNDS.x1])for(const z of [BOUNDS.z0+.5,BOUNDS.z1-1])for(const y of [0,2.2]){const v=new THREE.Vector3(x,y,z).sub(c0);mx=Math.max(mx,Math.abs(v.dot(right)));my=Math.max(my,Math.abs(v.dot(up)))}
  return Math.max(my,mx/aspect)*1.0}
 function resize(){const w=stage.clientWidth,h=stage.clientHeight;renderer.setSize(w,h,false);placeCamera()}
-function build(rep){airSetup();if(city){scene.remove(city)}tags=[];city=new THREE.Group();scene.add(city);
+function releaseCity(group){
+ const sharedGeometry=new Set(Object.values(GEO)),sharedMaterial=new Set(Object.values(MAT)),sharedTexture=new Set(Object.values(TEX));
+ for(const asset of Object.values(A))asset.traverse(object=>{if(object.geometry)sharedGeometry.add(object.geometry);for(const material of (Array.isArray(object.material)?object.material:[object.material]))if(material){sharedMaterial.add(material);for(const value of Object.values(material))if(value&&value.isTexture)sharedTexture.add(value);}});
+ const geometries=new Set(),materials=new Set(),textures=new Set();
+ group.traverse(object=>{
+  if(object.isInstancedMesh)object.dispose();
+  if(object.geometry&&!object.isSprite&&!sharedGeometry.has(object.geometry))geometries.add(object.geometry);
+  for(const material of (Array.isArray(object.material)?object.material:[object.material]))if(material&&!sharedMaterial.has(material)){materials.add(material);for(const value of Object.values(material))if(value&&value.isTexture&&!sharedTexture.has(value))textures.add(value);}
+ });
+ for(const geometry of geometries)geometry.dispose();for(const material of materials)material.dispose();for(const texture of textures)texture.dispose();
+}
+function build(rep){airDim(false);airSetup();if(city){scene.remove(city);releaseCity(city)}tags=[];city=new THREE.Group();scene.add(city);
  buildOutskirts(city,rep);buildRoads(city,rep);const rail=buildRail(city,rep);const grid=buildGrid(city,rep);const transit=buildTransit(city,rep);
  const air=AIR_ON?buildAirportAll(city,rep,rail,transit):null;
  const districts={},traffic=[];if(air&&air.traffic)traffic.push(air.traffic);
@@ -679,15 +741,29 @@ function build(rep){airSetup();if(city){scene.remove(city)}tags=[];city=new THRE
   const b=DIST[p.k];const pick=new THREE.Mesh(bg(b.x1-b.x0+1,1.2,b.z1-b.z0+1),new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false}));pick.position.set((b.x0+b.x1)/2,.6,(b.z0+b.z1)/2);pick.userData.pick={kind:"district",k:p.k};city.add(pick)}
  const selLine=new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(),new THREE.Vector3(.1,0,0),new THREE.Vector3(0,0,.1)]),new THREE.LineBasicMaterial({color:"#111"}));selLine.visible=false;city.add(selLine);
  dyn={rail,grid,transit,districts,traffic,selLine,t0:performance.now(),signs:[],air};
- airLight();airDim(AIR_ON&&AIR.under);makePlates(rep);updateSelection()}
+ airLight();airDim(DISPLAY.under);document.getElementById("surface").setAttribute("aria-pressed",String(!DISPLAY.under));document.getElementById("underground").setAttribute("aria-pressed",String(DISPLAY.under));makePlates(rep);updateSelection()}
 function makePlates(rep){labelsEl.innerHTML="";plates=[];
  for(const p of PILLARS){const lvl=rep.L[PI[p.k]];const b=DIST[p.k];const el=document.createElement("div");el.className="plate";el.style.setProperty("--pc",p.c);
   el.innerHTML=`<span class="pn"><img class="pi" alt="" src="${iconURL(p)}"><span class="pt">${p.place}</span><span class="lvb">L${lvl}</span></span><span class="pl">${p.n} · <span class="pips">${[1,2,3].map(n=>`<i style="${n<=lvl?`background:${p.c}`:""}"></i>`).join("")}</span>L${lvl} ${LEVEL[lvl]}</span>`;
   el.addEventListener("click",()=>select(sel===p.k?null:p.k));labelsEl.appendChild(el);plates.push({el,pos:new THREE.Vector3(b.x0+1.6,0,b.z1+.5),k:p.k})}
- if(AIR_ON&&dyn&&dyn.air){const el=document.createElement("div");el.className="plate";el.style.setProperty("--pc",AIRP.c);const ov=dyn.air.overall;el.innerHTML=`<span class="pn"><img class="pi" alt="" src="${iconURL(AIRP)}"><span class="pt">${AIRP.place}</span><span class="lvb">${ov==null?"–":"L"+ov}</span></span><span class="pl">${AIRP.n} · ${ov==null?"none detected":"L"+ov+" "+LEVEL[ov]} · overlay</span>`;el.addEventListener("click",()=>select(null,"AIR"));labelsEl.appendChild(el);plates.push({el,pos:new THREE.Vector3(AP.x0+1.6,0,AP.z1+.5),k:"__air"})}
- for(const t of tags){const el=document.createElement("div");el.className="tag3d";el.style.background=t.color;el.textContent=t.text;el.addEventListener("click",()=>select(null,t.kind));labelsEl.appendChild(el);plates.push({el,pos:t.pos,k:null,gate:t.kind.startsWith("AIR:gate")||t.kind==="AIR:cargo"})}}
+ if(AIR_ON&&dyn&&dyn.air){const el=document.createElement("div");el.className="plate";el.style.setProperty("--pc",AIRP.c);const ov=dyn.air.overall;el.innerHTML=`<span class="pn"><img class="pi" alt="" src="${iconURL(AIRP)}"><span class="pt">${AIRP.place}</span><span class="lvb">${ov==null?"–":"L"+ov}</span></span><span class="pl">${AIRP.n} · ${ov==null?"none detected":"L"+ov+" "+LEVEL[ov]} · overlay</span>`;el.addEventListener("click",()=>select(null,"AIR"));labelsEl.appendChild(el);plates.push({el,pos:new THREE.Vector3(AP.x0+1.6,0,AP.z1+3.4),k:"__air"})}
+ for(const t of tags){const el=document.createElement("div");el.className="tag3d";el.style.background=t.color;el.textContent=t.text;el.addEventListener("click",()=>select(null,t.kind));labelsEl.appendChild(el);plates.push({el,pos:t.pos,k:null,air:t.kind.startsWith("AIR"),gate:t.kind.startsWith("AIR:gate")||t.kind==="AIR:cargo"})}}
 const v3=new THREE.Vector3();
-function updateLabels(){const w=stage.clientWidth,h=stage.clientHeight;if(dyn){const on=view.zoom>=1.45;dyn.signs.forEach(s=>s.visible=on)}const small=view.zoom<1.3||w<640;const tiny=w<560&&view.zoom<1.8;for(const pl of plates){v3.copy(pl.pos).project(camera);const x=(v3.x+1)/2*w,y=(1-v3.y)/2*h;const vis=v3.z<1&&x>-80&&x<w+80&&y>-20&&y<h+60&&!(pl.gate&&view.zoom<1.6);pl.el.style.display=vis?"":"none";if(vis)pl.el.style.transform=`translate(${x}px,${y}px) translate(-50%,-100%)`;if(pl.k){pl.el.classList.toggle("sel",sel===pl.k);pl.el.classList.toggle("small",small);pl.el.classList.toggle("tiny",tiny)}}}
+function updateLabels(){const w=stage.clientWidth,h=stage.clientHeight,occupied=[],stageRectangle=stage.getBoundingClientRect();
+ if(dyn){const on=view.zoom>=1.45;dyn.signs.forEach(s=>s.visible=on)}
+ const small=view.zoom<1.3||w<640,tiny=w<560&&view.zoom<1.8;
+ for(const pl of plates){v3.copy(pl.pos).project(camera);const x=(v3.x+1)/2*w,y=(1-v3.y)/2*h;
+  const vis=v3.z<1&&x>-80&&x<w+80&&y>-20&&y<h+60&&!(pl.gate&&view.zoom<1.6);
+  pl.el.style.display=vis?"":"none";
+  if(pl.k){pl.el.classList.toggle("sel",sel===pl.k);pl.el.classList.toggle("small",small||pl.k==="__air");pl.el.classList.toggle("tiny",tiny)}
+  if(!vis)continue;
+  pl.el.style.transform=`translate(${x}px,${y}px) translate(-50%,-100%)`;
+  let rectangle=pl.el.getBoundingClientRect();
+  if(pl.k==="__air"){const insideX=Math.max(rectangle.width/2+8,Math.min(w-rectangle.width/2-8,x));pl.el.style.transform=`translate(${insideX}px,${y}px) translate(-50%,-100%)`;rectangle=pl.el.getBoundingClientRect();}
+  if(pl.air&&(rectangle.left<stageRectangle.left+4||rectangle.right>stageRectangle.right-4||occupied.some(other=>rectangle.left<other.right+4&&rectangle.right>other.left-4&&rectangle.top<other.bottom+4&&rectangle.bottom>other.top-4))){pl.el.style.display="none";continue;}
+  occupied.push(rectangle);
+ }
+}
 function updateSelection(){const L=dyn&&dyn.selLine;if(!L)return;if(!sel){L.visible=false;return}const b=DIST[sel];const y=.08,pad=.5;const pts=[[b.x0-pad,b.z0-pad],[b.x1+pad,b.z0-pad],[b.x1+pad,b.z1+pad],[b.x0-pad,b.z1+pad]].map(([x,z])=>new THREE.Vector3(x,y,z));L.geometry.setFromPoints(pts);L.material.color.set(PILLARS[PI[sel]].c);L.visible=true}
 // animation
 const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -720,22 +796,28 @@ canvas.addEventListener("wheel",e=>{e.preventDefault();zoomBy(e.deltaY<0?1.12:1/
 let pinch=null;canvas.addEventListener("touchstart",e=>{if(e.touches.length===2){pinch=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);drag=null}},{passive:true});
 canvas.addEventListener("touchmove",e=>{if(pinch&&e.touches.length===2){const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);zoomBy(d/pinch);pinch=d}},{passive:true});
 canvas.addEventListener("touchend",()=>{pinch=null});
-function clampTarget(){view.target.x=Math.max(-2,Math.min(Math.max(31,BOUNDS.x1-4),view.target.x));view.target.z=Math.max(-3,Math.min(18,view.target.z))}
+function clampTarget(){view.target.x=Math.max(-2,Math.min(Math.max(31,BOUNDS.x1-(AIR_ON?1:4)),view.target.x));view.target.z=Math.max(-3,Math.min(18,view.target.z))}
 function zoomBy(f){view.zoom=Math.max(.7,Math.min(4,view.zoom*f));placeCamera()}
 let rotAnim=null;function rotate(d){const from=view.az,to=view.az+d;const t0=performance.now();cancelAnimationFrame(rotAnim);const step=now=>{const u=Math.min(1,(now-t0)/450);const e=u<.5?2*u*u:1-Math.pow(-2*u+2,2)/2;view.az=from+(to-from)*(reduce?1:e);placeCamera();if(u<1&&!reduce)rotAnim=requestAnimationFrame(step)};rotAnim=requestAnimationFrame(step)}
 document.getElementById("rotL").onclick=()=>rotate(-90);document.getElementById("rotR").onclick=()=>rotate(90);
 document.getElementById("zin").onclick=()=>zoomBy(1.25);document.getElementById("zout").onclick=()=>zoomBy(.8);
 document.getElementById("fit").onclick=()=>{view.zoom=1;view.target.set(homeX(),0,7.5);placeCamera()};
 document.getElementById("lbl").onclick=e=>{const on=stage.classList.toggle("hide-labels");e.currentTarget.setAttribute("aria-pressed",String(!on))};
+function setLayer(under){DISPLAY.under=under;airDim(under);document.getElementById("surface").setAttribute("aria-pressed",String(!under));document.getElementById("underground").setAttribute("aria-pressed",String(under))}
+document.getElementById("surface").onclick=()=>setLayer(false);
+document.getElementById("underground").onclick=()=>setLayer(true);
 document.getElementById("cityplate").onclick=()=>select(null,"city");
 function focusDistrict(k){const b=DIST[k];view.target.set((b.x0+b.x1)/2,0,(b.z0+b.z1)/2+.5);view.zoom=Math.max(view.zoom,1.7);placeCamera()}
 let selKind=null,about=null;const KIND_PILLAR={rail:"workflow_entry_points",grid:"pipeline_parity"};
-function select(k,kind){if(KIND_PILLAR[kind])k=KIND_PILLAR[kind];sel=k||null;selKind=kind&&(kind.startsWith("ENR")||kind.startsWith("AIR"))?kind:null;about=sel&&kind&&kind!=="district"?kind:null;if(sel&&!KIND_PILLAR[kind])focusDistrict(sel);if(selKind&&selKind.startsWith("AIR")){view.target.set(selKind==="AIR:link"?43:55,0,4.5);view.zoom=selKind==="AIR:link"?1.7:2.2;placeCamera()}updateSelection();renderPanel()}
+function select(k,kind){if(KIND_PILLAR[kind])k=KIND_PILLAR[kind];sel=k||null;selKind=kind&&(kind.startsWith("ENR")||kind.startsWith("AIR"))?kind:null;about=sel&&kind&&kind!=="district"?kind:null;if(sel&&!KIND_PILLAR[kind])focusDistrict(sel);
+ if(selKind&&selKind.startsWith("AIR")){const key=selKind.startsWith("AIR:gate:")?selKind.split(":")[2]:null;const site=key&&AIR.areas[key]!=null?AIR_SUPPORT[key]:null;
+  view.target.set(site?site.x:selKind==="AIR:link"?43:55,0,site?site.z:4.5);view.zoom=site?stage.clientWidth<560?4:3:selKind==="AIR:link"?1.7:stage.clientWidth<560?3.5:2.2;placeCamera();}
+ updateSelection();renderPanel()}
 
 /* ================= panel, picker, table ================= */
 const fmt=n=>n==null?"":`+${n.toFixed(1)}`;
 function seeItems(rep,p){const i=PI[p.k],lvl=rep.L[i];const st=stepsFor(rep,p);const hub=rep.L[PI.workflow_entry_points];const q=transitQ(rep,p.k);const out=[];
- out.push(["Building",`${BUILDING[lvl]} ${ABOUT[p.k].b}`]);
+ out.push(["Building",`${p.k==="workflow_entry_points"&&lvl===0?"A closed central station: no service departs.":BUILDING[lvl]} ${ABOUT[p.k].b}`]);
  out.push(["Street",TRAFFIC[lvl]+"."]);
  out.push(["Transit",p.k==="workflow_entry_points"?`This is the hub. ${RAIL[lvl]}`:`${TRANSIT[q]} Line quality L${q} = the lower of the station (L${hub}) and this district (L${lvl}).`]);
  if(st.length)out.push(["Crane",`${st[0].c} is the next planned fix${st[0].p!=null?` (${fmt(st[0].p)} points)`:""}.`]);else if(lvl===0)out.push(["Crane","A vacant lot waiting for its first building: the L1 checks below."]);
@@ -744,7 +826,7 @@ function levelList(lines,cur){return `<ul class="plain">${lines.map((l,i)=>`<li 
 function aboutHTML(rep,kind,k){const p=k?PILLARS[PI[k]]:null;const lvl=p?rep.L[PI[k]]:0;
  const card=(t,body)=>`<div class="about"><h3>${t}</h3>${body}</div>`;
  switch(kind){
-  case"building":return card(`${p.place}: ${p.n}`,`<p><b>${esc(ABOUT[k].q)}</b></p><p>${esc(ABOUT[k].b)}</p>${levelList(BUILDING,lvl)}`);
+  case"building":return card(`${p.place}: ${p.n}`,`<p><b>${esc(ABOUT[k].q)}</b></p><p>${esc(ABOUT[k].b)}</p>${levelList(k==="workflow_entry_points"?["Closed central station: the landmark remains, but no service runs.",...BUILDING.slice(1)]:BUILDING,lvl)}`);
   case"street":return card("The street: how work reaches the district",`<p>Lanes stand for automation. A closed road means the pillar is missing; one lane with a traffic light means it exists but someone has to start it by hand; two lanes mean hooks or CI run it; a boulevard means agents use it directly.</p>${levelList(TRAFFIC,lvl)}`);
   case"transit":{const hub=rep.L[PI.workflow_entry_points];const q=transitQ(rep,k);return card("Public transport from the central station",`<p>The central station stands for workflow entry points: runner targets such as <code>task test</code> or <code>make lint</code>. Each line shows how well that one entry point reaches a district. A line is only as good as both ends, so its level is the lower of the station level (L${hub}) and the district level (L${lvl}).</p>${levelList(TRANSIT,k==="workflow_entry_points"?hub:q)}`)}
   case"site":{const st=stepsFor(rep,p);return card("Construction site: the next planned fix",st.length?`<p>Cranes stand where the fix plan will raise this pillar next.</p><ul class="plain">${st.map(s=>`<li class="wi"><span class="tag">${esc(s.c)}</span><span>${esc(s.t)} <span class="meta">${fmt(s.p)}</span></span></li>`).join("")}</ul>`:`<p>A vacant lot: no building yet. Passing the L1 checks listed below builds the first one.</p>`)}
@@ -792,7 +874,94 @@ function renderPicker(){const el=document.getElementById("picker");const sorted=
 function renderTable(){const t=document.getElementById("dtable");const sorted=[...REPOS].sort((a,b)=>b.score-a.score);
  t.innerHTML=`<thead><tr><th>Repository</th><th>Set</th><th>Score</th><th>Gut</th><th>Tier</th>${PILLARS.map(p=>`<th title="${p.n}">${p.short}</th>`).join("")}<th>Penalty</th><th>Decay</th><th>All fixes</th></tr></thead><tbody>${sorted.map(r=>`<tr data-id="${esc(r.id)}"><td>${esc(r.id)}</td><td>${esc(r.set)}</td><td class="num">${r.score}</td><td class="num">${r.gut??"–"}</td><td>${tierOf(r.score).n}</td>${r.L.map(l=>`<td class="l">L${l}</td>`).join("")}<td class="num">${r.pen.toFixed(1)}</td><td class="num">${r.ent.length}</td><td class="num">${r.done??"–"}</td></tr>`).join("")}</tbody>`;
  t.querySelectorAll("tbody tr").forEach(tr=>tr.onclick=()=>{choose(tr.dataset.id,true);stage.scrollIntoView({behavior:reduce?"auto":"smooth",block:"center"})})}
-function choose(id,push){const r=REPOS.find(x=>x.id===id);if(!r)return;current=r;sel=null;selKind=null;about=null;if(push){try{history.replaceState(null,"","#"+id)}catch(e){location.hash=id}}renderPicker();renderPanel();if(scene){view.zoom=1;view.target.set(homeX(),0,7.5);placeCamera();build(r)}}
+function choose(id,push){const r=REPOS.find(x=>x.id===id);if(!r)return;current=r;sel=null;selKind=null;about=null;if(push){try{history.replaceState(null,"","#"+id)}catch(e){location.hash=id}}renderPicker();if(scene){view.zoom=1;view.target.set(homeX(),0,7.5);placeCamera();build(r)}renderPanel()}
+
+function exportDescription(rep){
+ const rows=[];const add=(text,heading=false,color=null)=>rows.push({text,heading,color});
+ add(rep.id,true);add(`Score ${rep.score} / 100 - ${tierOf(rep.score).n}`);
+ add(`Entropy penalty: ${rep.pen.toFixed(1)}. ${rep.comp} components; ${rep.files} tracked files.`);
+ if(rep.caps.length)add("Score caps: "+rep.caps.join(", "));
+ if(META.scanDate)add("Scan: "+META.scanDate);
+ if(META.source)add("Source: "+META.source);
+ add(DISPLAY.under?"Underground view":"Surface view");
+ add("District legend",true);
+ for(const [index,pillar] of PILLARS.entries())add(`${pillar.place}: ${pillar.n}, L${rep.L[index]} (${(rep.L[index]/3*pillar.w).toFixed(1)} / ${pillar.w} points)`,false,pillar.c);
+ add("Transport",true);add("L0: closed, no service. L1: bus. L2+: underground metro and buses. Each connection uses the lower endpoint level.");
+ if(AIR_ON){const infra=airInfra();add("Infrastructure - prototype evaluation",true);
+  add("Control-bar values are simulated overrides, not audited results. Infrastructure never changes the city score.");
+  add(infra.overall==null?"No applicable core areas: no main airport; applicable benefits remain visible.":`Airport L${infra.overall}. Station link L${Math.min(rep.L[PI.workflow_entry_points],infra.overall)}. ${AIR_LADDER[infra.overall]}`);
+  add("Core: Terraform, Compose and Dockerfile. Devcontainer and Agent guidance are independent benefits. Cross-cutting is non-blocking.");
+  for(const area of AIR_AREAS){const level=AIR.areas[area.k];add(`${area.n} (${area.support?"benefit":area.core?"core":"independent"}): ${level==null?"not applicable":"L"+level}`);if(area.support&&level!=null)add(AIR_SUPPORT_LADDER[level]);}
+  add(`Variant ${AIR.variant}. Requested containers: ${AIR.cont}; visible capacity is limited by level.`);
+ }
+ const appendHTML=html=>{const template=document.createElement("template");template.innerHTML=html;
+  const readable=node=>node.nodeType===3?node.textContent:Array.from(node.childNodes,readable).join(" ");
+  for(const element of template.content.querySelectorAll("h3,p,li,tr"))add(readable(element).replace(/\s+/g," ").trim(),element.tagName==="H3");};
+ if(sel){const pillar=PILLARS[PI[sel]];add("Selected: "+pillar.place,true);
+  appendHTML(aboutHTML(rep,about||"building",sel));
+  for(const [label,text] of seeItems(rep,pillar))add(label+": "+text);
+  appendHTML(issuesHTML(rep,PI[sel]));appendHTML(ladderHTML(rep,PI[sel]));
+ }else if(selKind&&selKind.startsWith("AIR")){add("Selected airport object",true);appendHTML(airPanel(rep,selKind));
+ }else if(selKind&&selKind.startsWith("ENR")){add(ENR[selKind].t,true);for(const item of rep.ent.filter(item=>item.c===selKind))add(item.p);}
+ if(rep.lim.length){add("Scan limitations",true);for(const limit of rep.lim)add(limit);}
+ return rows;
+}
+function wrapExportText(context,text,width){
+ const lines=[];let line="";
+ for(const word of String(text).split(/\s+/)){
+  if(context.measureText(line+(line?" ":"")+word).width<=width){line+=(line?" ":"")+word;continue;}
+  if(line){lines.push(line);line="";}
+  for(const character of word){if(context.measureText(line+character).width>width&&line){lines.push(line);line="";}line+=character;}
+ }
+ if(line)lines.push(line);return lines;
+}
+async function exportPNG(){
+ const button=document.getElementById("exportPNG"),status=document.getElementById("exportStatus");
+ let offscreen=null;
+ button.disabled=true;button.setAttribute("aria-busy","true");status.textContent="Preparing PNG...";
+ try{
+  if(!renderer||!current||!dyn)throw new Error("The city is not ready yet.");
+  await document.fonts.ready;
+  const rep=current,under=DISPLAY.under;
+  const width=stage.clientWidth,height=stage.clientHeight;
+  const scale=Math.min(2,1600/width,2200/height),mapWidth=Math.round(width*scale),mapHeight=Math.round(height*scale);
+  const margin=32,column=560,totalWidth=mapWidth+column+margin*3;
+  const output=document.createElement("canvas"),context=output.getContext("2d");
+  if(!context)throw new Error("Canvas export is unavailable.");
+  let textHeight=margin;const lines=[];
+  for(const row of exportDescription(rep)){
+   const font=`${row.heading?"600 21":"400 17"}px ${row.heading?FONT_D:FONT_B}`;
+   context.font=font;const leading=row.heading?29:25;textHeight+=row.heading?16:6;
+   for(const text of wrapExportText(context,row.text,column-24)){lines.push({text,y:textHeight,font,color:row.color,heading:row.heading});textHeight+=leading;}
+  }
+  const totalHeight=Math.max(mapHeight+margin*2,textHeight+margin);
+  if(totalHeight>12000||totalWidth*totalHeight>24000000)throw new Error("The description is too large for one PNG. Select the city summary and export again.");
+  output.width=totalWidth;output.height=totalHeight;context.fillStyle="#ffffff";context.fillRect(0,0,totalWidth,totalHeight);
+  context.fillStyle=under?"#b6c7cf":"#e4efe6";context.fillRect(margin,margin,mapWidth,mapHeight);
+  offscreen=new THREE.WebGLRenderer({antialias:true,alpha:true,preserveDrawingBuffer:true});
+  offscreen.setPixelRatio(1);offscreen.setSize(mapWidth,mapHeight);offscreen.outputColorSpace=renderer.outputColorSpace;
+  offscreen.shadowMap.enabled=true;offscreen.shadowMap.type=renderer.shadowMap.type;
+  offscreen.render(scene,camera.clone());context.drawImage(offscreen.domElement,margin,margin);
+  if(!stage.classList.contains("hide-labels")){
+   updateLabels();const bounds=stage.getBoundingClientRect();context.save();context.beginPath();context.rect(margin,margin,mapWidth,mapHeight);context.clip();
+   for(const plate of plates){if(plate.el.style.display==="none")continue;const rectangle=plate.el.getBoundingClientRect();
+    const text=plate.el.classList.contains("plate")?plate.el.querySelector(".pt").textContent+" "+plate.el.querySelector(".lvb").textContent:plate.el.textContent;
+    const fontSize=Math.max(11,13*scale);context.font=`600 ${fontSize}px ${FONT_B}`;
+    const textWidth=context.measureText(text).width+14,x=margin+(rectangle.left-bounds.left)*scale,y=margin+(rectangle.top-bounds.top)*scale;
+    context.fillStyle="#ffffff";context.fillRect(x,y,textWidth,fontSize+10);context.fillStyle=plate.el.style.getPropertyValue("--pc")||plate.el.style.backgroundColor||"#1b2420";context.fillRect(x,y,4,fontSize+10);
+    context.fillStyle="#18211c";context.textBaseline="top";context.fillText(text,x+8,y+5);
+   }context.restore();
+  }
+  for(const line of lines){const x=mapWidth+margin*2;context.font=line.font;context.textBaseline="top";context.fillStyle=line.heading?"#1b2420":"#46554d";
+   if(line.color){context.fillStyle=line.color;context.fillRect(x,line.y+5,9,12);context.fillStyle="#46554d";}context.fillText(line.text,x+20,line.y);}
+  const blob=await new Promise((resolve,reject)=>output.toBlob(value=>value?resolve(value):reject(new Error("PNG encoding failed.")),"image/png"));
+  const url=URL.createObjectURL(blob),link=document.createElement("a");link.href=url;link.download=rep.id.replace(/[^a-z0-9._-]/gi,"_")+"-"+(under?"underground":"surface")+".png";
+  document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);
+  status.textContent="PNG exported.";
+ }catch(error){status.textContent="PNG export failed: "+error.message;
+ }finally{if(offscreen){offscreen.dispose();offscreen.forceContextLoss();}button.disabled=false;button.removeAttribute("aria-busy");}
+}
+document.getElementById("exportPNG").onclick=exportPNG;
 
 /* ================= offscreen thumbnails (asset sheet + key) ================= */
 async function renderThumbs(){const tr=new THREE.WebGLRenderer({antialias:true,alpha:true,preserveDrawingBuffer:true});tr.setPixelRatio(1);tr.setSize(480,360);tr.outputColorSpace=THREE.SRGBColorSpace;tr.shadowMap.enabled=true;tr.shadowMap.type=THREE.PCFSoftShadowMap;
@@ -808,7 +977,7 @@ async function renderThumbs(){const tr=new THREE.WebGLRenderer({antialias:true,a
   ["One lane and a traffic light","L1 present: the pillar exists but is thin. Half the street is coned off and cars queue at the light. A known limit.",g=>{groundPlane(g,-3,-3,9,8,"#a9cf8f",-.03);const rd=[];for(let x=-1;x<=6;x++)rd.push([x,2,90]);instanced(g,"road-straight",rd);for(let x=.5;x<5;x+=.45)cone(g,x,1.8);barrier(g,.2,1.8,90,.42);const tl=trafficLight(g,.0,2.42,90);tl.userData.set("red");put(g,"sedan",.45,2.18,90);put(g,"taxi",-.2,2.18,90);put(g,"van",-.85,2.18,90);put(g,"digger",2.6,1.7,90,.8);put(g,"house-a",1,.6,0,.9);put(g,"house-d",3,.6,0,.9);const ws=textSprite("onelane",["1 LANE","known limit"],{bg:"#ffd23f",scale:.65});ws.position.set(4.3,.78,1.7);g.add(ws)}],
   ["Road closed","L0 absent: the street to the district is barricaded. Nothing gets in or out.",g=>{groundPlane(g,-3,-3,9,8,"#a9cf8f",-.03);const rd=[];for(let x=-1;x<=6;x++)rd.push([x,2,90]);instanced(g,"road-straight",rd);barrier(g,.5,2,90,.9);barrier(g,4.4,2,90,.9);for(let x=1;x<4.2;x+=.7)cone(g,x,2+(x%1.4?.15:-.15));put(g,"rock",2.4,2.05,0,1.4);groundPlane(g,-.5,-.5,5.5,1.5,"#c7ae84",.02);for(let x=0;x<=5;x++)put(g,"fence",x,1.42,0,1);put(g,"stump",1.5,.6,0,1.5);put(g,"rock",3.5,.4,0,1.5);const s=textSprite("roadclosed",["ROAD CLOSED","nothing reaches it"],{bg:"#fff",fg:"#d6342a",scale:.75});s.position.set(2.4,.9,2.1);g.add(s)}],
   ["Construction site","The next planned fix from the fix plan, with its score gain. Built where the pillar will grow.",g=>{groundPlane(g,-3,-3,9,8,"#a9cf8f",-.03);const fake2={id:"k",L:[1,1,1,1,1,1,1],ent:[],caps:[],steps:[],score:50};buildDistrict(g,"pipeline_parity",1,{x0:0,x1:5,z0:0,z1:3},fake2,7,{steps:[{c:"CIP-05",t:"",p:3.3}],signScale:.8,signs:true})}],
-  ["Buses and metro","Lines from the central station to each district, as good as the weaker end: one bus (L1), frequent buses with shelters (L2), an underground metro (L3).",g=>{groundPlane(g,-3,-3,9,8,"#a9cf8f",-.03);const rd=[];for(let x=-1;x<=6;x++)rd.push([x,2,90]);instanced(g,"road-straight",rd);const b1=busModel("#d64545");b1.position.set(1,0,2.33);g.add(b1);const b2=busModel("#d64545");b2.position.set(3.6,0,1.67);b2.rotation.y=Math.PI;g.add(b2);busStop(g,4.8,2.62,"#d64545",true);const rib=new THREE.Mesh(bg(5,.02,.1),new THREE.MeshBasicMaterial({color:"#2f86c9",transparent:true,opacity:.45,depthTest:false,depthWrite:false}));rib.position.set(2.5,.1,.5);rib.renderOrder=3;g.add(rib);const tr=ghostTrain("#2f86c9");tr.position.set(2.2,.04,.5);g.add(tr);for(const x of [0,5]){const s=new THREE.Sprite(metroSign());s.scale.set(.34,.34,1);s.position.set(x,.55,.5);g.add(s)}put(g,"bld-c",1,-.6,0,.9);put(g,"bld-f",3.5,-.6,0,.9)}],
+  ["Buses and metro","Lines from the central station to each district, as good as the weaker end: one bus (L1), underground metro plus sheltered buses (L2), frequent metro plus buses (L3).",g=>{groundPlane(g,-3,-3,9,8,"#a9cf8f",-.03);const rd=[];for(let x=-1;x<=6;x++)rd.push([x,2,90]);instanced(g,"road-straight",rd);const b1=busModel("#d64545");b1.position.set(1,0,2.33);g.add(b1);const b2=busModel("#d64545");b2.position.set(3.6,0,1.67);b2.rotation.y=Math.PI;g.add(b2);busStop(g,4.8,2.62,"#d64545",true);const rib=new THREE.Mesh(bg(5,.02,.1),new THREE.MeshBasicMaterial({color:"#2f86c9",transparent:true,opacity:.45,depthTest:false,depthWrite:false}));rib.position.set(2.5,.1,.5);rib.renderOrder=3;g.add(rib);const tr=ghostTrain("#2f86c9");tr.position.set(2.2,.04,.5);g.add(tr);for(const x of [0,5]){const s=new THREE.Sprite(metroSign());s.scale.set(.34,.34,1);s.position.set(x,.55,.5);g.add(s)}put(g,"bld-c",1,-.6,0,.9);put(g,"bld-f",3.5,-.6,0,.9)}],
   ["Abandoned wagons","Each wagon on the rusty siding is one orphaned script that nothing calls any more (ENR-01).",g=>{groundPlane(g,-3,-3,9,8,"#a9cf8f",-.03);const bed=new THREE.Mesh(bg(7,.05,.7),mat("#a59578"));bed.position.set(2.5,.025,2);g.add(bed);for(const dz of [-.18,.18]){const rl=new THREE.Mesh(bg(7,.04,.035),mat("#8a5a3a"));rl.position.set(2.5,.08,2+dz);g.add(rl)}for(let i=0;i<4;i++){const w=wagon();w.position.set(.4+i*1.12,.1,2);g.add(w)}const r=rng(3);for(let i=0;i<14;i++)put(g,"bush",-.5+r()*6,1.5+r()*1,r()*360,.6)}],
   ["Broken pylon","Each toppled, sparking pylon on the power line is one CI workflow pointing at a file that no longer exists (ENR-04).",g=>{groundPlane(g,-3,-3,9,8,"#a9cf8f",-.03);let prev=null;[0,2.5,5].forEach((x,i)=>{const br=i===1;pylon(g,x,2,br);if(br){const sp=new THREE.Sprite(sparkMat());sp.scale.set(.5,.5,1);sp.position.set(x-.4,1,2);g.add(sp);cable(g,new THREE.Vector3(x-.6,.95,2),new THREE.Vector3(x-1.1,.1,2.3),.05)}});cable(g,new THREE.Vector3(-1,1.06,2),new THREE.Vector3(0,1.06,2));put(g,"generator",4.6,.6,0,1)}],
   ["Graffiti wall","Each tag on the wall in the police district is one tool configured twice in conflicting ways (ENR-02).",g=>{groundPlane(g,-3,-3,9,8,"#a9cf8f",-.03);const w=graffitiWall(2);w.position.set(2.5,0,2);g.add(w);put(g,"bld-c",1.5,.7,0,.9);put(g,"police-car",3.5,2.6,90)}],
@@ -830,7 +999,7 @@ async function loadData(){
  try{await loadData()}catch(err){document.getElementById("loading").textContent="Could not load city data ("+err.message+"). Serve this folder over http (python3 tools/serve.py) or open the standalone file from dist/.";console.error(err);return}
  renderTable();const fromHash=decodeURIComponent(location.hash.slice(1));current=REPOS.find(r=>r.id===fromHash)||REPOS[0];renderPicker();renderPanel();
  try{await Promise.race([Promise.all([document.fonts.load(`800 40px ${FONT_D}`),document.fonts.load(`600 30px ${FONT_M}`)]),new Promise(r=>setTimeout(r,2500))])}catch(e){}
- try{initScene();await loadAssets();airBar();build(current);document.getElementById("loading").hidden=true;requestAnimationFrame(loop);window.__ready=true;window.__t={view,placeCamera,choose,select,camera,renderer,scene};
+ try{initScene();await loadAssets();airBar();build(current);renderPanel();document.getElementById("loading").hidden=true;requestAnimationFrame(loop);window.__ready=true;window.__t={view,placeCamera,choose,select,camera,renderer,scene};
   new ResizeObserver(()=>{resize()}).observe(stage);
   setTimeout(()=>renderThumbs().then(()=>{window.__thumbs=true}),50)}
  catch(err){document.getElementById("loading").textContent="The 3D view needs WebGL, which this browser could not start. The data table below has every number.";console.error(err)}

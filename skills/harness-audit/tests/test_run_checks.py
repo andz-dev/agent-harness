@@ -84,6 +84,29 @@ class DjangoRegressionTests(unittest.TestCase):
 class PlaceholderTests(unittest.TestCase):
     """Bootstrap stubs (B-150): a file with TODO(human) placeholders does not earn a pass."""
 
+    def test_test_fixture_strings_do_not_erase_python_test_presence(self):
+        ver01 = next(item for item in REAL_CATALOG["checks"] if item["id"] == "VER-01")
+        tree = {"pyproject.toml": PYPROJECT}
+        for index in range(3):
+            tree[f"tests/test_fixture_{index}.py"] = (
+                "def test_fixture():\n    content = 'TODO(human): synthetic fixture'\n    assert content.startswith('TODO')\n"
+            )
+        findings = run_one(tree, ver01)
+        self.assertEqual([item["status"] for item in findings], ["pass"])
+
+    def test_active_python_placeholders_still_block_test_presence(self):
+        ver01 = next(item for item in REAL_CATALOG["checks"] if item["id"] == "VER-01")
+        examples = [
+            "# TODO(human): implement the tests\ndef test_stub():\n    pass\n",
+            '"""TODO(human): implement the tests."""\ndef test_stub():\n    pass\n',
+            "def test_stub():\n    raise NotImplementedError('TODO(human): implement')\n",
+        ]
+        for content in examples:
+            with self.subTest(content=content):
+                tree = {"pyproject.toml": PYPROJECT}
+                tree.update({f"tests/test_stub_{index}.py": content for index in range(3)})
+                self.assertEqual([item["status"] for item in run_one(tree, ver01)], ["fail"])
+
     def test_pass_on_file_with_placeholder_becomes_fail(self):
         chk = check("file_exists", {"globs": ["AGENTS.md"]}, cid="TST-02", pillar="orientation")
         done = run_one({"pyproject.toml": PYPROJECT, "AGENTS.md": "# a\nTODO(human): fill\n"}, chk)

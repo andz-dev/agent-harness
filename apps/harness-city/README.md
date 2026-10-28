@@ -70,15 +70,65 @@ and per-level checks. Click the city name for the score breakdown.
 
 Public transport runs from the central station (workflow entry points) to every district.
 A line's level is the lower of the station level and the district level: none (L0), one
-bus (L1), frequent buses with shelters (L2), an underground metro shown as a see-through
-train plus buses (L3).
+bus (L1), underground metro plus sheltered buses (L2), frequent metro plus buses (L3).
+The central station remains visible even at L0, closed with no service.
+
+Surface and Underground select the permanent city layer, including cities without an
+airport. Underground fades surface buildings to expose metro routes. The choice survives
+repository and airport-option changes; it does not invent service for L0 or L1 connections.
+
+The download arrow exports a PNG of the current view and visible labels, plus a wrapped
+description containing the score, district legend, infrastructure levels, selected object
+details and scan limitations. The export keeps the live camera unchanged. Synthetic
+provenance and airport evaluation overrides are identified in the image.
 
 ## Airport prototype (infrastructure overlay)
 
 `index.html?airport` (or `tools/build_standalone.py --airport`) adds an airport east of the
-city with a control bar for the station-link variants, underground layer and gate levels.
+city with a control bar for the station-link variants and gate levels.
 It is a draft and never changes the score. See [DESIGN.md](DESIGN.md) and
 [docs/0007](../../docs/0007/airport-assets.md).
+
+The lowest applicable core level (Terraform, Compose or Dockerfile) determines the main
+airport size. L0 is a closed airstrip;
+L1 retains a hangar and small passenger office; L2 restores the regional terminal; L3 is
+the hub. A dash means not applicable, not L0. The control bar simulates infrastructure
+levels for evaluation and does not change the report or score.
+
+Every applicable area has its own fixed-position forecourt pylon, even at L0. Height,
+bands and colour show that area's level. Devcontainer adds an independent developer
+side-terminal; Agent guidance adds a guidance office. Their facilities grow with their
+own L0-L3 and never lower or close the main airport. L0 closes only the supporting
+facility; a dash removes it. Cross-cutting remains independent and non-blocking.
+The control bar explicitly names only the limiting core area(s).
+Aircraft capacity is separate (0, 2, 4 or 6 stands). Enabling an area never hides another
+area or resizes the terminal while the overall level stays the same.
+With support areas only, supporting facilities remain visible without a main airport,
+runway or main-airport transport service. This does not change any audit result or score.
+
+## Browser regression checks
+
+Run the unattended suite from the repository root with `task app:test` after `task setup`.
+It launches its own synthetic loopback server and real desktop/mobile Chromium projects,
+tests actual controls and PNG downloads, and checks an offline standalone file with
+network blocked. Page/console errors and missing browsers fail the run. CI uses the same
+command; output stays ignored in `test-results/` and `playwright-report/` under this app.
+Use `task app:test -- airport.spec.js --project=desktop-chromium` for a focused case.
+
+Serve the default synthetic data with `?airport`, wait for the city and asset sheet to
+load, then run in the browser console:
+
+```js
+const { checkCity } = await import("./tools/check_city.js");
+await checkCity();
+```
+
+This dependency-free check exercises the real option controls, low-level buildings,
+all per-area controls, fixed-level terminal stability, transport thresholds, station
+landmarks, repeated rebuild material/GPU stability and a
+nonblank PNG download. It restores the original repository, airport settings, layer and
+camera. It downloads one synthetic PNG. Also inspect desktop/mobile screenshots and test
+the offline standalone build; the browser check module itself is not embedded in that build.
 
 ## Layout
 

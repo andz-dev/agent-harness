@@ -8,17 +8,35 @@ tasks:
     cmds:
       - task --list
   setup:
-    desc: Install the copied skill's locked development environment
+    desc: Install the locked audit and browser development environments
     cmds:
       - task --dir skills/harness-audit setup
+      - task: app:setup
   check:
     desc: Check unchanged audit code, demo conversion and standalone packaging
     cmds:
       - task --dir skills/harness-audit check
-      - uv run --directory skills/harness-audit ruff check ../../tools
-      - uv run --directory skills/harness-audit ruff format --check ../../tools
+      - uv run --directory skills/harness-audit ruff check ../../tools ../../tests
+      - uv run --directory skills/harness-audit ruff format --check ../../tools ../../tests
+      - task: tools:test
       - task: app:check
+      - task: app:test
       - python3 tools/check.py
+  tools:test:
+    desc: Test repository quality gates and audit-history receipts
+    cmds:
+      - uv run --directory skills/harness-audit python -m unittest discover -s ../../tests -p 'test_*.py' -v
+  app:setup:
+    desc: Install the locked browser-test package and matching Chromium
+    cmds:
+      - npm --prefix apps/harness-city ci --ignore-scripts
+      - npm exec --prefix apps/harness-city -- playwright install chromium
+  app:test:
+    desc: Run synthetic city tests in real desktop and mobile Chromium
+    cmds:
+      - python3 apps/harness-city/tools/build_standalone.py --offline --airport -o apps/harness-city/dist/airport-test.html
+      - python3 tools/offline_fonts.py apps/harness-city/dist/airport-test.html
+      - npm --prefix apps/harness-city test -- {{.CLI_ARGS}}
   demo:
     desc: Regenerate the explicitly synthetic city dataset
     cmds:

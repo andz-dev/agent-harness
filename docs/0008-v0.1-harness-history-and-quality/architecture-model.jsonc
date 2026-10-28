@@ -1,0 +1,158 @@
+// architecture-model.jsonc: drafted by architecture-gatekeeper from Architecture.md.
+// Unverified until the owner reads the chart and sets "verified": "human-reviewed".
+{
+  "artifact": "architecture-model",
+  "schema": "architecture-model/1",
+  "created": "2026-10-28",
+  "title": "Harness History and Quality Architecture",
+  "generated": "agent",
+  "verified": "unverified",
+  "states": {
+    "current": "The components that exist before the plan.",
+    "target": "The components after the plan."
+  },
+  "layers": [
+    "Product",
+    "Verification",
+    "Delivery",
+    "Knowledge"
+  ],
+  "components": [
+    {
+      "id": "audit-engine",
+      "label": "Audit engine",
+      "layer": "Product",
+      "kind": "component",
+      "path": "skills/harness-audit/scripts/run_checks.py",
+      "in": [
+        "current",
+        "target"
+      ]
+    },
+    {
+      "id": "city-application",
+      "label": "City application",
+      "layer": "Product",
+      "kind": "component",
+      "path": "apps/harness-city/index.html",
+      "in": [
+        "target"
+      ]
+    },
+    {
+      "id": "browser-tests",
+      "label": "Browser tests",
+      "layer": "Verification",
+      "kind": "component",
+      "path": "apps/harness-city/tests/",
+      "in": [
+        "target"
+      ]
+    },
+    {
+      "id": "history-tool",
+      "label": "History tool",
+      "layer": "Verification",
+      "kind": "component",
+      "path": "tools/audit_history.py",
+      "in": [
+        "target"
+      ]
+    },
+    {
+      "id": "repository-checks",
+      "label": "Repository checks",
+      "layer": "Verification",
+      "kind": "component",
+      "path": "tools/check.py",
+      "in": [
+        "current",
+        "target"
+      ]
+    },
+    {
+      "id": "task-runner",
+      "label": "Task runner",
+      "layer": "Delivery",
+      "kind": "component",
+      "path": "Taskfile.yml",
+      "in": [
+        "current",
+        "target"
+      ]
+    },
+    {
+      "id": "ci",
+      "label": "CI",
+      "layer": "Delivery",
+      "kind": "component",
+      "path": ".github/workflows/check.yml",
+      "in": [
+        "current",
+        "target"
+      ]
+    },
+    {
+      "id": "basic-documents",
+      "label": "Basic documents",
+      "layer": "Knowledge",
+      "kind": "component",
+      "path": "docs/0008-v0.1-harness-history-and-quality/",
+      "in": [
+        "target"
+      ]
+    }
+  ],
+  "links": [
+    {
+      "from": "browser-tests",
+      "to": "city-application",
+      "label": "uses",
+      "in": [
+        "target"
+      ]
+    },
+    {
+      "from": "history-tool",
+      "to": "audit-engine",
+      "label": "uses",
+      "in": [
+        "target"
+      ]
+    },
+    {
+      "from": "task-runner",
+      "to": "browser-tests",
+      "label": "uses",
+      "in": [
+        "target"
+      ]
+    },
+    {
+      "from": "task-runner",
+      "to": "history-tool",
+      "label": "uses",
+      "in": [
+        "target"
+      ]
+    },
+    {
+      "from": "task-runner",
+      "to": "repository-checks",
+      "label": "uses",
+      "in": [
+        "current",
+        "target"
+      ]
+    },
+    {
+      "from": "ci",
+      "to": "task-runner",
+      "label": "uses",
+      "in": [
+        "current",
+        "target"
+      ]
+    }
+  ]
+}

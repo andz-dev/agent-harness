@@ -51,6 +51,12 @@ project rules. Python and Node only; monorepos get root-level files for the domi
 
 ## Reading the result
 
+For repeated audits, regression history, or a request to run repository tests, read
+[Automated Tests and Audit History](references/TESTING-AND-HISTORY.md) before proceeding.
+It separates static observation from owner-authorized runtime verification, defines
+compatible comparisons and explains the development repository's history/browser commands.
+The audit itself still never executes code from the repository being assessed.
+
 - Score = sum of pillar points (level/3 x weight) capped by `no-tests` 40, `no-ci` 60, `no-orientation` 70, minus
   the entropy penalty. Weights: Verification 25, Orientation 20, Static guardrails 15, Workflow entry points 15,
   Automatic triggers 10, Pipeline parity 10, Doc hygiene 5.

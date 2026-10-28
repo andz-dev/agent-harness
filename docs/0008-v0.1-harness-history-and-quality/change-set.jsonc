@@ -1,0 +1,274 @@
+// change-set.jsonc: drafted by implementation-document-gatekeeper from the Files Touched Per Slice table.
+// Unverified until the owner reads it and sets "verified": "human-reviewed".
+{
+  "artifact": "change-set",
+  "schema": "change-set/1",
+  "created": "2026-10-28",
+  "stage": "specification",
+  "generated": "agent",
+  "verified": "unverified",
+  "based_on": [
+    {
+      "path": "docs/0008-v0.1-harness-history-and-quality/Architecture.md",
+      "sha256": "810f8fcb668dddf0c5e5e0fcba3fd462c9ae82873af8aa8fb07c34f88096ce18"
+    },
+    {
+      "path": "docs/0008-v0.1-harness-history-and-quality/Plan.md",
+      "sha256": "1e5081381cb0ad3d6b580445e1b089c1bb0317c51f99e7970503e49053445318"
+    }
+  ],
+  "slices": [
+    {
+      "id": "M1",
+      "title": "",
+      "gate": ""
+    },
+    {
+      "id": "M2",
+      "title": "",
+      "gate": ""
+    },
+    {
+      "id": "M3",
+      "title": "",
+      "gate": ""
+    },
+    {
+      "id": "M4",
+      "title": "",
+      "gate": ""
+    },
+    {
+      "id": "M5",
+      "title": "",
+      "gate": ""
+    },
+    {
+      "id": "M6",
+      "title": "",
+      "gate": ""
+    }
+  ],
+  "entries": [
+    {
+      "id": "E001",
+      "slice": "M1",
+      "op": "add",
+      "targets": [
+        "docs/0008-v0.1-harness-history-and-quality/"
+      ],
+      "detail": "",
+      "source": "Architecture.md, Files Touched Per Slice",
+      "state": "planned"
+    },
+    {
+      "id": "E002",
+      "slice": "M2",
+      "op": "change",
+      "targets": [
+        "skills/harness-audit/scripts/run_checks.py"
+      ],
+      "detail": "",
+      "source": "Architecture.md, Files Touched Per Slice",
+      "state": "planned"
+    },
+    {
+      "id": "E003",
+      "slice": "M2",
+      "op": "change",
+      "targets": [
+        "skills/harness-audit/tests/test_run_checks.py"
+      ],
+      "detail": "",
+      "source": "Architecture.md, Files Touched Per Slice",
+      "state": "planned"
+    },
+    {
+      "id": "E004",
+      "slice": "M2",
+      "op": "change",
+      "targets": [
+        "tools/check.py"
+      ],
+      "detail": "",
+      "source": "Architecture.md, Files Touched Per Slice",
+      "state": "planned"
+    },
+    {
+      "id": "E005",
+      "slice": "M2",
+      "op": "add",
+      "targets": [
+        "tests/test_repo_quality.py"
+      ],
+      "detail": "",
+      "source": "Architecture.md, Files Touched Per Slice",
+      "state": "planned"
+    },
+    {
+      "id": "E006",
+      "slice": "M3",
+      "op": "add",
+      "targets": [
+        "apps/harness-city/package.json"
+      ],
+      "detail": "",
+      "source": "Architecture.md, Files Touched Per Slice",
+      "state": "planned"
+    },
+    {
+      "id": "E007",
+      "slice": "M3",
+      "op": "add",
+      "targets": [
+        "apps/harness-city/package-lock.json"
+      ],
+      "detail": "",
+      "source": "Architecture.md, Files Touched Per Slice",
+      "state": "planned"
+    },
+    {
+      "id": "E008",
+      "slice": "M3",
+      "op": "add",
+      "targets": [
+        "apps/harness-city/playwright.config.js"
+      ],
+      "detail": "",
+      "source": "Architecture.md, Files Touched Per Slice",
+      "state": "planned"
+    },
+    {
+      "id": "E009",
+      "slice": "M3",
+      "op": "add",
+      "targets": [
+        "apps/harness-city/tests/"
+      ],
+      "detail": "",
+      "source": "Architecture.md, Files Touched Per Slice",
+      "state": "planned"
+    },
+    {
+      "id": "E010",
+      "slice": "M3",
+      "op": "change",
+      "targets": [
+        "Taskfile.yml"
+      ],
+      "detail": "",
+      "source": "Architecture.md, Files Touched Per Slice",
+      "state": "planned"
+    },
+    {
+      "id": "E011",
+      "slice": "M3",
+      "op": "change",
+      "targets": [
+        ".github/workflows/check.yml"
+      ],
+      "detail": "",
+      "source": "Architecture.md, Files Touched Per Slice",
+      "state": "planned"
+    },
+    {
+      "id": "E012",
+      "slice": "M3",
+      "op": "change",
+      "targets": [
+        ".gitignore"
+      ],
+      "detail": "",
+      "source": "Architecture.md, Files Touched Per Slice",
+      "state": "planned"
+    },
+    {
+      "id": "E013",
+      "slice": "M4",
+      "op": "add",
+      "targets": [
+        "tools/audit_history.py"
+      ],
+      "detail": "",
+      "source": "Architecture.md, Files Touched Per Slice",
+      "state": "planned"
+    },
+    {
+      "id": "E014",
+      "slice": "M4",
+      "op": "add",
+      "targets": [
+        "tests/test_audit_history.py"
+      ],
+      "detail": "",
+      "source": "Architecture.md, Files Touched Per Slice",
+      "state": "planned"
+    },
+    {
+      "id": "E015",
+      "slice": "M5",
+      "op": "change",
+      "targets": [
+        "skills/harness-audit/SKILL.md"
+      ],
+      "detail": "",
+      "source": "Architecture.md, Files Touched Per Slice",
+      "state": "planned"
+    },
+    {
+      "id": "E016",
+      "slice": "M5",
+      "op": "add",
+      "targets": [
+        "skills/harness-audit/references/TESTING-AND-HISTORY.md"
+      ],
+      "detail": "",
+      "source": "Architecture.md, Files Touched Per Slice",
+      "state": "planned"
+    },
+    {
+      "id": "E017",
+      "slice": "M5",
+      "op": "add",
+      "targets": [
+        "CONTRIBUTING.md"
+      ],
+      "detail": "",
+      "source": "Architecture.md, Files Touched Per Slice",
+      "state": "planned"
+    },
+    {
+      "id": "E018",
+      "slice": "M5",
+      "op": "change",
+      "targets": [
+        "README.md"
+      ],
+      "detail": "",
+      "source": "Architecture.md, Files Touched Per Slice",
+      "state": "planned"
+    },
+    {
+      "id": "E019",
+      "slice": "M5",
+      "op": "change",
+      "targets": [
+        "apps/harness-city/README.md"
+      ],
+      "detail": "",
+      "source": "Architecture.md, Files Touched Per Slice",
+      "state": "planned"
+    },
+    {
+      "id": "E020",
+      "slice": "M6",
+      "op": "change",
+      "targets": [
+        "extraction-manifest.json"
+      ],
+      "detail": "",
+      "source": "Architecture.md, Files Touched Per Slice",
+      "state": "planned"
+    }
+  ]
+}

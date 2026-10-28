@@ -3,7 +3,7 @@ type: 'Design'
 title: 'Harness City Design'
 status: 'active'
 created: '2026-10-27'
-updated: '2026-10-27'
+updated: '2026-10-28'
 generated: 'agent'
 verified: 'unverified'
 owner: 'Andreas Elser'
@@ -59,10 +59,22 @@ for other meanings. The pillar list lives in `PILLARS` in `index.html` and must 
 
 ## Transit
 
-The central station is the hub. Line level = lower of station level and district level:
-none (L0), one bus (L1), frequent buses with shelters (L2), underground metro shown as a
-see-through train plus buses (L3). New destinations (for example the airport) join this
-network and follow the same rule unless this file says otherwise.
+The central station is visible in every city, including a closed station at L0.
+Line level = lower of station level and district level: none (L0), one bus (L1),
+underground metro plus buses with shelters (L2), frequent metro plus buses (L3).
+New destinations (for example the airport) join this network and follow the same rule.
+
+Surface and underground are permanent city views, independent of the airport prototype.
+The underground view fades surface buildings and exposes the metro routes; it never
+invents service below L2. View choice survives city and prototype option changes.
+Restore original material properties before rebuilding or leaving the underground view.
+Airport labels sit outside the buildings. Crowding hides secondary airport tags instead
+of overlapping labels; all gate details remain available in the side panel.
+
+PNG export captures the current camera, layer and visible labels, together with the city
+summary, score, pillar legend, infrastructure levels and the selected object's description.
+Descriptions wrap without clipping. Synthetic data and prototype overrides remain explicit
+in the exported image. Export never changes the live camera or audit data.
 
 ## Infrastructure overlay (airport)
 
@@ -75,15 +87,28 @@ Status: **prototype** inside the real city, enabled with `?airport` (or the stan
 * It sits east of the districts, outside the city, on the same rail line and on the road row
   `z=8`. The station plot (airport station) and the airport plot together take about two
   district fields. A cross street joins them like the district blocks.
-* Size follows the overall infra level (weakest tool area). Each infra area is a gate; a closed
-  gate (L0) has a barrier. Repo-wide areas get gates too.
-* L0 fenced airstrip, L1 small airfield, L2 regional (terminal, tower, 4 gates), L3 hub (6 gates,
+* Size follows the weakest applicable core area: Terraform, Compose and Dockerfile only.
+  Devcontainer is an optional developer side-terminal; Agent guidance is a guidance office.
+  Their own L0-L3 grows the supporting facility, but never lowers or closes the main airport.
+  L0 means a closed supporting facility; not applicable means the facility is absent.
+  Cross-cutting remains independent and non-blocking. With support areas only, show those
+  facilities without a main airport, runway or main-airport transport service. This is a
+  visualization rule only; audit results and the city score remain unchanged.
+* Each infra area is a gate; a closed
+  gate (L0) has a barrier. Repo-wide areas get gates too. Every applicable area has its own
+  fixed-position forecourt status pylon at every airport level, including L0. Pylon height,
+  lit bands and colour show that area's own level. Devcontainer, Agent guidance and
+  Cross-cutting do not change the overall level. The control bar names the limiting core area(s).
+  Aircraft stands are separate: capacity is 0 / 2 / 4 / 6 for L0 / L1 / L2 / L3. Adding an
+  area never removes another area's display or changes the footprint at a fixed overall level.
+* L0 fenced airstrip, L1 small airfield with a visible hangar and passenger building,
+  L2 regional (terminal, tower, 4 stands), L3 hub (6 stands,
   canopy, tall tower, charters, crane). Repos without real infrastructure get no airport.
 * The forecourt street follows the district street ladder (closed, one lane, two lanes,
   boulevard) at the airport level.
 * Docker and Compose are air freight: containers on the cargo apron, capped by level (4, 8, 12).
 * The link to the central station is only as good as both ends (lower of station level and
-  airport level), the same rule as every district line: bus, metro at L3, and in variant C an
+  airport level), the same rule as every district line: bus at L1+, metro at L2+, and in variant C an
   express train on its own rail platforms.
 
 ## Assets
@@ -101,10 +126,12 @@ Status: **prototype** inside the real city, enabled with `?airport` (or the stan
 |---|---|---|
 | train, train car | `trainCar`, `buildRail` | workflow entry points |
 | bus, bus stop | `busModel`, `busStop` | transit line L1-L2 |
-| metro train, M sign | `ghostTrain`, `metroSign` | transit line L3 |
+| metro train, M sign | `ghostTrain`, `metroSign` | transit line L2+; permanent underground view |
 | airport plot, runway, taxiway | `buildAirportAll`, kit `road-straight` and `pavement` | infrastructure overlay |
 | airplane (prop, jet, business, charter, cargo) | `airPlane`, `airFlight` | infra traffic by level |
-| terminal, tower, jet bridge, hangar | `buildAirportAll` | infra level L2+ / L1+ |
+| terminal, tower, jet bridge, hangar, small passenger building | `buildAirportAll` | infra level L2+ / L1+ |
+| forecourt area-status pylons, bands and barriers | `buildAirportAll` | each applicable tool or repo-wide area's own L0-L3 |
+| developer side-terminal, guidance office | `buildAirportSupport` | independent Devcontainer / Agent guidance benefits; never blockers |
 | airport station, express platforms | `buildAirportAll` | station link |
 | containers, crane | `buildAirportAll` | Docker and Compose |
 
@@ -127,6 +154,13 @@ need data fields that are optional, so old files still render. Demo data is synt
 (`tools/make_demo.py`) and covers every level of every new feature.
 
 ## Change checklist
+
+Automated browser verification uses the trusted synthetic city only. The runner owns a
+loopback server and exercises desktop/mobile layouts, actual controls, layer and rebuild
+state, downloadable PNGs and offline packaging. Page/console errors and missing browser
+prerequisites fail the run. Failure screenshots and traces stay ignored; reference images
+are never automatically replaced to make a test pass. These tests execute this application,
+not repositories examined by the read-only auditor.
 
 1. Update this file (principle, table or registry).
 2. Add the click explanation and level ladder text.
