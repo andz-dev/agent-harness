@@ -18,7 +18,7 @@ owner-provided roadmap body. Its historical version labels, reported scores,
 effort estimates and open decisions are not new validation results.
 
 Backlog identifiers in the note refer to the retained
-[harness-audit backlog](../../skills/harness-audit/BACKLOG.md). Later roadmap
+[harness-audit backlog](../../../skills/harness-audit/BACKLOG.md). Later roadmap
 identifiers may not yet be represented in that frozen snapshot; treat them as
 proposals needing source evidence, not silently implemented requirements.
 

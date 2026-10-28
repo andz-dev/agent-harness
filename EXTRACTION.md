@@ -95,4 +95,4 @@ findings and evidence. The synthetic demo still contains no findings.
 Skill files changed after the import are also recorded as `adapted-runtime` in
 [extraction-manifest.json](extraction-manifest.json). The first baseline update brings in
 harness-audit v1.2 (placeholder downgrade, DOC-06 script check, larger excerpt
-budgets, agreement tool); see [v1.2 records](docs/0004/README.md). Their `sha256` is the reviewed baseline that `task integrity` verifies.
+budgets, agreement tool); see [v1.2 records](docs/0004/research/README.md). Their `sha256` is the reviewed baseline that `task integrity` verifies.

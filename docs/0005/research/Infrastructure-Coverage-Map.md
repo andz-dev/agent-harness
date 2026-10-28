@@ -14,7 +14,7 @@ owner: 'Andreas Elser'
 
 Scope of this map: what harness-audit must detect, check and report for infrastructure as code (IaC),
 containers, Docker Compose and devcontainers, and how that reaches the repo scan JSON. Everything here is a
-proposal; the items are tracked as B-166 to B-190 in the skill's [BACKLOG](../../skills/harness-audit/BACKLOG.md).
+proposal; the items are tracked as B-166 to B-190 in the skill's [BACKLOG](../../../skills/harness-audit/BACKLOG.md).
 
 ## Starting point (verified in this repo)
 

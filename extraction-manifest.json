@@ -251,7 +251,7 @@
       "source": "apps/harness-city/README.md",
       "target": "apps/harness-city/README.md",
       "source_sha256": "db5639596c8225d1cf1ae3c5ca63ee264cc4c381d6482ef0a70f17c33ff39db9",
-      "sha256": "9e8a8898fb51f546d38780cd5252b3f0deefc73e48a8543c003212252ede4038",
+      "sha256": "46b5d84266140f3232789a158265946d309e590f6a451278f95c3d26a4e137a0",
       "kind": "adapted-runtime"
     },
     {
@@ -860,7 +860,7 @@
       "source": "docs/skills/0039-v0.2-agent-harness-setup/Workflow-Report.md",
       "target": "docs/0002/Workflow-Report.md",
       "source_sha256": "42b13d17777fa59bd7582066226efa80b9bf5b9d874743f726d7b75fefbe21e9",
-      "sha256": "5880968fd33e04f2cd0e705dd1968671ec2b57150fcd31e2d93ea471d9ba03aa",
+      "sha256": "152bdea111a385de9a1961b81ad25379ae8011943cf4d388d8a1a3f0827023e6",
       "kind": "adapted-runtime"
     },
     {
@@ -1091,12 +1091,12 @@
       "source": "LICENSE",
       "target": "LICENSE",
       "source_sha256": "3c8968c5ac0269c1470d9682e19da9ec9946ac5e2e9e701d43061649091c9f5f",
-      "sha256": "3c8968c5ac0269c1470d9682e19da9ec9946ac5e2e9e701d43061649091c9f5f",
-      "kind": "unchanged-source"
+      "sha256": "1126322e2cc8d165adc4c792eeb195717de2bcc7b39be1ce77959d78e87ef685",
+      "kind": "adapted-runtime"
     },
     {
       "source": "Repo Harness Next Steps.md",
-      "target": "docs/0003/Repo Harness Next Steps.md",
+      "target": "docs/0003/research/Repo Harness Next Steps.md",
       "source_sha256": "62887afdedc22e074a951bb294b3abe6d200719423477fa07cd95ae6cf0a77f8",
       "sha256": "ab9f95cb57c770fac8fbaf31115095a9c63e7e2c0cf711d9878a55c781bb714f",
       "kind": "adapted-runtime"
@@ -1117,37 +1117,37 @@
     },
     {
       "source": "session:harness-audit-v1.2",
-      "target": "docs/0004/README.md",
+      "target": "docs/0004/research/README.md",
       "source_sha256": "a0d5ef45bc05c2a5eb381e63aaecc5cd7dc659eefba5bd06c4dd6e6ff2c68c44",
-      "sha256": "a0d5ef45bc05c2a5eb381e63aaecc5cd7dc659eefba5bd06c4dd6e6ff2c68c44",
+      "sha256": "8055e2db15a04ac118c5e61c1a078e3af8437b7d397ee775efb05f6d7eb5951b",
       "kind": "adapted-runtime"
     },
     {
       "source": "session:harness-audit-v1.2",
-      "target": "docs/0004/Release-Notes-v1.2.md",
+      "target": "docs/0004/research/Release-Notes-v1.2.md",
       "source_sha256": "3cf5c098c530059372b52d214e8a47e97585f6205e25813905a00757efbfaae7",
       "sha256": "3cf5c098c530059372b52d214e8a47e97585f6205e25813905a00757efbfaae7",
       "kind": "adapted-runtime"
     },
     {
       "source": "session:harness-audit-v1.2",
-      "target": "docs/0004/Agreement-Report-v1.2.md",
+      "target": "docs/0004/research/Agreement-Report-v1.2.md",
       "source_sha256": "d14f693ed84480c1e0c3d07565edfa769950af7754f95a54a5904a730d305ec8",
       "sha256": "d14f693ed84480c1e0c3d07565edfa769950af7754f95a54a5904a730d305ec8",
       "kind": "adapted-runtime"
     },
     {
       "source": "session:harness-audit-v1.2",
-      "target": "docs/0005/README.md",
+      "target": "docs/0005/research/README.md",
       "source_sha256": "03ff5191e2b419dc87eefcb0e5067ee5a091d8accdf986cc8714687f598be702",
       "sha256": "03ff5191e2b419dc87eefcb0e5067ee5a091d8accdf986cc8714687f598be702",
       "kind": "adapted-runtime"
     },
     {
       "source": "session:harness-audit-v1.2",
-      "target": "docs/0005/Infrastructure-Coverage-Map.md",
+      "target": "docs/0005/research/Infrastructure-Coverage-Map.md",
       "source_sha256": "66c6d7288ab89e05bdca61c79c70299c1067818dd3f22e58d4c92f77b8d1ae61",
-      "sha256": "12ab0fdcc817d718575f7d48acb50301711d54b36d2ef9989e1c6a5c19b12634",
+      "sha256": "d2c90107dbefe58c10897c44a459450c8195497f4eee8d4b058fd0f9f97d7b8c",
       "kind": "adapted-runtime"
     },
     {

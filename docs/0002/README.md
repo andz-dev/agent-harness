@@ -37,5 +37,5 @@ pass claim. The extracted change set has no pending operations. Its original
 source transaction is retained separately as historical provenance. Current
 extraction checks are described in [EXTRACTION.md](../../EXTRACTION.md).
 
-The [next-steps note](../0003/Repo%20Harness%20Next%20Steps.md) is a future roadmap,
+The [next-steps note](../0003/research/Repo%20Harness%20Next%20Steps.md) is a future roadmap,
 not implemented behavior or an authorization to change frozen weights.

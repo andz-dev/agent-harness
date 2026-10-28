@@ -14,6 +14,9 @@ sources:
   - 'Local Git history through 8deb536, inspected 2026-10-28'
   - 'AGENTS.md and Taskfile.yml, working tree inspected 2026-10-28'
   - 'Owner request for retrospective basic documents and automated tests, 2026-10-28'
+stale_after: '2026-11-11'
+tags:
+  - 'documentation'
 ---
 
 # Harness History and Quality Map
@@ -36,12 +39,14 @@ were newly completed. Existing historical artifacts remain in their original loc
 | Local commit objects | A change exists in this checkout's history | Not proof that its tests ran |
 | Current source and configuration | The implementation currently declares that behavior | Not proof of client loading or CI execution |
 | Fresh command results | A check ran in the current environment | Not a historical pass record |
-| Working-tree airport changes | Current implementation after the latest commit | Must not be attributed to an invented commit |
+| Pre-commit airport changes | Implementation observed when reconstruction began | Must not be attributed to the earlier commit |
 | Imported historical documents | Source provenance and prior design intent | Not an instruction to replay old destructive operations |
 
-The committed reconstruction boundary is `8deb536`. Airport corrections, independent
+The committed reconstruction boundary at the start was `8deb536`. Airport corrections, independent
 support facilities, permanent underground and PNG export were present as uncommitted
-working-tree changes when this retrospective began. Keep that distinction explicit.
+working-tree changes when this retrospective began. The owner subsequently requested
+commit `90e9a52`, which records those changes and this basic bundle. Keep the original
+reconstruction boundary distinct from that later implementation commit.
 
 ## Historical Outline
 
@@ -57,6 +62,7 @@ working-tree changes when this retrospective began. Keep that distinction explic
 | `489457f` | City design rules and design gate | Update design before changing visual decisions |
 | `38fab47`, `3f450d5`, `c2a342f` | Airport evaluation, mobile and orthographic-camera work | Retain real-city camera and mobile inspection |
 | `8deb536` | Airport prototype inside the real city | Build standalone evaluation pages from the app source |
+| `90e9a52` | City corrections, browser/CI automation, audit history and basic retrospective | Implementation committed after its original working-tree observations |
 
 Inspect a cited change with `git show --stat <commit>`; inspect its contents with
 `git show <commit>:<path>`. These are local commit citations, not fabricated session IDs.
@@ -75,7 +81,8 @@ Inspect a cited change with `git show --stat <commit>`; inspect its contents wit
 - Browser automation runs only this repository's trusted synthetic city application.
 - Audit reports, answers, test output and history records stay in ignored local storage.
 - Current verification results never become retrospective evidence for an old commit.
-- Existing `docs/0001/` and imported `docs/0002/` are preserved.
+- Original `docs/0001/.gitkeep` and imported `docs/0002/` are preserved; the owner's later
+  per-folder reconstruction uses 0001 for the initial extraction retrospective.
 - Client configuration, live client loading and external integrations are out of scope.
 - No commits, branches, deployments or remote connections are created automatically.
 
@@ -91,6 +98,13 @@ exists. Exact before/after differences belong in the completed Implementation re
 
 ## Source Pointers
 
+The [requested-folder history crosswalk](../History-Match.md) reconciles the actual
+files and content of 0001, 0003, 0004, 0005, 0006 and 0007 with their local commit
+history. It preserves those folders rather than replacing them with this retrospective.
+The [per-folder navigation matrix](../README.md#per-folder-basic-sets) now links actual
+Ideation, Plan, Architecture and Implementation files in each of the six requested folders.
+They are new retrospective documents, not backdated original specs.
+
 | Basic artifact | Purpose |
 | --- | --- |
 | [Ideation Book](Ideation-Book.md) | Reconstructed rationale and quality goals |
@@ -101,12 +115,17 @@ exists. Exact before/after differences belong in the completed Implementation re
 The original raw self-audit's 33/100 result was affected by a reproduced detector
 false positive. With that engine corrected, the comparable before/after observations
 are 55/100 and 55/100, with no mechanical regressions and seven unanswered judgments.
-New untracked files are not credited as if they were committed audit evidence.
+Those are pre-commit observations: untracked files were not credited as committed evidence.
+The post-commit audit of `90e9a52` is 42/100 because the Node app is now tracked and
+included. It adds six app-scoped checks and records two orientation improvements;
+no existing check changed from pass to fail. Node lint configuration is still missing,
+and the static detector misses the existing indirect Task-based CI and docs commands.
+Do not present the changed coverage as evidence that passing browser tests regressed.
 
 - [Repository rules](../../AGENTS.md)
 - [Repository commands](../../Taskfile.yml)
 - [Imported source documentation](../0002/README.md)
-- [Earlier roadmap](../0003/README.md)
-- [Airport design decisions](../0007/airport-assets.md)
+- [Earlier roadmap](../0003/research/README.md)
+- [Airport design decisions](../0007/research/airport-assets.md)
 - [Audit workflow](../../skills/harness-audit/SKILL.md)
 - [City design](../../apps/harness-city/DESIGN.md)

@@ -67,7 +67,7 @@ diff or a claim that the frozen source will be changed.
 The repository docs gate initially passed 4/4 (docs audit, skill catalog, skill
 evals and architecture-review-deck counts). The final rerun is 3/4 because a
 concurrently added, unrelated root file,
-[Repo Harness Next Steps.md](../0003/Repo%20Harness%20Next%20Steps.md), lacks
+[Repo Harness Next Steps.md](../0003/research/Repo%20Harness%20Next%20Steps.md), lacks
 frontmatter. The docs audit reports that one issue and zero broken links. The
 other three gates still pass. That file was not altered to force a green gate.
 Both results are retained; the earlier pass is not presented as the final one.

@@ -87,7 +87,7 @@ provenance and airport evaluation overrides are identified in the image.
 `index.html?airport` (or `tools/build_standalone.py --airport`) adds an airport east of the
 city with a control bar for the station-link variants and gate levels.
 It is a draft and never changes the score. See [DESIGN.md](DESIGN.md) and
-[docs/0007](../../docs/0007/airport-assets.md).
+[docs/0007](../../docs/0007/research/airport-assets.md).
 
 The lowest applicable core level (Terraform, Compose or Dockerfile) determines the main
 airport size. L0 is a closed airstrip;

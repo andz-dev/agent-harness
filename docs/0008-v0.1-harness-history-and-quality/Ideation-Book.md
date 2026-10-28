@@ -15,6 +15,9 @@ sources:
   - 'README.md, Taskfile.yml and apps/harness-city/tools/check_city.js'
   - 'Owner request and delegated autonomous decisions, 2026-10-28'
   - 'https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md, retrieved 2026-10-28'
+stale_after: '2026-11-11'
+tags:
+  - 'documentation'
 ---
 
 # Harness History and Quality

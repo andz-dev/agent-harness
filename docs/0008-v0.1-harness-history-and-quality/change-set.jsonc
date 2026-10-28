@@ -10,11 +10,11 @@
   "based_on": [
     {
       "path": "docs/0008-v0.1-harness-history-and-quality/Architecture.md",
-      "sha256": "810f8fcb668dddf0c5e5e0fcba3fd462c9ae82873af8aa8fb07c34f88096ce18"
+      "sha256": "aa41113dd58e099a2890e81b5f570403b088a223118785cc947e485732460804"
     },
     {
       "path": "docs/0008-v0.1-harness-history-and-quality/Plan.md",
-      "sha256": "1e5081381cb0ad3d6b580445e1b089c1bb0317c51f99e7970503e49053445318"
+      "sha256": "4032c6fce747b35980161d4b02fdd835276e244afc7a38d822da444b6b6cc413"
     }
   ],
   "slices": [

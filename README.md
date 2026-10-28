@@ -21,11 +21,13 @@ plan, and explore the results in Harness City.
 - [Harness City](apps/harness-city/README.md) visualizes report data as an
   interactive 3D city. The checked-in demo is synthetic, not a real audit.
 - [Adoption documentation](docs/0002/README.md) records the source implementation
-  and its limitations. [Next steps](docs/0003/Repo%20Harness%20Next%20Steps.md)
+  and its limitations. [Next steps](docs/0003/research/Repo%20Harness%20Next%20Steps.md)
   remain proposals, not implemented capabilities.
 - [History and quality](docs/0008-v0.1-harness-history-and-quality/Map.md) reconstructs
   local commits and the current implementation in a basic versioned spec bundle.
 - [Development guide](CONTRIBUTING.md) explains automated browser tests and safe audit history.
+- [Documentation index](docs/README.md) separates the current basic specification bundle
+  from preserved historical and evaluation material.
 
 The demo includes four illustrative cities: Absent/Neglected, Working,
 Prosperous, and Thriving. Together they show district levels L0 through L3;

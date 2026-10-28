@@ -12,7 +12,7 @@ touches:
   - apps/harness-city/NOTICE.md
   - apps/harness-city/README.md
   - apps/harness-city/index.html
-  - docs/0007/airport-assets.md
+  - docs/0007/research/airport-assets.md
   - extraction-manifest.json
   - skills/harness-audit/SKILL.md
 ---

@@ -80,7 +80,7 @@ in the exported image. Export never changes the live camera or audit data.
 
 Status: **prototype** inside the real city, enabled with `?airport` (or the standalone build
 `build_standalone.py --airport`). Not part of the default city yet. Details and open variants:
-[../../docs/0007/airport-assets.md](../../docs/0007/airport-assets.md).
+[../../docs/0007/airport-assets.md](../../docs/0007/research/airport-assets.md).
 
 * The airport is the infrastructure overlay in teal `#0a9cb8`. It is never part of the 0-100 score
   and never replaces a district.

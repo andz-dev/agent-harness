@@ -11,6 +11,9 @@ generated: 'agent'
 verified: 'unverified'
 owner: 'Andreas Elser'
 sources: ['Plan.md', 'Map.md', 'Taskfile.yml', '.github/workflows/check.yml', 'skills/harness-audit/SKILL.md']
+stale_after: '2026-11-11'
+tags:
+  - 'documentation'
 ---
 
 # Harness History and Quality Architecture

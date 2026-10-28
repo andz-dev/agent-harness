@@ -1,6 +1,6 @@
 {
   "artifact": "Implementation.md",
-  "generatedAt": "2026-10-28T12:52:03Z",
+  "generatedAt": "2026-10-28T14:01:36Z",
   "mode": "final",
   "inputs": [
     "AGENTS.md",
@@ -16,6 +16,32 @@
     "docs/0008-v0.1-harness-history-and-quality/Plan.md",
     "docs/0008-v0.1-harness-history-and-quality/Architecture.md",
     "docs/0008-v0.1-harness-history-and-quality/Implementation.md",
+    "docs/README.md",
+    "docs/History-Match.md",
+    "docs/0001/Ideation-Book.md",
+    "docs/0001/Plan.md",
+    "docs/0001/Architecture.md",
+    "docs/0001/Implementation.md",
+    "docs/0003/Ideation-Book.md",
+    "docs/0003/Plan.md",
+    "docs/0003/Architecture.md",
+    "docs/0003/Implementation.md",
+    "docs/0004/Ideation-Book.md",
+    "docs/0004/Plan.md",
+    "docs/0004/Architecture.md",
+    "docs/0004/Implementation.md",
+    "docs/0005/Ideation-Book.md",
+    "docs/0005/Plan.md",
+    "docs/0005/Architecture.md",
+    "docs/0005/Implementation.md",
+    "docs/0006/Ideation-Book.md",
+    "docs/0006/Plan.md",
+    "docs/0006/Architecture.md",
+    "docs/0006/Implementation.md",
+    "docs/0007/Ideation-Book.md",
+    "docs/0007/Plan.md",
+    "docs/0007/Architecture.md",
+    "docs/0007/Implementation.md",
     "docs/0008-v0.1-harness-history-and-quality/architecture-model.jsonc",
     "docs/0008-v0.1-harness-history-and-quality/change-set.jsonc",
     "docs/0008-v0.1-harness-history-and-quality/citation-qa.jsonc"
@@ -23,7 +49,7 @@
   "validation": {
     "status": "pass",
     "checks": [
-      "local_commit_objects_13_pass",
+      "local_commit_objects_14_pass",
       "metadata_and_local_links_pass",
       "architecture_model_pass",
       "change_set_pass",
@@ -36,13 +62,31 @@
       "aggregate_task_check_pass",
       "skill_tests_251_plus_3_subtests_pass",
       "final_browser_18_pass_zero_skips_zero_flaky",
-      "runtime_integrity_and_publication_pass"
+      "runtime_integrity_and_publication_pass",
+      "metadata_update_zero_pending_fixes",
+      "post_commit_42_expanded_component_scope_documented",
+      "documentation_only_handoff_runtime_unchanged",
+      "requested_folders_0001_0003_0004_0005_0006_0007_matched",
+      "crosswalk_tracked_files_12_preserved",
+      "crosswalk_commit_objects_28_pass",
+      "generated_simulator_classified_untracked",
+      "per_folder_basic_artifacts_24_validated",
+      "per_folder_source_commits_19_pass",
+      "original_empty_scaffold_preserved"
     ]
   },
   "notes": [
     "Owner-requested reduced retrospective: no grilling or invented historical sessions; omitted full-workflow stages are not represented as executed.",
     "Final aggregate task check passed: 251 skill tests plus three subtests, 13 tool tests and 18 browser cases with no skips or flaky outcomes.",
-    "Original raw score 33 was affected by a reproduced detector defect; corrected compatible observations remain 55.",
-    "Remote CI execution and client loading are unverified. No client configuration or commits were created."
+    "Original raw score 33 was affected by a detector defect; corrected pre-commit observations were 55. The committed Node-app scope reports 42, with new component findings and no existing pass-to-fail transition.",
+    "Owner requested commit 90e9a52 after the implementation phase; this handoff follows it. Client configuration was not changed and remote CI/client loading remain unverified.",
+    "The five basic artifacts received the previewed missing stale_after and tags fields; historical numbered folders were not moved.",
+    "Documentation-only follow-up: model/change-set, citation QA, 14 commit references and the repository documentation/integrity gate validate. Unchanged runtime tests were not rerun in this docs-only pass.",
+    "No artifact-atlas store setup or ingestion was performed; validation evidence is the repository link/metadata gate and the owning model/change-set validators.",
+    "The requested six-folder crosswalk matches 12 tracked files to their actual first/latest commits, preserves their committed contents, and classifies one generated simulator separately. It records stale proposal statements outside the hash-pinned historical sources.",
+    "Owner clarified that each named folder needs actual basic files, not only a crosswalk. All six now contain Ideation-Book.md, Plan.md, Architecture.md and Implementation.md. These 24 artifacts are explicitly retrospective; no historical session or pass is invented.",
+    "Under delegated routine decisions, 0001 now records the initial extraction; its original zero-byte .gitkeep is preserved and the root guide states the revised use.",
+    "Owner reorganized original topic evidence into research/ subfolders. Relative links, source-path metadata and manifest targets were repaired for that layout; original imported source hashes are retained. The scaffold required by the existing rule was restored as an empty file.",
+    "Owner explicitly confirmed the root LICENSE edit. It is preserved and recorded as an intentional adapted baseline; third-party license notices were not changed."
   ]
 }

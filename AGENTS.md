@@ -3,7 +3,7 @@ type: 'Project Guide'
 title: 'Agent Harness Development Rules'
 status: 'active'
 created: '2026-10-27'
-updated: '2026-10-27'
+updated: '2026-10-28'
 generated: 'agent'
 verified: 'unverified'
 owner: 'Andreas Elser'
@@ -46,7 +46,9 @@ validation. Do not delete, skip or weaken tests to make checks pass.
 
 ## Documentation
 
-`docs/0001/` is reserved. `docs/0002/` contains relocated historical as-built
+`docs/0001/` now records the initial extraction retrospectively; preserve its original
+empty `.gitkeep`. The owner requested basic retrospective files in each named topic
+folder. `docs/0002/` contains relocated historical as-built
 documentation, not an instruction to rerun old source-repository retirements.
 `docs/0003/` is the proposed roadmap. New checks in this repo are separate from
 historical pass records. Preserve source provenance and required license notices.

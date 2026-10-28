@@ -11,6 +11,9 @@ generated: 'agent'
 verified: 'unverified'
 owner: 'Andreas Elser'
 sources: ['Plan.md', 'Architecture.md', 'Map.md', 'Ideation-Book.md']
+stale_after: '2026-11-11'
+tags:
+  - 'documentation'
 ---
 
 # Harness History and Quality Implementation
@@ -136,7 +139,7 @@ Stop when: required gates pass or an exact unresolved limitation is recorded.
 
 ## Resume State
 
-- Current milestone: complete; owner review and any commits are next, not automatic.
+- Current milestone: implementation committed as `90e9a52`; documentation handoff finalized after that commit.
 - Last verified evidence: aggregate `task check` passed: 251 skill tests plus three subtests, 13 tool tests, 18 browser cases with zero skipped/flaky/unexpected, deterministic builds and integrity/docs/publication checks.
 - Open blockers: none; client configuration and historical CI verification are deliberately out of scope.
 - Updated: 2026-10-28.
@@ -150,11 +153,38 @@ subtests; root tooling passed 13 tests. No browser case was skipped or retried.
 
 No source repository was executed by the auditor. Real runtime verification ran only
 this trusted development checkout and its synthetic city fixtures. CI wiring is added,
-but no remote CI pass or live client instruction loading is claimed. No Git commit or
-branch was created; owner review and a post-commit re-audit remain appropriate next steps.
+but no remote CI pass or live client instruction loading is claimed. The owner subsequently
+requested commit `90e9a52`; no new branch was created. Its fresh pre-commit `task check`
+also passed, including all 18 browser cases. This documentation follow-up does not
+automatically create another commit.
 
 Local evidence is ignored, not published: `reports/self-audit/before/`,
 `reports/self-audit/before-corrected/`, `reports/self-audit/after/`, app `test-results/`
 and `playwright-report/`. Comparable receipt IDs are
 `20261028T122021Z-033091ce7a55` and `20261028T123430Z-177d3624d447` under the
 Architecture-declared dated history root. No raw excerpt is copied into these documents.
+
+## Post-Commit Handoff
+
+The static audit of commit `90e9a52` reports **42/100**, with seven judgment checks still
+unanswered. Its receipt is `20261028T140136Z-843d16d40baf`, and the raw report is local
+under `reports/self-audit/post-commit-90e9a52/`.
+
+Compared with the preceding 55-point observation, the engine/catalog are compatible but
+the assessed component coverage changed: the previously untracked Node package is now
+included. Six formerly repo-wide not-applicable findings become app-scoped findings.
+Node test presence and runner configuration pass; Node CI recognition and lint checks
+are newly evaluated. ORI-03 and ORI-10 improve. No existing mechanical check changes
+from pass to fail, so the 13-point score decrease is not a demonstrated runtime regression.
+
+Remaining work is explicit, not marked complete by this docs pass:
+
+- Node lint/format configuration and enforcement are not yet present.
+- The static CI/docs recognizers do not follow the existing indirect `task check` chain.
+- The orientation recognizer does not discover the versioned Architecture path.
+- Python type checking, coverage and optional hook/ADR/update-bot gaps remain separate
+  follow-ups; no hooks or client configuration are installed automatically.
+- Remote CI results, live client loading and the seven judgment answers remain unverified.
+
+The [documentation index](../README.md) is the entry point; earlier numbered folders are
+preserved. Generated simulator HTML, raw reports and receipts remain outside the commit.

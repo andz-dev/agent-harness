@@ -11,6 +11,9 @@ generated: 'agent'
 verified: 'unverified'
 owner: 'Andreas Elser'
 sources: ['Map.md', 'Ideation-Book.md', 'Taskfile.yml', 'skills/harness-audit/SKILL.md']
+stale_after: '2026-11-11'
+tags:
+  - 'documentation'
 ---
 
 # Harness History and Quality Plan

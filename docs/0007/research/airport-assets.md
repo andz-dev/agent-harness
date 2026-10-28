@@ -69,11 +69,11 @@ Pick another repository to see how the station level changes the link.
 Regenerate this offline simulator from the app source, never by editing its embedded script:
 
 ```sh
-python3 apps/harness-city/tools/build_standalone.py --offline --airport -o docs/0007/city-airport-prototype.html
-python3 tools/offline_fonts.py docs/0007/city-airport-prototype.html
+python3 apps/harness-city/tools/build_standalone.py --offline --airport -o docs/0007/research/city-airport-prototype.html
+python3 tools/offline_fonts.py docs/0007/research/city-airport-prototype.html
 ```
 
-Browser regression instructions are in the [app guide](../../apps/harness-city/README.md#browser-regression-checks).
+Browser regression instructions are in the [app guide](../../../apps/harness-city/README.md#browser-regression-checks).
 
 Decisions made in the prototype: one runway at every level (L3 differs by terminal, stands,
 tower, planes and crane); the airport station is a plot west of the airport and the express
