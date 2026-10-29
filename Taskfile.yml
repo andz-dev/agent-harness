@@ -22,6 +22,16 @@ tasks:
       - task: app:check
       - task: app:test
       - python3 tools/check.py
+  precommit:
+    desc: Fast pre-commit gate (lint and format of tools/tests, extraction and docs checks)
+    cmds:
+      - uv run --directory skills/harness-audit ruff check ../../tools ../../tests
+      - uv run --directory skills/harness-audit ruff format --check ../../tools ../../tests
+      - python3 tools/check.py
+  hooks:install:
+    desc: Enable the repo's Git hooks for this clone
+    cmds:
+      - git config core.hooksPath .githooks
   tools:test:
     desc: Test repository quality gates and audit-history receipts
     cmds:

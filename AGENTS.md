@@ -21,6 +21,8 @@ skill's own AGENTS.md before working inside it, and the app README before app wo
 - `task check` runs the skill's lint/tests, synthetic conversion, builds and
   extraction/documentation checks.
 - `task integrity` verifies the imported runtime snapshot.
+- `task hooks:install` enables the Git pre-commit hook once per clone; it runs
+  `task precommit` (lint, format, extraction and docs checks), not the full `task check`.
 - `task serve` runs the app on port 8001; set PORT for another available port.
 
 ## Harness City design
