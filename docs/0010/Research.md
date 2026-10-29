@@ -158,14 +158,15 @@ missing. The city never changes the score.
 * Asset licences: every imported file needs a `NOTICE.md` entry. Poly Pizza CC-BY models are
   excluded.
 
-## 11. Open decisions
+## 11. Decisions (owner, 2026-10-29)
 
-1. Is the editor only for the owner (local tool), or part of the published city?
-2. Is "export for the agent harness setup" `city-map.json` only, or also GLB and PNG?
-3. How free are free roads: any angle, or snapped to 15 or 45 degree steps?
-4. Does the editor change existing coordinates (`DIST`, `AP`), or only overlays and scenery
-   at first?
-5. Which kits to import first, given the download constraint in section 6?
+1. The editor is separate; the viewer stays alone.
+2. Export the map JSON, GLB and PNG.
+3. Free roads at any angle, where technically possible; guided snapping stays available.
+4. The editor may move the existing layout.
+5. Assets: first the models of the current map, then all other kits.
+
+The binding version of these decisions is the "Editor" section of `apps/harness-city/DESIGN.md`.
 
 ## 12. Suggested next step
 

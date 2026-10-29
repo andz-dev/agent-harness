@@ -156,6 +156,34 @@ Decisions (2026-10-29):
 
 Open: the airport station (x 35..41) sits against the city edge (x 33.5); accept it as the gateway or move the airport two cells east.
 
+## Editor
+
+Status: first version, decisions from the owner on 2026-10-29. Research: `docs/0010/Research.md`.
+
+* The editor is a separate page, `editor.html`. The viewer (`index.html`) stays alone and is not
+  changed by the editor work.
+* It edits one versioned map file (`city-map.json`, `schema: 1`). Export formats: the map JSON,
+  a GLB of the scene, and a PNG image of the current view.
+* Streets and tracks can be drawn guided (snapped to cells and 45 degree steps) or free (any
+  angle, curves). Free is the default where it works.
+* The editor may move the existing layout (districts, airport, station), not only add overlays.
+* Asset palette: first the models the current map uses (the registry in `assets/assets.json`),
+  then the other CC0 kits once they are imported with a NOTICE entry.
+* Camera: the same orthographic isometric rig with 90 degree rotation buttons. A top-down plan
+  view is allowed in the editor only; it is still orthographic.
+* Placement is deterministic: scatter uses a seeded generator from the map seed, never
+  `Math.random`.
+* Districts keep their pillar key. Editing a district changes its place, size, label and goal
+  text, never a level or score.
+* Editor handles (junction spheres, curve diamonds, zone corners, brush rings) are tools, not
+  city objects, so they need no registry row. Objects that the viewer will show still do.
+* Map file content: terrain heightmap and water level, zones (districts keep the pillar key),
+  road and rail graphs (nodes, edges with lanes, width, curve control point, bridge, tunnel,
+  one-way), props (model id, place, rotation, scale) and paths (road or rail stops, or free
+  points), plus the resolved points of every path for other tools.
+* The viewer does not read `city-map.json` yet. Connecting it is a separate, reviewed change to
+  the hash-pinned `index.html`.
+
 ## Assets
 
 * Kit models (Kenney, Quaternius, CC0) live in `assets/` and are loaded with `put` and

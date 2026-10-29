@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Harness City Editor</title>
+<style>
+:root{--bg:#eef1ee;--panel:#fafbf9;--ink:#1d2a26;--mute:#5b6b65;--line:#c9d2cd;--acc:#24946a;--acc-ink:#fff;--warn:#b3261e;--sel:#ffb400;
+--f:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;--m:"IBM Plex Mono",ui-monospace,Menlo,monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#141b19;--panel:#1b2420;--ink:#e3ebe6;--mute:#93a39c;--line:#33423b;--acc:#3fb489;--acc-ink:#0d1512;--warn:#ff8a80}}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font:14px/1.4 var(--f);display:grid;grid-template-rows:auto 1fr auto;grid-template-columns:auto 1fr 300px;grid-template-areas:"top top top" "tools stage side" "status status status";overflow:hidden}
+header{grid-area:top;display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;padding:8px 12px;border-bottom:1px solid var(--line);background:var(--panel)}
+header h1{font-size:15px;margin:0 8px 0 0;font-weight:600}
+.grp{display:flex;gap:4px;align-items:center}
+button,select,input{font:inherit;color:inherit}
+button{background:var(--bg);border:1px solid var(--line);border-radius:5px;padding:4px 9px;cursor:pointer}
+button:hover{border-color:var(--acc)}
+button[aria-pressed="true"]{background:var(--acc);color:var(--acc-ink);border-color:var(--acc)}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--sel);outline-offset:1px}
+select,input[type=number],input[type=text]{background:var(--bg);border:1px solid var(--line);border-radius:5px;padding:3px 6px}
+input[type=number]{width:72px}
+nav{grid-area:tools;display:flex;flex-direction:column;gap:4px;padding:8px;border-right:1px solid var(--line);background:var(--panel);overflow-y:auto}
+nav button{display:flex;justify-content:space-between;gap:10px;text-align:left;min-width:150px}
+nav kbd{color:var(--mute);font:11px var(--m)}
+nav button[aria-pressed="true"] kbd{color:inherit}
+#stage{grid-area:stage;position:relative;min-width:0;min-height:0}
+#stage canvas{display:block;width:100%;height:100%;touch-action:none}
+#hint{position:absolute;left:10px;top:10px;background:var(--panel);border:1px solid var(--line);border-radius:5px;padding:4px 8px;font-size:12px;max-width:60%;opacity:.95}
+#loading{position:absolute;inset:0;display:grid;place-items:center;font-size:15px;background:var(--bg)}
+[hidden]{display:none!important}
+aside{grid-area:side;border-left:1px solid var(--line);background:var(--panel);overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:14px}
+aside h2{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);margin:0 0 6px}
+.row{display:flex;gap:6px;align-items:center;margin:4px 0;flex-wrap:wrap}
+.row label{min-width:78px;color:var(--mute);font-size:12px}
+.row.chk{flex-wrap:nowrap}.row.chk label{min-width:0;color:var(--ink);font-size:13px}
+.pal{display:grid;grid-template-columns:repeat(2,1fr);gap:4px}
+.pal button{font-size:12px;padding:3px 6px;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pal h3{grid-column:1/-1;font-size:11px;color:var(--mute);margin:6px 0 0;font-weight:500}
+footer{grid-area:status;display:flex;gap:18px;padding:4px 12px;border-top:1px solid var(--line);background:var(--panel);font:12px var(--m);color:var(--mute);flex-wrap:wrap}
+#msg.err{color:var(--warn)}
+.small{font-size:12px;color:var(--mute)}
+@media (max-width:820px){body{grid-template-columns:1fr;grid-template-rows:auto auto 1fr auto auto;grid-template-areas:"top" "tools" "stage" "side" "status"}nav{flex-direction:row;overflow-x:auto;border-right:0;border-bottom:1px solid var(--line)}nav button{min-width:auto}aside{max-height:40vh}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Harness City Editor</h1>
+  <div class="grp">
+    <select id="preset" aria-label="Start from"><option value="current">Current city</option><option value="l3">Level 3 plan</option><option value="empty">Empty map</option></select>
+    <button id="new">New</button>
+    <button id="import">Import</button><input id="file" type="file" accept=".json,application/json" hidden>
+  </div>
+  <div class="grp"><span class="small">Export</span><button id="exJson">Map JSON</button><button id="exGlb">GLB</button><button id="exPng">PNG</button></div>
+  <div class="grp"><button id="undo" title="Undo (Ctrl+Z)">Undo</button><button id="redo" title="Redo (Ctrl+Y)">Redo</button></div>
+  <div class="grp"><button id="guided" aria-pressed="false" title="Snap to cells and 45 degree steps (G)">Guided</button><button id="play" aria-pressed="true">Vehicles</button></div>
+  <div class="grp"><button id="rotL" title="Rotate left (Q)" aria-label="Rotate left">⟲</button><button id="rotR" title="Rotate right (E)" aria-label="Rotate right">⟳</button><button id="plan" aria-pressed="false" title="Top-down plan view (P)">Plan</button></div>
+</header>
+<nav id="tools" aria-label="Tools"></nav>
+<div id="stage"><canvas id="cv"></canvas><div id="hint"></div><div id="loading">Loading city assets…</div></div>
+<aside>
+  <section><h2 id="optTitle">Tool</h2><div id="opts"></div></section>
+  <section><h2>Selection</h2><div id="insp"><p class="small">Nothing selected. Use Select and click an object.</p></div></section>
+  <section><h2>Asset palette</h2><div id="pal" class="pal"></div></section>
+</aside>
+<footer><span id="pos">x – z –</span><span id="counts"></span><span id="msg"></span></footer>
+<script type="importmap">{"imports":{"three":"./vendor/three.module.js","three/addons/":"./vendor/jsm/"}}</script>
+<script type="module" src="./editor/editor.js"></script>
+</body>
+</html>

@@ -244,7 +244,7 @@
       "source": "apps/harness-city/NOTICE.md",
       "target": "apps/harness-city/NOTICE.md",
       "source_sha256": "741b6fb9ad125810c25b47daaa0a3dfc5ced079e56987cfc59b896c464ffbacf",
-      "sha256": "570c4ad84e670d16522a7e4b6dba2384f10319da670a688272cd7133e2849f36",
+      "sha256": "a46cb544d32d80f1d164f0a5cce649b05ec443e367b946db70ebef06437b3cb8",
       "kind": "adapted-runtime"
     },
     {
