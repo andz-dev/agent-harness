@@ -3,7 +3,7 @@ type: 'Design Proposal'
 title: 'City overlays, road traffic and committed harness evidence'
 status: 'draft'
 created: '2026-10-28'
-updated: '2026-10-28'
+updated: '2026-10-29'
 generated: 'agent'
 verified: 'unverified'
 owner: 'Andreas Elser'
@@ -20,12 +20,14 @@ Status: proposal for review. Nothing here changes `DESIGN.md`, `AGENTS.md`, `.gi
 `tools/check.py` or any audit check yet. Decisions that are still open are collected in
 section 5.
 
-The proposal has three parts:
+The proposal has four parts:
 
-1. Three audit topics shown as city overlays: supply chain, data protection, and licenses
-   with governance.
+1. Five audit topics shown as city overlays: supply chain (supermarket), release and
+   publishing (harbor), secrets (bank), data protection (archive), and licenses with
+   governance (court).
 2. Traffic that uses the whole road network, with corners, ramps and speed changes.
 3. A harness evidence file that lives in the repository, so agents and reruns can use it.
+4. City growth: a highway that widens with the city and a station that grows with its level.
 
 ## 1. Overlays
 
@@ -76,16 +78,18 @@ nothing dangerous is locked in.
 | Windowless archive, one controlled entrance | The repo's protected data |
 | Sign at the gate | The declared data class (the label, not the strength) |
 | Fence and tree buffer, no neighbouring houses | Ignored paths, deny rules, nothing sensitive adjacent |
-| Guards and scanner at the entrance | Secret scanner in the Git hook and in CI |
+| Guard at the entrance | The handling rule for the declared class, applied to agents and people |
 | Visitor log | Access rules for agents and people |
-| Broken door with an alarm | An exposure. The click text names file and rule, never the value |
+
+Secrets and credentials moved to the bank (below) on 2026-10-29. The archive keeps the data
+class and the personal-data rules.
 
 | Level | Picture | Audit meaning |
 | --- | --- | --- |
-| L0 | Records stacked in an open yard, no fence, no sign | Nothing ignored, no class declared |
-| L1 | Locked building with a class sign | `.env*` ignored and untracked, class declared |
-| L2 | Guarded entrance with scanner and visitor log | Scanner in CI or a hook, a data-handling rule with handling per class |
-| L3 | Badge doors, vault wing, shuttered windows, tree buffer | Same scanner in hook and CI, agent deny rules, rule reachable from agent files, redacted reports |
+| L0 | Records stacked in an open yard, no fence, no sign | No class declared, nothing ignored |
+| L1 | Locked building with a class sign | Class declared in a named place, data paths ignored |
+| L2 | Guarded entrance with visitor log | A data-handling rule with handling per class |
+| L3 | Badge doors, shuttered windows, tree buffer | Agent deny rules for classified paths, rule reachable from agent files, redacted reports, model passes gated by class |
 
 Rules that need an explicit exception first:
 
@@ -94,6 +98,54 @@ Rules that need an explicit exception first:
 * The archive must look unlike the public library, which is the Doc hygiene pillar
   (purple, open, windows). Closed against open is the intended contrast.
 * The PNG export and the standalone HTML follow the same no-values rule as the click text.
+
+### Secrets: bank
+
+Owner direction (2026-10-29): a banking district. It holds secrets and credentials; the
+archive holds the data class and personal-data rules, and the court holds licenses.
+
+| Object | Stands for |
+| --- | --- |
+| Bank building with a vault door | Where secrets are meant to live: a secret store, not files in the repo |
+| Guards and scanner at the entrance | Secret scanner in the Git hook and in CI |
+| Armored car, L3 only | Secrets delivered to CI and runtime from a store |
+| Broken vault door with an alarm | An exposure. The click text names file and rule, never the value, and it is listed apart from the levels |
+
+| Level | Picture | Audit meaning |
+| --- | --- | --- |
+| L0 | Open counter on the street, cash on the table | No `.env*` ignore rule, no scanner |
+| L1 | Small branch with a locked door | `.env*` ignored and untracked, `.env.example` present, no key files tracked |
+| L2 | Bank with guards and a scanner at the entrance | Secret scanner configured and run in CI or a hook |
+| L3 | Bank with a vault wing and an armored car | Same scanner in hook and CI through one entry point, agent deny rules for secret paths, workflow secrets taken from the platform store |
+
+A tracked live secret is an incident to rotate, not a score input. Old leaks are only visible
+with full history, which a shallow clone does not have (skill backlog B-35). The no-values
+rule applies to click text, PNG export and standalone HTML, as for the archive.
+
+### Release and publishing: harbor
+
+Owner confirmation (2026-10-29): the harbor is the outbound side. Ships carry sealed
+containers out of the city, the mirror of the supermarket where trucks bring dependencies in.
+The earlier harbor idea for infrastructure stays dropped; that is the airport.
+
+| Object | Stands for |
+| --- | --- |
+| Quay and pier | Where artifacts leave the repo |
+| Ships | Releases and published artifacts |
+| Sealed containers on the ships | Artifacts with signatures or provenance, with the SBOM attached |
+| Harbor master's office | A documented release process and a changelog |
+| Customs gate on the quay | Signature and provenance check |
+
+| Level | Picture | Audit meaning |
+| --- | --- | --- |
+| L0 | Empty quay, no pier | No tagged releases |
+| L1 | Small pier with one boat | Versioned releases and a changelog |
+| L2 | Working port with a crane | Release automated from CI, artifact or image published from CI |
+| L3 | Port with a customs gate and sealed containers | Signed or attested releases, SBOM published with each release, provenance |
+
+Repos that publish nothing get no harbor, as repos without infrastructure get no airport.
+Some of this needs registry or GitHub data (Scorecard's Packaging and Signed-Releases checks
+cover similar ground), so it would be optional evidence, not a static-scan fact.
 
 ### Licenses and governance: court
 
@@ -110,7 +162,14 @@ The court shows that documents exist. It never rules on license compatibility; t
 legal question. Police headquarters stays the Static guardrails pillar: police enforce,
 the court records.
 
-## 2. Traffic on the whole road network
+### Placement: civic quarter and outer ring
+
+Six overlays are a lot to place. Proposal: bank, archive and court form one civic quarter,
+because all three are about trust and rules. Airport, harbor and the goods factory sit on
+the outer ring along the highway. Positions stay deterministic from the repo id, and the
+standalone file must not grow much (2.8 MB at the last build).
+
+## 2. Traffic, highway and station
 
 ### Current state
 
@@ -145,6 +204,38 @@ and moves only along x. Buses and metro already follow polylines through `shuttl
 This work is independent of the overlays, but the supermarket overlay needs R1 to R5.
 The browser tests cannot run in the sandbox used for this draft, so the checks for R1 to R9
 need a CI run.
+
+### Highway that grows with the city
+
+Owner direction (2026-10-29): the highway has more than a single on and off lane. Beyond the
+city road it gets a lane for the airport and one for the harbor, and the more the city
+grows, the wider the roads become.
+
+| Stage | Highway |
+| --- | --- |
+| 1, Neglected | One lane each way, one on and off ramp to the city only |
+| 2, Working (score 45+) | Adds spurs to the airport and the harbor, where those overlays exist |
+| 3, Prosperous (60+) | Two lanes each way, rounded ramps with deceleration lanes |
+| 4, Thriving (80+) | Three lanes each way, an interchange and the check gantry of the supply-chain overlay |
+
+Reading to confirm: the stage follows the city's score tier, because the highway belongs to
+the whole city. The bus and metro rule (lower level of both ends) stays as it is for transit.
+A spur is drawn only when its overlay exists. This depends on the road-network traffic work
+(WN-019): ramps, corners and slowing trucks.
+
+### Station that grows with its level
+
+The central station stands for the Workflow entry points pillar, so its level sets its size.
+
+| Level | Station |
+| --- | --- |
+| L0 | Closed station (as today) |
+| L1 | One open platform and a single track |
+| L2 | Roofed platforms, tracks entering the city under a roofed approach, underground connection to the metro |
+| L3 | Station hall with a glass roof, several tracks, an underground concourse, the airport express platforms |
+
+The underground view keeps working: it fades surface buildings and never shows service
+below L2. The station change updates the Transit section of `DESIGN.md` and the registry first.
 
 ## 3. Harness evidence in the repository
 
@@ -208,7 +299,7 @@ figures. `AGENTS.md` already treats model answers as untrusted; this keeps it tr
 
 ## 4. Backlog
 
-New rows WN-017 to WN-023 in `docs/Whats-Next.md` track this work.
+New rows WN-017 to WN-029 in `docs/Whats-Next.md` track this work.
 
 ## 5. Open decisions
 
@@ -217,10 +308,16 @@ New rows WN-017 to WN-023 in `docs/Whats-Next.md` track this work.
 3. Name of the evidence directory and the wording of the `AGENTS.md` carve-out.
 4. Staleness limit in days, and whether a scheduled workflow may open refresh pull requests.
 5. Whether the model narrative section is wanted at all.
-6. The term OKF was mentioned; I could not tell what it refers to, so this draft uses the
-   front matter fields already used in `docs/`. Please say what it should mean.
+6. OKF is the front matter convention of the docs skills, and this draft follows it. The
+   `stale_after` policy for the docs is undecided: 14 days suits living documents, not
+   historical records.
 7. Level names for data classes, given that L0-L3 is taken, and whether a class is
    declared per repo or per component.
+8. Highway stage: follow the score tier (the reading above) or another city level? Is
+   stage 2 the Working tier?
+9. Civic quarter and outer ring as the placement, or another layout?
+10. Which harbor and bank facts need optional GitHub or registry data rather than the
+    static scan.
 
 ## 6. Suggested order
 
@@ -228,4 +325,6 @@ New rows WN-017 to WN-023 in `docs/Whats-Next.md` track this work.
 2. Fix the Taskfile-wrapper detection (WN-014).
 3. Road-network traffic (WN-019); independent, and the supermarket needs it.
 4. Evidence file (WN-020); independent of the city, and serves WN-005.
-5. Overlays one by one, starting with supply chain, then archive, then court.
+5. Station growth (WN-027), then highway growth (WN-026) once traffic exists.
+6. Overlays one by one, starting with supply chain, then harbor, bank, archive, court.
+7. Coverage map of harness topics (WN-028) before adding more checks (WN-029).

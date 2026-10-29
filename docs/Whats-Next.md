@@ -3,7 +3,7 @@ type: 'Backlog'
 title: 'What''s Next'
 status: 'active'
 created: '2026-10-27'
-updated: '2026-10-28'
+updated: '2026-10-29'
 generated: 'agent'
 verified: 'unverified'
 owner: 'Andreas Elser'
@@ -47,6 +47,12 @@ New, triaged and promoted-but-unfinished rows. Append new rows at the end.
 | WN-021 | Feature | City overlay: supermarket, factory and highway | Supply-chain overlay with gantry, trucks and update dispatcher; the factory is upstream and ungraded. | Owner direction, 2026-10-28; docs/0009 section 1. | Prototype behind a URL flag, as with the airport | High | WN-018, WN-019 | New |
 | WN-022 | Feature | City overlay: protected archive | Data-protection overlay: windowless archive, class sign, scanner at the entrance, broken door for an exposure. Needs the L0 exception in DESIGN.md and no-values export rules first. | Owner decision, 2026-10-28; docs/0009 section 1. | Prototype behind a URL flag | High | WN-018 | New |
 | WN-023 | Feature | City overlay: court | Licenses and governance overlay; shows that documents exist and never rules on compatibility. | Owner direction, 2026-10-28; docs/0009 section 1. | Prototype behind a URL flag | Medium | WN-018 | New |
+| WN-024 | Feature | City overlay: harbor (release and publishing) | Outbound side of the supply chain: ships with sealed containers for releases, artifacts, signatures and SBOM; no harbor for repos that publish nothing. | Owner confirmation, 2026-10-29; docs/0009 section 1. | Prototype behind a URL flag; some facts need optional registry or GitHub data | High | WN-018, WN-019 | New |
+| WN-025 | Feature | City overlay: bank (secrets) | Secrets and credentials: vault, scanner at the entrance, `.env` handling; an exposure shows as a broken vault door, never with the value. Split from the archive. | Owner direction, 2026-10-29; docs/0009 section 1. | Prototype behind a URL flag; no-values rule for click text and exports | High | WN-018 | New |
+| WN-026 | Feature | Highway that grows with the city | The highway widens with the city and gets spurs to the airport and the harbor from the Working tier; stages follow the score tier (reading to confirm). | Owner direction, 2026-10-29; docs/0009 section 2. | Stage table in DESIGN.md first, then road graph with ramps | High | WN-019 | New |
+| WN-027 | Feature | Growing central station | The station grows with the Workflow entry points level: open platform, roofed platforms and roofed approach with metro link, glass hall with concourse and airport express. | Owner idea, 2026-10-29; docs/0009 section 2. | Update the Transit section and registry in DESIGN.md first | Medium | None | New |
+| WN-028 | Feature | Coverage map of harness topics | One map listing each topic by layer (core score, overlay, optional evidence) and status (checked, planned, out of scope); languages as adapters instead of per-language duplicate checks. | Owner request, 2026-10-29, after the scope grew across supply chain, data, licenses and governance. | Draft the map from the existing topics, then research current practice | Medium | WN-018 | New |
+| WN-029 | Issue | No coding-standards or language-linter coverage | No check looks for a coding standards file, style guide or `.editorconfig`; linter checks exist only for Python and Node, other languages are detected but not scored. | Owner question, 2026-10-29; verified in checks/catalog.yaml and detect_stack.py. | Language adapters and a standards-document check, designed with the coverage map | Medium | WN-028 | New |
 
 ## Closed
 
