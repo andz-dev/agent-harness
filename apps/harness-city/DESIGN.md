@@ -3,7 +3,7 @@ type: 'Design'
 title: 'Harness City Design'
 status: 'active'
 created: '2026-10-27'
-updated: '2026-10-28'
+updated: '2026-10-29'
 generated: 'agent'
 verified: 'unverified'
 owner: 'Andreas Elser'
@@ -110,6 +110,45 @@ Status: **prototype** inside the real city, enabled with `?airport` (or the stan
 * The link to the central station is only as good as both ends (lower of station level and
   airport level), the same rule as every district line: bus at L1+, metro at L2+, and in variant C an
   express train on its own rail platforms.
+
+## City map (grid)
+
+Status: planned layout for the full level 3 city, agreed 2026-10-29. The plan view is in the
+Harness City L3 Plan artifact; this section is the source of truth. Units are grid cells,
+x east, z south. Existing coordinates come from `DIST`, `ROADS`, `AP` and `BOUNDS` in `index.html`.
+
+| Area | Cells (x, z) | State |
+|---|---|---|
+| City core, seven districts | x -4.5..33.5, z -4.5..19.5 (road grid at z 0, 8, 16) | exists |
+| Rail and siding | z -1.75, -2.75, -3.75; x -10.5..39.5 | exists |
+| Airport and airport station | x 47..63, z 1..7; station x 39..45 | exists |
+| Civic quarter: bank, court, archive | x -20..-7, z 1..15 | planned |
+| Supermarket | x 41..49, z 10.5..16.5 | planned |
+| Goods factory | x 44..58, z 19..28 | planned |
+| Harbor quay | x 6..32, z 22..28.5, water to the south | planned |
+| Highway | north-south, centre x 36.5, from the mountain tunnel in the north to the harbor | planned |
+
+Decisions (2026-10-29):
+
+* The camera stays as in "Camera": isometric, orthographic, with the rotate-left and
+  rotate-right buttons. New objects must look right from all four rotations.
+* The highway enters through a tunnel in a mountain range at the map edge, is lifted on
+  pillars where it crosses the rail line, and uses a bridge over the harbor water.
+* The highway grows with the score tier. Neglected and Working: narrow, one lane each way.
+  Prosperous and Thriving: the full grid width (three lanes each way at Thriving). The airport
+  and harbor spurs appear from the Working tier.
+* The supermarket gets its own entry road, separate from the airport spur and the toll gantry.
+* Trees, pylons and other scenery use exclusion zones for every planned rectangle above.
+* The civic quarter connects through the central station: bus only on lower levels, bus and
+  subway from level 2, like the airport.
+* The power line runs east to west and also feeds the harbor.
+* Moving objects (cars, trucks, ships, planes, trains) may use the whole map in any direction,
+  not only the x axis, with rounded corners, ramps and slow-downs on exits.
+* Before building a new model, check the CC0 kits (see NOTICE.md and the research note in
+  `docs/0009/`). New external assets need a NOTICE entry.
+
+Open: highway position versus the airport station (x 39..45) and the rail end (x 39.5);
+move one of them before building.
 
 ## Assets
 
