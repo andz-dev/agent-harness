@@ -22,7 +22,7 @@ section 5.
 
 The proposal has four parts:
 
-1. Five audit topics shown as city overlays: supply chain (supermarket), release and
+1. Five audit topics shown as city overlays: supply chain (shopping mall), release and
    publishing (harbor), secrets (bank), data protection (archive), and licenses with
    governance (court).
 2. Traffic that uses the whole road network, with corners, ramps and speed changes.
@@ -43,14 +43,14 @@ These follow `DESIGN.md` principles 5 to 8 and the airport precedent.
 * New objects are generated in code. No new binary assets without a `NOTICE.md` entry.
 * Each overlay starts as a prototype behind a URL flag, as `?airport` did.
 
-### Supply chain: supermarket, goods factory, highway
+### Supply chain: shopping mall, goods industry, highway
 
-Owner direction: a supermarket district supplied by a goods factory outside the city,
+Owner direction: a shopping mall district supplied by a goods industry outside the city,
 connected by a highway. Trucks drive in and are checked and recorded on the way.
 
 | Object | Stands for |
 | --- | --- |
-| Supermarket and its shelves | The dependencies the repo uses |
+| Shopping Mall and its shelves | The dependencies the repo uses |
 | Goods factory, outside the city | The upstream ecosystem and registries. Not ours, so it looks the same at every level |
 | Highway and ramps | The delivery path from upstream into the repo |
 | Trucks | Packages and updates |
@@ -66,7 +66,7 @@ connected by a highway. Trucks drive in and are checked and recorded on the way.
 
 The gantry says "checked and recorded", not "pays toll": the audit does not measure cost.
 Routes follow the existing rule that a link is only as good as both ends. The factory is not
-graded, so a route's level is the supermarket's level.
+graded, so a route's level is the shopping mall's level.
 
 ### Data protection: protected city archive
 
@@ -125,7 +125,7 @@ rule applies to click text, PNG export and standalone HTML, as for the archive.
 ### Release and publishing: harbor
 
 Owner confirmation (2026-10-29): the harbor is the outbound side. Ships carry sealed
-containers out of the city, the mirror of the supermarket where trucks bring dependencies in.
+containers out of the city, the mirror of the shopping mall where trucks bring dependencies in.
 The earlier harbor idea for infrastructure stays dropped; that is the airport.
 
 | Object | Stands for |
@@ -165,7 +165,7 @@ the court records.
 ### Placement: civic quarter and outer ring
 
 Six overlays are a lot to place. Proposal: bank, archive and court form one civic quarter,
-because all three are about trust and rules. Airport, harbor and the goods factory sit on
+because all three are about trust and rules. Airport, harbor and the goods industry sit on
 the outer ring along the highway. Positions stay deterministic from the repo id, and the
 standalone file must not grow much (2.8 MB at the last build).
 
@@ -185,7 +185,7 @@ and moves only along x. Buses and metro already follow polylines through `shuttl
 | R1 | Cars and trucks use every road, along x and along z, and cross junctions |
 | R2 | Vehicles drive corners on rounded curves; the heading follows the curve |
 | R3 | Speed depends on curvature and on the distance to a junction or exit; trucks are slower than cars, the highway is faster |
-| R4 | Highway exits and entries are rounded ramps with deceleration and acceleration; a truck slows, takes the ramp and drives on to the supermarket yard |
+| R4 | Highway exits and entries are rounded ramps with deceleration and acceleration; a truck slows, takes the ramp and drives on to the shopping mall yard |
 | R5 | Routes are deterministic from the repo id. Cosmetic flicker in the animation loop stays allowed, as the design file says |
 | R6 | Traffic still shows the level: no traffic on a closed road, density and speed grow with level, a route's level is the lower of its two ends |
 | R7 | Vehicles keep a gap in their lane and do not overlap; junctions use simple deterministic priority, not a full simulation |
@@ -201,7 +201,7 @@ and moves only along x. Buses and metro already follow polylines through `shuttl
    curvature, with braking zones before corners, exits and junctions.
 5. Replace the straight lane objects in `buildTraffic` step by step, keeping the level rules.
 
-This work is independent of the overlays, but the supermarket overlay needs R1 to R5.
+This work is independent of the overlays, but the shopping mall overlay needs R1 to R5.
 The browser tests cannot run in the sandbox used for this draft, so the checks for R1 to R9
 need a CI run.
 
@@ -323,8 +323,14 @@ New rows WN-017 to WN-029 in `docs/Whats-Next.md` track this work.
 
 1. Decide section 5.
 2. Fix the Taskfile-wrapper detection (WN-014).
-3. Road-network traffic (WN-019); independent, and the supermarket needs it.
+3. Road-network traffic (WN-019); independent, and the shopping mall needs it.
 4. Evidence file (WN-020); independent of the city, and serves WN-005.
 5. Station growth (WN-027), then highway growth (WN-026) once traffic exists.
 6. Overlays one by one, starting with supply chain, then harbor, bank, archive, court.
 7. Coverage map of harness topics (WN-028) before adding more checks (WN-029).
+
+## Layout decisions, 2026-10-29
+
+The agreed L3 layout (airport and station moved west, core connector to the highway, Shopping
+Mall, northern goods industry, mountain tunnel, harbor bridge, west-east power line) lives in
+the "City map (grid)" section of `apps/harness-city/DESIGN.md`. That file is the source of truth.

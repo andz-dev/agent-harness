@@ -113,42 +113,48 @@ Status: **prototype** inside the real city, enabled with `?airport` (or the stan
 
 ## City map (grid)
 
-Status: planned layout for the full level 3 city, agreed 2026-10-29. The plan view is in the
+Status: planned layout for the full level 3 city, agreed 2026-10-29 (second round the same day). The plan view is in the
 Harness City L3 Plan artifact; this section is the source of truth. Units are grid cells,
 x east, z south. Existing coordinates come from `DIST`, `ROADS`, `AP` and `BOUNDS` in `index.html`.
 
 | Area | Cells (x, z) | State |
 |---|---|---|
 | City core, seven districts | x -4.5..33.5, z -4.5..19.5 (road grid at z 0, 8, 16) | exists |
-| Rail and siding | z -1.75, -2.75, -3.75; x -10.5..39.5 | exists |
-| Airport and airport station | x 47..63, z 1..7; station x 39..45 | exists |
+| Rail and siding | z -1.75, -2.75, -3.75; x -10.5..35 (ends at the airport station) | exists, end moves |
+| Airport, moved west | x 43..59, z 1..7 (was x 47..63) | exists, moves |
+| Airport station, moved west | x 35..41 (was x 39..45) | exists, moves |
 | Civic quarter: bank, court, archive | x -20..-7, z 1..15 | planned |
-| Supermarket | x 41..49, z 10.5..16.5 | planned |
-| Goods factory | x 44..58, z 19..28 | planned |
-| Harbor quay | x 6..32, z 22..28.5, water to the south | planned |
-| Highway | north-south, centre x 36.5, from the mountain tunnel in the north to the harbor | planned |
+| Shopping Mall (was supermarket) | x 50..58, z 11..17, entry road from the highway at z 14 with the toll gantry | planned |
+| Goods industry | x 48..62, z -18..-8, land road at z -6 to the highway | planned |
+| Harbor quay | x 6..32, z 24..30, water from z 31 southward | planned |
+| Highway | north-south, x 62.5..69.5, from the mountain tunnel (z -24) to the harbor bridge (z 40) | planned |
+| Core connector | z 8 from the city east gate (x 33.5) to the highway | planned |
+| Mountain range | z < -20 along the north edge, tunnel portal at x 62.5..69.5 | planned |
 
 Decisions (2026-10-29):
 
 * The camera stays as in "Camera": isometric, orthographic, with the rotate-left and
   rotate-right buttons. New objects must look right from all four rotations.
-* The highway enters through a tunnel in a mountain range at the map edge, is lifted on
-  pillars where it crosses the rail line, and uses a bridge over the harbor water.
+* The highway enters through a tunnel in a mountain range at the north edge and crosses the
+  harbor water on a bridge on pillars. The rail no longer crosses it, because the airport and
+  its station moved west.
+* The city core connects to the highway through the core connector at z 8.
+* Industry sits in the north with a land road to the highway. Goods trucks drive
+  industry, highway, mall entry (toll gantry), Shopping Mall.
 * The highway grows with the score tier. Neglected and Working: narrow, one lane each way.
   Prosperous and Thriving: the full grid width (three lanes each way at Thriving). The airport
   and harbor spurs appear from the Working tier.
-* The supermarket gets its own entry road, separate from the airport spur and the toll gantry.
+* The Shopping Mall (renamed from supermarket) gets its own entry road from the highway.
 * Trees, pylons and other scenery use exclusion zones for every planned rectangle above.
 * The civic quarter connects through the central station: bus only on lower levels, bus and
   subway from level 2, like the airport.
-* The power line runs east to west and also feeds the harbor.
+* The power line runs west to east and feeds the harbor, the airport and the industry.
 * Moving objects (cars, trucks, ships, planes, trains) may use the whole map in any direction,
   not only the x axis, with rounded corners, ramps and slow-downs on exits.
 * Before building a new model, check the CC0 kits (see NOTICE.md and the research note in
   `docs/0009/`). New external assets need a NOTICE entry.
 
-Open: highway position versus the airport station (x 39..45) and the rail end (x 39.5);
-move one of them before building.
+Open: the airport station (x 35..41) sits against the city edge (x 33.5); accept it as the gateway or move the airport two cells east.
 
 ## Assets
 
