@@ -89,6 +89,13 @@ def design(root):
     for key, color in re.findall(r'k:"(\w+)".*?c:"(#[0-9a-fA-F]{6})"', html):
         if color.lower() not in text.lower():
             failures.append("DESIGN.md does not list pillar colour " + color + " (" + key + ")")
+    if "THREE.PerspectiveCamera" in html or "THREE.OrthographicCamera" not in html:
+        failures.append("index.html must use the isometric orthographic camera (DESIGN.md Camera)")
+    for button in ('id="rotL"', 'id="rotR"'):
+        if button not in html:
+            failures.append("index.html lost the rotate button " + button)
+    if "## Camera" not in text or "orthographic" not in text:
+        failures.append("DESIGN.md must keep the Camera section (isometric, orthographic)")
     refs = {
         "AGENTS.md": "apps/harness-city/DESIGN.md",
         "CLAUDE.md": "@AGENTS.md",
