@@ -14,6 +14,7 @@ SKIP = {
     ".git",
     ".venv",
     ".data",
+    ".atlas",
     "__pycache__",
     ".pytest_cache",
     ".ruff_cache",
