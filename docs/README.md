@@ -63,6 +63,7 @@ statements, and separates roadmap proposals from implementation and evaluation e
 | [0006](0006/research/README.md) | Infrastructure-level evaluation material |
 | [0007](0007/research/airport-assets.md) | Airport evaluation and current metaphor decisions |
 | [0009](0009/Design-Proposal.md) | Draft proposal: city overlays, road traffic, committed harness evidence; [asset research](0009/Asset-Research.md) |
+| [0010](0010/Research.md) | Research: city and map editor (skills, frameworks, CC0 assets, export format) |
 
 Old paths are preserved rather than renamed into a fictitious original spec workflow.
 The generated airport simulator is local build output, not a document to commit.
