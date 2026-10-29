@@ -158,31 +158,43 @@ Open: the airport station (x 35..41) sits against the city edge (x 33.5); accept
 
 ## Editor
 
-Status: first version, decisions from the owner on 2026-10-29. Research: `docs/0010/Research.md`.
+Status: second version, decisions from the owner on 2026-10-29. Research: `docs/0010/Research.md`.
+Usage: [EDITOR.md](EDITOR.md).
 
-* The editor is a separate page, `editor.html`. The viewer (`index.html`) stays alone and is not
-  changed by the editor work.
-* It edits one versioned map file (`city-map.json`, `schema: 1`). Export formats: the map JSON,
-  a GLB of the scene, and a PNG image of the current view.
-* Streets and tracks can be drawn guided (snapped to cells and 45 degree steps) or free (any
-  angle, curves). Free is the default where it works.
-* The editor may move the existing layout (districts, airport, station), not only add overlays.
-* Asset palette: first the models the current map uses (the registry in `assets/assets.json`),
-  then the other CC0 kits once they are imported with a NOTICE entry.
-* Camera: the same orthographic isometric rig with 90 degree rotation buttons. A top-down plan
-  view is allowed in the editor only; it is still orthographic.
+* The editor is a separate page, `editor.html`. It shows the viewer itself: `index.html?embed`
+  runs in a frame and draws the city with the viewer's own builders, assets and level ladder.
+  The editor only changes the layout and adds its own layers on top. The viewer page stays
+  alone and unchanged without `?embed`.
+* Layout as data: the viewer reads its layout from one `LAYOUT` object (districts `DIST`, road
+  cells `ROADS`, rail tracks and siding, power line, bus link columns, meadow trees and ground,
+  airport offset). Its defaults are the built-in city, so the default viewer draws exactly the
+  same scene (checked with a scene fingerprint of every demo city, with and without airport).
+  `applyLayout` and `window.__city` are the host interface for the editor.
+* The station hub is the street in front of the station district; bus routes follow the
+  district's front street. Moving districts keeps transit attached to them.
+* Viewer-drawn in the editor: districts, guided streets (road cells, kit tiles), main rail line,
+  power line, airport. Editor layers: terrain and water, free streets and highways, extra tracks,
+  other zones (mall, industry, harbor, bank, court, archive), placed models, vehicle paths.
+* Terrain brushes do not change cells under districts, road cells or the airport, because the
+  viewer draws those flat.
+* It edits one versioned map file (`city-map.json`, `schema: 2`; schema 1 files are migrated).
+  Export formats: the map JSON, a GLB of the scene and a PNG image of the current view.
+* Streets and tracks can be drawn guided (road cells, the viewer's tiles) or free (any angle,
+  curves). Free is the default where it works.
+* The editor may move the existing layout (districts, airport), not only add overlays.
+* Asset palette: first the models the current map uses (the viewer's registry), then the
+  other CC0 kits once they are imported with a NOTICE entry.
+* Camera: the same orthographic isometric rig with 90 degree rotation. A top-down plan view
+  is allowed in the editor only; it is still orthographic.
 * Placement is deterministic: scatter uses a seeded generator from the map seed, never
   `Math.random`.
 * Districts keep their pillar key. Editing a district changes its place, size, label and goal
-  text, never a level or score.
+  text, never a level or score. The editor shows a synthetic demo city's levels.
 * Editor handles (junction spheres, curve diamonds, zone corners, brush rings) are tools, not
   city objects, so they need no registry row. Objects that the viewer will show still do.
-* Map file content: terrain heightmap and water level, zones (districts keep the pillar key),
-  road and rail graphs (nodes, edges with lanes, width, curve control point, bridge, tunnel,
-  one-way), props (model id, place, rotation, scale) and paths (road or rail stops, or free
-  points), plus the resolved points of every path for other tools.
-* The viewer does not read `city-map.json` yet. Connecting it is a separate, reviewed change to
-  the hash-pinned `index.html`.
+* Known limit: the airport express platform on the main rail line does not move with the
+  airport yet.
+* The default viewer does not read `city-map.json` yet; only the editor applies it.
 
 ## Assets
 

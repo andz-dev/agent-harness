@@ -26,8 +26,8 @@ nav button{display:flex;justify-content:space-between;gap:10px;text-align:left;m
 nav kbd{color:var(--mute);font:11px var(--m)}
 nav button[aria-pressed="true"] kbd{color:inherit}
 #stage{grid-area:stage;position:relative;min-width:0;min-height:0}
-#stage canvas{display:block;width:100%;height:100%;touch-action:none}
-#hint{position:absolute;left:10px;top:10px;background:var(--panel);border:1px solid var(--line);border-radius:5px;padding:4px 8px;font-size:12px;max-width:60%;opacity:.95}
+#stage iframe{display:block;width:100%;height:100%;border:0}
+#hint{position:absolute;left:10px;top:10px;background:var(--panel);border:1px solid var(--line);border-radius:5px;padding:4px 8px;font-size:12px;max-width:60%;opacity:.95;pointer-events:none}
 #loading{position:absolute;inset:0;display:grid;place-items:center;font-size:15px;background:var(--bg)}
 [hidden]{display:none!important}
 aside{grid-area:side;border-left:1px solid var(--line);background:var(--panel);overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:14px}
@@ -50,22 +50,23 @@ footer{grid-area:status;display:flex;gap:18px;padding:4px 12px;border-top:1px so
   <div class="grp">
     <select id="preset" aria-label="Start from"><option value="current">Current city</option><option value="l3">Level 3 plan</option><option value="empty">Empty map</option></select>
     <button id="new">New</button>
+    <select id="city" aria-label="Demo city levels"><option value="thriving-demo">Thriving (L3)</option><option value="prosperous-demo">Prosperous</option><option value="working-demo">Working</option><option value="absent-demo">Absent (L0)</option></select>
+    <button id="airport" aria-pressed="true" title="Show the airport overlay">Airport</button>
     <button id="import">Import</button><input id="file" type="file" accept=".json,application/json" hidden>
   </div>
   <div class="grp"><span class="small">Export</span><button id="exJson">Map JSON</button><button id="exGlb">GLB</button><button id="exPng">PNG</button></div>
   <div class="grp"><button id="undo" title="Undo (Ctrl+Z)">Undo</button><button id="redo" title="Redo (Ctrl+Y)">Redo</button></div>
   <div class="grp"><button id="guided" aria-pressed="false" title="Snap to cells and 45 degree steps (G)">Guided</button><button id="play" aria-pressed="true">Vehicles</button></div>
-  <div class="grp"><button id="rotL" title="Rotate left (Q)" aria-label="Rotate left">⟲</button><button id="rotR" title="Rotate right (E)" aria-label="Rotate right">⟳</button><button id="plan" aria-pressed="false" title="Top-down plan view (P)">Plan</button></div>
+  <div class="grp"><button id="rotL" title="Rotate left (Q)" aria-label="Rotate left">⟲</button><button id="rotR" title="Rotate right (E)" aria-label="Rotate right">⟳</button><button id="plan" aria-pressed="false" title="Top-down plan view (P)">Plan</button><button id="labels" aria-pressed="true" title="Show the viewer's district labels">Labels</button></div>
 </header>
 <nav id="tools" aria-label="Tools"></nav>
-<div id="stage"><canvas id="cv"></canvas><div id="hint"></div><div id="loading">Loading city assets…</div></div>
+<div id="stage"><iframe id="view" title="City view (the Harness City viewer)"></iframe><div id="hint"></div><div id="loading">Loading the city…</div></div>
 <aside>
   <section><h2 id="optTitle">Tool</h2><div id="opts"></div></section>
   <section><h2>Selection</h2><div id="insp"><p class="small">Nothing selected. Use Select and click an object.</p></div></section>
   <section><h2>Asset palette</h2><div id="pal" class="pal"></div></section>
 </aside>
 <footer><span id="pos">x – z –</span><span id="counts"></span><span id="msg"></span></footer>
-<script type="importmap">{"imports":{"three":"./vendor/three.module.js","three/addons/":"./vendor/jsm/"}}</script>
 <script type="module" src="./editor/editor.js"></script>
 </body>
 </html>

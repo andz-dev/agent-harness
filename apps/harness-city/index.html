@@ -143,6 +143,7 @@ table.data tbody tr:hover td{background:color-mix(in srgb,var(--accent) 7%,trans
 .agrow{display:flex;flex-wrap:wrap;gap:8px 20px;align-items:flex-start}.ag{display:flex;flex-direction:column;gap:3px}
 .stage.under{background:linear-gradient(180deg,#8aa3b6,#b6c7cf)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+body.embed{overflow:hidden}body.embed .stage{position:fixed;inset:0;z-index:50;border-radius:0;height:auto;min-height:0;max-height:none;margin:0;border:0}body.embed .hud-top,body.embed .hint{display:none!important}body.embed .labels,body.embed .labels *{pointer-events:none!important}
 </style>
 
 <div class="wrap">
@@ -268,12 +269,27 @@ const DIST={
  doc_hygiene:{x0:25,x1:28,z0:9,z1:15}
 };
 const ROADS=new Set();const rk=(x,z)=>x+","+z;
-for(let x=-4;x<=33;x++){ROADS.add(rk(x,0));ROADS.add(rk(x,8));ROADS.add(rk(x,16))}
-for(const x of [0,9,20,29])for(let z=1;z<=7;z++)ROADS.add(rk(x,z));
-for(const x of [0,9,16,24,29])for(let z=9;z<=15;z++)ROADS.add(rk(x,z));
-for(const x of [9,24])for(let z=17;z<=19;z++)ROADS.add(rk(x,z));
+function defaultRoads(){const s=new Set();
+ for(let x=-4;x<=33;x++){s.add(rk(x,0));s.add(rk(x,8));s.add(rk(x,16))}
+ for(const x of [0,9,20,29])for(let z=1;z<=7;z++)s.add(rk(x,z));
+ for(const x of [0,9,16,24,29])for(let z=9;z<=15;z++)s.add(rk(x,z));
+ for(const x of [9,24])for(let z=17;z<=19;z++)s.add(rk(x,z));return s}
+for(const k of defaultRoads())ROADS.add(k);
 const RAIL_Z=[-1.75,-2.75],SIDING_Z=-3.75;
 const BOUNDS={x0:-4.5,x1:33.5,z0:-4.5,z1:19.5};
+// Layout as data (DESIGN.md "City map (grid)"). Defaults are the built-in city; the editor
+// (editor.html, embed mode) replaces them through applyLayout. The score is never touched.
+const EMBED=new URLSearchParams(location.search).has("embed");
+const LAYOUT={rail:{tracks:RAIL_Z,siding:SIDING_Z,x0:null,x1:null},power:{z:17.3,from:22,to:-2,step:3},links:[0,9,16,24,29],
+ meadow:{trees:true,ground:true,keepOut:[[-1,30,-4.4,17.8]]},airport:{dx:0,dz:0}};
+const DEFAULT_LAYOUT=JSON.parse(JSON.stringify({districts:DIST,roads:[...ROADS],...LAYOUT}));
+function applyLayout(L={}){
+ if(L.districts)for(const k of Object.keys(L.districts))if(DIST[k])Object.assign(DIST[k],L.districts[k]);
+ if(L.roads){ROADS.clear();for(const c of L.roads)ROADS.add(c);AIR_ROADS.length=0}
+ if(L.rail){const r=L.rail;if(r.tracks){RAIL_Z.length=0;RAIL_Z.push(...r.tracks)}for(const k of ["siding","x0","x1"])if(k in r)LAYOUT.rail[k]=r[k]}
+ for(const k of ["power","meadow","airport"])if(L[k])Object.assign(LAYOUT[k],JSON.parse(JSON.stringify(L[k])));
+ if(L.links)LAYOUT.links=L.links.slice()}
+function layoutNow(){return JSON.parse(JSON.stringify({districts:DIST,roads:[...ROADS].filter(k=>!AIR_ROADS.includes(k)),...LAYOUT}))}
 
 /* ================= helpers ================= */
 const hash=s=>{let h=2166136261;for(const c of s){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return h>>>0};
@@ -442,7 +458,7 @@ function buildRoads(par,rep){const lists={"road-straight":[],"road-lamps":[],"ro
   else{rot=(e||w)&&!(n||s)?90:0;if((e||w)&&!(n||s)&&(x%4===2)&&x>0&&x<29)id="road-lamps"}
   lists[id].push([x,z,rot])}
  for(const [id,l] of Object.entries(lists))instanced(par,id,l,id==="road-lamps")}
-function buildRail(par,rep){const lvl=rep.L[PI.workflow_entry_points];const g=new THREE.Group();g.userData.pick={kind:"rail"};par.add(g);const xa=BOUNDS.x0-6,xb=BOUNDS.x1+6,len=xb-xa;
+function buildRail(par,rep){const lvl=rep.L[PI.workflow_entry_points];const g=new THREE.Group();g.userData.pick={kind:"rail"};par.add(g);const xa=LAYOUT.rail.x0??BOUNDS.x0-6,xb=LAYOUT.rail.x1??BOUNDS.x1+6,len=xb-xa;
  const tracks=lvl===0?[RAIL_Z[0]]:RAIL_Z;const rust=lvl===0;
  for(const tz of tracks){const bed=new THREE.Mesh(bg(len,.06,.78),mat(rust?"#a59578":"#9c9184"));bed.position.set((xa+xb)/2,.03,tz);bed.receiveShadow=true;g.add(bed);
   const n=Math.floor(len/.28);const sl=new THREE.InstancedMesh(bg(.08,.03,.62),mat(rust?"#6e5640":"#5b4636"),n);const t=new THREE.Object3D();let k=0;for(let i=0;i<n;i++){if(rust&&i%3===1){continue}t.position.set(xa+i*.28,.075,tz);t.updateMatrix();sl.setMatrixAt(k++,t.matrix)}sl.count=k;sl.receiveShadow=true;g.add(sl);
@@ -455,9 +471,9 @@ function buildRail(par,rep){const lvl=rep.L[PI.workflow_entry_points];const g=ne
    const bx=b.x0+1;box(g,.5,.06,1.7,"#bfc4c8",bx,.62,-.15);for(const z of [-.95,.65])box(g,.08,.62,.08,"#8b939a",bx,0,z);box(g,.02,.18,1.7,"#8b939a",bx-.24,.68,-.15);box(g,.02,.18,1.7,"#8b939a",bx+.24,.68,-.15)}}
  // siding with abandoned wagons = orphaned scripts
  const orphans=rep.ent.filter(e=>e.c==="ENR-01");const sx0=BOUNDS.x0-3,sx1=sx0+Math.max(5,orphans.length*1.15+1.5);
- {const bed=new THREE.Mesh(bg(sx1-sx0,.05,.7),mat("#a59578"));bed.position.set((sx0+sx1)/2,.025,SIDING_Z);g.add(bed);for(const dz of [-.18,.18]){const rl=new THREE.Mesh(bg(sx1-sx0,.04,.035),mat("#8a5a3a"));rl.position.set((sx0+sx1)/2,.08,SIDING_Z+dz);g.add(rl)}box(g,.12,.3,.7,"#d6342a",sx1,0,SIDING_Z)}
- const wag=[];orphans.forEach((e,i)=>{const w=wagon();w.position.set(sx0+.8+i*1.12,.1,SIDING_Z);w.userData.pick={kind:"ENR-01"};g.add(w);wag.push(w)});
- if(orphans.length)tags.push({pos:new THREE.Vector3((sx0+sx0+.8+orphans.length*1.12)/2,1.0,SIDING_Z),text:`${orphans.length} orphaned script${orphans.length>1?"s":""}`,color:"#8a4b2c",kind:"ENR-01"});
+ {const bed=new THREE.Mesh(bg(sx1-sx0,.05,.7),mat("#a59578"));bed.position.set((sx0+sx1)/2,.025,LAYOUT.rail.siding);g.add(bed);for(const dz of [-.18,.18]){const rl=new THREE.Mesh(bg(sx1-sx0,.04,.035),mat("#8a5a3a"));rl.position.set((sx0+sx1)/2,.08,LAYOUT.rail.siding+dz);g.add(rl)}box(g,.12,.3,.7,"#d6342a",sx1,0,LAYOUT.rail.siding)}
+ const wag=[];orphans.forEach((e,i)=>{const w=wagon();w.position.set(sx0+.8+i*1.12,.1,LAYOUT.rail.siding);w.userData.pick={kind:"ENR-01"};g.add(w);wag.push(w)});
+ if(orphans.length)tags.push({pos:new THREE.Vector3((sx0+sx0+.8+orphans.length*1.12)/2,1.0,LAYOUT.rail.siding),text:`${orphans.length} orphaned script${orphans.length>1?"s":""}`,color:"#8a4b2c",kind:"ENR-01"});
  // trains
  const trains=[];if(lvl>=1){const mk=(cars,color)=>{const t=new THREE.Group();for(let i=0;i<cars;i++){const c=trainCar(i===0?"#e8e6e1":color,i===0);c.position.x=-i*1.12;t.add(c)}t.traverse(m=>{if(m.isMesh)m.castShadow=true});g.add(t);return t};
   trains.push({o:mk(lvl===1?1:lvl===2?3:4,"#24946a"),z:RAIL_Z[0]+.0,dir:1,speed:lvl===1?.9:lvl===2?1.6:2.6,dwell:lvl<3,off:0,len});
@@ -479,7 +495,7 @@ function buildTraffic(par,k,lvl,b,seed){const g=new THREE.Group();g.userData.pic
  return {g,lanes,light:null,xa,xb}}
 function buildGrid(par,rep){// power line from the plant to the city along the south edge; stale workflows break pylons
  const lvl=rep.L[PI.pipeline_parity];const g=new THREE.Group();g.userData.pick={kind:"grid"};par.add(g);if(lvl===0)return {g,sparks:[]};const stale=rep.ent.filter(e=>e.c==="ENR-04");
- const zl=17.3;const xs=[];for(let x=22;x>=-2;x-=3)xs.push(x);const brokenIdx=new Set(stale.map((_,i)=>Math.min(xs.length-1,1+i*Math.max(1,Math.floor((xs.length-1)/Math.max(1,stale.length))))));
+ const P=LAYOUT.power,zl=P.z;const xs=[];for(let x=P.from;x>=P.to;x-=P.step)xs.push(x);const brokenIdx=new Set(stale.map((_,i)=>Math.min(xs.length-1,1+i*Math.max(1,Math.floor((xs.length-1)/Math.max(1,stale.length))))));
  const sparks=[];let prev=null;xs.forEach((x,i)=>{const br=brokenIdx.has(i);pylon(g,x,zl,br);const tip=new THREE.Vector3(br?x-.55:x,br?.95:1.27,zl);
   if(prev&&!br&&!prev.br){cable(g,new THREE.Vector3(prev.x-.3,1.06,zl),new THREE.Vector3(x-.3,1.06,zl));cable(g,new THREE.Vector3(prev.x+.3,1.06,zl),new THREE.Vector3(x+.3,1.06,zl))}
   if(br){const sp=new THREE.Sprite(sparkMat());sp.scale.set(.5,.5,1);sp.position.set(x-.4,1.0,zl);g.add(sp);sparks.push(sp);cable(g,new THREE.Vector3(x-.6,.95,zl),new THREE.Vector3(x-1.1,.1,zl+.3),.05)}
@@ -487,8 +503,9 @@ function buildGrid(par,rep){// power line from the plant to the city along the s
  if(stale.length)tags.push({pos:new THREE.Vector3(xs[Math.min(xs.length-1,2)],1.9,zl),text:`${stale.length} stale CI workflow${stale.length>1?"s":""}`,color:"#b23526",kind:"ENR-04"});
  return {g,sparks}}
 /* public transport: line quality = min(station level, district level); bus L1+, metro L2+ */
-const HUB={x:4.5,z:8},LINK_X=[0,9,16,24,29];
-function busRoute(k){const b=DIST[k];const cx=(b.x0+b.x1)/2;if(b.z1<8)return [[HUB.x,8],[cx,8]];let xc=LINK_X[0],best=1e9;for(const x of LINK_X){const d=Math.abs(x-HUB.x)+Math.abs(x-cx);if(d<best){best=d;xc=x}}return [[HUB.x,8],[xc,8],[xc,16],[cx,16]]}
+// the hub is the street in front of the station district
+const HUB={get x(){const b=DIST.workflow_entry_points;return (b.x0+b.x1)/2},get z(){return DIST.workflow_entry_points.z1+1}};
+function busRoute(k){const b=DIST[k];const cx=(b.x0+b.x1)/2;if(b.z1<HUB.z)return [[HUB.x,HUB.z],[cx,HUB.z]];const LINK_X=LAYOUT.links;let xc=LINK_X[0],best=1e9;for(const x of LINK_X){const d=Math.abs(x-HUB.x)+Math.abs(x-cx);if(d<best){best=d;xc=x}}const zr=b.z1+1;return [[HUB.x,HUB.z],[xc,HUB.z],[xc,zr],[cx,zr]]}
 // shift a right-angled route to the right-hand side of travel
 function offsetPath(pts,o){const n=(a,b)=>{const dx=b[0]-a[0],dz=b[1]-a[1],L=Math.hypot(dx,dz)||1;return [-dz/L,dx/L]};return pts.map((p,i)=>{let ox=0,oz=0;if(i>0){const m=n(pts[i-1],p);ox+=m[0];oz+=m[1]}if(i<pts.length-1){const m=n(p,pts[i+1]);ox+=m[0];oz+=m[1]}return [p[0]+ox*o,p[1]+oz*o]})}
 const pathLen=pts=>pts.slice(1).reduce((s,p,i)=>s+Math.hypot(p[0]-pts[i][0],p[1]-pts[i][1]),0);
@@ -504,8 +521,8 @@ const metroSign=()=>new THREE.SpriteMaterial({map:canvasTex("metro",64,64,(x)=>{
 function ghostTrain(color){const g=new THREE.Group();g.name="metro-train";const m=new THREE.MeshBasicMaterial({color,transparent:true,opacity:.8,depthTest:false});for(let i=0;i<2;i++){const c=new THREE.Mesh(bg(.48,.13,.16),m);c.position.set(-i*.52,.07,0);c.renderOrder=4;g.add(c)}return g}
 function buildTransit(par,rep){const hub=rep.L[PI.workflow_entry_points];const g=new THREE.Group();par.add(g);const moving=[];if(hub===0)return {g,moving};
  const sb=DIST.workflow_entry_points;const hubPick={kind:"transit",k:"workflow_entry_points"};
- const hs=busStop(g,HUB.x-1.1,7.42,"#24946a",hub>=2);hs.userData.pick=hubPick;
- const portalA=[sb.x1-.25,7.2];if(hub>=2){const s=new THREE.Sprite(metroSign());s.scale.set(.34,.34,1);s.position.set(portalA[0],.55,portalA[1]);s.userData.pick=hubPick;g.add(s)}
+ const hs=busStop(g,HUB.x-1.1,HUB.z-.58,"#24946a",hub>=2);hs.userData.pick=hubPick;
+ const portalA=[sb.x1-.25,sb.z1+.2];if(hub>=2){const s=new THREE.Sprite(metroSign());s.scale.set(.34,.34,1);s.position.set(portalA[0],.55,portalA[1]);s.userData.pick=hubPick;g.add(s)}
  for(const p of PILLARS){if(p.k==="workflow_entry_points")continue;const q=transitQ(rep,p.k);if(q===0)continue;const lg=new THREE.Group();lg.userData.pick={kind:"transit",k:p.k};g.add(lg);const b=DIST[p.k];
   const route=busRoute(p.k);const end=offsetPath(route,.6).at(-1);busStop(lg,end[0],end[1],p.c,q>=2);
   const nb=q===1?1:2;for(let i=0;i<nb;i++){const bus=busModel(p.c);lg.add(bus);moving.push(shuttle(bus,route,{off:.33,speed:q===1?.7:1.1,dwell:q===1?2.5:1,phase:i/nb+hash(p.k)%7/7}))}
@@ -515,9 +532,9 @@ function buildTransit(par,rep){const hub=rep.L[PI.workflow_entry_points];const g
   const tr=ghostTrain(p.c);lg.add(tr);moving.push(shuttle(tr,[portalA,B],{speed:q===2?3:4.5,dwell:q===2?1.2:.8,phase:hash(p.k+"m")%5/5,y:.04}))}}
  return {g,moving}}
 function buildOutskirts(par,rep){const g=new THREE.Group();par.add(g);const t=tierOf(rep.score);const r=rng(hash(rep.id+"out"));
- groundPlane(g,BOUNDS.x0-60,BOUNDS.z0-50,BOUNDS.x1+60,BOUNDS.z1+50,"#a9cf8f",-.03);
+ if(LAYOUT.meadow.ground)groundPlane(g,BOUNDS.x0-60,BOUNDS.z0-50,BOUNDS.x1+60,BOUNDS.z1+50,"#a9cf8f",-.03);
  // meadow trees around the city; denser for richer cities
- const n=rep.score>=60?120:rep.score>=45?80:45;for(let i=0;i<n;i++){let x,z;do{x=BOUNDS.x0-9+r()*(BOUNDS.x1-BOUNDS.x0+18);z=BOUNDS.z0-6+r()*(BOUNDS.z1-BOUNDS.z0+12)}while((x>-1&&x<30&&z>-4.4&&z<17.8)||(AIR_ON&&x>33&&x<66&&z>-4.5&&z<9.5));put(g,r()<.6?"tree-pine":"tree-oak",x,z,r()*360,.8+r()*.5)}
+ const n=!LAYOUT.meadow.trees?0:rep.score>=60?120:rep.score>=45?80:45;const AD=LAYOUT.airport,KO=LAYOUT.meadow.keepOut;for(let i=0;i<n;i++){let x,z,tries=0;do{x=BOUNDS.x0-9+r()*(BOUNDS.x1-BOUNDS.x0+18);z=BOUNDS.z0-6+r()*(BOUNDS.z1-BOUNDS.z0+12)}while((KO.some(([a,b,c,d])=>x>a&&x<b&&z>c&&z<d)||(AIR_ON&&x>33+AD.dx&&x<66+AD.dx&&z>-4.5+AD.dz&&z<9.5+AD.dz))&&++tries<400);if(tries>=400)continue;put(g,r()<.6?"tree-pine":"tree-oak",x,z,r()*360,.8+r()*.5)}
  // potholes and weeds in neglected cities
  if(rep.score<45){const ph=new THREE.MeshStandardMaterial({color:"#2a2d33"});for(let i=0;i<Math.round((45-rep.score)*1.5);i++){const keys=[...ROADS];const [x,z]=keys[Math.floor(r()*keys.length)].split(",").map(Number);const m=new THREE.Mesh(new THREE.CircleGeometry(.07+r()*.06,9),ph);m.rotation.x=-Math.PI/2;m.position.set(x+(r()-.5)*.6,.058,z+(r()-.5)*.6);g.add(m)}}
  // conflicting configs: graffiti wall in the police district
@@ -541,8 +558,8 @@ const AIR_AREA_LADDER=["Grey pylon and a barrier: the area's basics are absent o
 const AIR_LADDER=["Fenced airstrip: closed runway, barrier, hanging wind sock, no planes.","Small airfield: runway, visible hangar and passenger building, two stands, one propeller plane.","Regional airport: terminal, tower, four stands with jet bridges, jet and propeller plane, cargo plane if Docker.","Enterprise hub: large terminal with six stands, canopy, tall tower, business jets, holiday charters, cargo crane."];
 const AIR_LINE=["No service: nothing runs between the central station and the airport.","One bus with long waits.","Underground metro and buses; variant C adds an express train on its own platforms.","Frequent underground metro and buses; variant C adds two express trains."];
 const AIR_ROADS=[];
-function airSetup(){for(const k of AIR_ROADS)ROADS.delete(k);AIR_ROADS.length=0;BOUNDS.x1=AIR_ON?66.5:33.5;if(!AIR_ON)return;
- const add=(x,z)=>{const k=rk(x,z);if(!ROADS.has(k)){ROADS.add(k);AIR_ROADS.push(k)}};
+function airSetup(){for(const k of AIR_ROADS)ROADS.delete(k);AIR_ROADS.length=0;BOUNDS.x1=AIR_ON?66.5+LAYOUT.airport.dx:33.5;if(!AIR_ON)return;
+ const add=(x,z)=>{const k=rk(x+LAYOUT.airport.dx,z+LAYOUT.airport.dz);if(!ROADS.has(k)){ROADS.add(k);AIR_ROADS.push(k)}};
  for(let x=34;x<=64;x++)add(x,8);for(let x=34;x<=46;x++)add(x,0);for(let z=1;z<=7;z++)add(46,z)}
 function airInfra(){const list=AIR_AREAS.filter(a=>AIR.areas[a.k]!=null).map(a=>({...a,lv:AIR.areas[a.k]}));const tool=list.filter(a=>a.core);const overall=tool.length?Math.min(...tool.map(a=>a.lv)):null;return {list,tool,overall}}
 const homeX=()=>(BOUNDS.x0+BOUNDS.x1)/2;
@@ -734,6 +751,7 @@ function releaseCity(group){
 function build(rep){airDim(false);airSetup();if(city){scene.remove(city);releaseCity(city)}tags=[];city=new THREE.Group();scene.add(city);
  buildOutskirts(city,rep);buildRoads(city,rep);const rail=buildRail(city,rep);const grid=buildGrid(city,rep);const transit=buildTransit(city,rep);
  const air=AIR_ON?buildAirportAll(city,rep,rail,transit):null;
+ const AD=LAYOUT.airport;if(air&&air.g&&(AD.dx||AD.dz)){air.g.position.set(AD.dx,0,AD.dz);for(const t of tags)if(String(t.kind).startsWith("AIR"))t.pos.add(new THREE.Vector3(AD.dx,0,AD.dz))}
  const districts={},traffic=[];if(air&&air.traffic)traffic.push(air.traffic);
  for(const p of PILLARS){const lvl=rep.L[PI[p.k]];const st=stepsFor(rep,p);const cap=p.k==="verification"&&rep.caps.length?rep.caps[0]:null;
   const d=buildDistrict(city,p.k,lvl,DIST[p.k],rep,hash(rep.id+p.k),{steps:st,cap});districts[p.k]=d;
@@ -789,11 +807,11 @@ let last=0;function loop(now){requestAnimationFrame(loop);if(document.hidden)ret
 /* ================= interaction ================= */
 const ray=new THREE.Raycaster(),ndc=new THREE.Vector2();ray.params.Line.threshold=.05;let drag=null,moved=0;
 function pickAt(cx,cy){const b=canvas.getBoundingClientRect();ndc.set((cx-b.left)/b.width*2-1,-(cy-b.top)/b.height*2+1);ray.setFromCamera(ndc,camera);const hits=ray.intersectObjects(city.children,true);for(const h of hits){let o=h.object;while(o&&!o.userData.pick)o=o.parent;if(o&&o.userData.pick&&o.userData.pick.kind!=="district")return o.userData.pick}for(const h of hits){let o=h.object;while(o&&!o.userData.pick)o=o.parent;if(o&&o.userData.pick)return o.userData.pick}return null}
-canvas.addEventListener("pointerdown",e=>{drag={x:e.clientX,y:e.clientY,t:view.target.clone()};moved=0;canvas.setPointerCapture(e.pointerId)});
-canvas.addEventListener("pointermove",e=>{if(drag){const dx=e.clientX-drag.x,dy=e.clientY-drag.y;moved=Math.max(moved,Math.abs(dx)+Math.abs(dy));if(moved>4){canvas.classList.add("drag");const s=(camera.top-camera.bottom)/stage.clientHeight;const a=view.az*Math.PI/180;const rx=new THREE.Vector3(Math.cos(a),0,-Math.sin(a)),fz=new THREE.Vector3(-Math.sin(a),0,-Math.cos(a));view.target.copy(drag.t).addScaledVector(rx,-dx*s).addScaledVector(fz,dy*s*1.22);clampTarget();placeCamera()}}else{const pk=pickAt(e.clientX,e.clientY);canvas.classList.toggle("hot",!!pk)}});
-canvas.addEventListener("pointerup",e=>{canvas.classList.remove("drag");if(drag&&moved<=4){const pk=pickAt(e.clientX,e.clientY);if(pk){if(pk.kind==="district")select(sel===pk.k&&!about?null:pk.k);else select(pk.k||null,pk.kind)}else select(null)}drag=null});
-canvas.addEventListener("wheel",e=>{e.preventDefault();zoomBy(e.deltaY<0?1.12:1/1.12)},{passive:false});
-let pinch=null;canvas.addEventListener("touchstart",e=>{if(e.touches.length===2){pinch=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);drag=null}},{passive:true});
+canvas.addEventListener("pointerdown",e=>{if(EMBED)return;drag={x:e.clientX,y:e.clientY,t:view.target.clone()};moved=0;canvas.setPointerCapture(e.pointerId)});
+canvas.addEventListener("pointermove",e=>{if(EMBED)return;if(drag){const dx=e.clientX-drag.x,dy=e.clientY-drag.y;moved=Math.max(moved,Math.abs(dx)+Math.abs(dy));if(moved>4){canvas.classList.add("drag");const s=(camera.top-camera.bottom)/stage.clientHeight;const a=view.az*Math.PI/180;const rx=new THREE.Vector3(Math.cos(a),0,-Math.sin(a)),fz=new THREE.Vector3(-Math.sin(a),0,-Math.cos(a));view.target.copy(drag.t).addScaledVector(rx,-dx*s).addScaledVector(fz,dy*s*1.22);clampTarget();placeCamera()}}else{const pk=pickAt(e.clientX,e.clientY);canvas.classList.toggle("hot",!!pk)}});
+canvas.addEventListener("pointerup",e=>{if(EMBED)return;canvas.classList.remove("drag");if(drag&&moved<=4){const pk=pickAt(e.clientX,e.clientY);if(pk){if(pk.kind==="district")select(sel===pk.k&&!about?null:pk.k);else select(pk.k||null,pk.kind)}else select(null)}drag=null});
+canvas.addEventListener("wheel",e=>{if(EMBED)return;e.preventDefault();zoomBy(e.deltaY<0?1.12:1/1.12)},{passive:false});
+let pinch=null;canvas.addEventListener("touchstart",e=>{if(!EMBED&&e.touches.length===2){pinch=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);drag=null}},{passive:true});
 canvas.addEventListener("touchmove",e=>{if(pinch&&e.touches.length===2){const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);zoomBy(d/pinch);pinch=d}},{passive:true});
 canvas.addEventListener("touchend",()=>{pinch=null});
 function clampTarget(){view.target.x=Math.max(-2,Math.min(Math.max(31,BOUNDS.x1-(AIR_ON?1:4)),view.target.x));view.target.z=Math.max(-3,Math.min(18,view.target.z))}
@@ -999,9 +1017,11 @@ async function loadData(){
  try{await loadData()}catch(err){document.getElementById("loading").textContent="Could not load city data ("+err.message+"). Serve this folder over http (python3 tools/serve.py) or open the standalone file from dist/.";console.error(err);return}
  renderTable();const fromHash=decodeURIComponent(location.hash.slice(1));current=REPOS.find(r=>r.id===fromHash)||REPOS[0];renderPicker();renderPanel();
  try{await Promise.race([Promise.all([document.fonts.load(`800 40px ${FONT_D}`),document.fonts.load(`600 30px ${FONT_M}`)]),new Promise(r=>setTimeout(r,2500))])}catch(e){}
+ if(EMBED)document.body.classList.add("embed");if(window.HARNESS_LAYOUT)applyLayout(window.HARNESS_LAYOUT);
  try{initScene();await loadAssets();airBar();build(current);renderPanel();document.getElementById("loading").hidden=true;requestAnimationFrame(loop);window.__ready=true;window.__t={view,placeCamera,choose,select,camera,renderer,scene};
+  window.__city={THREE,LAYOUT,DEFAULT_LAYOUT,DIST,ROADS,BOUNDS,applyLayout,layoutNow,rebuild:()=>build(current),get current(){return current},get repos(){return REPOS},get city(){return city},choose,view,placeCamera,rotate,camera,renderer,scene,stage,canvas,assets:A,importModule:path=>import(path)};
   new ResizeObserver(()=>{resize()}).observe(stage);
-  setTimeout(()=>renderThumbs().then(()=>{window.__thumbs=true}),50)}
+  if(!EMBED)setTimeout(()=>renderThumbs().then(()=>{window.__thumbs=true}),50)}
  catch(err){document.getElementById("loading").textContent="The 3D view needs WebGL, which this browser could not start. The data table below has every number.";console.error(err)}
  window.addEventListener("hashchange",()=>{const id=decodeURIComponent(location.hash.slice(1));if(id&&id!==current.id)choose(id,false)});
 })();

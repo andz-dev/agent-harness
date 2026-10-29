@@ -706,7 +706,7 @@
       "source": "apps/harness-city/index.html",
       "target": "apps/harness-city/index.html",
       "source_sha256": "912ed4af45e312a850a68bfbcca1a2c16a6e7fa07a267ae230dcfc7388d2a322",
-      "sha256": "2a8e7eab482fb10e7ef0c6a4c798a72f6a79fbb8e09c2057481404116ea19bf3",
+      "sha256": "7a49ea6321b29e2cc1ed89f051bedda621b3a89341779b06929f47f8aa7978bb",
       "kind": "adapted-runtime"
     },
     {

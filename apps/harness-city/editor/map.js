@@ -1,7 +1,7 @@
 // Harness City map model: plain data, no three.js. Shared by the editor and tests.
 // One file per city layout (city-map.json). See DESIGN.md "Editor" and "City map (grid)".
 
-export const SCHEMA = 1;
+export const SCHEMA = 2;
 
 export const PILLARS = [
   { k: "verification", n: "Verification", place: "Hospital & test labs", c: "#d64545", goal: "Can the agent tell whether it broke something?" },
@@ -223,11 +223,56 @@ export function graphFromSegments(segs, props, prefix = "n", eprefix = "e") {
   return g;
 }
 
+// ---------- road cells (the viewer's road tiles) ----------
+export const cellKey = (x, z) => x + "," + z;
+export const cellId = (k) => "c:" + k;
+export function cellsFromSegments(segs) {
+  const out = new Set();
+  for (const [x0, z0, x1, z1] of segs) {
+    if (z0 === z1) for (let x = Math.min(x0, x1); x <= Math.max(x0, x1); x++) out.add(cellKey(x, z0));
+    else for (let z = Math.min(z0, z1); z <= Math.max(z0, z1); z++) out.add(cellKey(x0, z));
+  }
+  return [...out];
+}
+// One routing graph from road cells and free roads. Free nodes join a cell within 0.6.
+// The viewer adds the airport streets itself (index.html airSetup), shifted with the airport.
+export function airRoadCells(map) {
+  if (!map.view || !map.view.airport) return [];
+  const { dx, dz } = map.layout.airport, out = [];
+  for (let x = 34; x <= 64; x++) out.push(cellKey(x + dx, 8 + dz));
+  for (let x = 34; x <= 46; x++) out.push(cellKey(x + dx, 0 + dz));
+  for (let z = 1; z <= 7; z++) out.push(cellKey(46 + dx, z + dz));
+  return out;
+}
+export function roadNetwork(map) {
+  const g = emptyGraph(), cells = new Set(map.layout.roads.concat(airRoadCells(map)));
+  for (const k of cells) { const [x, z] = k.split(",").map(Number); g.nodes.push({ id: cellId(k), x, z, cell: true }); }
+  for (const k of cells) {
+    const [x, z] = k.split(",").map(Number);
+    for (const [dx, dz] of [[1, 0], [0, 1]]) { const n = cellKey(x + dx, z + dz); if (cells.has(n)) g.edges.push({ id: "ce:" + k + ">" + n, a: cellId(k), b: cellId(n), kind: "street" }); }
+  }
+  for (const n of map.roads.nodes) {
+    g.nodes.push(n);
+    const k = cellKey(Math.round(n.x), Math.round(n.z));
+    if (cells.has(k) && Math.hypot(Math.round(n.x) - n.x, Math.round(n.z) - n.z) <= 0.6) g.edges.push({ id: "j:" + n.id, a: n.id, b: cellId(k), kind: "street" });
+  }
+  for (const e of map.roads.edges) g.edges.push(e);
+  return g;
+}
+export function railNetwork(map) {
+  const g = emptyGraph(), r = map.layout.rail, x0 = r.x0 ?? -10.5, x1 = r.x1 ?? railEnd(map);
+  r.tracks.forEach((z, i) => { g.nodes.push({ id: "m" + i + "a", x: x0, z }, { id: "m" + i + "b", x: x1, z }); g.edges.push({ id: "m" + i, a: "m" + i + "a", b: "m" + i + "b", kind: "track" }); });
+  for (const n of map.rail.nodes) g.nodes.push(n);
+  for (const e of map.rail.edges) g.edges.push(e);
+  return g;
+}
+function railEnd(map) { return map.view.airport ? 72.5 + map.layout.airport.dx : 39.5; }
+
 // ---------- paths ----------
 export function resolvePath(map, p) {
   const t = map.terrain;
   if (p.mode === "free") return (p.points || []).map((q) => [r3(q[0]), r3(q[1] ?? 0), r3(q[2])]);
-  const g = p.mode === "rail" ? map.rail : map.roads, out = [];
+  const g = p.mode === "rail" ? railNetwork(map) : roadNetwork(map), out = [];
   const stops = p.stops || [];
   for (let s = 1; s < stops.length; s++) {
     const route = shortestPath(g, stops[s - 1], stops[s]);
@@ -242,53 +287,98 @@ export function resolvePath(map, p) {
   return out;
 }
 
-// ---------- presets ----------
-const DIST_NOW = {
+// ---------- viewer layout ----------
+export const DIST_NOW = {
   workflow_entry_points: [1, 8, 1, 7], verification: [10, 19, 1, 7], orientation: [21, 28, 1, 7],
   static_guardrails: [1, 8, 9, 15], automatic_triggers: [10, 15, 9, 15], pipeline_parity: [17, 23, 9, 15], doc_hygiene: [25, 28, 9, 15],
 };
+export const AIRPORT_HOME = { x0: 47, x1: 63, z0: 1, z1: 7, sx0: 39, sx1: 45 };
 function cityRoadSegments() {
   const s = [];
   for (const z of [0, 8, 16]) s.push([-4, z, 33, z]);
-  for (const x of [0, 9, 20, 29]) s.push([x, 0, x, 8]);
-  for (const x of [0, 9, 16, 24, 29]) s.push([x, 8, x, 16]);
-  for (const x of [9, 24]) s.push([x, 16, x, 19]);
+  for (const x of [0, 9, 20, 29]) s.push([x, 1, x, 7]);
+  for (const x of [0, 9, 16, 24, 29]) s.push([x, 9, x, 15]);
+  for (const x of [9, 24]) s.push([x, 17, x, 19]);
   return s;
 }
+export function defaultLayout() {
+  return {
+    roads: cellsFromSegments(cityRoadSegments()),
+    rail: { tracks: [-1.75, -2.75], siding: -3.75, x0: null, x1: null },
+    power: { z: 17.3, from: 22, to: -2, step: 3 },
+    airport: { dx: 0, dz: 0 },
+  };
+}
+// The layout object the viewer's applyLayout reads.
+export function viewerLayout(map) {
+  const L = map.layout, districts = {};
+  for (const z of map.zones) if (z.kind === "district") districts[z.pillar] = { x0: Math.round(z.x0), x1: Math.round(z.x1), z0: Math.round(z.z0), z1: Math.round(z.z1) };
+  const st = districts.workflow_entry_points, hubZ = st ? st.z1 + 1 : 8;
+  const cells = new Set(L.roads);
+  let links = [...new Set(L.roads.map((k) => k.split(",").map(Number)).filter(([, z]) => z === hubZ + 1).map(([x]) => x))].sort((a, b) => a - b);
+  if (!links.length) links = [0, 9, 16, 24, 29];
+  const keepOut = [[-1, 30, -4.4, 17.8]];
+  return {
+    districts, roads: [...cells], links,
+    rail: { ...L.rail, tracks: L.rail.tracks.slice() }, power: { ...L.power }, airport: { ...L.airport },
+    meadow: { trees: false, ground: false, keepOut },
+  };
+}
+// Moving the airport zone moves the viewer's airport by whole cells.
+export function syncAirport(map) {
+  const a = map.zones.find((z) => z.id === "airport");
+  if (!a) return;
+  const dx = Math.round(a.x0 - AIRPORT_HOME.x0), dz = Math.round(a.z0 - AIRPORT_HOME.z0);
+  map.layout.airport = { dx, dz };
+  Object.assign(a, { x0: AIRPORT_HOME.x0 + dx, x1: AIRPORT_HOME.x1 + dx, z0: AIRPORT_HOME.z0 + dz, z1: AIRPORT_HOME.z1 + dz });
+  const s = map.zones.find((z) => z.id === "airport-station");
+  if (s) Object.assign(s, { x0: AIRPORT_HOME.sx0 + dx, x1: AIRPORT_HOME.sx1 + dx, z0: 2.5 + dz, z1: 5.5 + dz });
+}
+export function isViewerZone(z) { return z.kind === "district" || z.id === "airport" || z.id === "airport-station"; }
+// Cells the viewer draws flat: terrain brushes leave them alone.
+export function protectedAt(map, x, z) {
+  for (const q of map.zones) if (isViewerZone(q) && x >= q.x0 - 0.6 && x <= q.x1 + 0.6 && z >= q.z0 - 0.6 && z <= q.z1 + 0.6) return true;
+  const k = cellKey(Math.round(x), Math.round(z));
+  return map.layout.roads.includes(k);
+}
+
+// ---------- presets ----------
 function districts() {
   return PILLARS.map((p) => { const [x0, x1, z0, z1] = DIST_NOW[p.k]; return { id: p.k, kind: "district", pillar: p.k, label: p.place, goal: p.goal, x0, x1, z0, z1 }; });
 }
+function airportZones(dx = 0, dz = 0) {
+  const A = AIRPORT_HOME;
+  return [
+    { id: "airport", kind: "airport", label: "Airport", goal: "Infrastructure overlay", x0: A.x0 + dx, x1: A.x1 + dx, z0: A.z0 + dz, z1: A.z1 + dz },
+    { id: "airport-station", kind: "station", label: "Airport station", goal: "Rail and transit from the central station", x0: A.sx0 + dx, x1: A.sx1 + dx, z0: 2.5 + dz, z1: 5.5 + dz },
+  ];
+}
 function scatterTrees(map, count, seed, keepOut) {
-  const r = rng(seed), kinds = ["tree-oak", "tree-pine", "tree-fat"], t = map.terrain;
+  const r = rng(seed), kinds = ["tree-pine", "tree-oak", "tree-fat"], t = map.terrain;
   for (let i = 0; i < count; i++) {
     const x = t.x0 + r() * (t.w - 1) * t.step, z = t.z0 + r() * (t.h - 1) * t.step, kind = kinds[Math.floor(r() * 3)], rot = Math.round(r() * 360), sc = r3(0.8 + r() * 0.5);
     if (keepOut(x, z) || heightAt(t, x, z) < t.water + 0.15 || heightAt(t, x, z) > 6) continue;
     map.props.push({ id: "p" + (map.props.length + 1), asset: kind, x: r3(x), z: r3(z), rot, scale: sc });
   }
 }
-function base(name, seed, ext) {
+function base(name, seed, ext, airport = true) {
   return {
-    schema: SCHEMA, name, seed,
-    terrain: makeTerrain(...ext, 1),
-    zones: districts(), roads: emptyGraph(), rail: emptyGraph(), props: [], paths: [],
+    schema: SCHEMA, name, seed, view: { city: "thriving-demo", airport },
+    layout: defaultLayout(), terrain: makeTerrain(...ext, 1),
+    zones: districts().concat(airport ? airportZones() : []), roads: emptyGraph(), rail: emptyGraph(), props: [], paths: [],
   };
 }
 const inRect = (x, z, r, pad = 0) => x >= r[0] - pad && x <= r[1] + pad && z >= r[2] - pad && z <= r[3] + pad;
+const near = (map, x, z) => cellId(cellKey(x, z));
 
-// Today's viewer layout (index.html constants), with the airport overlay on.
+// Today's viewer layout with the airport overlay on.
 export function presetCurrent() {
-  const m = base("Current city", 2026, [-14, 70, -10, 24]);
-  m.roads = graphFromSegments(cityRoadSegments().concat([[33, 8, 64, 8], [33, 0, 46, 0], [46, 0, 46, 8]]), { kind: "street", lanes: 2, width: 1 }, "n", "e");
-  m.rail = graphFromSegments([[-10.5, -1.75, 39.5, -1.75], [-10.5, -2.75, 39.5, -2.75], [-6, -3.75, 30, -3.75]], { kind: "track" }, "r", "t");
-  m.zones.push({ id: "airport", kind: "airport", label: "Airport", goal: "Infrastructure overlay", x0: 47, x1: 63, z0: 1, z1: 7 });
-  m.zones.push({ id: "airport-station", kind: "station", label: "Airport station", goal: "Airport express from the central station", x0: 39, x1: 45, z0: 2.5, z1: 5.5 });
+  const m = base("Current city", 2026, [-16, 76, -12, 28]);
   const city = [-4.5, 33.5, -4.5, 19.5], air = [33, 66, -4.5, 9.5];
-  scatterTrees(m, 260, 7, (x, z) => inRect(x, z, city) || inRect(x, z, air));
-  m.paths.push({ id: "v1", vehicle: "car", mode: "road", stops: stopIds(m.roads, [[-4, 0], [33, 16]]), speed: 3, loop: true });
-  m.paths.push({ id: "v2", vehicle: "train", mode: "rail", stops: stopIds(m.rail, [[-10.5, -1.75], [39.5, -1.75]]), speed: 4, loop: true });
+  scatterTrees(m, 300, 7, (x, z) => inRect(x, z, city) || inRect(x, z, air) || (z > -4.6 && z < -0.9));
+  m.paths.push({ id: "v1", vehicle: "car", mode: "road", stops: [near(m, -4, 0), near(m, 33, 16)], speed: 3, loop: true });
   return m;
 }
-function stopIds(g, pts) { return pts.map(([x, z]) => nearestNode(g, x, z, 2)?.id).filter(Boolean); }
 
 // The agreed L3 layout (DESIGN.md "City map (grid)").
 export function presetL3() {
@@ -298,17 +388,13 @@ export function presetL3() {
     const x = t.x0 + i, z = t.z0 + j;
     let h = 0;
     if (z < -19) h = Math.min(10, (-19 - z) * 1.3 * (0.6 + f(x * 0.15, z * 0.15)));
-    if (z > 31) h = -0.9;
-    else if (z > 30) h = -0.3;
-    if (x >= 61 && x <= 71 && z >= -26 && z <= -19) h = Math.min(h, 0.2 + (-19 - z) * 0.2) + 0; // tunnel cut
+    if (z > 31) h = -0.9; else if (z > 30) h = -0.3;
+    if (x >= 61 && x <= 71 && z < -19) h = Math.min(h, 0.2 + (-19 - z) * 0.2);
     t.heights[j * t.w + i] = r3(h);
   }
-  t.water = -0.35;
-  const z = (id) => m.zones.find((q) => q.id === id);
-  void z;
+  m.zones = districts().concat(airportZones(-4, 0));
+  syncAirport(m);
   m.zones.push(
-    { id: "airport", kind: "airport", label: "Airport", goal: "Infrastructure overlay", x0: 43, x1: 59, z0: 1, z1: 7 },
-    { id: "airport-station", kind: "station", label: "Airport station", goal: "Rail from the central station", x0: 35, x1: 41, z0: 2.5, z1: 5.5 },
     { id: "bank", kind: "bank", label: "Bank", goal: "Secrets and credentials", x0: -20, x1: -14, z0: 1, z1: 6.5 },
     { id: "court", kind: "court", label: "Court", goal: "Licenses and governance", x0: -13, x1: -7, z0: 1, z1: 6.5 },
     { id: "archive", kind: "archive", label: "City archive", goal: "Protected personal data, fenced", x0: -20, x1: -11, z0: 8.5, z1: 15 },
@@ -316,45 +402,29 @@ export function presetL3() {
     { id: "industry", kind: "industry", label: "Goods industry", goal: "Where dependencies come from", x0: 48, x1: 62, z0: -18, z1: -8 },
     { id: "harbor", kind: "harbor", label: "Harbor", goal: "Outbound releases and publishing", x0: 6, x1: 32, z0: 24, z1: 30 },
   );
-  const segs = cityRoadSegments().concat([
-    [33, 8, 62.5, 8], [51, 7, 51, 8], [48, -6, 62.5, -6], [58, 14, 62.5, 14], [32, 30, 62.5, 30],
-    [-20, 0, -4, 0], [-20, 8, -4, 8],
-  ]);
-  m.roads = graphFromSegments(segs, { kind: "street", lanes: 2, width: 1 }, "n", "e");
-  const hw = graphFromSegments([[66, -24, 66, 40]], {}, "h", "x");
-  // highway: own nodes, then link the spurs to it
-  const map = new Map();
-  for (const n of hw.nodes) map.set(n.id, addNode(m.roads, n.x, n.z).id);
-  for (const e of hw.edges) addEdge(m.roads, map.get(e.a), map.get(e.b), { kind: "highway", lanes: 6, width: 7 });
-  for (const zz of [-6, 8, 14, 30]) {
-    const e = nearestEdge(m.roads, 66, zz, 0.5)?.edge;
-    const hub = e ? splitEdge(m.roads, e, 66, zz) : null;
-    const end = nearestNode(m.roads, 62.5, zz, 0.2);
-    if (hub && end) addEdge(m.roads, end.id, hub.id, { kind: "street", lanes: 2, width: 1, ramp: true });
+  // guided streets (viewer tiles): civic quarter, connector to the highway, spurs
+  m.layout.roads = [...new Set(m.layout.roads.concat(cellsFromSegments([
+    [-20, 0, -5, 0], [-20, 8, -5, 8], [61, 8, 62, 8], [48, -6, 62, -6], [58, 14, 62, 14], [32, 30, 62, 30], [51, 7, 51, 7],
+  ])))];
+  // highway (free road, 3 + 3 lanes) with ramps to the cell street ends at x 62
+  const g = m.roads, hw = [];
+  for (const z of [-24, -6, 8, 14, 30, 40]) hw.push(addNode(g, 66, z));
+  for (let i = 1; i < hw.length; i++) {
+    const e = addEdge(g, hw[i - 1].id, hw[i].id, { kind: "highway", lanes: 6, width: 7 });
+    if (hw[i].z > 31) e.bridge = true;
+    if (hw[i - 1].z < -19) e.tunnel = true;
   }
-  for (const e of m.roads.edges) {
-    if (e.kind !== "highway") continue;
-    const A = nodeById(m.roads, e.a), B = nodeById(m.roads, e.b);
-    if (Math.max(A.z, B.z) > 31) e.bridge = true;
-    if (Math.min(A.z, B.z) < -19) e.tunnel = true;
-  }
-  m.rail = graphFromSegments([[-10.5, -1.75, 33, -1.75], [-10.5, -2.75, 33, -2.75], [-6, -3.75, 30, -3.75], [41, 4, 43, 4]], { kind: "track" }, "r", "t");
-  const ra = nearestNode(m.rail, 33, -1.75, 0.1), rb = nearestNode(m.rail, 41, 4, 0.1);
-  const mid = addNode(m.rail, 37, 4, "r");
-  addEdge(m.rail, ra.id, mid.id, { kind: "track" }, "t").c = [36.5, -1.75];
-  addEdge(m.rail, mid.id, rb.id, { kind: "track" }, "t");
-  const keep = [[-4.5, 33.5, -4.5, 19.5], [-21, -6, 0, 16], [33, 70, -19, 18], [5, 33, 23, 31]];
+  for (const n of hw.slice(1, 5)) { const end = addNode(g, 62, n.z); addEdge(g, end.id, n.id, { kind: "street", lanes: 2, width: 1, ramp: true }); }
+  const keep = [[-4.5, 33.5, -4.6, 19.5], [-21, -6, -1, 16], [29, 70, -19, 18], [5, 33, 23, 31]];
   scatterTrees(m, 520, 7, (x, z) => keep.some((r) => inRect(x, z, r)) || (x > 61 && x < 71));
-  m.paths.push({ id: "v1", vehicle: "truck", mode: "road", stops: stopIds(m.roads, [[48, -6], [58, 14]]), speed: 2.2, loop: true });
-  m.paths.push({ id: "v2", vehicle: "car", mode: "road", stops: stopIds(m.roads, [[33, 8], [51, 7]]), speed: 3, loop: true });
-  m.paths.push({ id: "v3", vehicle: "truck", mode: "road", stops: stopIds(m.roads, [[62.5, 30], [32, 30]]), speed: 2.2, loop: true });
-  m.paths.push({ id: "v4", vehicle: "train", mode: "rail", stops: stopIds(m.rail, [[-10.5, -1.75], [43, 4]]), speed: 4, loop: true });
-  m.paths.push({ id: "v5", vehicle: "ship", mode: "free", points: [[10, -0.35, 36], [0, -0.35, 39], [-14, -0.35, 37], [-6, -0.35, 33.5], [8, -0.35, 33.5]], speed: 1.2, loop: true });
-  m.paths.push({ id: "v6", vehicle: "plane", mode: "free", points: [[74, 7, -14], [60, 4, -2], [51, 1.2, 4], [40, 4, 12], [20, 8, 20]], speed: 7, loop: true });
+  m.paths.push({ id: "v1", vehicle: "truck", mode: "road", stops: [near(m, 48, -6), near(m, 58, 14)], speed: 2.2, loop: true });
+  m.paths.push({ id: "v2", vehicle: "truck", mode: "road", stops: [near(m, 62, 30), near(m, 32, 30)], speed: 2.2, loop: true });
+  m.paths.push({ id: "v3", vehicle: "car", mode: "road", stops: [near(m, -20, 8), near(m, 62, 8)], speed: 3, loop: true });
+  m.paths.push({ id: "v4", vehicle: "ship", mode: "free", points: [[10, -0.35, 36], [0, -0.35, 39], [-14, -0.35, 37], [-6, -0.35, 33.5], [8, -0.35, 33.5]], speed: 1.2, loop: true });
   return m;
 }
 
-export const PRESETS = { current: presetCurrent, l3: presetL3, empty: () => ({ ...base("Empty map", 2026, [-20, 60, -20, 40]), zones: districts() }) };
+export const PRESETS = { current: presetCurrent, l3: presetL3, empty: () => { const m = base("Empty map", 2026, [-20, 60, -20, 40], false); m.layout.roads = []; return m; } };
 
 // ---------- persistence ----------
 export function validate(m) {
@@ -363,6 +433,9 @@ export function validate(m) {
   if (m.schema !== SCHEMA) err.push("unsupported schema " + m.schema);
   const t = m.terrain;
   if (!t || !Array.isArray(t.heights) || t.heights.length !== t.w * t.h) err.push("terrain heights do not match w x h");
+  if (!m.layout || !Array.isArray(m.layout.roads) || !m.layout.rail || !Array.isArray(m.layout.rail.tracks)) err.push("layout must have road cells and rail tracks");
+  else for (const k of m.layout.roads) if (!/^-?\d+,-?\d+$/.test(k)) { err.push("road cell " + k + " is not x,z"); break; }
+  if (!m.view || typeof m.view.city !== "string") err.push("view.city must name a demo city");
   for (const key of ["zones", "props", "paths"]) if (!Array.isArray(m[key])) err.push(key + " must be a list");
   for (const key of ["roads", "rail"]) {
     const g = m[key];
@@ -378,14 +451,22 @@ export function validate(m) {
   for (const p of PILLARS) if (!keys.includes(p.k)) err.push("missing district for pillar " + p.k);
   return err;
 }
+// Schema 1 had no viewer layout: it gets the built-in one, its graphs stay free roads and tracks.
 export function migrate(obj) {
   if (obj && obj.schema === SCHEMA) return obj;
+  if (obj && obj.schema === 1) {
+    const m = { ...obj, schema: SCHEMA, view: { city: "thriving-demo", airport: true }, layout: defaultLayout() };
+    if (!m.zones.some((z) => z.id === "airport")) m.zones = m.zones.concat(airportZones());
+    syncAirport(m);
+    return m;
+  }
   throw new Error("Unknown map schema: " + (obj && obj.schema));
 }
 // Stable, rounded JSON. Paths also carry their resolved points for other tools.
 export function serialize(m) {
   const out = {
-    schema: SCHEMA, name: m.name, seed: m.seed, generator: "harness-city-editor",
+    schema: SCHEMA, name: m.name, seed: m.seed, generator: "harness-city-editor", view: m.view,
+    layout: { ...m.layout, roads: [...m.layout.roads].sort() },
     terrain: { ...m.terrain, heights: m.terrain.heights.map(r3) },
     zones: m.zones.map((z) => ({ ...z, x0: r3(z.x0), x1: r3(z.x1), z0: r3(z.z0), z1: r3(z.z1) })),
     roads: m.roads, rail: m.rail,
@@ -399,6 +480,7 @@ export function deserialize(text) {
   const obj = migrate(JSON.parse(text));
   delete obj.resolved;
   delete obj.generator;
+  obj.layout.roads = [...obj.layout.roads].sort();
   const err = validate(obj);
   if (err.length) throw new Error("Invalid map: " + err.join("; "));
   return obj;
