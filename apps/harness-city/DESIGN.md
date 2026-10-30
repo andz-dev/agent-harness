@@ -127,16 +127,22 @@ x east, z south. Existing coordinates come from `DIST`, `ROADS`, `AP` and `BOUND
 | Shopping Mall (was supermarket) | x 50..58, z 11..17, entry road from the highway at z 14 with the toll gantry | planned |
 | Goods industry | x 48..62, z -18..-8, land road at z -6 to the highway | planned |
 | Harbor quay | x 6..32, z 24..30, water from z 31 southward | planned |
-| Highway | north-south, x 62.5..69.5, from the mountain tunnel (z -24) to the harbor bridge (z 40) | planned |
+| Highway | north-south, x 62.5..69.5; tunnel z -30..-22 under the mountains, open road from the portal (z -22) to the harbor bridge (z 31..40) | planned |
 | Core connector | z 8 from the city east gate (x 33.5) to the highway | planned |
-| Mountain range | z < -20 along the north edge, tunnel portal at x 62.5..69.5 | planned |
+| Mountain range | z -30..-20 along the whole north edge (x -24..78); the foot line wavers between z -20 and z -24 | planned |
+| Tunnel portal | x 61.5..70.5 (frame 1 cell wider than the road), z -22; the mountain foot is cut flat here, so the road comes out of the rock face | planned |
 
 Decisions (2026-10-29):
 
 * The camera stays as in "Camera": isometric, orthographic, with the rotate-left and
   rotate-right buttons. New objects must look right from all four rotations.
 * The highway enters through a tunnel in a mountain range at the north edge and crosses the
-  harbor water on a bridge on pillars. The rail no longer crosses it, because the airport and
+  harbor water on a bridge on pillars. The tunnel runs z -30..-22 hidden under the mountain;
+  the portal (stone frame, dark opening, lamps) sits at z -22 and is the first thing the road
+  shows. From the portal the road is open. The tunnel is as wide as the highway at that tier
+  and the portal stays the same size at every level. Cars and trucks drive in and out of the
+  portal. The portal must look right from all four rotations, because the mountain hides the
+  road behind it. Industry (z -18..-8) keeps 4 cells to the portal. The rail no longer crosses it, because the airport and
   its station moved west.
 * The city core connects to the highway through the core connector at z 8.
 * Industry sits in the north with a land road to the highway. Goods trucks drive
@@ -158,7 +164,7 @@ Open: the airport station (x 35..41) sits against the city edge (x 33.5); accept
 
 ## Editor
 
-Status: second version, decisions from the owner on 2026-10-29. Research: `docs/0010/Research.md`.
+Status: second version, decisions from the owner on 2026-10-29. Parked on 2026-10-30: the code stays in the repo, no further editor work until the owner resumes it. Research: `docs/0010/Research.md`.
 Usage: [EDITOR.md](EDITOR.md).
 
 * The editor is a separate page, `editor.html`. It shows the viewer itself: `index.html?embed`

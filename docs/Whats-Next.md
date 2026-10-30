@@ -3,7 +3,7 @@ type: 'Backlog'
 title: 'What''s Next'
 status: 'active'
 created: '2026-10-27'
-updated: '2026-10-29'
+updated: '2026-10-30'
 generated: 'agent'
 verified: 'unverified'
 owner: 'Andreas Elser'
@@ -53,7 +53,7 @@ New, triaged and promoted-but-unfinished rows. Append new rows at the end.
 | WN-027 | Feature | Growing central station | The station grows with the Workflow entry points level: open platform, roofed platforms and roofed approach with metro link, glass hall with concourse and airport express. | Owner idea, 2026-10-29; docs/0009 section 2. | Update the Transit section and registry in DESIGN.md first | Medium | None | New |
 | WN-028 | Feature | Coverage map of harness topics | One map listing each topic by layer (core score, overlay, optional evidence) and status (checked, planned, out of scope); languages as adapters instead of per-language duplicate checks. | Owner request, 2026-10-29, after the scope grew across supply chain, data, licenses and governance. | Draft the map from the existing topics, then research current practice | Medium | WN-018 | New |
 | WN-029 | Issue | No coding-standards or language-linter coverage | No check looks for a coding standards file, style guide or `.editorconfig`; linter checks exist only for Python and Node, other languages are detected but not scored. | Owner question, 2026-10-29; verified in checks/catalog.yaml and detect_stack.py. | Language adapters and a standards-document check, designed with the coverage map | Medium | WN-028 | New |
-| WN-030 | Feature | City and map editor with export | Editor for terrain, trees, guided and free streets and tracks, vehicle paths for trucks, ships and planes, CC0 asset palette and district editing; exports a versioned `city-map.json` for the harness setup. | Owner request, 2026-10-29; research in docs/0010/Research.md. | Discovery spike first (terrain brush, grid roads, JSON round trip), then a spec | High | WN-019, WN-026 | New |
+| WN-030 | Feature | City and map editor with export | Editor for terrain, trees, guided and free streets and tracks, vehicle paths for trucks, ships and planes, CC0 asset palette and district editing; exports a versioned `city-map.json` for the harness setup. | Owner request, 2026-10-29; research in docs/0010/Research.md. | First version built (commits 07fa31e, aab73a4); parked by the owner on 2026-10-30 as too complex for now. Resume with the viewer reading `city-map.json`, then more CC0 kits | High | WN-019, WN-026 | Parked |
 
 ## Closed
 

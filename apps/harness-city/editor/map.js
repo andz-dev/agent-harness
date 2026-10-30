@@ -408,13 +408,13 @@ export function presetL3() {
   ])))];
   // highway (free road, 3 + 3 lanes) with ramps to the cell street ends at x 62
   const g = m.roads, hw = [];
-  for (const z of [-24, -6, 8, 14, 30, 40]) hw.push(addNode(g, 66, z));
+  for (const z of [-30, -22, -6, 8, 14, 30, 40]) hw.push(addNode(g, 66, z));
   for (let i = 1; i < hw.length; i++) {
     const e = addEdge(g, hw[i - 1].id, hw[i].id, { kind: "highway", lanes: 6, width: 7 });
     if (hw[i].z > 31) e.bridge = true;
-    if (hw[i - 1].z < -19) e.tunnel = true;
+    if (hw[i].z <= -22) e.tunnel = true; // tunnel z -30..-22, portal at z -22
   }
-  for (const n of hw.slice(1, 5)) { const end = addNode(g, 62, n.z); addEdge(g, end.id, n.id, { kind: "street", lanes: 2, width: 1, ramp: true }); }
+  for (const n of hw.slice(2, 6)) { const end = addNode(g, 62, n.z); addEdge(g, end.id, n.id, { kind: "street", lanes: 2, width: 1, ramp: true }); }
   const keep = [[-4.5, 33.5, -4.6, 19.5], [-21, -6, -1, 16], [29, 70, -19, 18], [5, 33, 23, 31]];
   scatterTrees(m, 520, 7, (x, z) => keep.some((r) => inRect(x, z, r)) || (x > 61 && x < 71));
   m.paths.push({ id: "v1", vehicle: "truck", mode: "road", stops: [near(m, 48, -6), near(m, 58, 14)], speed: 2.2, loop: true });

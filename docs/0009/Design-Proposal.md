@@ -3,7 +3,7 @@ type: 'Design Proposal'
 title: 'City overlays, road traffic and committed harness evidence'
 status: 'draft'
 created: '2026-10-28'
-updated: '2026-10-29'
+updated: '2026-10-30'
 generated: 'agent'
 verified: 'unverified'
 owner: 'Andreas Elser'
@@ -16,9 +16,12 @@ tags:
 <!-- markdownlint-disable-next-line MD025 -->
 # City overlays, road traffic and committed harness evidence (draft)
 
-Status: proposal for review. Nothing here changes `DESIGN.md`, `AGENTS.md`, `.gitignore`,
-`tools/check.py` or any audit check yet. Decisions that are still open are collected in
-section 5.
+Status: proposal for review, updated 2026-10-30. The city layout, the highway stages and the
+civic quarter are decided and live in the "City map (grid)" section of
+`apps/harness-city/DESIGN.md`, which is the source of truth for them. Nothing else here changes
+`AGENTS.md`, `.gitignore`, `tools/check.py` or any audit check yet. Decisions that are still open
+are collected in section 5. The city and map editor (WN-030) is parked and not part of this
+proposal's order of work.
 
 The proposal has four parts:
 
@@ -162,11 +165,16 @@ The court shows that documents exist. It never rules on license compatibility; t
 legal question. Police headquarters stays the Static guardrails pillar: police enforce,
 the court records.
 
-### Placement: civic quarter and outer ring
+### Placement: civic quarter and outer ring (decided 2026-10-29)
 
-Six overlays are a lot to place. Proposal: bank, archive and court form one civic quarter,
-because all three are about trust and rules. Airport, harbor and the goods industry sit on
-the outer ring along the highway. Positions stay deterministic from the repo id, and the
+Bank, archive and court form one civic quarter west of the core (x -20..-7, z 1..15), because
+all three are about trust and rules. It connects through the central station: bus only on lower
+levels, bus and subway from L2, like the airport. The airport and its station sit west of the
+highway (airport x 43..59, station x 35..41). The Shopping Mall (x 50..58, z 11..17) has its
+own entry from the highway with the toll gantry. The goods industry sits in the north
+(x 48..62, z -18..-8) with a land road to the highway. The harbor quay is in the south
+(x 6..32, z 24..30). One west-east power line feeds the harbor, the airport and the industry.
+The exact cells are in `DESIGN.md`. Positions stay deterministic from the repo id, and the
 standalone file must not grow much (2.8 MB at the last build).
 
 ## 2. Traffic, highway and station
@@ -213,15 +221,18 @@ grows, the wider the roads become.
 
 | Stage | Highway |
 | --- | --- |
-| 1, Neglected | One lane each way, one on and off ramp to the city only |
-| 2, Working (score 45+) | Adds spurs to the airport and the harbor, where those overlays exist |
-| 3, Prosperous (60+) | Two lanes each way, rounded ramps with deceleration lanes |
-| 4, Thriving (80+) | Three lanes each way, an interchange and the check gantry of the supply-chain overlay |
+| 1, Neglected | Narrow: one lane each way, one on and off ramp to the city only |
+| 2, Working (score 45+) | Still narrow; adds spurs to the airport and the harbor, where those overlays exist |
+| 3, Prosperous (60+) | Full grid width (x 62.5..69.5), two lanes each way, rounded ramps with deceleration lanes |
+| 4, Thriving (80+) | Full width, three lanes each way, an interchange and the check gantry of the supply-chain overlay |
 
-Reading to confirm: the stage follows the city's score tier, because the highway belongs to
-the whole city. The bus and metro rule (lower level of both ends) stays as it is for transit.
-A spur is drawn only when its overlay exists. This depends on the road-network traffic work
-(WN-019): ramps, corners and slowing trucks.
+Decided 2026-10-29: the stage follows the city's score tier, because the highway belongs to
+the whole city; below L2 the highway is narrow, from L2 it has the full width of the grid.
+The bus and metro rule (lower level of both ends) stays as it is for transit. A spur is drawn
+only when its overlay exists. The road enters the map through a tunnel under the northern
+mountains (z -30..-22, portal at z -22) and leaves it over a bridge on pillars across the harbor
+water. This depends on the road-network traffic work (WN-019): ramps, corners and slowing
+trucks.
 
 ### Station that grows with its level
 
@@ -299,11 +310,15 @@ figures. `AGENTS.md` already treats model answers as untrusted; this keeps it tr
 
 ## 4. Backlog
 
-New rows WN-017 to WN-029 in `docs/Whats-Next.md` track this work.
+New rows WN-017 to WN-029 in `docs/Whats-Next.md` track this work. WN-030 (city and map
+editor) is parked by the owner as of 2026-10-30: too complex for now, no work until it is
+resumed. Its code and research stay in the repository.
 
 ## 5. Open decisions
 
-1. Overlay names and colours, and where each sits next to the airport.
+1. Overlay colours. Names and places are set in the grid (Shopping Mall, Goods industry,
+   Harbor, Bank, Court, City archive). Open in the grid: C7, the airport station sits against
+   the city edge (accept it as the gateway or move the airport two cells east).
 2. Whether the court is confirmed as drawn here, and where governance files belong.
 3. Name of the evidence directory and the wording of the `AGENTS.md` carve-out.
 4. Staleness limit in days, and whether a scheduled workflow may open refresh pull requests.
@@ -313,9 +328,10 @@ New rows WN-017 to WN-029 in `docs/Whats-Next.md` track this work.
    historical records.
 7. Level names for data classes, given that L0-L3 is taken, and whether a class is
    declared per repo or per component.
-8. Highway stage: follow the score tier (the reading above) or another city level? Is
-   stage 2 the Working tier?
-9. Civic quarter and outer ring as the placement, or another layout?
+8. ~~Highway stage~~ Decided 2026-10-29: follows the score tier, narrow below L2, full width
+   from L2; spurs from the Working tier.
+9. ~~Civic quarter and outer ring~~ Decided 2026-10-29: civic quarter west of the core, airport
+   and station moved west, mall, industry and harbor as in the grid.
 10. Which harbor and bank facts need optional GitHub or registry data rather than the
     static scan.
 
@@ -329,8 +345,16 @@ New rows WN-017 to WN-029 in `docs/Whats-Next.md` track this work.
 6. Overlays one by one, starting with supply chain, then harbor, bank, archive, court.
 7. Coverage map of harness topics (WN-028) before adding more checks (WN-029).
 
-## Layout decisions, 2026-10-29
+## Layout decisions, 2026-10-29 and 2026-10-30
 
 The agreed L3 layout (airport and station moved west, core connector to the highway, Shopping
 Mall, northern goods industry, mountain tunnel, harbor bridge, west-east power line) lives in
 the "City map (grid)" section of `apps/harness-city/DESIGN.md`. That file is the source of truth.
+
+Finished on 2026-10-30: the mountain range runs along the whole north edge (z -30..-20) and the
+highway comes out of a tunnel portal at z -22 (frame x 61.5..70.5). The isometric orthographic
+camera with rotate buttons is pinned in `DESIGN.md`, `AGENTS.md` and `tools/check.py`. The plan
+view artifact shows the same grid.
+
+Still open from the grid: C7 (airport station against the city edge) and the exact position of
+the central station.
