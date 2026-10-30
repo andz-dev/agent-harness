@@ -317,3 +317,4 @@ not repositories examined by the read-only auditor.
 3. Add optional data fields to the converter and README.
 4. Extend the synthetic demo so every level shows.
 5. `task check`, then look at a screenshot of each demo tier.
+6. Before the next viewer implementation is merged, run the full browser suite (`task app:test`) on a machine with a GPU or in CI. Six viewer tests time out under software rendering, so a green run is still missing (WN-031).

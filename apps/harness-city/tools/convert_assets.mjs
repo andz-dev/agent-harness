@@ -34,8 +34,6 @@ const LIST = {
   ...Object.fromEntries('abc'.split('').map(c => [`tower-${c}`, [`${NF}/skyscraper_${c}.glb`, { scale: 1.05 }]])),
   // Kenney Car Kit
   ...Object.fromEntries(['sedan', 'taxi', 'suv', 'van', 'truck', 'truck_flat', 'police_car', 'ambulance', 'firetruck', 'garbage_truck', 'delivery_van', 'digger', 'tractor'].map(n => [n.replace('_', '-'), [`${NF}/${n}.glb`, { len: n === 'digger' ? 0.75 : n.includes('truck') ? 0.66 : 0.56 }]])),
-  // Kenney Mini Characters
-  ...Object.fromEntries(['mini_male_a', 'mini_male_c', 'mini_female_b', 'mini_female_d'].map(n => [n.replace(/_/g, '-'), [`${NF}/${n}.glb`, { h: 0.2 }]])),
   // Quaternius (CC0) nature and props
   'tree-oak': [`${NF}/tree_oak.glb`, { h: 0.8 }],
   'tree-fat': [`${NF}/tree_fat.glb`, { h: 0.75 }],
@@ -56,7 +54,6 @@ const LIST = {
   'hangar': [`${NF}/hangar.glb`, { len: 2.6 }],
   'dish': [`${NF}/satellite_dish.glb`, { h: 0.6 }],
   'tent': [`${NF}/tent.glb`, { h: 0.35 }],
-  'worker': [`${NF}/worker.glb`, { h: 0.22 }],
 };
 
 await MeshoptDecoder.ready;

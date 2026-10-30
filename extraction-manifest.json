@@ -500,34 +500,6 @@
       "kind": "unchanged-source"
     },
     {
-      "source": "apps/harness-city/assets/glb/mini-female-b.glb",
-      "target": "apps/harness-city/assets/glb/mini-female-b.glb",
-      "source_sha256": "d25f5ce3c4a160a551be0b3299a0c26abedb51401380d8bf506a01dcff08198f",
-      "sha256": "d25f5ce3c4a160a551be0b3299a0c26abedb51401380d8bf506a01dcff08198f",
-      "kind": "unchanged-source"
-    },
-    {
-      "source": "apps/harness-city/assets/glb/mini-female-d.glb",
-      "target": "apps/harness-city/assets/glb/mini-female-d.glb",
-      "source_sha256": "8f81e0be3197e7a8dd5e3be9dee41ddbbeadda1e1d880d95d0fff2e5314aef52",
-      "sha256": "8f81e0be3197e7a8dd5e3be9dee41ddbbeadda1e1d880d95d0fff2e5314aef52",
-      "kind": "unchanged-source"
-    },
-    {
-      "source": "apps/harness-city/assets/glb/mini-male-a.glb",
-      "target": "apps/harness-city/assets/glb/mini-male-a.glb",
-      "source_sha256": "42ff3c91af90152f0afee57bba766408b4f904f99b4d8bc1099a33764595e93e",
-      "sha256": "42ff3c91af90152f0afee57bba766408b4f904f99b4d8bc1099a33764595e93e",
-      "kind": "unchanged-source"
-    },
-    {
-      "source": "apps/harness-city/assets/glb/mini-male-c.glb",
-      "target": "apps/harness-city/assets/glb/mini-male-c.glb",
-      "source_sha256": "7b01a4f68cb3ce41217a610c5b0919a528bada36b717e8e92b8e90a914fa7e8f",
-      "sha256": "7b01a4f68cb3ce41217a610c5b0919a528bada36b717e8e92b8e90a914fa7e8f",
-      "kind": "unchanged-source"
-    },
-    {
       "source": "apps/harness-city/assets/glb/obelisk.glb",
       "target": "apps/harness-city/assets/glb/obelisk.glb",
       "source_sha256": "4306e60330fc91acee766e727a49e75bda24bb9b5ab96fbd4d9df5e41d8418e4",
@@ -699,8 +671,8 @@
       "source": "apps/harness-city/assets/manifest.json",
       "target": "apps/harness-city/assets/manifest.json",
       "source_sha256": "c9d90f4f87a893fd5c2affa650d6f889150b37865bae099ed25fbb6249a107ee",
-      "sha256": "c9d90f4f87a893fd5c2affa650d6f889150b37865bae099ed25fbb6249a107ee",
-      "kind": "unchanged-source"
+      "sha256": "c66c8d142fb3f692762845a9bbe02617dd7122498bbbd47337beb1db0f7cc8c2",
+      "kind": "adapted-runtime"
     },
     {
       "source": "apps/harness-city/index.html",
@@ -720,8 +692,8 @@
       "source": "apps/harness-city/tools/convert_assets.mjs",
       "target": "apps/harness-city/tools/convert_assets.mjs",
       "source_sha256": "799cc2f624bca46f171074335c0d7fb188a216d4076627d603e0404d9a1835ae",
-      "sha256": "799cc2f624bca46f171074335c0d7fb188a216d4076627d603e0404d9a1835ae",
-      "kind": "unchanged-source"
+      "sha256": "ee216d8a344a9220214d7ba4b6fba6b79ac91f1e4a88c4e3e0db0fc746dc46df",
+      "kind": "adapted-runtime"
     },
     {
       "source": "apps/harness-city/tools/report_to_city.py",
