@@ -120,7 +120,7 @@ x east, z south. Existing coordinates come from `DIST`, `ROADS`, `AP` and `BOUND
 | Area | Cells (x, z) | State |
 |---|---|---|
 | City core, seven districts | x -4.5..33.5, z -4.5..19.5 (road grid at z 0, 8, 16) | exists |
-| Rail and siding | z -1.75, -2.75, -3.75; x -10.5..35 (ends at the airport station) | exists, end moves |
+| Rail and siding | z -1.75, -2.75, -3.75; x -10.5..37 (ends at the airport station) | exists, end moves |
 | Airport, moved west | x 45..61, z 1..7 (was x 47..63); 1.5 cells from the highway | exists, moves |
 | Airport station, moved west | x 37..43 (was x 39..45); 3.5 cells from the city edge (x 33.5) | exists, moves |
 | Civic quarter: bank, court, archive | x -20..-7, z 1..15 | planned |
