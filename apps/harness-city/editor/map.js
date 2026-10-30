@@ -392,7 +392,7 @@ export function presetL3() {
     if (x >= 61 && x <= 71 && z < -19) h = Math.min(h, 0.2 + (-19 - z) * 0.2);
     t.heights[j * t.w + i] = r3(h);
   }
-  m.zones = districts().concat(airportZones(-4, 0));
+  m.zones = districts().concat(airportZones(-2, 0));
   syncAirport(m);
   m.zones.push(
     { id: "bank", kind: "bank", label: "Bank", goal: "Secrets and credentials", x0: -20, x1: -14, z0: 1, z1: 6.5 },
@@ -404,7 +404,7 @@ export function presetL3() {
   );
   // guided streets (viewer tiles): civic quarter, connector to the highway, spurs
   m.layout.roads = [...new Set(m.layout.roads.concat(cellsFromSegments([
-    [-20, 0, -5, 0], [-20, 8, -5, 8], [61, 8, 62, 8], [48, -6, 62, -6], [58, 14, 62, 14], [32, 30, 62, 30], [51, 7, 51, 7],
+    [-20, 0, -5, 0], [-20, 8, -5, 8], [61, 8, 62, 8], [48, -6, 62, -6], [58, 14, 62, 14], [32, 30, 62, 30], [53, 7, 53, 7],
   ])))];
   // highway (free road, 3 + 3 lanes) with ramps to the cell street ends at x 62
   const g = m.roads, hw = [];

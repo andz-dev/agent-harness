@@ -121,8 +121,8 @@ x east, z south. Existing coordinates come from `DIST`, `ROADS`, `AP` and `BOUND
 |---|---|---|
 | City core, seven districts | x -4.5..33.5, z -4.5..19.5 (road grid at z 0, 8, 16) | exists |
 | Rail and siding | z -1.75, -2.75, -3.75; x -10.5..35 (ends at the airport station) | exists, end moves |
-| Airport, moved west | x 43..59, z 1..7 (was x 47..63) | exists, moves |
-| Airport station, moved west | x 35..41 (was x 39..45) | exists, moves |
+| Airport, moved west | x 45..61, z 1..7 (was x 47..63); 1.5 cells from the highway | exists, moves |
+| Airport station, moved west | x 37..43 (was x 39..45); 3.5 cells from the city edge (x 33.5) | exists, moves |
 | Civic quarter: bank, court, archive | x -20..-7, z 1..15 | planned |
 | Shopping Mall (was supermarket) | x 50..58, z 11..17, entry road from the highway at z 14 with the toll gantry | planned |
 | Goods industry | x 48..62, z -18..-8, land road at z -6 to the highway | planned |
@@ -131,6 +131,57 @@ x east, z south. Existing coordinates come from `DIST`, `ROADS`, `AP` and `BOUND
 | Core connector | z 8 from the city east gate (x 33.5) to the highway | planned |
 | Mountain range | z -30..-20 along the whole north edge (x -24..78); the foot line wavers between z -20 and z -24 | planned |
 | Tunnel portal | x 61.5..70.5 (frame 1 cell wider than the road), z -22; the mountain foot is cut flat here, so the road comes out of the rock face | planned |
+
+Grid map, stored here so the layout survives without the plan artifact. One character is
+2 x 2 cells; x runs from -24 to 78 and z from -30 to 42. It is drawn from the table above;
+roads narrower than 2 cells (industry road, mall entry, civic streets) are not shown.
+
+```text
+       x-20      x0        x20       x40       x60
+       |         |         |         |         |
+z-30 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^TTTT^^^^
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^TTTT^^^^
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^TTTT^^^^
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^TTTT^^^^
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^####^^^^
+z-20 ...........................................####....
+     ....................................IIIIIII####....
+     ....................................IIIIIII####....
+     ....................................IIIIIII####....
+     ....................................IIIIIII####....
+z-10 ....................................IIIIIII####....
+     ...........................................####....
+     ...........................................####....
+     .......rrrrrrrrrrrrrrrrrrrrrrrrrrr.........####....
+     ..........ccccccccccccccccccc..............####....
+z0   ..BBBJJJJ.ccccccccccccccccccc.....PPPPPPPPP####....
+     ..BBBJJJJ.ccccccccccccccccccc.ssssPPPPPPPPP####....
+     ..BBBJJJJ.ccccccccccccccccccc.ssssPPPPPPPPP####....
+     ..........ccccccccccccccccccc.....PPPPPPPPP####....
+     ..AAAAA...ccccccccccccccccccc==============####....
+z10  ..AAAAA...ccccccccccccccccccc........MMMM..####....
+     ..AAAAA...ccccccccccccccccccc........MMMM..####....
+     ..AAAAA...ccccccccccccccccccc........MMMM..####....
+     ..........ccccccccccccccccccc........MMMM..####....
+     ..........ccccccccccccccccccc..............####....
+z20  ...........................................####....
+     ...........................................####....
+     ...............HHHHHHHHHHHHH...............####....
+     ...............HHHHHHHHHHHHH...............####....
+     ...............HHHHHHHHHHHHH...............####....
+z30  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~bbbb~~~~
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~bbbb~~~~
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~bbbb~~~~
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~bbbb~~~~
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~bbbb~~~~
+z40  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~bbbb~~~~
+```
+
+Legend: `^` mountains, `T` tunnel under the mountain, `#` open highway, `b` highway bridge on
+pillars, `~` harbor water, `c` city core, `r` rail line, `s` airport station, `P` airport,
+`=` roads (core connector z 8, industry land road z -6, mall entry z 14), `I` goods industry,
+`M` Shopping Mall, `H` harbor quay, `B` bank, `J` court, `A` city archive. The tunnel portal is
+where `T` meets `#` (z -22). Update this block with the table whenever a cell changes.
 
 Decisions (2026-10-29):
 
@@ -160,7 +211,7 @@ Decisions (2026-10-29):
 * Before building a new model, check the CC0 kits (see NOTICE.md and the research note in
   `docs/0009/`). New external assets need a NOTICE entry.
 
-Open: the airport station (x 35..41) sits against the city edge (x 33.5); accept it as the gateway or move the airport two cells east.
+Decided 2026-10-30: the airport moves two cells east of the first proposal (airport x 45..61, station x 37..43), so the station is a gateway 3.5 cells outside the city edge and not against it. The exact position of the central station is still approximate.
 
 ## Editor
 
@@ -225,6 +276,14 @@ Usage: [EDITOR.md](EDITOR.md).
 | developer side-terminal, guidance office | `buildAirportSupport` | independent Devcontainer / Agent guidance benefits; never blockers |
 | airport station, express platforms | `buildAirportAll` | station link |
 | containers, crane | `buildAirportAll` | Docker and Compose |
+| wagon (abandoned) | `wagon` | ENR-01 orphaned script, on the rail siding |
+| graffiti wall | `graffitiWall` | ENR-02 conflicting configs, police district |
+| broken pylon, power cable | `pylon`, `cable` | ENR-04 stale CI reference (broken); power line (intact) |
+| cooling tower | `coolingTower` | pipeline parity, power plant |
+| construction crane, site | `crane` | next fix in a district |
+| traffic light, cone, barrier | `trafficLight`, `cone`, `barrier` | district street ladder: L0 closed, L1 one lane |
+| district landmark | `landmark` | one landmark per pillar and level |
+| clock texture | `clockTex` | city hall clock face (texture helper, not a model) |
 
 Add a row when you add an asset.
 

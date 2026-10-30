@@ -80,7 +80,7 @@ test("map JSON round trip is lossless and GLB and PNG export produce files", asy
   expect(await page.evaluate(() => window.__editor.serialize())).toBe(text);
   const map = JSON.parse(text);
   expect(map.schema).toBe(2);
-  expect(map.layout.airport.dx).toBe(-4);
+  expect(map.layout.airport.dx).toBe(-2);
   expect(map.resolved.v1.length).toBeGreaterThan(10);
 
   for (const [name, magic] of [["Map JSON", null], ["GLB", "glTF"], ["PNG", "\x89PNG"]]) {

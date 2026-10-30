@@ -170,7 +170,7 @@ the court records.
 Bank, archive and court form one civic quarter west of the core (x -20..-7, z 1..15), because
 all three are about trust and rules. It connects through the central station: bus only on lower
 levels, bus and subway from L2, like the airport. The airport and its station sit west of the
-highway (airport x 43..59, station x 35..41). The Shopping Mall (x 50..58, z 11..17) has its
+highway (airport x 45..61, station x 37..43). The Shopping Mall (x 50..58, z 11..17) has its
 own entry from the highway with the toll gantry. The goods industry sits in the north
 (x 48..62, z -18..-8) with a land road to the highway. The harbor quay is in the south
 (x 6..32, z 24..30). One west-east power line feeds the harbor, the airport and the industry.
@@ -317,8 +317,8 @@ resumed. Its code and research stay in the repository.
 ## 5. Open decisions
 
 1. Overlay colours. Names and places are set in the grid (Shopping Mall, Goods industry,
-   Harbor, Bank, Court, City archive). Open in the grid: C7, the airport station sits against
-   the city edge (accept it as the gateway or move the airport two cells east).
+   Harbor, Bank, Court, City archive). The airport station gap (C7) is decided: the airport
+   moved two cells east.
 2. Whether the court is confirmed as drawn here, and where governance files belong.
 3. Name of the evidence directory and the wording of the `AGENTS.md` carve-out.
 4. Staleness limit in days, and whether a scheduled workflow may open refresh pull requests.
@@ -356,5 +356,5 @@ highway comes out of a tunnel portal at z -22 (frame x 61.5..70.5). The isometri
 camera with rotate buttons is pinned in `DESIGN.md`, `AGENTS.md` and `tools/check.py`. The plan
 view artifact shows the same grid.
 
-Still open from the grid: C7 (airport station against the city edge) and the exact position of
-the central station.
+Decided on 2026-10-30: C7, the airport sits two cells further east (airport x 45..61, station
+x 37..43). Still open from the grid: the exact position of the central station.
