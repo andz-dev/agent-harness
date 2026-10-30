@@ -69,6 +69,11 @@ Old paths are preserved rather than renamed into a fictitious original spec work
 The generated airport simulator is local build output, not a document to commit.
 Its reproducible build instructions are in the airport notes.
 
+## Reference
+
+- [Entropy catalog](Entropy-Catalog.md): the seven entropy checks, verdicts and penalty rule.
+- [What's Next](Whats-Next.md): the project backlog.
+
 ## Reading Evidence
 
 Executed local checks, static findings, historical claims and live client/CI behavior
