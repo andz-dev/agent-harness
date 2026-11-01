@@ -1,0 +1,16 @@
+{
+  "pendant.agentDir": "",
+  "pendant.sandbox.mode": "workspace",
+  "pendant.sandbox.allowNetwork": true,
+  "pendant.autoReloadOnFileChanges": true,
+  "pendant.sandbox.denyRead": [".env"],
+  "search.exclude": {
+    "**/.trail/cache": true,
+    "**/.venv": true,
+    "**/node_modules": true,
+    "**/playwright-report": true,
+    "**/test-results": true
+  },
+  "files.eol": "\n",
+  "files.insertFinalNewline": true
+}

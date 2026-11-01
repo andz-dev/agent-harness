@@ -25,6 +25,8 @@ SKIP = {
     "playwright-report",
     "test-results",
 }
+# trail writes generated symbol cards here; the folder is git-ignored on purpose.
+CACHE_DIR = ".trail"
 
 
 def integrity(root):
@@ -48,6 +50,8 @@ def documents(root):
         failures.append("docs/0001/.gitkeep must exist and be empty")
     for path in root.rglob("*.md"):
         if SKIP.intersection(path.relative_to(root).parts):
+            continue
+        if path.relative_to(root).parts[:2] == (CACHE_DIR, "cache"):
             continue
         text = path.read_text(encoding="utf-8")
         relative = path.relative_to(root).as_posix()

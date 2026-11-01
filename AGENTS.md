@@ -3,7 +3,7 @@ type: 'Project Guide'
 title: 'Agent Harness Development Rules'
 status: 'active'
 created: '2026-10-27'
-updated: '2026-10-28'
+updated: '2026-10-30'
 generated: 'agent'
 verified: 'unverified'
 owner: 'Andreas Elser'
@@ -45,6 +45,14 @@ standalone HTML embeds data and must be reviewed before sharing.
 The imported runtime is initially frozen. Intentional future runtime changes
 need a reviewed baseline update and regression checks, not a bypass of integrity
 validation. Do not delete, skip or weaken tests to make checks pass.
+
+## Agent tooling
+
+Pi and Pendant are set up as described in [CONTRIBUTING.md](CONTRIBUTING.md).
+`.pi/mcp.json` declares the `trail` code-map server, whose graph comes from a local
+`trail build` in the git-ignored `.trail/cache/`. Pi project trust and the MCP
+admission policy are per-machine files outside the repo; never commit them, local
+paths or credentials. `.vscode/settings.json` keeps the agent sandbox at `workspace`.
 
 ## Documentation
 

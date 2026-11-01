@@ -1,0 +1,9 @@
+{
+  "recommendations": [
+    "cdervis.vscode-pi",
+    "ms-python.python",
+    "ms-python.vscode-pylance",
+    "davidanson.vscode-markdownlint",
+    "editorconfig.editorconfig"
+  ]
+}
