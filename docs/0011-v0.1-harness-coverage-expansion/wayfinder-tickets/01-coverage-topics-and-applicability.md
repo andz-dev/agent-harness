@@ -9,6 +9,7 @@ map: "docs/0011-v0.1-harness-coverage-expansion/Map.md"
 interaction: "HITL"
 status: "open"
 blocked_by: []
+claimed_by: "GitHub Copilot"
 created: "2026-11-04"
 updated: "2026-11-04"
 generated: "agent"
