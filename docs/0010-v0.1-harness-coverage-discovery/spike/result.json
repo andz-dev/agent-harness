@@ -1,0 +1,93 @@
+{
+  "answer": {
+    "discriminating_cases": 16,
+    "mismatched_case_ids": [],
+    "mismatches": 0,
+    "oracle_controls": {
+      "corrupt_fact_detected": true,
+      "path_escape_rejected": true,
+      "unknown_promotion_detected": true
+    },
+    "real_files": 11,
+    "synthetic_edge_cases": 7,
+    "topics": 7,
+    "unsafe_reads": 0,
+    "unsupported_assurance": 0
+  },
+  "evidence": [
+    {
+      "grade": "real",
+      "input": "skills/harness-audit/checks/catalog.yaml"
+    },
+    {
+      "grade": "real",
+      "input": "skills/harness-audit/scripts/infra_checks.py"
+    },
+    {
+      "grade": "real",
+      "input": "skills/harness-audit/scripts/audit.py"
+    },
+    {
+      "grade": "real",
+      "input": "skills/harness-audit/scripts/score.py"
+    },
+    {
+      "grade": "real",
+      "input": "skills/harness-audit/scripts/git_signals.py"
+    },
+    {
+      "grade": "real",
+      "input": "Taskfile.yml"
+    },
+    {
+      "grade": "real",
+      "input": ".github/workflows/check.yml"
+    },
+    {
+      "grade": "real",
+      "input": ".githooks/pre-commit"
+    },
+    {
+      "grade": "real",
+      "input": "apps/harness-city/package.json"
+    },
+    {
+      "grade": "real",
+      "input": "apps/harness-city/tools/report_to_city.py"
+    },
+    {
+      "grade": "real",
+      "input": "apps/harness-city/index.html"
+    },
+    {
+      "grade": "synthetic",
+      "input": "data/sample/sample.json"
+    }
+  ],
+  "grade": "synthetic",
+  "hypothesis_sha256": "034c14b226b3e2f0d3ec0b8253867fb5c8cb44cb41af2f83fe532fc368f613d9",
+  "limits": [
+    "Case kinds were manually curated before spike implementation, not inferred by a new production classifier.",
+    "Title searches measure only explicit core catalog titles, not exhaustive absence of all related heuristics.",
+    "No repository code was imported or executed; git ls-files was used solely for tracked-input verification.",
+    "The unsafe-read metric describes this fixed allowlist reader, not a system-wide security audit."
+  ],
+  "oracle_sha256": "c15ad00973cb526e27148578b658a5b22b85c9f5f13eb3afc358d72b37a68448",
+  "question": "Can a read-only repository coverage inventory distinguish shipped checks, declarations and missing report-to-city evidence across seven harness topics without treating unknown coverage as assurance?",
+  "sample_sha256": "dc98f2614b6ea57c6d71ca21c20d3559913179136e0d3cf5e26fe78958acfade",
+  "schema": "discovery-spike-result/1",
+  "skill_version": "v0.3",
+  "source_sha256": {
+    ".githooks/pre-commit": "0c9c373eec6dba05573b2aaeb86653528fd26894aab712e1b4a01c59230c899e",
+    ".github/workflows/check.yml": "9259a30e942f536c55216c254275ba4eed22bf65a820ff6bcb9948863de107a1",
+    "Taskfile.yml": "44d821426791c276c789c0f9d4e7b0aa26fb3ae44c0d207d2f4ac56798e15c55",
+    "apps/harness-city/index.html": "7a49ea6321b29e2cc1ed89f051bedda621b3a89341779b06929f47f8aa7978bb",
+    "apps/harness-city/package.json": "72a4af81840c89d71322d70c4cbb18adb433b838a3333db0ee6b5034010760d6",
+    "apps/harness-city/tools/report_to_city.py": "013deb17267329cceb73c870f2a5d5827c7303b5c7a2878f88445ab1b9daea47",
+    "skills/harness-audit/checks/catalog.yaml": "da2ca9a92606b8a8d96e312bb6c69ea09d82f98b36cc84e457a38872468cf26b",
+    "skills/harness-audit/scripts/audit.py": "7e05ae4d786806804ca0007940cdbee99004a7aafced49e9b12980e75f7d888a",
+    "skills/harness-audit/scripts/git_signals.py": "d2c73eacc034ab3ac248e335a988d6906816a68fe7ec0e7b0c832e3ce1813fd7",
+    "skills/harness-audit/scripts/infra_checks.py": "4dae5500d747381220e04c5bc792e375cf4e48a51568e4fd8653ae66129603c9",
+    "skills/harness-audit/scripts/score.py": "eaa299d1fa090f3d0060cc08d9c33aaf346dda6d37b0ce0dda0d36a00080ae9d"
+  }
+}

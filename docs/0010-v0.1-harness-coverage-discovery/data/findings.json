@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-04",
+  "rows": [
+    {
+      "evidence": "probe.py --only extensions",
+      "evidence_kind": "command",
+      "metric": "infra_extension_declaration",
+      "probe": "extensions",
+      "unit": "bool",
+      "value": true
+    },
+    {
+      "evidence": "probe.py --only lint",
+      "evidence_kind": "command",
+      "metric": "node_lint_dependency",
+      "probe": "lint",
+      "unit": "bool",
+      "value": false
+    },
+    {
+      "evidence": "probe.py --only lint",
+      "evidence_kind": "command",
+      "metric": "python_lint_check",
+      "probe": "lint",
+      "unit": "bool",
+      "value": true
+    },
+    {
+      "evidence": "probe.py --only mcp",
+      "evidence_kind": "command",
+      "metric": "core_mcp_titles",
+      "probe": "mcp",
+      "unit": "count",
+      "value": 0
+    },
+    {
+      "evidence": "probe.py --only pipelines",
+      "evidence_kind": "command",
+      "metric": "ci_task_check",
+      "probe": "pipelines",
+      "unit": "bool",
+      "value": true
+    },
+    {
+      "evidence": "probe.py --only pipelines",
+      "evidence_kind": "command",
+      "metric": "root_app_test",
+      "probe": "pipelines",
+      "unit": "bool",
+      "value": true
+    },
+    {
+      "evidence": "probe.py --only pipelines",
+      "evidence_kind": "command",
+      "metric": "hook_task_precommit",
+      "probe": "pipelines",
+      "unit": "bool",
+      "value": true
+    },
+    {
+      "evidence": "probe.py --only rules",
+      "evidence_kind": "command",
+      "metric": "core_count",
+      "probe": "rules",
+      "unit": "count",
+      "value": 56
+    },
+    {
+      "evidence": "probe.py --only rules",
+      "evidence_kind": "command",
+      "metric": "infra_count",
+      "probe": "rules",
+      "unit": "count",
+      "value": 60
+    },
+    {
+      "evidence": "probe.py --only rules",
+      "evidence_kind": "command",
+      "metric": "pillar_weight",
+      "probe": "rules",
+      "unit": "count",
+      "value": 100
+    },
+    {
+      "evidence": "probe.py --only rules",
+      "evidence_kind": "command",
+      "metric": "unsupported_early_exit",
+      "probe": "rules",
+      "unit": "bool",
+      "value": true
+    },
+    {
+      "evidence": "probe.py --only rules",
+      "evidence_kind": "command",
+      "metric": "converter_infra_projection",
+      "probe": "rules",
+      "unit": "bool",
+      "value": false
+    },
+    {
+      "evidence": "probe.py --only rules",
+      "evidence_kind": "command",
+      "metric": "airport_demo_preset",
+      "probe": "rules",
+      "unit": "bool",
+      "value": true
+    },
+    {
+      "evidence": "probe.py --only sbom",
+      "evidence_kind": "command",
+      "metric": "core_sbom_titles",
+      "probe": "sbom",
+      "unit": "count",
+      "value": 0
+    },
+    {
+      "evidence": "probe.py --only sbom",
+      "evidence_kind": "command",
+      "metric": "unused_dependency_unimplemented",
+      "probe": "sbom",
+      "unit": "bool",
+      "value": true
+    },
+    {
+      "evidence": "probe.py --only skills",
+      "evidence_kind": "command",
+      "metric": "core_skill_provenance_titles",
+      "probe": "skills",
+      "unit": "count",
+      "value": 0
+    }
+  ],
+  "schema": "discovery-findings/1",
+  "skill_version": "v0.3",
+  "subject": "agent-harness-coverage"
+}

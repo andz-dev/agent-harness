@@ -1,0 +1,52 @@
+{
+  "schema": "discovery-hypothesis/1",
+  "question": "Can a read-only repository coverage inventory distinguish shipped checks, declarations and missing report-to-city evidence across seven harness topics without treating unknown coverage as assurance?",
+  "decision": "Whether to scope an evidence-first harness coverage extension before designing new controls or city overlays.",
+  "kill_assumption": "The inventory cannot preserve evidence boundaries without reading outside the repository or promoting declarations and unknowns into verified enforcement.",
+  "evidence": {
+    "minimum": "real",
+    "real_inputs": [
+      "skills/harness-audit/checks/catalog.yaml",
+      "skills/harness-audit/scripts/infra_checks.py",
+      "skills/harness-audit/scripts/audit.py",
+      "skills/harness-audit/scripts/score.py",
+      "skills/harness-audit/scripts/git_signals.py",
+      "Taskfile.yml",
+      ".github/workflows/check.yml",
+      ".githooks/pre-commit",
+      "apps/harness-city/package.json",
+      "apps/harness-city/tools/report_to_city.py",
+      "apps/harness-city/index.html"
+    ],
+    "why": "Tracked repository files are the real subject; synthetic mutations are oracle controls only."
+  },
+  "criteria": [
+    {"id": "G-TOPICS", "role": "go", "metric": "topics", "op": "==", "value": 7, "why": "All seven requested topic groups must have evidence-backed inventory cases."},
+    {"id": "G-CASES", "role": "go", "metric": "discriminating_cases", "op": ">=", "value": 12, "why": "Multiple real cases must distinguish wrong claims from source facts."},
+    {"id": "G-ORACLE", "role": "go", "metric": "mismatches", "op": "==", "value": 0, "why": "Observed facts must match expectations recorded before spike code."},
+    {"id": "G-CONTROL", "role": "go", "metric": "oracle_controls.corrupt_fact_detected", "op": "==", "value": true, "why": "A deliberately wrong count must fail the independent expectation comparison."},
+    {"id": "G-UNKNOWN", "role": "go", "metric": "oracle_controls.unknown_promotion_detected", "op": "==", "value": true, "why": "Promoting unknown to verified must fail the evidence contract."},
+    {"id": "G-BOUNDARY", "role": "go", "metric": "oracle_controls.path_escape_rejected", "op": "==", "value": true, "why": "An escaped input must be rejected before file access."},
+    {"id": "K-ACCESS", "role": "kill", "metric": "unsafe_reads", "op": ">", "value": 0, "why": "Reading outside the approved tracked-file allowlist invalidates the static-only approach."},
+    {"id": "K-ASSURANCE", "role": "kill", "metric": "unsupported_assurance", "op": ">", "value": 0, "why": "A declaration or unknown must never claim observed enforcement."}
+  ],
+  "next": {
+    "go": {"route": "spec-workflow", "action": "Use this coverage inventory and its gaps to clarify the evidence contract in the spec workflow, starting with wayfinder; do not implement overlays yet."},
+    "no_go": {"route": "discovery", "action": "Reject this evidence model and register a new card that removes the unsafe or misleading assumption."},
+    "pivot": {"route": "discovery", "action": "Narrow the failed coverage cases and register a new hypothesis rather than adjusting this frozen card."},
+    "inconclusive": {"route": "discovery", "action": "Obtain the missing tracked evidence or runnable dependencies and rerun unchanged criteria."}
+  },
+  "open_questions": [
+    {"question": "Should machine-level MCP and installed extension state enter scope?", "owner": "human", "lean": "Keep the first audit repository-scoped; accept separately approved redacted imports later."},
+    {"question": "Should the frozen seven-pillar weights change?", "owner": "human", "lean": "No; express additional topics as versioned coverage and overlays before recalibration."},
+    {"question": "How should optional cloud execution evidence be admitted?", "owner": "agent", "lean": "Propose offline imports pinned to repository, revision, provider, run and observation time; no implicit cloud connection."},
+    {"question": "Can audit evidence be committed?", "owner": "human", "lean": "Preserve the current prohibition on raw reports; decide the narrow WN-020 summary carve-out separately."}
+  ],
+  "does_not_prove": [
+    "A single repository is not a representative cross-language calibration corpus.",
+    "Static configuration is not observed local or cloud enforcement, secure MCP behavior, extension installation or skill trust.",
+    "Missing dedicated catalog titles do not prove every possible heuristic is absent.",
+    "This discovery does not fix the known redaction defect, implement new checks, change scores or connect city overlays.",
+    "The spike is not the mandatory later design prototype."
+  ]
+}

@@ -1,0 +1,60 @@
+// Citation QA sidecar. Updated by shared/scripts/citation_lint.py
+// Default policy: final mode blocks URL failures; draft mode warns.
+{
+  "documents": {
+    "prior-art.md": {
+      "checks": {
+        "bareNumericGroups": 0,
+        "escapedCitationSyntax": 0,
+        "missingAnchors": [],
+        "orphanAnchors": [],
+        "placeholders": 0
+      },
+      "lastRunAt": "2026-11-04T18:42:08.657631+00:00",
+      "mode": "final",
+      "offline": false,
+      "path": "docs/0010-v0.1-harness-coverage-discovery/research/prior-art.md",
+      "status": "pass",
+      "summary": {
+        "anchors": 5,
+        "citations": 6,
+        "errors": 0,
+        "warnings": 0
+      },
+      "urlValidation": [
+        {
+          "detail": "HTTP 403",
+          "reachable": true,
+          "ref": 1,
+          "url": "https://cyclonedx.org/"
+        },
+        {
+          "detail": "HTTP 200",
+          "reachable": true,
+          "ref": 2,
+          "url": "https://github.com/ossf/scorecard/blob/main/docs/checks.md"
+        },
+        {
+          "detail": "HTTP 200",
+          "reachable": true,
+          "ref": 3,
+          "url": "https://modelcontextprotocol.io/docs/tutorials/security/security_best_practices"
+        },
+        {
+          "detail": "HTTP 200",
+          "reachable": true,
+          "ref": 4,
+          "url": "https://code.visualstudio.com/docs/editor/workspace-trust"
+        },
+        {
+          "detail": "HTTP 200",
+          "reachable": true,
+          "ref": 5,
+          "url": "https://agentskills.io/specification"
+        }
+      ]
+    }
+  },
+  "modeDefault": "final",
+  "schemaVersion": 1
+}

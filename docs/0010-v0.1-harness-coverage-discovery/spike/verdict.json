@@ -1,0 +1,133 @@
+{
+  "criteria": [
+    {
+      "actual": 7,
+      "id": "G-TOPICS",
+      "met": true,
+      "metric": "topics",
+      "op": "==",
+      "role": "go",
+      "value": 7
+    },
+    {
+      "actual": 16,
+      "id": "G-CASES",
+      "met": true,
+      "metric": "discriminating_cases",
+      "op": ">=",
+      "role": "go",
+      "value": 12
+    },
+    {
+      "actual": 0,
+      "id": "G-ORACLE",
+      "met": true,
+      "metric": "mismatches",
+      "op": "==",
+      "role": "go",
+      "value": 0
+    },
+    {
+      "actual": true,
+      "id": "G-CONTROL",
+      "met": true,
+      "metric": "oracle_controls.corrupt_fact_detected",
+      "op": "==",
+      "role": "go",
+      "value": true
+    },
+    {
+      "actual": true,
+      "id": "G-UNKNOWN",
+      "met": true,
+      "metric": "oracle_controls.unknown_promotion_detected",
+      "op": "==",
+      "role": "go",
+      "value": true
+    },
+    {
+      "actual": true,
+      "id": "G-BOUNDARY",
+      "met": true,
+      "metric": "oracle_controls.path_escape_rejected",
+      "op": "==",
+      "role": "go",
+      "value": true
+    },
+    {
+      "actual": 0,
+      "id": "K-ACCESS",
+      "met": false,
+      "metric": "unsafe_reads",
+      "op": ">",
+      "role": "kill",
+      "value": 0
+    },
+    {
+      "actual": 0,
+      "id": "K-ASSURANCE",
+      "met": false,
+      "metric": "unsupported_assurance",
+      "op": ">",
+      "role": "kill",
+      "value": 0
+    }
+  ],
+  "decision": "Whether to scope an evidence-first harness coverage extension before designing new controls or city overlays.",
+  "does_not_prove": [
+    "A single repository is not a representative cross-language calibration corpus.",
+    "Static configuration is not observed local or cloud enforcement, secure MCP behavior, extension installation or skill trust.",
+    "Missing dedicated catalog titles do not prove every possible heuristic is absent.",
+    "This discovery does not fix the known redaction defect, implement new checks, change scores or connect city overlays.",
+    "The spike is not the mandatory later design prototype."
+  ],
+  "evidence": {
+    "achieved": "real",
+    "inputs": [
+      ".githooks/pre-commit",
+      ".github/workflows/check.yml",
+      "Taskfile.yml",
+      "apps/harness-city/index.html",
+      "apps/harness-city/package.json",
+      "apps/harness-city/tools/report_to_city.py",
+      "data/sample/sample.json",
+      "skills/harness-audit/checks/catalog.yaml",
+      "skills/harness-audit/scripts/audit.py",
+      "skills/harness-audit/scripts/git_signals.py",
+      "skills/harness-audit/scripts/infra_checks.py",
+      "skills/harness-audit/scripts/score.py"
+    ],
+    "minimum": "real"
+  },
+  "hypothesis_sha256": "034c14b226b3e2f0d3ec0b8253867fb5c8cb44cb41af2f83fe532fc368f613d9",
+  "next": {
+    "action": "Use this coverage inventory and its gaps to clarify the evidence contract in the spec workflow, starting with wayfinder; do not implement overlays yet.",
+    "route": "spec-workflow"
+  },
+  "open_questions": [
+    {
+      "lean": "Keep the first audit repository-scoped; accept separately approved redacted imports later.",
+      "owner": "human",
+      "question": "Should machine-level MCP and installed extension state enter scope?"
+    },
+    {
+      "lean": "No; express additional topics as versioned coverage and overlays before recalibration.",
+      "owner": "human",
+      "question": "Should the frozen seven-pillar weights change?"
+    },
+    {
+      "lean": "Propose offline imports pinned to repository, revision, provider, run and observation time; no implicit cloud connection.",
+      "owner": "agent",
+      "question": "How should optional cloud execution evidence be admitted?"
+    },
+    {
+      "lean": "Preserve the current prohibition on raw reports; decide the narrow WN-020 summary carve-out separately.",
+      "owner": "human",
+      "question": "Can audit evidence be committed?"
+    }
+  ],
+  "question": "Can a read-only repository coverage inventory distinguish shipped checks, declarations and missing report-to-city evidence across seven harness topics without treating unknown coverage as assurance?",
+  "reason": "every go criterion met, no kill criterion met",
+  "schema": "discovery-verdict/1",
+  "verdict": "GO"
+}

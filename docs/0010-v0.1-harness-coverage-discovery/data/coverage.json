@@ -1,0 +1,165 @@
+{
+  "cases": [
+    {
+      "assurance": "static_only",
+      "id": "core_count",
+      "kind": "implemented",
+      "runtime_status": "unknown",
+      "sha256": "da2ca9a92606b8a8d96e312bb6c69ea09d82f98b36cc84e457a38872468cf26b",
+      "source": "skills/harness-audit/checks/catalog.yaml",
+      "topic": "rules",
+      "value": 56
+    },
+    {
+      "assurance": "static_only",
+      "id": "infra_count",
+      "kind": "implemented",
+      "runtime_status": "unknown",
+      "sha256": "4dae5500d747381220e04c5bc792e375cf4e48a51568e4fd8653ae66129603c9",
+      "source": "skills/harness-audit/scripts/infra_checks.py",
+      "topic": "rules",
+      "value": 60
+    },
+    {
+      "assurance": "static_only",
+      "id": "pillar_weight",
+      "kind": "implemented",
+      "runtime_status": "unknown",
+      "sha256": "eaa299d1fa090f3d0060cc08d9c33aaf346dda6d37b0ce0dda0d36a00080ae9d",
+      "source": "skills/harness-audit/scripts/score.py",
+      "topic": "rules",
+      "value": 100
+    },
+    {
+      "assurance": "static_only",
+      "id": "unsupported_early_exit",
+      "kind": "implemented",
+      "runtime_status": "unknown",
+      "sha256": "7e05ae4d786806804ca0007940cdbee99004a7aafced49e9b12980e75f7d888a",
+      "source": "skills/harness-audit/scripts/audit.py",
+      "topic": "rules",
+      "value": true
+    },
+    {
+      "assurance": "static_only",
+      "id": "node_lint_dependency",
+      "kind": "missing",
+      "runtime_status": "unknown",
+      "sha256": "72a4af81840c89d71322d70c4cbb18adb433b838a3333db0ee6b5034010760d6",
+      "source": "apps/harness-city/package.json",
+      "topic": "lint",
+      "value": false
+    },
+    {
+      "assurance": "static_only",
+      "id": "python_lint_check",
+      "kind": "declaration",
+      "runtime_status": "unknown",
+      "sha256": "44d821426791c276c789c0f9d4e7b0aa26fb3ae44c0d207d2f4ac56798e15c55",
+      "source": "Taskfile.yml",
+      "topic": "lint",
+      "value": true
+    },
+    {
+      "assurance": "static_only",
+      "id": "ci_task_check",
+      "kind": "declaration",
+      "runtime_status": "unknown",
+      "sha256": "9259a30e942f536c55216c254275ba4eed22bf65a820ff6bcb9948863de107a1",
+      "source": ".github/workflows/check.yml",
+      "topic": "pipelines",
+      "value": true
+    },
+    {
+      "assurance": "static_only",
+      "id": "root_app_test",
+      "kind": "declaration",
+      "runtime_status": "unknown",
+      "sha256": "44d821426791c276c789c0f9d4e7b0aa26fb3ae44c0d207d2f4ac56798e15c55",
+      "source": "Taskfile.yml",
+      "topic": "pipelines",
+      "value": true
+    },
+    {
+      "assurance": "static_only",
+      "id": "hook_task_precommit",
+      "kind": "declaration",
+      "runtime_status": "unknown",
+      "sha256": "0c9c373eec6dba05573b2aaeb86653528fd26894aab712e1b4a01c59230c899e",
+      "source": ".githooks/pre-commit",
+      "topic": "pipelines",
+      "value": true
+    },
+    {
+      "assurance": "static_only",
+      "id": "core_sbom_titles",
+      "kind": "not_covered",
+      "runtime_status": "unknown",
+      "sha256": "da2ca9a92606b8a8d96e312bb6c69ea09d82f98b36cc84e457a38872468cf26b",
+      "source": "skills/harness-audit/checks/catalog.yaml",
+      "topic": "sbom",
+      "value": 0
+    },
+    {
+      "assurance": "static_only",
+      "id": "core_mcp_titles",
+      "kind": "not_covered",
+      "runtime_status": "unknown",
+      "sha256": "da2ca9a92606b8a8d96e312bb6c69ea09d82f98b36cc84e457a38872468cf26b",
+      "source": "skills/harness-audit/checks/catalog.yaml",
+      "topic": "mcp",
+      "value": 0
+    },
+    {
+      "assurance": "static_only",
+      "id": "core_skill_provenance_titles",
+      "kind": "not_covered",
+      "runtime_status": "unknown",
+      "sha256": "da2ca9a92606b8a8d96e312bb6c69ea09d82f98b36cc84e457a38872468cf26b",
+      "source": "skills/harness-audit/checks/catalog.yaml",
+      "topic": "skills",
+      "value": 0
+    },
+    {
+      "assurance": "static_only",
+      "id": "infra_extension_declaration",
+      "kind": "implemented",
+      "runtime_status": "unknown",
+      "sha256": "4dae5500d747381220e04c5bc792e375cf4e48a51568e4fd8653ae66129603c9",
+      "source": "skills/harness-audit/scripts/infra_checks.py",
+      "topic": "extensions",
+      "value": true
+    },
+    {
+      "assurance": "static_only",
+      "id": "converter_infra_projection",
+      "kind": "missing",
+      "runtime_status": "unknown",
+      "sha256": "013deb17267329cceb73c870f2a5d5827c7303b5c7a2878f88445ab1b9daea47",
+      "source": "apps/harness-city/tools/report_to_city.py",
+      "topic": "rules",
+      "value": false
+    },
+    {
+      "assurance": "static_only",
+      "id": "airport_demo_preset",
+      "kind": "prototype",
+      "runtime_status": "unknown",
+      "sha256": "7a49ea6321b29e2cc1ed89f051bedda621b3a89341779b06929f47f8aa7978bb",
+      "source": "apps/harness-city/index.html",
+      "topic": "rules",
+      "value": true
+    },
+    {
+      "assurance": "static_only",
+      "id": "unused_dependency_unimplemented",
+      "kind": "not_covered",
+      "runtime_status": "unknown",
+      "sha256": "d2c73eacc034ab3ac248e335a988d6906816a68fe7ec0e7b0c832e3ce1813fd7",
+      "source": "skills/harness-audit/scripts/git_signals.py",
+      "topic": "sbom",
+      "value": true
+    }
+  ],
+  "schema": "harness-coverage/1"
+}

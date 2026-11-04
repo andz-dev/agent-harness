@@ -53,4 +53,4 @@ right mouse drag pans, wheel zooms, Ctrl+Z and Ctrl+Y undo and redo, Enter or Es
 * The airport express platform does not move with the airport yet.
 * With software rendering (no GPU) the editor runs at a low frame rate.
 * The palette holds the models of the current map. Other CC0 kits need an import with a
-  NOTICE entry first (see `docs/0010/Research.md`).
+  NOTICE entry first (see [preserved editor research](../../docs/0010-v0.1-harness-coverage-discovery/Research.md)).

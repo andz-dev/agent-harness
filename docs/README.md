@@ -74,7 +74,7 @@ statements, and separates roadmap proposals from implementation and evaluation e
 | [0006](0006-v0.1-infrastructure-calibration-retrospective/research/README.md) | Infrastructure-level evaluation material |
 | [0007](0007-v0.1-airport-overlay-evidence-matched/research/airport-assets.md) | Airport evaluation and current metaphor decisions |
 | [0009](0009-v0.1-city-overlays-road-traffic-harness-evidence/Design-Proposal.md) | Draft proposal: city overlays, road traffic, committed harness evidence; [asset research](0009-v0.1-city-overlays-road-traffic-harness-evidence/Asset-Research.md) |
-| [0010](0010/Research.md) | Research: city and map editor (skills, frameworks, CC0 assets, export format) |
+| [0010](0010-v0.1-harness-coverage-discovery/Ideation-Book.md) | Current harness-coverage discovery; [handoff](0010-v0.1-harness-coverage-discovery/research/handoff.md). Original [city-editor research](0010-v0.1-harness-coverage-discovery/Research.md) preserved; editor remains parked. |
 
 Amendment 2026-11-04: folders were renamed to the versioned pattern (see the map below);
 they are not presented as an original spec workflow, and `doc_scope` marks each artifact
@@ -98,8 +98,12 @@ in `.trail/` session notes, which are not rewritten.
 | `docs/0007/` | [0007-v0.1-airport-overlay-evidence-matched](0007-v0.1-airport-overlay-evidence-matched/) | [report](0007-v0.1-airport-overlay-evidence-matched/Workflow-Report.md) |
 | `docs/0008-v0.1-harness-history-and-quality/` | unchanged | [report](0008-v0.1-harness-history-and-quality/Workflow-Report.md) |
 | `docs/0009/` | [0009-v0.1-city-overlays-road-traffic-harness-evidence](0009-v0.1-city-overlays-road-traffic-harness-evidence/Design-Proposal.md) | [report](0009-v0.1-city-overlays-road-traffic-harness-evidence/Workflow-Report.md) |
+| `docs/0010/` | [0010-v0.1-harness-coverage-discovery](0010-v0.1-harness-coverage-discovery/Ideation-Book.md) | [report](0010-v0.1-harness-coverage-discovery/Workflow-Report.md) |
 
 0009 had no recorded version; `v0.1` is assigned at this migration, not a historical claim.
+Amendment 2026-11-04: 0010 is reused for the owner's current harness-coverage discovery.
+Its `v0.1` is assigned for this subject, not a retrospective editor version. The original
+research is unchanged, including its historical old-path prose; no editor work is resumed.
 
 ## Depth Pass and Open Conflicts
 

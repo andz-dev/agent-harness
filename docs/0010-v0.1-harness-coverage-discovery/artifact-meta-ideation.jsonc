@@ -1,0 +1,25 @@
+{
+  "artifact": "Ideation-Book.md",
+  "generatedAt": "2026-11-04T18:43:00Z",
+  "mode": "final",
+  "inputs": ["research/prompt.md", "research/prior-art.md", "data/oracle.json", "hypothesis.jsonc", "spike/result.json"],
+  "outputs": ["Ideation-Book.md", "research/handoff.md", "spike/verdict.json"],
+  "validation": {
+    "status": "fail",
+    "checks": ["hypothesis_schema", "frozen_card", "sample_reproduction", "spike_reproduction", "verdict_reproduction", "citation_qa_final", "prior_art_citation_qa_final", "discovery_decision_gates", "probe_log_pairs", "bundle_docs_audit", "mermaid_render", "script_symbol_lint", "script_editor_diagnostics", "runtime_snapshot_integrity"],
+    "notRun": ["production_runtime_tests", "viewer_browser_regression_suite"],
+    "warnings": ["G1 sample_not_committed", "G3 report_missing: optional HTML report omitted"],
+    "failures": [
+      {"check": "repository_docs_publication", "reason": "Pre-existing committed Trail learning lacks type frontmatter; not edited."},
+      {"check": "installed_logging_contract", "tests": 9, "failures": 2, "errors": 1},
+      {"check": "installed_discovery_suite", "tests": 353, "failures": 51, "errors": 56, "skipped": 6}
+    ]
+  },
+  "notes": [
+    "Runtime checks of the audited application are outside discovery scope.",
+    "The optional offline HTML report is omitted in unattended mode.",
+    "The synthetic sample has not been staged or committed.",
+    "The frozen discovery's decision gates pass, but aggregate validation is not green because of the recorded repository and installed-tooling failures.",
+    "Original editor research SHA-256 remains 979e33c90872f534565e5a070b79e0f134d3fb2053fdf09fccc4a56f349583d3."
+  ]
+}

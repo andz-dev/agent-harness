@@ -215,7 +215,7 @@ Decided 2026-10-30: the airport moves two cells east of the first proposal (airp
 
 ## Editor
 
-Status: second version, decisions from the owner on 2026-10-29. Parked on 2026-10-30: the code stays in the repo, no further editor work until the owner resumes it. Research: `docs/0010/Research.md`.
+Status: second version, decisions from the owner on 2026-10-29. Parked on 2026-10-30: the code stays in the repo, no further editor work until the owner resumes it. Research: [preserved editor research](../../docs/0010-v0.1-harness-coverage-discovery/Research.md). Path updated on 2026-11-04; editor scope is unchanged.
 Usage: [EDITOR.md](EDITOR.md).
 
 * The editor is a separate page, `editor.html`. It shows the viewer itself: `index.html?embed`
