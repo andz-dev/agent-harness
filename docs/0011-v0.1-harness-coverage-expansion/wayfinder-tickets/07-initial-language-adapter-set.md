@@ -10,6 +10,7 @@ interaction: "HITL"
 status: "open"
 blocked_by:
   - "06-validation-and-acceptance"
+claimed_by: "GitHub Copilot"
 created: "2026-11-04"
 updated: "2026-11-04"
 generated: "agent"
