@@ -1,0 +1,21 @@
+{
+  "artifact": "2026-11-04-documentation-alignment-kickoff.md",
+  "status": "active",
+  "validate": "python3 tools/check.py",
+  "stopWhen": "The static check exits 0, the kickoff metadata sidecar is current, and the index links to the kickoff and proposed inventory; the full chain remains explicitly unfinished.",
+  "inputs": [
+    "AGENTS.md",
+    "docs/Whats-Next.md",
+    "docs/README.md",
+    "docs/Documentation-Alignment.md",
+    "docs/0002-v0.2-harness-audit-as-built-adoption/README.md",
+    "docs/0008-v0.1-harness-history-and-quality/Implementation.md"
+  ],
+  "outputs": [
+    "docs/Whats-Next.md",
+    "docs/Documentation-Alignment.md",
+    "docs/README.md",
+    "docs/lightweight/2026-11-04-documentation-alignment-kickoff.md"
+  ],
+  "generatedBy": "specs-lightweight/scripts/lightweight_meta.py"
+}
