@@ -61,6 +61,7 @@ Stop before running `spec-workflow-orchestrator` or implementing the specificati
 - [Report City And Publication Contract](wayfinder-tickets/04-report-city-and-publication.md#resolution): map topics to city objects and evidence to separate indicators; prototype airport/factory/highway first and retain the existing ban on committed real-target reports.
 - [Existing Backlog Disposition](wayfinder-tickets/05-backlog-disposition.md#resolution): absorb WN-028/WN-029 as specification inputs and use WN-018/WN-021–WN-025 as overlay candidates; keep implementation, publication exception and parked design work separately tracked.
 - [Validation And Acceptance](wayfinder-tickets/06-validation-and-acceptance.md#resolution): require topic/state fixtures, representative samples for the selected adapters, safety must-fail controls and report/city consistency; keep WN-031 as a viewer-acceptance prerequisite.
+- [Initial Language Adapter Set](wayfinder-tickets/07-initial-language-adapter-set.md#resolution): retain Python and Node only for the first spec; require representative evidence, topic fixtures, and safety/validation passes before adding adapters.
 
 ## Not yet specified
 
