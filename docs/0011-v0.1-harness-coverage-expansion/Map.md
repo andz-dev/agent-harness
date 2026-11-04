@@ -55,12 +55,12 @@ Stop before running `spec-workflow-orchestrator` or implementing the specificati
 
 ## Decisions so far
 
-<!-- No child decisions have been resolved during charting. -->
+- [Coverage Topics And Applicability](wayfinder-tickets/01-coverage-topics-and-applicability.md#resolution): preserve the seven scored pillars and add separate unscored overlays; assess applicability per component and avoid universal language-support claims.
 
 ## Not yet specified
 
-No additional decision is sharp enough to ticket beyond the six open child
-questions. Revisit this section as their resolutions expose the next frontier.
+Any additional topic groups beyond the current inventory remain too indistinct
+to ticket. Revisit this section as the open decisions expose more of the scope.
 
 ## Out of scope
 
