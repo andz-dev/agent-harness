@@ -5,6 +5,7 @@ version: 'v0.1'
 title: 'Harness History and Quality Map'
 description: 'Automatically reconstructed historical constraints and the scope of current quality improvements.'
 status: 'active'
+doc_scope: 'history'
 created: '2026-10-28'
 updated: '2026-10-28'
 generated: 'agent'
@@ -81,7 +82,7 @@ Inspect a cited change with `git show --stat <commit>`; inspect its contents wit
 - Browser automation runs only this repository's trusted synthetic city application.
 - Audit reports, answers, test output and history records stay in ignored local storage.
 - Current verification results never become retrospective evidence for an old commit.
-- Original `docs/0001/.gitkeep` and imported `docs/0002/` are preserved; the owner's later
+- Original `docs/0001-v0.1-standalone-extraction-retrospective/.gitkeep` and imported `docs/0002-v0.2-harness-audit-as-built-adoption/` are preserved; the owner's later
   per-folder reconstruction uses 0001 for the initial extraction retrospective.
 - Client configuration, live client loading and external integrations are out of scope.
 - No commits, branches, deployments or remote connections are created automatically.
@@ -124,8 +125,8 @@ Do not present the changed coverage as evidence that passing browser tests regre
 
 - [Repository rules](../../AGENTS.md)
 - [Repository commands](../../Taskfile.yml)
-- [Imported source documentation](../0002/README.md)
-- [Earlier roadmap](../0003/research/README.md)
-- [Airport design decisions](../0007/research/airport-assets.md)
+- [Imported source documentation](../0002-v0.2-harness-audit-as-built-adoption/README.md)
+- [Earlier roadmap](../0003-v0.1-harness-roadmap-evidence-matched/research/README.md)
+- [Airport design decisions](../0007-v0.1-airport-overlay-evidence-matched/research/airport-assets.md)
 - [Audit workflow](../../skills/harness-audit/SKILL.md)
 - [City design](../../apps/harness-city/DESIGN.md)

@@ -46,9 +46,9 @@ validation. Do not delete, skip or weaken tests to make checks pass.
 
 ## Documentation
 
-`docs/0001/` now records the initial extraction retrospectively; preserve its original
+`docs/0001-v0.1-standalone-extraction-retrospective/` now records the initial extraction retrospectively; preserve its original
 empty `.gitkeep`. The owner requested basic retrospective files in each named topic
-folder. `docs/0002/` contains relocated historical as-built
+folder. `docs/0002-v0.2-harness-audit-as-built-adoption/` contains relocated historical as-built
 documentation, not an instruction to rerun old source-repository retirements.
-`docs/0003/` is the proposed roadmap. New checks in this repo are separate from
+`docs/0003-v0.1-harness-roadmap-evidence-matched/` is the proposed roadmap. New checks in this repo are separate from
 historical pass records. Preserve source provenance and required license notices.

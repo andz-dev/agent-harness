@@ -1,0 +1,23 @@
+{
+  "artifact": "Design-Proposal.md",
+  "generatedAt": "2026-11-04T12:59:44Z",
+  "mode": "draft",
+  "inputs": [],
+  "outputs": [
+    "docs/0009-v0.1-city-overlays-road-traffic-harness-evidence/Design-Proposal.md"
+  ],
+  "validation": {
+    "status": "warn",
+    "checks": [
+      "frontmatter_type_present",
+      "local_links_resolve"
+    ],
+    "notRun": [
+      "stage_skill_validator",
+      "semantic_claim_review"
+    ]
+  },
+  "notes": [
+    "Proposal only; no spec-chain stage has been run for this folder."
+  ]
+}

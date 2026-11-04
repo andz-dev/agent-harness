@@ -49,4 +49,4 @@ Terraform/OpenTofu directories (`INF-T01..T07`), Bicep (`INF-B01..B06`), Kuberne
 block of `report.json` (`checks`, `summary`, `rollup`, `levels`). The overlay has its own level L0 to L3 per area and overall (weakest tool area; repo-wide areas reported separately), computed with the pillar rule; see `SKILL.md`. To compare the levels with human ratings, use `scripts/infra_calibration.py` (blind template, then compare).
 
 It never changes the score (decision D1; a test pins it). Other IaC tools are detected but not checked yet. Plan and
-backlog: `docs/0005/Infrastructure-Coverage-Map.md` in the repository root and `BACKLOG.md` sections 4v to 4x.
+backlog: `docs/0005-v0.1-infrastructure-overlay-matched/Infrastructure-Coverage-Map.md` in the repository root and `BACKLOG.md` sections 4v to 4x.

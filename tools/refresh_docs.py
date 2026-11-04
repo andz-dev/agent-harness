@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-BUNDLE = ROOT / "docs/0002"
+BUNDLE = ROOT / "docs/0002-v0.2-harness-audit-as-built-adoption"
 
 
 def write(path, document):

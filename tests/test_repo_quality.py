@@ -16,11 +16,11 @@ class RepositoryQualityTests(unittest.TestCase):
         self.temporary = tempfile.TemporaryDirectory(prefix="harness-quality-test-")
         self.addCleanup(self.temporary.cleanup)
         self.root = Path(self.temporary.name)
-        (self.root / "docs/0001").mkdir(parents=True)
-        (self.root / "docs/0001/.gitkeep").touch()
-        (self.root / "docs/0002").mkdir()
+        (self.root / "docs/0001-v0.1-standalone-extraction-retrospective").mkdir(parents=True)
+        (self.root / "docs/0001-v0.1-standalone-extraction-retrospective/.gitkeep").touch()
+        (self.root / "docs/0002-v0.2-harness-audit-as-built-adoption").mkdir()
         for name in ("architecture-model.jsonc", "change-set.jsonc"):
-            (self.root / "docs/0002" / name).write_text(json.dumps({}), encoding="utf-8")
+            (self.root / "docs/0002-v0.2-harness-audit-as-built-adoption" / name).write_text(json.dumps({}), encoding="utf-8")
 
     def git(self, *arguments):
         return subprocess.run(["git", "-C", str(self.root), *arguments], check=True, capture_output=True, text=True)

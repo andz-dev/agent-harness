@@ -42,9 +42,9 @@ def integrity(root):
 
 def documents(root):
     failures = []
-    scaffold = root / "docs/0001/.gitkeep"
+    scaffold = root / "docs/0001-v0.1-standalone-extraction-retrospective/.gitkeep"
     if not scaffold.is_file() or scaffold.stat().st_size != 0:
-        failures.append("docs/0001/.gitkeep must exist and be empty")
+        failures.append("docs/0001-v0.1-standalone-extraction-retrospective/.gitkeep must exist and be empty")
     for path in root.rglob("*.md"):
         if SKIP.intersection(path.relative_to(root).parts):
             continue
@@ -60,14 +60,14 @@ def documents(root):
             destination = (path.parent / unquote(parsed.path)).resolve()
             if not destination.is_relative_to(root) or not destination.exists():
                 failures.append(relative + ": broken local link " + raw)
-    for path in (root / "docs/0002").rglob("*.jsonc"):
+    for path in (root / "docs/0002-v0.2-harness-audit-as-built-adoption").rglob("*.jsonc"):
         try:
             text = re.sub(r"^\s*//.*$", "", path.read_text(), flags=re.MULTILINE)
             json.loads(text)
         except ValueError:
             failures.append(str(path.relative_to(root)) + ": invalid JSONC")
     for name in ("architecture-model.jsonc", "change-set.jsonc"):
-        path = root / "docs/0002" / name
+        path = root / "docs/0002-v0.2-harness-audit-as-built-adoption" / name
         document = json.loads(path.read_text())
         for source in document.get("based_on", []):
             original = root / source["path"]

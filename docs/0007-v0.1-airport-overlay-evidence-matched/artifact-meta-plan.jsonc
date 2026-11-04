@@ -1,0 +1,25 @@
+{
+  "artifact": "Plan.md",
+  "generatedAt": "2026-11-04T12:59:44Z",
+  "mode": "draft",
+  "inputs": [],
+  "outputs": [
+    "docs/0007-v0.1-airport-overlay-evidence-matched/Plan.md"
+  ],
+  "validation": {
+    "status": "warn",
+    "checks": [
+      "frontmatter_type_present",
+      "local_links_resolve"
+    ],
+    "notRun": [
+      "citation_qa",
+      "stage_skill_validator",
+      "semantic_claim_review"
+    ]
+  },
+  "notes": [
+    "Run record for an existing retrospective document; it records no stage run and no historical pass.",
+    "Checks listed ran through tools/check.py; notRun items were not executed."
+  ]
+}

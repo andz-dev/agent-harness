@@ -11,7 +11,7 @@ verified: 'unverified'
 owner: 'Andreas Elser'
 tags: [documentation, history, provenance]
 sources:
-  - 'Path-specific local Git history for docs/0001 and docs/0003 through docs/0007, inspected 2026-10-28'
+  - 'Path-specific local Git history for docs/0001-v0.1-standalone-extraction-retrospective and docs/0003-v0.1-harness-roadmap-evidence-matched through docs/0007-v0.1-airport-overlay-evidence-matched, inspected 2026-10-28'
   - 'Current documents in those six folders, inspected 2026-10-28'
 ---
 
@@ -36,12 +36,12 @@ The [per-folder navigation matrix](README.md#per-folder-basic-sets) links all 24
 
 | Folder | Git anchor | Document role | Reconciled status |
 | --- | --- | --- | --- |
-| [0001](0001/) | `23251df` | Initial extraction; originally reserved scaffold | New retrospective set grounded in extraction provenance, not claimed as original specs |
-| [0003](0003/research/README.md) | `23251df` | Owner roadmap copied during extraction | Historical proposals; later implementation must be matched per item |
-| [0004](0004/research/README.md) | `7fddcc3`, `b470917` | v1.2 release and agreement records | Historical implementation/evaluation evidence, not a current full acceptance gate |
-| [0005](0005/research/README.md) | `3106ad5` through `12c28e8` | Infrastructure coverage and backlog map | Mixed: later commits implement substantial detection/check/level work; remaining plans stay proposals |
-| [0006](0006/research/README.md) | `2146078` | Infrastructure-level calibration page and sidecar | Historical single-rater evaluation and related rule changes, with stated limits |
-| [0007](0007/research/airport-assets.md) | `3bfdf2b` through `90e9a52` | Airport evaluation and evolving city metaphor | Implemented opt-in prototype; current support/transport choices supersede earlier variants where stated |
+| [0001](0001-v0.1-standalone-extraction-retrospective/) | `23251df` | Initial extraction; originally reserved scaffold | New retrospective set grounded in extraction provenance, not claimed as original specs |
+| [0003](0003-v0.1-harness-roadmap-evidence-matched/research/README.md) | `23251df` | Owner roadmap copied during extraction | Historical proposals; later implementation must be matched per item |
+| [0004](0004-v0.1-audit-release-retrospective/research/README.md) | `7fddcc3`, `b470917` | v1.2 release and agreement records | Historical implementation/evaluation evidence, not a current full acceptance gate |
+| [0005](0005-v0.1-infrastructure-overlay-matched/research/README.md) | `3106ad5` through `12c28e8` | Infrastructure coverage and backlog map | Mixed: later commits implement substantial detection/check/level work; remaining plans stay proposals |
+| [0006](0006-v0.1-infrastructure-calibration-retrospective/research/README.md) | `2146078` | Infrastructure-level calibration page and sidecar | Historical single-rater evaluation and related rule changes, with stated limits |
+| [0007](0007-v0.1-airport-overlay-evidence-matched/research/airport-assets.md) | `3bfdf2b` through `90e9a52` | Airport evaluation and evolving city metaphor | Implemented opt-in prototype; current support/transport choices supersede earlier variants where stated |
 
 ## File Match
 
@@ -57,19 +57,19 @@ as their creation commits. The original empty scaffold remains at its original p
 
 | File | Introduced | Latest path change at this review | Interpretation |
 | --- | --- | --- | --- |
-| [0001 scaffold](0001/.gitkeep) | `23251df` | `23251df` | Reserved empty file, not a spec artifact |
-| [0003 index](0003/research/README.md) | `23251df` | `23251df` | Warns that roadmap claims are historical and proposed |
-| [Roadmap](0003/research/Repo%20Harness%20Next%20Steps.md) | `23251df` | `23251df` | Preserved owner-provided body; do not silently tick its open decisions |
-| [0004 index](0004/research/README.md) | `7fddcc3` | `7fddcc3` | Points to v1.2 records and the earlier roadmap |
-| [v1.2 release notes](0004/research/Release-Notes-v1.2.md) | `7fddcc3` | `7fddcc3` | Release-time behavior, verification and limitations |
-| [v1.2 agreement report](0004/research/Agreement-Report-v1.2.md) | `7fddcc3` | `b470917` | Updated second agreement run; not a new experiment in this reconciliation |
-| [0005 index](0005/research/README.md) | `3106ad5` | `3106ad5` | Original blanket proposal-only wording became stale as implementation followed |
-| [Infrastructure coverage map](0005/research/Infrastructure-Coverage-Map.md) | `3106ad5` | `12c28e8` | Incrementally updated alongside infrastructure implementation |
-| [0006 index and results](0006/research/README.md) | `2146078` | `2146078` | Documents B-215 changes and explicitly limited calibration results |
-| [Calibration configurator](0006/research/infra-level-vote.html) | `2146078` | `2146078` | Intentionally tracked evaluation tool, not the current generated city bundle |
-| [Calibration sidecar](0006/research/infra-levels-evaluation.json) | `2146078` | `2146078` | Historical ratings intentionally committed at owner request; do not rewrite as synthetic data |
-| [Airport asset decisions](0007/research/airport-assets.md) | `3bfdf2b` | `90e9a52` | Proposal developed into the real-city opt-in prototype and later support-facility rules |
-| [Local airport simulator](0007/research/city-airport-prototype.html) | No tracked introduction at this path | Untracked generated output | Derived from app source; do not assign it a fabricated originating commit or commit the bundle |
+| [0001 scaffold](0001-v0.1-standalone-extraction-retrospective/.gitkeep) | `23251df` | `23251df` | Reserved empty file, not a spec artifact |
+| [0003 index](0003-v0.1-harness-roadmap-evidence-matched/research/README.md) | `23251df` | `23251df` | Warns that roadmap claims are historical and proposed |
+| [Roadmap](0003-v0.1-harness-roadmap-evidence-matched/research/Repo%20Harness%20Next%20Steps.md) | `23251df` | `23251df` | Preserved owner-provided body; do not silently tick its open decisions |
+| [0004 index](0004-v0.1-audit-release-retrospective/research/README.md) | `7fddcc3` | `7fddcc3` | Points to v1.2 records and the earlier roadmap |
+| [v1.2 release notes](0004-v0.1-audit-release-retrospective/research/Release-Notes-v1.2.md) | `7fddcc3` | `7fddcc3` | Release-time behavior, verification and limitations |
+| [v1.2 agreement report](0004-v0.1-audit-release-retrospective/research/Agreement-Report-v1.2.md) | `7fddcc3` | `b470917` | Updated second agreement run; not a new experiment in this reconciliation |
+| [0005 index](0005-v0.1-infrastructure-overlay-matched/research/README.md) | `3106ad5` | `3106ad5` | Original blanket proposal-only wording became stale as implementation followed |
+| [Infrastructure coverage map](0005-v0.1-infrastructure-overlay-matched/research/Infrastructure-Coverage-Map.md) | `3106ad5` | `12c28e8` | Incrementally updated alongside infrastructure implementation |
+| [0006 index and results](0006-v0.1-infrastructure-calibration-retrospective/research/README.md) | `2146078` | `2146078` | Documents B-215 changes and explicitly limited calibration results |
+| [Calibration configurator](0006-v0.1-infrastructure-calibration-retrospective/research/infra-level-vote.html) | `2146078` | `2146078` | Intentionally tracked evaluation tool, not the current generated city bundle |
+| [Calibration sidecar](0006-v0.1-infrastructure-calibration-retrospective/research/infra-levels-evaluation.json) | `2146078` | `2146078` | Historical ratings intentionally committed at owner request; do not rewrite as synthetic data |
+| [Airport asset decisions](0007-v0.1-airport-overlay-evidence-matched/research/airport-assets.md) | `3bfdf2b` | `90e9a52` | Proposal developed into the real-city opt-in prototype and later support-facility rules |
+| [Local airport simulator](0007-v0.1-airport-overlay-evidence-matched/research/city-airport-prototype.html) | No tracked introduction at this path | Untracked generated output | Derived from app source; do not assign it a fabricated originating commit or commit the bundle |
 
 The table records the committed history before this reconciliation. The original 0005
 index is hash-pinned imported material now located under `research/`. Its blanket
@@ -148,7 +148,7 @@ unimplemented reading. This crosswalk resolves that reading without changing the
 | Airport asset idea | `3bfdf2b` | Initial design proposal |
 | Transit options A/B/C | `f85a36d`; city baseline `a3f9c69` | Evaluation alternatives, not three different production integrations |
 | Design authority and checks | `489457f` | Current app DESIGN.md governs visual decisions |
-| Earlier separate prototype | `38fab47` adds `apps/harness-city/prototypes/airport.html`; `3f450d5`, `c2a342f` refine it | Historical prototype, not the current generated docs/0007 file |
+| Earlier separate prototype | `38fab47` adds `apps/harness-city/prototypes/airport.html`; `3f450d5`, `c2a342f` refine it | Historical prototype, not the current generated docs/0007-v0.1-airport-overlay-evidence-matched file |
 | Prototype in the real city | `8deb536` | Replaces the separate prototype with the real app's opt-in airport |
 | Current support facilities, metro, underground and PNG | `90e9a52` | Implemented evaluation behavior with automated browser evidence recorded separately |
 | L3 two-runway table entry | Earlier proposal versus the document's later explicit one-runway decision | Superseded proposal; the later decision and current DESIGN.md take precedence |

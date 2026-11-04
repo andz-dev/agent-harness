@@ -20,8 +20,8 @@ plan, and explore the results in Harness City.
   produces a scored report and counterfactual fix plan.
 - [Harness City](apps/harness-city/README.md) visualizes report data as an
   interactive 3D city. The checked-in demo is synthetic, not a real audit.
-- [Adoption documentation](docs/0002/README.md) records the source implementation
-  and its limitations. [Next steps](docs/0003/research/Repo%20Harness%20Next%20Steps.md)
+- [Adoption documentation](docs/0002-v0.2-harness-audit-as-built-adoption/README.md) records the source implementation
+  and its limitations. [Next steps](docs/0003-v0.1-harness-roadmap-evidence-matched/research/Repo%20Harness%20Next%20Steps.md)
   remain proposals, not implemented capabilities.
 - [History and quality](docs/0008-v0.1-harness-history-and-quality/Map.md) reconstructs
   local commits and the current implementation in a basic versioned spec bundle.
@@ -89,9 +89,9 @@ modules and optional remote fonts.
 | --- | --- |
 | `skills/harness-audit/` | Audit implementation, catalog, schema, prompts and tests; intentional adaptations are hash-pinned |
 | `apps/harness-city/` | Static visualization, model assets and report adapter |
-| `docs/0001/.gitkeep` | Reserved empty documentation scaffold |
-| `docs/0002/` | Imported and relocated 0039 as-built documentation |
-| `docs/0003/` | Owner-provided future roadmap |
+| `docs/0001-v0.1-standalone-extraction-retrospective/.gitkeep` | Reserved empty documentation scaffold |
+| `docs/0002-v0.2-harness-audit-as-built-adoption/` | Imported and relocated 0039 as-built documentation |
+| `docs/0003-v0.1-harness-roadmap-evidence-matched/` | Owner-provided future roadmap |
 | `docs/0008-v0.1-harness-history-and-quality/` | Basic retrospective and current quality implementation |
 | `tools/` | Extraction integrity, public-demo and documentation checks |
 

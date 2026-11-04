@@ -25,4 +25,4 @@ Read [DESIGN.md](DESIGN.md) before any change to the city, including small ones.
   `--check`).
 * `index.html` is an adapted runtime file: after editing it, run the manifest rehash and
   `python3 tools/check.py` from the repo root, then look at a screenshot of each demo tier.
-* Open design questions go to `docs/0007/` or the next free docs folder, not into code comments.
+* Open design questions go to `docs/0007-v0.1-airport-overlay-evidence-matched/` or the next free docs folder, not into code comments.

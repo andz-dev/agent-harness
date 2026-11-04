@@ -28,9 +28,9 @@ that exist in this clean repository.
 - The existing skill code, tests, catalog, schema, prompts, dependency lock and
   cleared explanatory files, under `skills/harness-audit/`.
 - Harness City runtime, adapter/build tools, vendor modules and model assets.
-- An empty `docs/0001/.gitkeep` scaffold.
-- The authored 0039 documentation, relocated into `docs/0002/` without generated logs.
-- The owner-selected next-steps note, under `docs/0003/`.
+- An empty `docs/0001-v0.1-standalone-extraction-retrospective/.gitkeep` scaffold.
+- The authored 0039 documentation, relocated into `docs/0002-v0.2-harness-audit-as-built-adoption/` without generated logs.
+- The owner-selected next-steps note, under `docs/0003-v0.1-harness-roadmap-evidence-matched/`.
 - New root packaging, CI/checks, licensing and synthetic demo generation.
 
 ## Excluded
@@ -95,4 +95,4 @@ findings and evidence. The synthetic demo still contains no findings.
 Skill files changed after the import are also recorded as `adapted-runtime` in
 [extraction-manifest.json](extraction-manifest.json). The first baseline update brings in
 harness-audit v1.2 (placeholder downgrade, DOC-06 script check, larger excerpt
-budgets, agreement tool); see [v1.2 records](docs/0004/research/README.md). Their `sha256` is the reviewed baseline that `task integrity` verifies.
+budgets, agreement tool); see [v1.2 records](docs/0004-v0.1-audit-release-retrospective/research/README.md). Their `sha256` is the reviewed baseline that `task integrity` verifies.
