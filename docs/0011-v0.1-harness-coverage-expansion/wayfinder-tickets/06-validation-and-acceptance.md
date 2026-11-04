@@ -13,6 +13,7 @@ blocked_by:
   - "02-evidence-states-and-assurance"
   - "03-safe-evidence-and-reachability"
   - "04-report-city-and-publication"
+claimed_by: "GitHub Copilot"
 created: "2026-11-04"
 updated: "2026-11-04"
 generated: "agent"
