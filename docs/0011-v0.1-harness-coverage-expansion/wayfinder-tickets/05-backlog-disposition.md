@@ -11,6 +11,7 @@ status: "open"
 blocked_by:
   - "01-coverage-topics-and-applicability"
   - "04-report-city-and-publication"
+claimed_by: "GitHub Copilot"
 created: "2026-11-04"
 updated: "2026-11-04"
 generated: "agent"
