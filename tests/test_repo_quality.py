@@ -8,7 +8,7 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from tools.check import documents, publication  # noqa: E402
+from tools.check import design, documents, publication  # noqa: E402
 
 
 class RepositoryQualityTests(unittest.TestCase):
@@ -50,6 +50,23 @@ class RepositoryQualityTests(unittest.TestCase):
         report.write_text('{"synthetic": true}\n', encoding="utf-8")
         self.git("add", "-f", "reports/synthetic.json")
         self.assertIn("Generated/private output is tracked: reports/synthetic.json", publication(self.root))
+
+    def test_design_check_passes_on_the_repository(self):
+        self.assertEqual(design(Path(__file__).resolve().parents[1]), [])
+
+    def test_perspective_camera_fails_the_design_check(self):
+        root = Path(__file__).resolve().parents[1]
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            city = tmp / "apps/harness-city"
+            city.mkdir(parents=True)
+            for name in ("DESIGN.md", "AGENTS.md"):
+                (city / name).write_text((root / "apps/harness-city" / name).read_text(encoding="utf-8"), encoding="utf-8")
+            html = (root / "apps/harness-city/index.html").read_text(encoding="utf-8")
+            (city / "index.html").write_text(html.replace("THREE.OrthographicCamera", "THREE.PerspectiveCamera"), encoding="utf-8")
+            for name in ("AGENTS.md", "CLAUDE.md"):
+                (tmp / name).write_text((root / name).read_text(encoding="utf-8"), encoding="utf-8")
+            self.assertTrue(any("orthographic" in f for f in design(tmp)))
 
 
 if __name__ == "__main__":

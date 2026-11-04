@@ -14,6 +14,7 @@ SKIP = {
     ".git",
     ".venv",
     ".data",
+    ".atlas",
     "__pycache__",
     ".pytest_cache",
     ".ruff_cache",
@@ -24,6 +25,8 @@ SKIP = {
     "playwright-report",
     "test-results",
 }
+# trail writes generated symbol cards here; the folder is git-ignored on purpose.
+CACHE_DIR = ".trail"
 
 
 def integrity(root):
@@ -47,6 +50,8 @@ def documents(root):
         failures.append("docs/0001-v0.1-standalone-extraction-retrospective/.gitkeep must exist and be empty")
     for path in root.rglob("*.md"):
         if SKIP.intersection(path.relative_to(root).parts):
+            continue
+        if path.relative_to(root).parts[:2] == (CACHE_DIR, "cache"):
             continue
         text = path.read_text(encoding="utf-8")
         relative = path.relative_to(root).as_posix()
@@ -89,6 +94,13 @@ def design(root):
     for key, color in re.findall(r'k:"(\w+)".*?c:"(#[0-9a-fA-F]{6})"', html):
         if color.lower() not in text.lower():
             failures.append("DESIGN.md does not list pillar colour " + color + " (" + key + ")")
+    if "THREE.PerspectiveCamera" in html or "THREE.OrthographicCamera" not in html:
+        failures.append("index.html must use the isometric orthographic camera (DESIGN.md Camera)")
+    for button in ('id="rotL"', 'id="rotR"'):
+        if button not in html:
+            failures.append("index.html lost the rotate button " + button)
+    if "## Camera" not in text or "orthographic" not in text:
+        failures.append("DESIGN.md must keep the Camera section (isometric, orthographic)")
     refs = {
         "AGENTS.md": "apps/harness-city/DESIGN.md",
         "CLAUDE.md": "@AGENTS.md",

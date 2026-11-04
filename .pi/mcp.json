@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "trail": {
+      "command": "trail",
+      "args": ["mcp"],
+      "description": "Repository code map and session learnings. Tools: trail_find_code, trail_find_all, trail_trace_calls, trail_file_api, trail_repo_map, trail_check_freshness. Serves the graph built by `trail build` into .trail/cache/."
+    }
+  }
+}

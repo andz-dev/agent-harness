@@ -25,7 +25,7 @@ sources:
 
 ## Scope and Tracking
 
-This is independent documentation work: local [WN-024](Whats-Next.md#open),
+This is independent documentation work: local [WN-032](Whats-Next.md#open),
 tracked by the tooling repository as WN-122, with no dependency on another bundle
 or evaluation. The [lightweight kickoff](lightweight/2026-11-04-documentation-alignment-kickoff.md)
 records the first delivered slice; this overview is not a completed specification chain.

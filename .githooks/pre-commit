@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# Pre-commit gate. Enable once per clone: task hooks:install
+# Runs the same fast checks as `task precommit`; the full gate is `task check` (CI).
+set -euo pipefail
+cd "$(git rev-parse --show-toplevel)"
+
+if ! command -v task >/dev/null 2>&1; then
+  echo "pre-commit: 'task' is not installed (https://taskfile.dev). Install it or bypass once with --no-verify." >&2
+  exit 1
+fi
+
+task precommit
+
+# Optional docs gate: OKF frontmatter and relative links, only when Markdown is staged
+# and the docs-reorg-audit skill is deployed on this machine. Skipped, not failed, otherwise.
+if git diff --cached --name-only --diff-filter=ACMR | grep -q '\.md$'; then
+  audit_dir="${HOME}/.agents/skills/docs-reorg-audit/scripts"
+  if [ -f "${audit_dir}/docs_audit.py" ]; then
+    python3 -I "${audit_dir}/docs_audit.py" \
+      --ignore-file "${audit_dir}/known-placeholders.txt" \
+      --ignore-frontmatter "${audit_dir}/known-frontmatter-exceptions.txt"
+  else
+    echo "pre-commit: docs-reorg-audit not deployed, docs frontmatter check skipped." >&2
+  fi
+fi

@@ -15,7 +15,7 @@ tags: [documentation, history]
 
 ## Documentation Alignment
 
-Independent [WN-024](Whats-Next.md#open) tracks the full current-specification and
+Independent [WN-032](Whats-Next.md#open) tracks the full current-specification and
 sidecar alignment with developer-asset-manager's workflow. Start with the
 [change overview](Documentation-Alignment.md) and
 [lightweight kickoff](lightweight/2026-11-04-documentation-alignment-kickoff.md).
@@ -73,7 +73,8 @@ statements, and separates roadmap proposals from implementation and evaluation e
 | [0005](0005-v0.1-infrastructure-overlay-matched/research/README.md) | Infrastructure coverage mapping |
 | [0006](0006-v0.1-infrastructure-calibration-retrospective/research/README.md) | Infrastructure-level evaluation material |
 | [0007](0007-v0.1-airport-overlay-evidence-matched/research/airport-assets.md) | Airport evaluation and current metaphor decisions |
-| [0009](0009-v0.1-city-overlays-road-traffic-harness-evidence/Design-Proposal.md) | Draft proposal: city overlays, road traffic, committed harness evidence |
+| [0009](0009-v0.1-city-overlays-road-traffic-harness-evidence/Design-Proposal.md) | Draft proposal: city overlays, road traffic, committed harness evidence; [asset research](0009-v0.1-city-overlays-road-traffic-harness-evidence/Asset-Research.md) |
+| [0010](0010/Research.md) | Research: city and map editor (skills, frameworks, CC0 assets, export format) |
 
 Amendment 2026-11-04: folders were renamed to the versioned pattern (see the map below);
 they are not presented as an original spec workflow, and `doc_scope` marks each artifact
@@ -118,6 +119,11 @@ questions. Conflicts worth an owner decision:
 - 0003 lists two decisions as open that the backlog records as decided.
 
 0002 and 0009 were not deepened: 0002 is relocated source and 0009 is a proposal.
+
+## Reference
+
+- [Entropy catalog](Entropy-Catalog.md): the seven entropy checks, verdicts and penalty rule.
+- [What's Next](Whats-Next.md): the project backlog.
 
 ## Reading Evidence
 

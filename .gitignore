@@ -21,3 +21,4 @@ llm_tasks.json
 *.log
 *.jsonl
 .DS_Store
+.atlas/
