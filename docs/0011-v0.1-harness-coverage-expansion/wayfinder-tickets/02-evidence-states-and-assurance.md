@@ -7,7 +7,8 @@ description: "Decide how audit evidence, provenance and assurance limits are rep
 ticket_type: "wayfinder:grilling"
 map: "docs/0011-v0.1-harness-coverage-expansion/Map.md"
 interaction: "HITL"
-status: "open"
+status: "closed"
+resolution: "owner-confirmed"
 blocked_by: []
 claimed_by: "GitHub Copilot"
 created: "2026-11-04"
@@ -35,3 +36,20 @@ Use the 0010 inventory as bounded evidence, not a representative calibration
 corpus or proof of runtime enforcement. The existing score and weights are
 already fixed for this effort; this ticket decides evidence meaning, not score
 arithmetic.
+
+## Resolution
+
+2026-11-04: owner confirmed that applicability is separate from evidence
+status. Applicability distinguishes applicable, inapplicable, unsupported and
+undetermined; evidence status distinguishes declared, static implementation
+found, execution observed, prototype/simulated and unknown. Each assertion
+identifies the target repository revision, source paths and digests, an evidence
+locator, collection method and observation time. Do not retain raw excerpts,
+commands, endpoint identities or credentials. Mark evidence stale when its
+referenced source digest changes. Claim execution observed only from a receipt
+bound to the repository revision, run identity and time; without one, report
+only what is declared or statically present. These states describe observations,
+not security/quality guarantees, and do not alter the existing score.
+
+Receipt sources and integrity/admission rules remain open in
+[Execution Receipt Admission](08-execution-receipt-admission.md).

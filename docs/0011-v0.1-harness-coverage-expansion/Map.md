@@ -56,6 +56,7 @@ Stop before running `spec-workflow-orchestrator` or implementing the specificati
 ## Decisions so far
 
 - [Coverage Topics And Applicability](wayfinder-tickets/01-coverage-topics-and-applicability.md#resolution): preserve the seven scored pillars and add separate unscored overlays; assess applicability per component and avoid universal language-support claims.
+- [Evidence States And Assurance](wayfinder-tickets/02-evidence-states-and-assurance.md#resolution): separate applicability from evidence status, bind assertions to revision/provenance, mark changed evidence stale, and make no assurance claim from these states.
 
 ## Not yet specified
 
