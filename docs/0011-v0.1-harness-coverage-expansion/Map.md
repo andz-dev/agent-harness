@@ -58,6 +58,7 @@ Stop before running `spec-workflow-orchestrator` or implementing the specificati
 - [Coverage Topics And Applicability](wayfinder-tickets/01-coverage-topics-and-applicability.md#resolution): preserve the seven scored pillars and add separate unscored overlays; assess applicability per component and avoid universal language-support claims.
 - [Evidence States And Assurance](wayfinder-tickets/02-evidence-states-and-assurance.md#resolution): separate applicability from evidence status, bind assertions to revision/provenance, mark changed evidence stale, and make no assurance claim from these states.
 - [Safe Evidence And Reachability](wayfinder-tickets/03-safe-evidence-and-reachability.md#resolution): bound repository reads, require redaction before sensitive evidence use, report unsupported scope honestly, and distinguish configured runner reachability from execution.
+- [Report City And Publication Contract](wayfinder-tickets/04-report-city-and-publication.md#resolution): map topics to city objects and evidence to separate indicators; prototype airport/factory/highway first and retain the existing ban on committed real-target reports.
 
 ## Not yet specified
 
