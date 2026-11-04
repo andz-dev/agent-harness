@@ -7,7 +7,8 @@ description: "Decide safe repository evidence boundaries and the conditions for 
 ticket_type: "wayfinder:grilling"
 map: "docs/0011-v0.1-harness-coverage-expansion/Map.md"
 interaction: "HITL"
-status: "open"
+status: "closed"
+resolution: "owner-confirmed"
 blocked_by: []
 claimed_by: "GitHub Copilot"
 created: "2026-11-04"
@@ -35,3 +36,18 @@ real target.
 Account for the known Docker `ENV` redaction lead in 0010 without treating this
 wayfinder as permission to patch runtime code. Static declarations must not be
 reported as installed, reachable or enforced state without supporting evidence.
+
+## Resolution
+
+2026-11-04: owner confirmed a bounded, tracked-repository-file allowlist with
+symlink rejection and no execution, import, installation or connection to the
+audited repository. Security-sensitive checks must not read or retain secret
+values; redaction is required before evidence is stored or displayed. The known
+Docker `ENV` redaction defect blocks broader secret, MCP and skill-provenance
+checks until it is fixed in the downstream specification/implementation work;
+this wayfinder does not patch runtime code. Unsupported or infrastructure-only
+repositories receive honest partial reports with explicit unsupported and
+inapplicable areas, not fabricated quality scores. CI, hook and task-wrapper
+tracing may establish configured/reachable targets, not hook installation or
+execution; observed execution requires the receipt contract. No live CI or
+host/cloud inspection is inferred.
