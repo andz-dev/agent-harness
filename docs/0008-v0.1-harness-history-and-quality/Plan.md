@@ -56,6 +56,31 @@ Out of scope: relocating imported docs, replaying historical removals, new audit
 invented judgment answers, live client setup, automatic hooks, deployments, remote CI
 claims, installing dependencies into audited repositories or executing their code.
 
+## Assumptions
+
+Added by a retrospective deepening pass on 2026-11-04. Each assumption cites the file that
+shows it at commit `90e9a52` (2026-10-28 14:09:55 +0100, read with `git show 90e9a52:<path>`).
+`git diff --quiet 90e9a52 HEAD` over `Taskfile.yml`, `.github/workflows/check.yml`,
+`apps/harness-city/playwright.config.js`, `apps/harness-city/tests`, `tools/audit_history.py` and
+`skills/harness-audit/scripts` reports no difference, so those statements also hold in today's tree.
+
+- A-1: The toolchain is Python 3.14, uv `0.11.23`, Task `3.51.1` and Node 24 in CI
+  (`.github/workflows/check.yml`); `apps/harness-city/package.json` only requires Node `>=22`.
+- A-2: Chromium runs with software rendering (`--use-angle=swiftshader` in `playwright.config.js`);
+  the 90-second case limit and 900-second global limit assume that cost.
+- A-3: Browser setup is a separate step (`task app:setup`; CI runs `playwright install --with-deps
+  chromium`), so a missing browser fails instead of skipping.
+- A-4: Test data is synthetic. `tools/check.py` function `demo` requires the dataset's
+  `meta.source` to say synthetic, four cities whose ids end in `-demo`, and levels L0 to L3.
+- A-5: `.data/`, `reports/`, `dist/`, `playwright-report/` and `test-results/` are ignored
+  (`.gitignore` at `90e9a52`), and `record` in `tools/audit_history.py` refuses to write unless
+  `.data/` is ignored.
+- A-6: Receipts are comparable only for the same repository, report schema, tool version,
+  engine and catalog fingerprints and clone mode (`compare` in `tools/audit_history.py`).
+- A-7: Recorded test counts (251 skill tests plus 3 subtests, 13 tooling tests, 18 browser cases)
+  are statements in the commit message of `90e9a52` and in [Implementation](Implementation.md);
+  this pass did not re-run them.
+
 ## Workstreams
 
 | Slice | Criteria | Deliverable |
@@ -68,6 +93,27 @@ claims, installing dependencies into audited repositories or executing their cod
 | M6 | All | Fresh verification and an honest completion/handoff record |
 
 ## Validation and Definition of Done
+
+The commands below are the ones [Implementation](Implementation.md) already names per milestone;
+this pass adds none. A milestone is done when its Stop-when line holds. The plan is done when the
+M6 gate passes or an exact unresolved limitation is recorded; tests are never deleted, skipped or
+weakened to reach that state.
+
+| Slice | Validate command | Source |
+| --- | --- | --- |
+| M1 | `python3 tools/check.py` | Implementation M1 |
+| M1 | the architecture-model and change-set validators | Implementation M1 names them without a command line; Not recorded: the exact command lines |
+| M2 | `task --dir skills/harness-audit test -- tests/test_run_checks.py` | Implementation M2 |
+| M2, M4 | `task tools:test` | Implementation M2 and M4 |
+| M3 | `task app:test` | Implementation M3 |
+| M4 | `python3 tools/audit_history.py --help` | Implementation M4 |
+| M5 | `python3 tools/check.py` and the skill's existing checks | Implementation M5; Not recorded: which skill command "existing checks" means |
+| M6 | `task check` | Implementation M6 |
+
+Historical results, not re-run in this pass: Implementation records `task check` passing with 251
+skill tests plus 3 subtests, 13 tooling tests and 18 browser cases, and the `90e9a52` commit message
+states the same counts. Today's tree has the same `Taskfile.yml` check chain. Not recorded: a
+result of `task check` against today's tree.
 
 ### M1: Retrospective
 
@@ -129,3 +175,38 @@ Document: actual results, local report locations, working-tree caveats and remai
 
 No historical grilling is required. Human review of reconstructed intent, future commits,
 live client loading and any optional hook installation remains with the owner.
+
+## Open Questions
+
+Added by the 2026-11-04 deepening pass; evidence is read-only Git and retained files.
+
+1. Remote CI. Not recorded: any GitHub Actions run of `.github/workflows/check.yml`. This Plan's
+   scope and Implementation both say no remote CI pass is claimed. The job sets
+   `timeout-minutes: 20` while Implementation records local browser runs of 607.1 and 652.0
+   seconds, so the remote duration margin is unverified.
+2. Client loading. Not recorded: any observation that Copilot, Claude Code or Pi loads
+   `AGENTS.md`, `CLAUDE.md` or the skill from this repository. Implementation lists it as
+   deliberately out of scope.
+3. Judgment answers. Both the 55-point and the 42-point observations keep seven judgment checks
+   `unknown`; Not recorded: any answered judgment pass.
+4. Conflict, Plan Risks versus Git. This Plan says "this task creates no commits", but commit
+   `90e9a52` (2026-10-28 14:09:55 +0100, Andreas Elser) exists and contains the work. Implementation
+   Final Results explains that the owner subsequently requested it. Both statements are kept; the
+   Plan sentence describes the state before that request.
+5. Conflict, receipt versus handoff. Implementation Post-Commit Handoff says the static audit of
+   commit `90e9a52` reports 42/100. The receipt `20261028T140136Z-843d16d40baf` in today's
+   `.data/` has `commit` `90e9a52ee1989028447ac3e69c7315101380fb26` and `dirty: true`. A dirty
+   tree at recording means the 42 is not a clean-commit result. Not recorded: which paths were
+   dirty, since the receipt stores only a status digest.
+6. Resume State wording. Implementation says the "documentation handoff finalized after that
+   commit". `git show 90e9a52:docs/0008-v0.1-harness-history-and-quality/Implementation.md` has
+   159 lines and no Post-Commit Handoff section; `1b15eeb` (2026-10-28 22:39:47 +0100) has one.
+   This agrees with the wording; the Resume State does not name `1b15eeb`.
+7. Git configuration of audited repositories. At `90e9a52` `tools/audit_history.py` runs Git with
+   `core.fsmonitor=false` and `core.hooksPath=/dev/null`, but `git grep` finds no such setting
+   in `skills/harness-audit/scripts`. Not recorded: whether the owner accepts that difference or
+   treats it as a defect.
+8. Storage policy. Architecture says storage follows "the shared application-storage policy read
+   during this run". Not recorded: that policy file or its location.
+9. Node versions. `package.json` allows Node `>=22`, CI uses Node 24. Not recorded: a run on
+   Node 22.

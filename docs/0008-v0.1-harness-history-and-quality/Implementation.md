@@ -125,6 +125,36 @@ Stop when: required gates pass or an exact unresolved limitation is recorded.
 - [x] Inspect browser screenshots and measured receipt comparisons.
 - [x] Update this record with actual outcomes, local artifact paths and residual gaps.
 
+## Acceptance Criteria Traceability
+
+Added by a retrospective deepening pass on 2026-11-04. The milestone column follows the
+[Plan](Plan.md#workstreams) workstreams table. The "stated here" column quotes only evidence
+already in this file; the "anchor" column names a test or code location read with
+`git show 90e9a52:<path>` (commit 2026-10-28 14:09:55 +0100). A cell reading `Not recorded:` marks
+evidence this file and the anchors do not provide. No result below was re-run in this pass.
+
+<!-- atlas:table=acceptance-traceability -->
+
+| AC | Milestone | Evidence stated here | Anchor at `90e9a52` | Gap |
+| --- | --- | --- | --- | --- |
+| AC-1 | M1 | M1: inspect local commits through `8deb536` and record the uncommitted boundary; M6: all 13 cited local commits verified | Map historical outline | Not recorded: the command used to verify the 13 commits |
+| AC-2 | M1 | M1: Map, Ideation Book, Plan and Architecture created in folder 0008; Post-Commit Handoff says earlier numbered folders are preserved | the four documents in `docs/0008-v0.1-harness-history-and-quality/` | none |
+| AC-3 | M3 | M3: `task app:test` executed 18 cases, all passed, zero skipped, flaky or unexpected, 607.1 seconds; Final Results: 652.0 seconds | `playwright.config.js` projects `desktop-chromium` and `mobile-chromium`; 3 spec files with 3 tests each | none |
+| AC-4 | M3 | M3: exercise city and transit selection, airport controls and independent support buildings | `city.spec.js` "each synthetic city keeps its station and a contained layout"; `airport.spec.js` two support-control tests | Not recorded: a separate assertion for the low-level station and transit rules; this file only says "transit selection" |
+| AC-5 | M3 | M3: actual nonblank PNG downloads; offline packaging with network blocked; 18 cases passed | `export.spec.js` "PNG download includes descriptions without changing the live camera" and "offline standalone renders and exports with all network requests blocked" | Not recorded: this file does not state the description-text or unchanged-camera assertion; only the test title does |
+| AC-6 | M3 | M3: layer, rebuild and GPU stability exercised; Stop-when names the error and network gates | `airport.spec.js` "full airport regression preserves levels, materials, GPU state and PNG output"; `fixtures.js` `observedErrors` | none |
+| AC-7 | M3 | M3: same browser command wired into Task and SHA-pinned CI steps, missing prerequisites fail explicitly | `Taskfile.yml` `check` runs `app:test`; `.github/workflows/check.yml` runs `task check` | Not recorded: any remote CI run (Final Results says none is claimed) |
+| AC-8 | M4 | M4: immutable owner-only receipts record report, Git, engine and catalog identity, score, levels, findings and limitation digests | `tests/test_audit_history.py` `test_record_is_compact_immutable_and_owner_only` | none |
+| AC-9 | M4 | M4: added, removed and changed states; mismatches rejected; real comparison 55 to 55 | `test_compare_reports_explicit_check_and_score_changes`, `test_compare_refuses_different_engine_fingerprints`, `test_compare_refuses_repository_catalog_and_clone_mismatches` | none |
+| AC-10 | M4 | M4: Git state observed at recording, untracked contents not fingerprinted, seven unanswered judgments retained | `record` stores `clone_mode` and a `provenance_limit` text | Not recorded: a shallow-clone run or test result |
+| AC-11 | M2 | M2: Python comments, docstrings and unimplemented stubs read structurally; active placeholder rejection preserved; 42 detector tests and three subtests pass | `skills/harness-audit/scripts/run_checks.py` (27 lines changed) and `tests/test_run_checks.py` (23 lines added) | none |
+| AC-12 | M2 | M2: source-document scan no longer reads ignored raw reports; four canaries pass | `tests/test_repo_quality.py` four tests including `test_tracked_private_output_still_fails_publication` | none |
+| AC-13 | M5 | M5: skill pointer, runtime tests described apart from static observations, contributor and root entry points | `skills/harness-audit/references/TESTING-AND-HISTORY.md` section "Two Evidence Paths" | Not recorded: this file does not state the comparison or freshness limits named in AC-13; the reference file's section "Repeated Static Audits" states some, for example that engine or catalog changes need a fresh baseline |
+| AC-14 | M4 | M4: malformed or incompatible inputs fail safely; invalid or unsafe storage rejected | `main` in `tools/audit_history.py` prints a bounded JSON error (400 characters) to stderr and returns 2 | Not recorded: an observed exit code in this file |
+
+Every criterion also falls under M6, whose recorded evidence is the aggregate `task check` result
+in Resume State and Final Results.
+
 ## Decision Log
 
 | Decision | Evidence and consequence |

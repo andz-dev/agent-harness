@@ -100,6 +100,25 @@ in `.trail/` session notes, which are not rewritten.
 
 0009 had no recorded version; `v0.1` is assigned at this migration, not a historical claim.
 
+## Depth Pass and Open Conflicts
+
+On 2026-11-04 the Architecture, Ideation Book, Plan and Implementation of 0001 and 0003-0008
+were deepened to their gatekeeper contracts: system design, ingress and egress tables, trust
+boundaries, Mermaid diagrams, Given/When/Then criteria and phases with `validate:` and
+`Stop when`. Each new claim cites a path or commit; gaps read `Not recorded`. The Mermaid
+diagrams were checked for structure only, not rendered. Existing prose was kept, and where it
+conflicts with Git evidence both sides are quoted and logged in that folder's Plan open
+questions. Conflicts worth an owner decision:
+
+- 0007 calls `city-airport-prototype.html` untracked local output, but Git tracks it (added in
+  `7d892f6`, not ignored). AGENTS.md says generated standalone HTML must be reviewed before sharing.
+- 0004 and 0003 quote 145 tests (commit message) against 141 (release notes and backlog).
+- 0006: ratings are described as not committed, but `2146078` commits the sidecar; the page's
+  embedded check levels also differ from `infra_checks.py` at that commit.
+- 0003 lists two decisions as open that the backlog records as decided.
+
+0002 and 0009 were not deepened: 0002 is relocated source and 0009 is a proposal.
+
 ## Reading Evidence
 
 Executed local checks, static findings, historical claims and live client/CI behavior
