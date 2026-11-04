@@ -7,7 +7,8 @@ description: "Decide how the specification will define representative validation
 ticket_type: "wayfinder:grilling"
 map: "docs/0011-v0.1-harness-coverage-expansion/Map.md"
 interaction: "HITL"
-status: "open"
+status: "closed"
+resolution: "owner-confirmed"
 blocked_by:
   - "01-coverage-topics-and-applicability"
   - "02-evidence-states-and-assurance"
@@ -37,3 +38,21 @@ projection and honest limitations across representative repository shapes?
 The 0010 probe (11 real files, 16 source facts and 7 synthetic cases) is not a
 representative cross-language corpus. Decide what broader fixture or repository
 evidence is needed without claiming a universal security or quality guarantee.
+
+## Resolution
+
+2026-11-04: owner confirmed deterministic fixtures for every supported topic and
+evidence state, plus representative repository samples for each adapter
+ultimately selected. Do not set a universal sample count before the adapter set
+is decided. Require must-fail controls showing that unknown evidence is not
+promoted to verified, unsupported scope does not produce a fabricated score,
+path escapes are rejected, sensitive values never appear in outputs, and
+static declarations do not become execution claims. Report-to-city validation
+must preserve topic, applicability and evidence-status distinctions; object
+presence or a prototype preset must not imply observed audit evidence.
+
+The specification must require reproducible tests and explicit limitations,
+without a universal security or quality guarantee. The spec may be approved
+with the current viewer-browser gate recorded as a prerequisite; viewer changes
+are not accepted until the full browser suite passes. WN-031 remains open and
+tracks that gate.

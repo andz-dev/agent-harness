@@ -60,6 +60,7 @@ Stop before running `spec-workflow-orchestrator` or implementing the specificati
 - [Safe Evidence And Reachability](wayfinder-tickets/03-safe-evidence-and-reachability.md#resolution): bound repository reads, require redaction before sensitive evidence use, report unsupported scope honestly, and distinguish configured runner reachability from execution.
 - [Report City And Publication Contract](wayfinder-tickets/04-report-city-and-publication.md#resolution): map topics to city objects and evidence to separate indicators; prototype airport/factory/highway first and retain the existing ban on committed real-target reports.
 - [Existing Backlog Disposition](wayfinder-tickets/05-backlog-disposition.md#resolution): absorb WN-028/WN-029 as specification inputs and use WN-018/WN-021–WN-025 as overlay candidates; keep implementation, publication exception and parked design work separately tracked.
+- [Validation And Acceptance](wayfinder-tickets/06-validation-and-acceptance.md#resolution): require topic/state fixtures, representative samples for the selected adapters, safety must-fail controls and report/city consistency; keep WN-031 as a viewer-acceptance prerequisite.
 
 ## Not yet specified
 
