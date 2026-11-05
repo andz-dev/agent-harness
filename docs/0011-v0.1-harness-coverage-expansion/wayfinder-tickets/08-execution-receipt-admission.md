@@ -7,7 +7,8 @@ description: "Decide which repository-local execution receipts can support obser
 ticket_type: "wayfinder:grilling"
 map: "docs/0011-v0.1-harness-coverage-expansion/Map.md"
 interaction: "HITL"
-status: "open"
+status: "closed"
+resolution: "owner-confirmed"
 blocked_by:
   - "03-safe-evidence-and-reachability"
   - "06-validation-and-acceptance"
@@ -34,3 +35,14 @@ receipts may support an `execution observed` claim, what binds them to the targe
 revision and run, and how should issuer identity, integrity, freshness, partial
 results and invalid receipts be handled? Do not infer a live CI connection or
 host/cloud inspection from a repository declaration.
+
+## Resolution
+
+2026-11-05: owner confirmed that repository-local execution receipts may be
+reported as present but unverified; they cannot establish `execution observed`
+without an independently authenticated issuer. Any future authenticated receipt
+must bind to the exact target revision, run identity and time, and pass integrity
+and freshness checks. Invalid receipts, failed runs or partial results must not
+support a full execution claim. The report must also explicitly list detected
+programming languages for which no adapter is supported, rather than omitting
+them or treating them as check failures.

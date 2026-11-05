@@ -62,6 +62,7 @@ Stop before running `spec-workflow-orchestrator` or implementing the specificati
 - [Existing Backlog Disposition](wayfinder-tickets/05-backlog-disposition.md#resolution): absorb WN-028/WN-029 as specification inputs and use WN-018/WN-021–WN-025 as overlay candidates; keep implementation, publication exception and parked design work separately tracked.
 - [Validation And Acceptance](wayfinder-tickets/06-validation-and-acceptance.md#resolution): require topic/state fixtures, representative samples for the selected adapters, safety must-fail controls and report/city consistency; keep WN-031 as a viewer-acceptance prerequisite.
 - [Initial Language Adapter Set](wayfinder-tickets/07-initial-language-adapter-set.md#resolution): retain Python and Node only for the first spec; require representative evidence, topic fixtures, and safety/validation passes before adding adapters.
+- [Execution Receipt Admission](wayfinder-tickets/08-execution-receipt-admission.md#resolution): repository-local receipts are presence-only unless independently authenticated; invalid, stale, failed or partial receipts cannot prove full execution, and unsupported detected languages must be listed in reports.
 
 ## Not yet specified
 
@@ -75,6 +76,10 @@ to ticket. Revisit this section as the open decisions expose more of the scope.
 - Recalibrating or changing the existing seven-pillar score or weights.
 - Running the downstream specification workflow or implementing its resulting
   checks, report changes or city visualization in this wayfinder effort.
+- Authenticating execution through a live CI connection, cloud provider or
+  machine-installed trust root. Local receipt files can be listed as present
+  but unverified; future authenticated evidence requires a separate scope
+  decision (see [Host and cloud audit evidence](../Whats-Next.md)).
 - Resuming the parked city editor or expanding traffic simulation; the later
   prototype is for validating the requested city visualization, not an editor
   commitment.
