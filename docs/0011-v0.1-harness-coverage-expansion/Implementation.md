@@ -18,14 +18,15 @@ sources: ['Plan.md', 'Architecture.md', 'Test-Plan.md', 'Mocking-Plan.md', 'Gold
 
 ## Resume State
 
-Current phase: **M4**. Current milestone: **M4.3, not started**.
-Last completed product task: M4.2. Last validation result: focused
-`test_repo_quality.py` run reported 10 tests passing. The real report validator
-accepted the seven-topic current fixture; the converter preserved it exactly,
-kept legacy score/levels without inventing coverage, marked unknown coverage
-unsupported without copying its payload, and rejected an unknown envelope major
-with a fixed diagnostic. M4.3 is next: wire the airport/factory/highway anchors
-into the existing city and selection inventory.
+Current phase: **M4**. Current milestone: **M4.3, blocked pending owner decision**.
+Last completed product task: M4.2. Last validation result: `task tools:test`
+reported 19 tests passing. The real report validator accepted the seven-topic
+current fixture; the converter preserved it exactly, kept legacy score/levels
+without inventing coverage, marked unknown coverage unsupported without copying
+its payload, and rejected an unknown envelope major with a fixed diagnostic.
+Open blocker: neither `coverage-topics.yaml` nor the report schema maps the seven
+topic IDs to airport/factory/highway anchors, so M4.3 cannot connect them without
+inventing an association. No M4.3 runtime changes have started.
 
 Other production blocker: WN-031 full browser suite must pass before viewer
 acceptance. No scope or visual-layout choice remains open. The owner selected
@@ -234,6 +235,7 @@ destructive migration is required. No runtime feature flag is assumed to exist.
 | 2026-11-05 | Current root `task check` passed skill lint/tests, repo-quality, demo conversion and city build, but Playwright timed out after 21 passed, 5 skipped and 2 not run; WN-031 remains open. `task precommit` then confirmed only the pre-existing Trail learning frontmatter error remains. | `.trail/learnings/2026-11-04-resolve-backlog-id-collisions-on-merge-andreas.md` is unchanged. |
 | 2026-11-05 | M4.1 defines airport/factory/highway as coverage anchors, with factory and highway remaining planned locations rather than approved models. The keyboard inventory and selection panel preserve independent applicability/evidence/freshness, safe provenance, limitations and synthetic origin; none maps to L0-L3 or score. | `apps/harness-city/DESIGN.md`; `task tools:test`: 15 passed, including the repository design check. Only the declared design file changed; next task is M4.2. |
 | 2026-11-05 | M4.2 preserves legacy core without adding coverage and carries supported version-1 observations/provenance unchanged; unknown coverage versions retain core but expose only an unsupported marker and fixed limitation; unknown report-envelope majors fail before output with a fixed diagnostic. | `apps/harness-city/tools/report_to_city.py`, `tests/test_repo_quality.py`; schema-valid current report plus legacy/future cases; 10 root tests passed. Next task is M4.3. |
+| 2026-11-05 | M4.3 is blocked: the seven catalog topic IDs and the three city anchor IDs have no defined association in the report schema or architecture. No mapping was inferred and no viewer code changed. | Await owner choice: supply a topic-to-anchor table; keep the anchors as focus locations with a global, unassociated inventory and amend AC-10/M4.3; or add a versioned upstream mapping field to the catalog/report contract. |
 
 ## Definition Of Done
 
