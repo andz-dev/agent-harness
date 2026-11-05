@@ -3,7 +3,7 @@ type: 'Design'
 title: 'Harness City Design'
 status: 'active'
 created: '2026-10-27'
-updated: '2026-10-29'
+updated: '2026-11-05'
 generated: 'agent'
 verified: 'unverified'
 owner: 'Andreas Elser'
@@ -286,6 +286,53 @@ Usage: [EDITOR.md](EDITOR.md).
 | clock texture | `clockTex` | city hall clock face (texture helper, not a model) |
 
 Add a row when you add an asset.
+
+### Coverage anchor registry
+
+Coverage anchors are selectable topic references, not score-bearing districts or
+new asset models. Topic-to-anchor references come from the converted report; an
+anchor's presence or infrastructure level is not a coverage observation.
+
+| Anchor | Existing Grid source | Selection explanation |
+| --- | --- | --- |
+| Airport | Existing airport plot and `buildAirportAll` | Shows only the topics referenced by the projection; airport infrastructure level is independent of evidence. |
+| Factory | Goods-industry reservation, x 48..62 / z -18..-8 | A planned-location anchor, not an implemented factory model or maturity claim. |
+| Highway | Highway reservation, x 62.5..69.5 / z -30..40 | A planned-location anchor, not an implemented highway model or coverage claim. |
+
+### Coverage indicators and selection
+
+The existing selection panel and an accessible keyboard-operable topic inventory
+are the inspection surface. The inventory includes every projected topic,
+including unsupported and inapplicable topics that have no visible anchor.
+Selecting an anchor lists its referenced topics; selecting a topic focuses its
+location when one exists and opens the same detail panel. Pointer selection and
+inventory selection expose the same details.
+
+| Indicator | Values | Meaning |
+| --- | --- | --- |
+| Applicability | applicable, inapplicable, unsupported, undetermined | Whether the topic can be assessed for its component. |
+| Evidence | declared, static implementation found, prototype simulated, unknown | What kind of observation exists; `execution_observed` has no producer in this scope. |
+| Freshness | current, stale, unknown | Whether the observation identity still matches; stale history keeps its original evidence label. |
+| Receipt | absent, present unverified, invalid, stale, partial, failed | Local receipt status only; never proof of execution. |
+| Collection | complete, partial, failed | Outcome of bounded collection, separate from evidence and receipt status. |
+
+Show each state independently with its text label, plus safe provenance
+(relative source path and digest, a topic-specific locator, method and
+observation time) and limitations where present. For testing topics, locators
+must identify test-specific configuration or files, not broad package manifests.
+Synthetic origin remains explicit independently of the evidence label. Never
+display raw source excerpts, commands, credentials or endpoint identities.
+
+Coverage indicators have no L0-L3 ladder and no numeric ordering. The existing
+district and infrastructure ladders retain their current meanings; neither a
+coverage state nor the presence or size of an airport, factory or highway
+changes a district level, score, cap or entropy value. A reservation is not a
+building, and unknown, unsupported and inapplicable are not L0.
+
+PNG export keeps the current camera, layer and visible labels. Its description
+includes the selected topic's independent states, safe provenance, limitations
+and synthetic/prototype origin. Stale and simulated evidence retain those labels;
+export never promotes either to observed evidence or changes audit data.
 
 ## Camera
 

@@ -18,21 +18,13 @@ sources: ['Plan.md', 'Architecture.md', 'Test-Plan.md', 'Mocking-Plan.md', 'Gold
 
 ## Resume State
 
-Current phase: **M4**. Current milestone: **M4.1, not started**.
-Last completed product task: M3 exit. Last verified evidence: exact M3 gate
-passed 95 tests and 166 subtests; the expanded safety/report suite passed 180
-tests and 169 subtests; logging contract passed 7 tests; Ruff and `task
-integrity` passed. The golden oracle contains 43 cases; materialized fixtures
-cover seven component recipes (two Python, two Node, mixed, infra-only and
-Rust-only) plus three topic-source recipes. This is an initial synthetic sample,
-not evidence of universal adapter or runner coverage. Runner traversal is
-restricted to catalogued static files/syntax and never executes targets. WN-031
-remains a later viewer acceptance gate. Root `task check` passes
-skill/repo-quality/demo/build gates; the browser suite completed with 23 passed
-and 5 skipped in 12 minutes. The final docs check failed only because the
-pre-existing `.trail/learnings/2026-11-04-resolve-backlog-id-collisions-on-merge-andreas.md`
-is missing `type` frontmatter. Do not repair that unrelated Trail learning as
-part of this change.
+Current phase: **M4**. Current milestone: **M4.2, not started**.
+Last completed product task: M4.1. Last validation result: `task tools:test`
+reported 15 passing tests, including the repository design check.
+`apps/harness-city/DESIGN.md` now defines the coverage anchor registry,
+independent indicators, accessible inventory/selection, non-maturity semantics
+and state-preserving export. No viewer runtime or manifest changed. M4.2 is the
+next task: converter compatibility and report-state preservation.
 
 Other production blocker: WN-031 full browser suite must pass before viewer
 acceptance. No scope or visual-layout choice remains open. The owner selected
@@ -170,7 +162,7 @@ rendering pass the full suite. WN-031 is a prerequisite, not a waiver.
 
 ### M4 Tasks
 
-- [ ] M4.1 Update app DESIGN first for exact evidence indicators/inventory/selection/export semantics while preserving its existing Grid and Camera; add required registry/explanation/ladder entries for actual new objects. (AC-10, AC-13; `concept.city_object`; E2E-CITY)
+- [x] M4.1 Update app DESIGN first for exact evidence indicators/inventory/selection/export semantics while preserving its existing Grid and Camera; add required registry/explanation/ladder entries for actual new objects. (AC-10, AC-13; `concept.city_object`; E2E-CITY)
 - [ ] M4.2 Extend the actual converter and existing root tests with accepted legacy/current/future-coverage/rejected-envelope cases; preserve all independent states and safe provenance. (AC-9; `concept.projection`; INT-CONVERT)
 - [ ] M4.3 Connect airport/factory/highway topics to the existing ISO city; implement any approved missing models only within current Grid reservations; keep evidence independent of geometry/maturity and expose unsupported/inapplicable topics in accessible inventory. (AC-10; `concept.city_object`, `concept.applicability`; INT-CITY, E2E-CITY)
 - [ ] M4.4 Preserve synthetic/simulation origin, stale labels and limitations through display and JSON/HTML/PNG export as applicable; do not mislabel airport presets. (AC-11; `concept.synthetic_origin`, `concept.freshness`; E2E-EXPORT)
@@ -239,6 +231,7 @@ destructive migration is required. No runtime feature flag is assumed to exist.
 | 2026-11-05 | M3 complete. Files across the phase: component/topic fixtures, coverage catalog, `coverage.py`, `audit.py`, coverage/report tests, adapted-runtime manifest hashes and this playbook. Decisions: keep coverage unscored; enumerate all component/topic states; reject static execution claims; trace only bounded catalogued static runner declarations. Open limitation: the initial synthetic adapter/runner sample is intentionally small; WN-031 remains a later viewer/release gate. | Exact M3 gate passed 95 tests and 166 subtests; expanded must-fail/report suite passed 180 tests and 169 subtests; logging contract passed 7 tests; Ruff and `task integrity` passed. Next phase: M4 existing Grid/ISO city projection. |
 | 2026-11-05 | Updated the extraction manifest's adapted-runtime hashes for intentional 0011 changes; preserved original source hashes and marked `triage.py` adapted. | `task integrity`: PASS. |
 | 2026-11-05 | Current root `task check` passed skill lint/tests, repo-quality, demo conversion and city build, but Playwright timed out after 21 passed, 5 skipped and 2 not run; WN-031 remains open. `task precommit` then confirmed only the pre-existing Trail learning frontmatter error remains. | `.trail/learnings/2026-11-04-resolve-backlog-id-collisions-on-merge-andreas.md` is unchanged. |
+| 2026-11-05 | M4.1 defines airport/factory/highway as coverage anchors, with factory and highway remaining planned locations rather than approved models. The keyboard inventory and selection panel preserve independent applicability/evidence/freshness, safe provenance, limitations and synthetic origin; none maps to L0-L3 or score. | `apps/harness-city/DESIGN.md`; `task tools:test`: 15 passed, including the repository design check. Only the declared design file changed; next task is M4.2. |
 
 ## Definition Of Done
 
