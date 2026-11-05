@@ -18,13 +18,14 @@ sources: ['Plan.md', 'Architecture.md', 'Test-Plan.md', 'Mocking-Plan.md', 'Gold
 
 ## Resume State
 
-Current phase: **M4**. Current milestone: **M4.2, not started**.
-Last completed product task: M4.1. Last validation result: `task tools:test`
-reported 15 passing tests, including the repository design check.
-`apps/harness-city/DESIGN.md` now defines the coverage anchor registry,
-independent indicators, accessible inventory/selection, non-maturity semantics
-and state-preserving export. No viewer runtime or manifest changed. M4.2 is the
-next task: converter compatibility and report-state preservation.
+Current phase: **M4**. Current milestone: **M4.3, not started**.
+Last completed product task: M4.2. Last validation result: focused
+`test_repo_quality.py` run reported 10 tests passing. The real report validator
+accepted the seven-topic current fixture; the converter preserved it exactly,
+kept legacy score/levels without inventing coverage, marked unknown coverage
+unsupported without copying its payload, and rejected an unknown envelope major
+with a fixed diagnostic. M4.3 is next: wire the airport/factory/highway anchors
+into the existing city and selection inventory.
 
 Other production blocker: WN-031 full browser suite must pass before viewer
 acceptance. No scope or visual-layout choice remains open. The owner selected
@@ -163,7 +164,7 @@ rendering pass the full suite. WN-031 is a prerequisite, not a waiver.
 ### M4 Tasks
 
 - [x] M4.1 Update app DESIGN first for exact evidence indicators/inventory/selection/export semantics while preserving its existing Grid and Camera; add required registry/explanation/ladder entries for actual new objects. (AC-10, AC-13; `concept.city_object`; E2E-CITY)
-- [ ] M4.2 Extend the actual converter and existing root tests with accepted legacy/current/future-coverage/rejected-envelope cases; preserve all independent states and safe provenance. (AC-9; `concept.projection`; INT-CONVERT)
+- [x] M4.2 Extend the actual converter and existing root tests with accepted legacy/current/future-coverage/rejected-envelope cases; preserve all independent states and safe provenance. (AC-9; `concept.projection`; INT-CONVERT)
 - [ ] M4.3 Connect airport/factory/highway topics to the existing ISO city; implement any approved missing models only within current Grid reservations; keep evidence independent of geometry/maturity and expose unsupported/inapplicable topics in accessible inventory. (AC-10; `concept.city_object`, `concept.applicability`; INT-CITY, E2E-CITY)
 - [ ] M4.4 Preserve synthetic/simulation origin, stale labels and limitations through display and JSON/HTML/PNG export as applicable; do not mislabel airport presets. (AC-11; `concept.synthetic_origin`, `concept.freshness`; E2E-EXPORT)
 - [ ] M4.5 Resolve overview label crowding through focus/zoom/decluttering in the existing design; verify real pointer/raycast and keyboard selection, screenshots, canvas pixels, all rotations and actual desktop/mobile viewport size. (AC-13; `concept.city_object`; E2E-CITY)
@@ -232,6 +233,7 @@ destructive migration is required. No runtime feature flag is assumed to exist.
 | 2026-11-05 | Updated the extraction manifest's adapted-runtime hashes for intentional 0011 changes; preserved original source hashes and marked `triage.py` adapted. | `task integrity`: PASS. |
 | 2026-11-05 | Current root `task check` passed skill lint/tests, repo-quality, demo conversion and city build, but Playwright timed out after 21 passed, 5 skipped and 2 not run; WN-031 remains open. `task precommit` then confirmed only the pre-existing Trail learning frontmatter error remains. | `.trail/learnings/2026-11-04-resolve-backlog-id-collisions-on-merge-andreas.md` is unchanged. |
 | 2026-11-05 | M4.1 defines airport/factory/highway as coverage anchors, with factory and highway remaining planned locations rather than approved models. The keyboard inventory and selection panel preserve independent applicability/evidence/freshness, safe provenance, limitations and synthetic origin; none maps to L0-L3 or score. | `apps/harness-city/DESIGN.md`; `task tools:test`: 15 passed, including the repository design check. Only the declared design file changed; next task is M4.2. |
+| 2026-11-05 | M4.2 preserves legacy core without adding coverage and carries supported version-1 observations/provenance unchanged; unknown coverage versions retain core but expose only an unsupported marker and fixed limitation; unknown report-envelope majors fail before output with a fixed diagnostic. | `apps/harness-city/tools/report_to_city.py`, `tests/test_repo_quality.py`; schema-valid current report plus legacy/future cases; 10 root tests passed. Next task is M4.3. |
 
 ## Definition Of Done
 

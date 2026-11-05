@@ -108,12 +108,15 @@ def from_export_repo(r, warn):
 
 
 def from_report(d, warn):
+    schema_version = d.get("schema_version")
+    if not isinstance(schema_version, str) or not re.fullmatch(r"0\.\d+", schema_version):
+        raise ValueError("unsupported report envelope version")
     name = d["repo"]["name"]
     by = {p["pillar"]: p["level"] for p in d["pillars"]}
     gates = {p["pillar"]: p.get("gate_failures", []) for p in d["pillars"]}
     comps = d.get("stack", {}).get("components", [])
     sc = d["score"]
-    return {
+    city = {
         "id": name.split("/")[-1].split(" (")[0], "set": "", "gut": None,
         "score": round(sc["final"]), "L": [by.get(p, 0) for p in PILLARS],
         "comp": len(comps) or 1, "files": sum(c.get("tracked_files", 0) for c in comps),
@@ -124,6 +127,22 @@ def from_report(d, warn):
         "G": [gates.get(p, []) for p in PILLARS], "f": findings(d.get("findings")),
         "lim": d.get("limitations", []),
     }
+    coverage = d.get("coverage")
+    if isinstance(coverage, dict):
+        version = coverage.get("version")
+        if type(version) is int and version == 1:
+            city["coverage"] = coverage
+        else:
+            limitation = "Coverage version is unsupported."
+            city["coverage"] = {
+                "availability": "unsupported",
+                "version": version if type(version) is int else None,
+                "observations": [],
+                "limitations": [limitation],
+            }
+            if limitation not in city["lim"]:
+                city["lim"].append(limitation)
+    return city
 
 
 def collect(paths):
@@ -157,7 +176,10 @@ def main():
             meta.setdefault("tool", f"{t.get('name', 'harness-audit')} {t.get('version', '')}".strip())
             meta.setdefault("scanDate", d.get("generated", ""))
         elif "pillars" in d and "score" in d:
-            cities.append(from_report(d, warn))
+            try:
+                cities.append(from_report(d, warn))
+            except ValueError as error:
+                sys.exit(str(error))
             meta.setdefault("tool", f"{d['tool']['name']} {d['tool']['version']}")
             meta.setdefault("scanDate", d.get("generated_at", "")[:10])
         else:

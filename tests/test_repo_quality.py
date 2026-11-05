@@ -10,6 +10,9 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from tools.check import design, documents, publication  # noqa: E402
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "skills/harness-audit/scripts"))
+import audit as audit_engine  # noqa: E402
+
 
 class RepositoryQualityTests(unittest.TestCase):
     def setUp(self):
@@ -67,6 +70,169 @@ class RepositoryQualityTests(unittest.TestCase):
             for name in ("AGENTS.md", "CLAUDE.md"):
                 (tmp / name).write_text((root / name).read_text(encoding="utf-8"), encoding="utf-8")
             self.assertTrue(any("orthographic" in f for f in design(tmp)))
+
+
+class CityConverterTests(unittest.TestCase):
+    def test_legacy_report_without_coverage_keeps_core_without_inventing_coverage(self):
+        root = Path(__file__).resolve().parents[1]
+        converter = root / "apps/harness-city/tools/report_to_city.py"
+        report_path = root / "skills/harness-audit/schema/example-report.json"
+        report = json.loads(report_path.read_text(encoding="utf-8"))
+        expected_score = round(report["score"]["final"])
+        expected_levels = [pillar["level"] for pillar in report["pillars"]]
+
+        with tempfile.TemporaryDirectory(prefix="city-converter-test-") as temporary:
+            source = Path(temporary) / "report.json"
+            output = Path(temporary) / "cities.json"
+            source.write_text(json.dumps(report), encoding="utf-8")
+            result = subprocess.run(
+                [sys.executable, str(converter), str(source), "--out", str(output)],
+                cwd=root,
+                capture_output=True,
+                text=True,
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            city_data = json.loads(output.read_text(encoding="utf-8"))
+
+        city = city_data["cities"][0]
+        self.assertEqual(city["score"], expected_score)
+        self.assertEqual(city["L"], expected_levels)
+        self.assertNotIn("coverage", city)
+
+    def test_current_coverage_report_preserves_states_and_safe_provenance(self):
+        root = Path(__file__).resolve().parents[1]
+        converter = root / "apps/harness-city/tools/report_to_city.py"
+        report_path = root / "skills/harness-audit/schema/example-report.json"
+        report = json.loads(report_path.read_text(encoding="utf-8"))
+        topic_states = {
+            "code_standards": ("applicable", "declared", "current"),
+            "testing": ("applicable", "static_implementation_found", "stale"),
+            "ci_build": ("applicable", "prototype_simulated", "unknown"),
+            "security": ("undetermined", "unknown", "unknown"),
+            "dependencies": ("inapplicable", "unknown", "unknown"),
+            "mcp": ("unsupported", "unknown", "unknown"),
+            "skills_extensions": ("applicable", "unknown", "unknown"),
+        }
+        coverage = {
+            "version": 1,
+            "components": [
+                {"id": "api", "root": ".", "languages": ["python"], "adapter": "python", "applicability": "applicable"}
+            ],
+            "observations": [
+                {
+                    "id": f"api:{topic_id}",
+                    "component_id": "api",
+                    "topic_id": topic_id,
+                    "check_ids": ["VER-01"],
+                    "applicability": states[0],
+                    "evidence": states[1],
+                    "freshness": states[2],
+                    "provenance": {
+                        "revision": "0123abc",
+                        "sources": [
+                            {
+                                "path": "tests/test_api.py" if topic_id == "testing" else "README.md",
+                                "sha256": "a" * 64,
+                                "locator": "test_health_check" if topic_id == "testing" else f"{topic_id}_declaration",
+                            }
+                        ],
+                        "method": "tracked_path_match",
+                        "observed_at": "2026-11-05T00:00:00Z",
+                    },
+                    "receipt": {"outcome": "present_unverified" if topic_id == "testing" else "absent"},
+                    "limitations": ["Synthetic converter fixture."],
+                }
+                for topic_id, states in topic_states.items()
+            ],
+            "runner_edges": [],
+            "collection": {
+                "outcome": "complete",
+                "limits": {"max_file_bytes": 1, "max_total_bytes": 1, "max_candidate_paths": 1, "max_runner_depth": 1},
+                "reason_codes": [],
+            },
+            "limitations": [],
+        }
+        report["quality"] = {"availability": "available", "score": report["score"]["final"], "reason_codes": []}
+        report["coverage"] = coverage
+        self.assertEqual(audit_engine.validate(report), [])
+
+        with tempfile.TemporaryDirectory(prefix="city-converter-test-") as temporary:
+            source = Path(temporary) / "report.json"
+            output = Path(temporary) / "cities.json"
+            source.write_text(json.dumps(report), encoding="utf-8")
+            result = subprocess.run(
+                [sys.executable, str(converter), str(source), "--out", str(output)],
+                cwd=root,
+                capture_output=True,
+                text=True,
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            city_data = json.loads(output.read_text(encoding="utf-8"))
+
+        self.assertEqual(city_data["cities"][0].get("coverage"), coverage)
+
+    def test_unknown_coverage_version_keeps_core_and_drops_future_payload(self):
+        root = Path(__file__).resolve().parents[1]
+        converter = root / "apps/harness-city/tools/report_to_city.py"
+        report_path = root / "skills/harness-audit/schema/example-report.json"
+        report = json.loads(report_path.read_text(encoding="utf-8"))
+        report["coverage"] = {"version": 999, "observations": [{"note": "FUTURE_PAYLOAD_SENTINEL"}]}
+        expected_score = round(report["score"]["final"])
+        expected_levels = [pillar["level"] for pillar in report["pillars"]]
+
+        with tempfile.TemporaryDirectory(prefix="city-converter-test-") as temporary:
+            source = Path(temporary) / "report.json"
+            output = Path(temporary) / "cities.json"
+            source.write_text(json.dumps(report), encoding="utf-8")
+            result = subprocess.run(
+                [sys.executable, str(converter), str(source), "--out", str(output)],
+                cwd=root,
+                capture_output=True,
+                text=True,
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            output_text = output.read_text(encoding="utf-8")
+            city_data = json.loads(output_text)
+
+        city = city_data["cities"][0]
+        self.assertEqual(city["score"], expected_score)
+        self.assertEqual(city["L"], expected_levels)
+        self.assertEqual(
+            city.get("coverage"),
+            {
+                "availability": "unsupported",
+                "version": 999,
+                "observations": [],
+                "limitations": ["Coverage version is unsupported."],
+            },
+        )
+        self.assertIn("Coverage version is unsupported.", city["lim"])
+        self.assertNotIn("FUTURE_PAYLOAD_SENTINEL", output_text)
+
+    def test_unknown_report_envelope_major_is_rejected_with_safe_diagnostic(self):
+        root = Path(__file__).resolve().parents[1]
+        converter = root / "apps/harness-city/tools/report_to_city.py"
+        report_path = root / "skills/harness-audit/schema/example-report.json"
+        report = json.loads(report_path.read_text(encoding="utf-8"))
+        report["schema_version"] = "999.0"
+        report["repo"]["name"] = "ENVELOPE_PAYLOAD_SENTINEL"
+
+        with tempfile.TemporaryDirectory(prefix="city-converter-test-") as temporary:
+            source = Path(temporary) / "report.json"
+            output = Path(temporary) / "cities.json"
+            source.write_text(json.dumps(report), encoding="utf-8")
+            result = subprocess.run(
+                [sys.executable, str(converter), str(source), "--out", str(output)],
+                cwd=root,
+                capture_output=True,
+                text=True,
+            )
+
+        self.assertNotEqual(result.returncode, 0)
+        self.assertEqual(result.stderr.strip(), "unsupported report envelope version")
+        self.assertNotIn("Traceback", result.stderr)
+        self.assertNotIn("ENVELOPE_PAYLOAD_SENTINEL", result.stdout + result.stderr)
+        self.assertFalse(output.exists())
 
 
 if __name__ == "__main__":
