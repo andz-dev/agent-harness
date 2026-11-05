@@ -3,6 +3,7 @@
 import hashlib
 import json
 import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -354,6 +355,40 @@ class ComponentFixtureTests(unittest.TestCase):
                 self.assertEqual(first, second)
 
 
+class GoldenDatasetTests(unittest.TestCase):
+    def test_golden_dataset_is_stable_and_joins_topics_acs_and_scenarios(self):
+        repo_root = Path(__file__).resolve().parents[3]
+        dataset_path = repo_root / "docs" / "0011-v0.1-harness-coverage-expansion" / "Golden-Dataset" / "dataset.json"
+        test_plan_path = repo_root / "docs" / "0011-v0.1-harness-coverage-expansion" / "Test-Plan.md"
+        schema_path = Path(__file__).parent.parent / "schema" / "report.schema.json"
+        first_bytes = dataset_path.read_bytes()
+        second_bytes = dataset_path.read_bytes()
+        first = json.loads(first_bytes)
+        second = json.loads(second_bytes)
+        test_plan = test_plan_path.read_text(encoding="utf-8")
+        schema = json.loads(schema_path.read_text(encoding="utf-8"))
+        scenario_matrix = test_plan.split("## Scenario Matrix", 1)[1].split("## Execution Design", 1)[0]
+        expected_scenarios = set(re.findall(r"^\| ([A-Z][A-Z0-9-]+) \|", scenario_matrix, re.MULTILINE))
+        expected_scenarios.discard("ID")
+        expected_acs = set(re.findall(r"^\| (AC-\d+) \|", test_plan, re.MULTILINE))
+        cases = first["cases"]
+        case_ids = [case["id"] for case in cases]
+
+        self.assertEqual(first_bytes, second_bytes)
+        self.assertEqual(first, second)
+        self.assertEqual(len(cases), 43)
+        self.assertEqual(len(case_ids), len(set(case_ids)))
+        self.assertEqual(tuple(first["topics"]), coverage.TOPIC_IDS)
+        self.assertEqual(set(first["applicability"]), set(schema["$defs"]["applicability"]["enum"]))
+        self.assertEqual(set(first["evidence"]), set(schema["$defs"]["coverage_evidence"]["enum"]))
+        self.assertEqual({scenario for case in cases for scenario in case["scenarios"]}, expected_scenarios)
+        self.assertEqual({ac for case in cases for ac in case["acs"]}, expected_acs)
+        self.assertTrue(all(set(case["scenarios"]) <= expected_scenarios for case in cases))
+        self.assertTrue(all(set(case["acs"]) <= expected_acs for case in cases))
+        self.assertEqual(sum(case.get("recipe", {}).get("adapter") == "python" for case in cases), 2)
+        self.assertEqual(sum(case.get("recipe", {}).get("adapter") == "node" for case in cases), 2)
+
+
 class TopicCatalogTests(unittest.TestCase):
     def test_seven_topic_catalog_links_existing_checks_deterministically(self):
         catalog_path = Path(__file__).parent.parent / "checks" / "coverage-topics.yaml"
@@ -451,6 +486,154 @@ class TopicCatalogTests(unittest.TestCase):
                     )
                 self.assertEqual(result["outcome"], "complete", case_id)
                 self.assertEqual([source["path"] for source in result["sources"]], expected_paths, case_id)
+
+
+class ObservationMatrixTests(unittest.TestCase):
+    def test_collector_emits_all_topics_for_supported_and_unsupported_components(self):
+        fixtures_root = Path(__file__).parent.parent
+        topic_catalog = yaml.safe_load((fixtures_root / "checks" / "coverage-topics.yaml").read_text(encoding="utf-8"))
+        components = [
+            {"id": "api", "root": "api", "adapter": "python", "applicability": "applicable"},
+            {"id": "web", "root": "web", "adapter": "node", "applicability": "applicable"},
+            {"id": "native-rust", "root": "native", "adapter": None, "applicability": "unsupported"},
+        ]
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            observations, reasons = coverage.collect_component_observations(
+                Path(temporary_directory),
+                components,
+                set(),
+                topic_catalog["topics"],
+                coverage.ReadBudget(),
+                None,
+                datetime(2026, 11, 5, tzinfo=UTC),
+            )
+
+        topics_by_component = {}
+        for observation in observations:
+            topics_by_component.setdefault(observation["component_id"], []).append(observation)
+        self.assertEqual(set(topics_by_component), {"api", "web", "native-rust"})
+        self.assertTrue(all(len(items) == len(coverage.TOPIC_IDS) for items in topics_by_component.values()))
+        for component_id, items in topics_by_component.items():
+            self.assertEqual({item["topic_id"] for item in items}, set(coverage.TOPIC_IDS))
+            self.assertTrue(all(item["evidence"] == "unknown" for item in items))
+            self.assertTrue(all(item["freshness"] == "unknown" for item in items))
+            expected_applicability = "unsupported" if component_id == "native-rust" else "applicable"
+            self.assertTrue(all(item["applicability"] == expected_applicability for item in items))
+            self.assertTrue(all(item["provenance"]["sources"] == [] for item in items))
+        self.assertEqual(reasons, [])
+
+    def test_schema_covers_every_topic_applicability_evidence_combination(self):
+        schema = json.loads((Path(__file__).parent.parent / "schema" / "report.schema.json").read_text(encoding="utf-8"))
+        observation_schema = {
+            "$schema": schema["$schema"],
+            "$defs": schema["$defs"],
+            **schema["$defs"]["coverage_observation"],
+        }
+        validator = Draft202012Validator(observation_schema)
+        applicability_states = schema["$defs"]["applicability"]["enum"]
+        evidence_states = schema["$defs"]["coverage_evidence"]["enum"]
+        for topic_id in coverage.TOPIC_IDS:
+            for applicability in applicability_states:
+                for evidence in evidence_states:
+                    with self.subTest(topic=topic_id, applicability=applicability, evidence=evidence):
+                        observation = {
+                            "id": f"component:{topic_id}",
+                            "component_id": "component",
+                            "topic_id": topic_id,
+                            "check_ids": [],
+                            "applicability": applicability,
+                            "evidence": evidence,
+                            "freshness": "unknown",
+                            "provenance": {
+                                "revision": "unknown",
+                                "sources": [],
+                                "method": "catalog_locator",
+                                "observed_at": "2026-11-05T00:00:00Z",
+                            },
+                            "receipt": {"outcome": "absent"},
+                            "limitations": [],
+                        }
+                        self.assertTrue(validator.is_valid(observation))
+
+
+class RunnerCollectionTests(unittest.TestCase):
+    def collect(self, files, max_depth=16):
+        temporary_directory = tempfile.TemporaryDirectory()
+        self.addCleanup(temporary_directory.cleanup)
+        repo_root = Path(temporary_directory.name) / "repo"
+        repo_root.mkdir()
+        for relative_path, text in files.items():
+            path = repo_root / relative_path
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(text, encoding="utf-8")
+        subprocess.run(["git", "init", "--quiet"], cwd=repo_root, check=True)
+        subprocess.run(["git", "-C", str(repo_root), "add", "--", "."], check=True)
+        tracked_paths = detect_stack.list_files(repo_root)
+        catalog_path = Path(__file__).parent.parent / "checks" / "catalog.yaml"
+        runner_sets = yaml.safe_load(catalog_path.read_text(encoding="utf-8"))["sets"]
+        components = [{"id": "api", "root": ".", "adapter": "python", "applicability": "applicable"}]
+        return coverage.collect_runner_edges(
+            repo_root,
+            components,
+            tracked_paths,
+            runner_sets,
+            coverage.ReadBudget(),
+            max_depth=max_depth,
+        )
+
+    def test_static_ci_task_hook_chain_detects_cycle_without_execution(self):
+        edges, reason_codes = self.collect(
+            {
+                ".github/workflows/ci.yml": "jobs:\n  test:\n    steps:\n      - run: task check\n",
+                "Taskfile.yml": (
+                    "version: '3'\ntasks:\n  check:\n    cmds:\n      - pre-commit run lint\n  lint:\n    cmds:\n      - task check\n"
+                ),
+                ".pre-commit-config.yaml": (
+                    "repos:\n  - repo: local\n    hooks:\n      - id: lint\n"
+                    "        name: lint\n        entry: task lint\n        language: system\n"
+                ),
+            }
+        )
+
+        self.assertEqual(len(edges), 4)
+        self.assertEqual([edge["resolution"] for edge in edges].count("cycle"), 1)
+        self.assertEqual([edge["resolution"] for edge in edges].count("resolved"), 3)
+        self.assertEqual(reason_codes, [])
+        self.assertTrue(any(edge["to"].endswith("#hook:lint") for edge in edges))
+
+    def test_missing_dynamic_and_conditional_targets_are_unresolved(self):
+        edges, reason_codes = self.collect(
+            {
+                ".github/workflows/ci.yml": "jobs:\n  test:\n    steps:\n      - run: task check\n",
+                "Taskfile.yml": (
+                    "version: '3'\ntasks:\n  check:\n    cmds:\n"
+                    "      - task missing\n"
+                    "      - cmd: task lint\n        if: '{{.CLI_ARGS}}'\n"
+                    "      - task {{.CLI_ARGS}}\n"
+                    "  lint:\n    cmds:\n      - pytest\n"
+                ),
+            }
+        )
+
+        unresolved = [edge for edge in edges if edge["resolution"] == "unresolved"]
+        self.assertEqual(len(unresolved), 3)
+        self.assertEqual(set(reason_codes), {"conditional_target", "dynamic_target", "missing_target"})
+
+    def test_runner_depth_exhaustion_is_reported_without_traversal(self):
+        edges, reason_codes = self.collect(
+            {
+                ".github/workflows/ci.yml": "jobs:\n  test:\n    steps:\n      - run: task check\n",
+                "Taskfile.yml": (
+                    "version: '3'\ntasks:\n  check:\n    cmds:\n      - task one\n"
+                    "  one:\n    cmds:\n      - task two\n"
+                    "  two:\n    cmds:\n      - pytest\n"
+                ),
+            },
+            max_depth=1,
+        )
+
+        self.assertTrue(any(edge["resolution"] == "budget_exceeded" for edge in edges))
+        self.assertIn("budget_exceeded", reason_codes)
 
 
 if __name__ == "__main__":

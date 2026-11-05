@@ -174,36 +174,35 @@ def assemble(root: Path, catalog: dict, name=None, url=None, weight=None, llm_an
     generated_at = datetime.now(UTC)
     tracked_paths = detect_stack.list_files(root)
     observed_revision = meta["commit"] if meta["commit"] != "0000000" else None
+    read_budget = coverage.ReadBudget()
     observations, collection_reasons = coverage.collect_component_observations(
         root,
-        stack["components"],
+        coverage_components,
         tracked_paths,
         coverage_topics,
-        coverage.ReadBudget(),
+        read_budget,
         observed_revision,
         generated_at,
     )
-    collection_reasons = sorted(set(collection_reasons) | {"state_matrix_not_implemented"})
+    runner_edges, runner_reasons = coverage.collect_runner_edges(root, coverage_components, tracked_paths, catalog["sets"], read_budget)
+    collection_reasons = sorted(set(collection_reasons) | set(runner_reasons))
+    collection_reason_codes = sorted(set(collection_reasons) | ({"no_applicable_core"} if not core_available else set()))
     coverage_report = {
         "version": 1,
         "components": coverage_components,
         "observations": observations,
-        "runner_edges": [],
+        "runner_edges": runner_edges,
         "collection": {
-            "outcome": "partial",
+            "outcome": "partial" if collection_reason_codes else "complete",
             "limits": {
                 "max_file_bytes": coverage.MAX_FILE_BYTES,
                 "max_total_bytes": coverage.MAX_TOTAL_BYTES,
                 "max_candidate_paths": coverage.MAX_CANDIDATE_PATHS,
-                "max_runner_depth": 16,
+                "max_runner_depth": coverage.MAX_RUNNER_DEPTH,
             },
-            "reason_codes": collection_reasons if core_available else ["no_applicable_core"],
+            "reason_codes": collection_reason_codes,
         },
-        "limitations": (
-            ["Coverage applicability state matrix and runner-edge collection remain in later milestones."]
-            if core_available
-            else ["No supported Python or Node core component is available."]
-        ),
+        "limitations": ([] if core_available else ["No supported Python or Node core component is available."]),
     }
     report = {
         "schema_version": "0.1",
@@ -237,6 +236,22 @@ def validate(report: dict) -> list[str]:
     errs = [
         f"{'/'.join(str(p) for p in e.absolute_path) or '<root>'}: {e.message}" for e in Draft202012Validator(schema).iter_errors(report)
     ]
+    coverage_report = report.get("coverage")
+    if isinstance(coverage_report, dict):
+        components = coverage_report.get("components")
+        observations = coverage_report.get("observations")
+        if isinstance(components, list) and isinstance(observations, list):
+            component_ids = {item.get("id") for item in components if isinstance(item, dict) and isinstance(item.get("id"), str)}
+            expected_pairs = {(component_id, topic_id) for component_id in component_ids for topic_id in coverage.TOPIC_IDS}
+            actual_pairs = [
+                (item.get("component_id"), item.get("topic_id"))
+                for item in observations
+                if isinstance(item, dict) and isinstance(item.get("component_id"), str) and isinstance(item.get("topic_id"), str)
+            ]
+            if len(actual_pairs) != len(set(actual_pairs)) or set(actual_pairs) != expected_pairs:
+                errs.append("coverage.observations: exactly one state is required for every component/topic pair")
+            if any(item.get("evidence") == "execution_observed" for item in observations if isinstance(item, dict)):
+                errs.append("coverage.observations: execution_observed cannot be produced by static audit")
     if all(key in report for key in ("pillars", "score", "entropy")):
         errs += score.verify_arithmetic(report)
     return errs

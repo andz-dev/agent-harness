@@ -203,12 +203,11 @@ class AuditTests(unittest.TestCase):
         )
         self.assertEqual(report["coverage"]["version"], 1)
         self.assertTrue(report["coverage"]["observations"])
-        self.assertTrue(all(observation["evidence"] == "declared" for observation in report["coverage"]["observations"]))
+        self.assertTrue({observation["evidence"] for observation in report["coverage"]["observations"]} <= {"declared", "unknown"})
         self.assertEqual(report["coverage"]["runner_edges"], [])
-        self.assertEqual(len(report["coverage"]["limitations"]), 1)
-        self.assertIn("state matrix", report["coverage"]["limitations"][0])
-        self.assertEqual(report["coverage"]["collection"]["outcome"], "partial")
-        self.assertEqual(report["coverage"]["collection"]["reason_codes"], ["state_matrix_not_implemented"])
+        self.assertEqual(report["coverage"]["limitations"], [])
+        self.assertEqual(report["coverage"]["collection"]["outcome"], "complete")
+        self.assertEqual(report["coverage"]["collection"]["reason_codes"], [])
         self.assertEqual(
             report["coverage"]["components"],
             [
@@ -249,6 +248,11 @@ class AuditTests(unittest.TestCase):
                 }
             ],
         )
+        observations = report["coverage"]["observations"]
+        self.assertEqual(len(observations), len(audit.coverage.TOPIC_IDS))
+        self.assertEqual({item["topic_id"] for item in observations}, set(audit.coverage.TOPIC_IDS))
+        self.assertTrue(all(item["applicability"] == "unsupported" for item in observations))
+        self.assertTrue(all(item["evidence"] == "unknown" for item in observations))
 
     def test_infrastructure_only_report_is_unavailable_without_zero_score(self):
         with tempfile.TemporaryDirectory() as temporary_directory:
@@ -264,6 +268,7 @@ class AuditTests(unittest.TestCase):
         self.assertEqual(report["quality"]["availability"], "unavailable")
         self.assertIsNone(report["quality"]["score"])
         self.assertEqual(report["coverage"]["components"], [])
+        self.assertEqual(report["coverage"]["observations"], [])
         self.assertEqual(report["stack"]["components"], [])
         self.assertEqual(report["stack"]["ecosystems"], [])
         self.assertTrue(report["infra"]["detected"])
@@ -290,6 +295,25 @@ class AuditTests(unittest.TestCase):
         self.assertEqual(by_language["node"]["applicability"], "applicable")
         self.assertEqual(by_language["rust"]["applicability"], "unsupported")
         self.assertIsNone(by_language["rust"]["adapter"])
+
+        observations = report["coverage"]["observations"]
+        topic_ids = {"code_standards", "testing", "ci_build", "security", "dependencies", "mcp", "skills_extensions"}
+        self.assertEqual(len(observations), len(report["coverage"]["components"]) * len(topic_ids))
+        for component in report["coverage"]["components"]:
+            component_observations = [item for item in observations if item["component_id"] == component["id"]]
+            self.assertEqual({item["topic_id"] for item in component_observations}, topic_ids)
+            if component["adapter"] is None:
+                self.assertTrue(all(item["applicability"] == "unsupported" for item in component_observations))
+                self.assertTrue(all(item["evidence"] == "unknown" for item in component_observations))
+        missing_pair = json.loads(json.dumps(report))
+        missing_pair["coverage"]["observations"].pop()
+        self.assertTrue(any("exactly one state" in error for error in audit.validate(missing_pair)))
+        duplicate_pair = json.loads(json.dumps(report))
+        duplicate_pair["coverage"]["observations"].append(duplicate_pair["coverage"]["observations"][0])
+        self.assertTrue(any("exactly one state" in error for error in audit.validate(duplicate_pair)))
+        unsupported_claim = json.loads(json.dumps(report))
+        unsupported_claim["coverage"]["observations"][0]["evidence"] = "execution_observed"
+        self.assertTrue(any("execution_observed" in error for error in audit.validate(unsupported_claim)))
 
     def test_infra_judgement_answers_reach_the_report_without_touching_the_score(self):
         agents = "# Agents\n\nRun `pytest` before committing.\nNever run `terraform apply`.\n"
@@ -421,10 +445,13 @@ class AuditTests(unittest.TestCase):
             temp_root = Path(temporary_directory)
             repo_root = temp_root / "target"
             repo_root.mkdir()
+            secret_sentinel = "E2E_DOCKER_SECRET_SENTINEL_7319"
             marker_paths = {name: temp_root / name for name in ("process.marker", "import.marker", "network.marker")}
             files = {
                 **FILES,
-                "Taskfile.yml": "version: '3'\ntasks:\n  default:\n    cmds:\n      - python scripts/process_tripwire.py\n",
+                ".github/workflows/ci.yml": "jobs:\n  check:\n    steps:\n      - run: task check\n",
+                "Taskfile.yml": "version: '3'\ntasks:\n  check:\n    cmds:\n      - python scripts/process_tripwire.py\n",
+                "Dockerfile": f"FROM python:3.14\nENV API_TOKEN={secret_sentinel}\n",
                 "scripts/process_tripwire.py": f"from pathlib import Path\nPath({str(marker_paths['process.marker'])!r}).write_text('ran')\n",
                 "src/target_import_tripwire.py": f"from pathlib import Path\nPath({str(marker_paths['import.marker'])!r}).write_text('imported')\n",
                 "src/network_tripwire.py": (
@@ -488,15 +515,20 @@ class AuditTests(unittest.TestCase):
                 raise AssertionError("network call blocked")
 
             output_path = temp_root / "report"
+            stdout = StringIO()
+            stderr = StringIO()
             with (
                 patch("subprocess.run", side_effect=guarded_run),
                 patch("subprocess.Popen", side_effect=guarded_popen),
                 patch("builtins.__import__", side_effect=guarded_import),
                 patch("socket.socket", side_effect=guarded_socket),
+                redirect_stdout(stdout),
+                redirect_stderr(stderr),
             ):
                 exit_code = audit.main([str(repo_root), "--out", str(output_path), "--name", "synthetic/tripwire"])
 
             report = json.loads((output_path / "report.json").read_text(encoding="utf-8"))
+            output_text = "\n".join(path.read_text(encoding="utf-8", errors="replace") for path in output_path.rglob("*") if path.is_file())
             after = {
                 path.relative_to(repo_root).as_posix(): path.read_bytes()
                 for path in repo_root.rglob("*")
@@ -508,12 +540,16 @@ class AuditTests(unittest.TestCase):
 
             self.assertEqual(exit_code, 0)
             self.assertEqual(audit.validate(report), [])
+            self.assertTrue(
+                any(edge["resolution"] == "resolved" and edge["to"].endswith("#task:check") for edge in report["coverage"]["runner_edges"])
+            )
             self.assertEqual(process_attempts, [])
             self.assertEqual(import_attempts, [])
             self.assertEqual(socket_attempts, [])
             self.assertEqual(before, after)
             self.assertEqual(tracked_status, final_status)
             self.assertFalse(any(path.exists() for path in marker_paths.values()))
+            self.assertNotIn(secret_sentinel, stdout.getvalue() + stderr.getvalue() + output_text)
 
 
 if __name__ == "__main__":

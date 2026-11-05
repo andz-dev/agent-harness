@@ -7,15 +7,20 @@ import fnmatch
 import hashlib
 import json
 import os
+import re
+import shlex
 import stat
 from collections.abc import Collection, Mapping
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path, PurePosixPath
 
+import yaml
+
 MAX_FILE_BYTES = 256 * 1024
 MAX_TOTAL_BYTES = 8 * 1024 * 1024
 MAX_CANDIDATE_PATHS = 2048
+MAX_RUNNER_DEPTH = 16
 TOPIC_IDS = ("code_standards", "testing", "ci_build", "security", "dependencies", "mcp", "skills_extensions")
 TOPIC_ADAPTERS = {"python", "node", "repository"}
 SUPPORTS_SAFE_DIR_FD = (
@@ -226,35 +231,39 @@ def collect_component_observations(
     revision: str | None,
     observed_at: datetime,
 ) -> tuple[list[dict], list[str]]:
-    """Build declared observations from bounded topic locator matches."""
+    """Build one bounded state observation for every component and topic pair."""
     observations = []
     reason_codes = set()
     for component in components:
-        component_path = component["path"]
-        adapter = component["ecosystem"]
+        component_path = component.get("root", component.get("path", "."))
+        adapter = component.get("adapter", component.get("ecosystem"))
+        component_id = component["id"]
         for topic in topic_catalog:
-            if adapter not in topic["adapters"] and "repository" not in topic["adapters"]:
-                continue
-            scoped_topic = topic
-            if component_path != ".":
-                scoped_topic = {**topic, "locators": [f"{component_path}/{locator}" for locator in topic["locators"]]}
-            result = collect_topic_sources(root, scoped_topic, tracked_paths, budget)
-            reason_codes.update(result["reason_codes"])
-            if not result["sources"]:
-                continue
+            topic_supported = adapter in topic["adapters"] or "repository" in topic["adapters"]
+            if component.get("applicability") == "unsupported" or adapter not in {"python", "node"}:
+                applicability = "unsupported"
+            else:
+                applicability = "applicable" if topic_supported else "inapplicable"
 
+            result = {"sources": [], "reason_codes": []}
+            if applicability == "applicable":
+                scoped_topic = topic
+                if component_path != ".":
+                    scoped_topic = {**topic, "locators": [f"{component_path}/{locator}" for locator in topic["locators"]]}
+                result = collect_topic_sources(root, scoped_topic, tracked_paths, budget)
+            reason_codes.update(result["reason_codes"])
             provenance = make_provenance(revision or "unknown", result["sources"], "catalog_locator", observed_at)
             current_revision = revision if revision and revision != "0000000" else None
             current_sources = {source["path"]: source["sha256"] for source in result["sources"]}
             freshness = classify_freshness(provenance, current_revision, current_sources)
             observations.append(
                 {
-                    "id": f"{component['id']}:{topic['id']}",
-                    "component_id": component["id"],
+                    "id": f"{component_id}:{topic['id']}",
+                    "component_id": component_id,
                     "topic_id": topic["id"],
                     "check_ids": list(topic["check_ids"]),
-                    "applicability": "applicable",
-                    "evidence": "declared",
+                    "applicability": applicability,
+                    "evidence": "declared" if result["sources"] else "unknown",
                     "freshness": freshness,
                     "provenance": provenance,
                     "receipt": {"outcome": "absent"},
@@ -263,6 +272,352 @@ def collect_component_observations(
             )
     observations.sort(key=lambda observation: (observation["component_id"], observation["topic_id"]))
     return observations, sorted(reason_codes)
+
+
+def _matches_patterns(path: str, patterns: Collection[str]) -> bool:
+    basename = PurePosixPath(path).name
+    return any(
+        fnmatch.fnmatchcase(path, pattern) or ("/" not in pattern and fnmatch.fnmatchcase(basename, pattern)) for pattern in patterns
+    )
+
+
+def _nested_strings(value, keys: set[str], conditional: bool = False):
+    if isinstance(value, dict):
+        nested_conditional = conditional or bool(value.get("if") or value.get("condition"))
+        for key, child in value.items():
+            if key in keys:
+                for text in _strings(child):
+                    yield text, nested_conditional
+            else:
+                yield from _nested_strings(child, keys, nested_conditional)
+    elif isinstance(value, list):
+        for child in value:
+            yield from _nested_strings(child, keys, conditional)
+
+
+def _strings(value):
+    if isinstance(value, str):
+        yield value
+    elif isinstance(value, list):
+        for child in value:
+            yield from _strings(child)
+
+
+def _taskfile_targets(path: str, text: str, reason_codes: set[str]) -> dict[str, list[tuple[str, bool]]]:
+    try:
+        data = yaml.safe_load(text) or {}
+    except yaml.YAMLError:
+        reason_codes.add("invalid_runner_config")
+        return {}
+    tasks = data.get("tasks") if isinstance(data, dict) else None
+    if not isinstance(tasks, dict):
+        return {}
+    targets = {}
+    for name, task in tasks.items():
+        if not isinstance(name, str) or not re.fullmatch(r"[A-Za-z0-9_.-]+", name) or not isinstance(task, dict):
+            continue
+        commands = []
+        for dependency in task.get("deps", []) or []:
+            if isinstance(dependency, str):
+                commands.append((f"task {dependency}", False))
+            else:
+                commands.append(("task {{dynamic}}", False))
+        for command in task.get("cmds", []) or []:
+            if isinstance(command, str):
+                commands.append((command, False))
+            elif isinstance(command, dict):
+                conditional = bool(command.get("if") or command.get("preconditions"))
+                if isinstance(command.get("task"), str):
+                    commands.append((f"task {command['task']}", conditional))
+                elif isinstance(command.get("cmd"), str):
+                    commands.append((command["cmd"], conditional))
+        targets[name] = commands
+    return targets
+
+
+def _make_targets(text: str) -> dict[str, list[tuple[str, bool]]]:
+    targets: dict[str, list[tuple[str, bool]]] = {}
+    current = None
+    for line in text.splitlines():
+        match = re.match(r"^([A-Za-z0-9_.-]+)\s*:(?!:)(.*)$", line)
+        if match:
+            current = match.group(1)
+            dependencies = match.group(2).split("#", 1)[0].strip().split()
+            targets[current] = [(f"make {dependency}", False) for dependency in dependencies]
+        elif line.startswith(("\t", "    ")) and current and line.strip() and not line.strip().startswith("#"):
+            targets[current].append((line.strip().lstrip("@- "), bool(re.match(r"\s*if\b", line))))
+        elif line.strip() and not line.lstrip().startswith("#"):
+            current = None
+    return targets
+
+
+def _package_targets(text: str, reason_codes: set[str]) -> dict[str, list[tuple[str, bool]]]:
+    try:
+        data = json.loads(text)
+    except (ValueError, TypeError):
+        reason_codes.add("invalid_runner_config")
+        return {}
+    scripts = data.get("scripts") if isinstance(data, dict) else None
+    if not isinstance(scripts, dict):
+        return {}
+    return {name: [(command, False)] for name, command in scripts.items() if isinstance(name, str) and isinstance(command, str)}
+
+
+def _tox_targets(text: str, reason_codes: set[str]) -> dict[str, list[tuple[str, bool]]]:
+    targets = {}
+    current = None
+    in_commands = False
+    for line in text.splitlines():
+        section = re.match(r"^\[testenv(?::([A-Za-z0-9_.-]+))?\]$", line.strip())
+        if section:
+            current = section.group(1) or "default"
+            targets.setdefault(current, [])
+            in_commands = False
+            continue
+        if line.startswith("["):
+            current = None
+            in_commands = False
+            continue
+        if current and re.match(r"^\s*commands\s*=", line):
+            in_commands = True
+            value = line.split("=", 1)[1].strip()
+            if value:
+                targets[current].append((value, False))
+        elif current and in_commands and (line.startswith((" ", "\t")) or not line.strip()):
+            if line.strip():
+                targets[current].append((line.strip().lstrip("-!"), False))
+        else:
+            in_commands = False
+    return targets
+
+
+def _runner_references(command: str, inherited_conditional: bool = False) -> list[dict]:
+    references = []
+    for segment in re.split(r"&&|\|\||;", command):
+        try:
+            tokens = shlex.split(segment)
+        except ValueError:
+            tokens = segment.split()
+        conditional = inherited_conditional or bool(re.search(r"(^|\s)(if|elif|while)\b", segment))
+        for index, token in enumerate(tokens):
+            runner = token
+            cursor = index + 1
+            if token in {"npm", "pnpm", "yarn", "bun"} and cursor < len(tokens) and tokens[cursor] == "run":
+                runner = "package"
+                cursor += 1
+            elif token == "tox" and cursor < len(tokens) and tokens[cursor] == "-e":
+                runner = "tox"
+                cursor += 1
+            elif token == "nox" and cursor < len(tokens) and tokens[cursor] == "-s":
+                runner = "nox"
+                cursor += 1
+            elif token == "pre-commit" and cursor < len(tokens) and tokens[cursor] == "run":
+                runner = "pre-commit"
+                cursor += 1
+            elif token not in {"task", "make", "just"}:
+                continue
+
+            if index and tokens[:index] not in (["uv", "run"], ["npx"], ["pnpm", "exec"]):
+                continue
+            while cursor < len(tokens) and tokens[cursor].startswith("-"):
+                if tokens[cursor] in {"-e", "-s"} and cursor + 1 < len(tokens):
+                    break
+                cursor += 1
+            target = tokens[cursor] if cursor < len(tokens) else None
+            if runner in {"task", "make", "just"} and target is None and runner == "task":
+                target = "default"
+            if runner == "pre-commit" and target and target.startswith("--"):
+                target = None
+            dynamic = target is not None and any(marker in target for marker in ("$", "{{", "*", "?"))
+            references.append(
+                {
+                    "runner": runner,
+                    "target": target,
+                    "dynamic": dynamic,
+                    "conditional": conditional,
+                }
+            )
+            break
+    return references
+
+
+def collect_runner_edges(
+    root: Path,
+    components: Collection[Mapping],
+    tracked_paths: Collection[str],
+    runner_sets: Mapping,
+    budget: ReadBudget,
+    max_depth: int = MAX_RUNNER_DEPTH,
+) -> tuple[list[dict], list[str]]:
+    """Trace configured runner references through bounded static declarations only."""
+    ci_patterns = runner_sets.get("ci_files", [])
+    runner_patterns = runner_sets.get("runner_files", [])
+    hook_patterns = runner_sets.get("hook_files", [])
+    files = sorted(path for path in tracked_paths if _matches_patterns(path, [*ci_patterns, *runner_patterns, *hook_patterns]))
+    contents = {}
+    reason_codes = set()
+    for path in files:
+        result = read_tracked_file(root, path, tracked_paths, budget)
+        if result.outcome != "read":
+            reason_codes.add(result.reason or "read_failed")
+            continue
+        try:
+            contents[path] = result.content.decode("utf-8")
+        except UnicodeDecodeError:
+            reason_codes.add("invalid_encoding")
+
+    all_edges = []
+    for component in components:
+        component_id = component["id"]
+        targets: dict[str, dict[str, list[dict]]] = {"task": {}, "make": {}, "just": {}, "package": {}, "tox": {}, "hook": {}}
+        source_commands = []
+
+        for path, text in contents.items():
+            basename = PurePosixPath(path).name
+            is_ci = _matches_patterns(path, ci_patterns)
+            is_runner = _matches_patterns(path, runner_patterns)
+            is_hook = _matches_patterns(path, hook_patterns)
+
+            definitions: dict[str, list[tuple[str, bool]]] = {}
+            runner = None
+            if basename in {"Taskfile.yml", "Taskfile.yaml"}:
+                runner = "task"
+                definitions = _taskfile_targets(path, text, reason_codes)
+            elif basename == "Makefile":
+                runner = "make"
+                definitions = _make_targets(text)
+            elif basename == "justfile":
+                runner = "just"
+                definitions = _make_targets(text)
+            elif basename == "package.json":
+                runner = "package"
+                definitions = _package_targets(text, reason_codes)
+            elif basename == "tox.ini":
+                runner = "tox"
+                definitions = _tox_targets(text, reason_codes)
+
+            if is_runner and runner:
+                for name, commands in definitions.items():
+                    node = f"{component_id}:{path}#{runner}:{name}"
+                    targets[runner].setdefault(name, []).append({"node": node, "commands": commands})
+
+            if is_ci:
+                try:
+                    if basename == "Jenkinsfile":
+                        values = [
+                            (line.strip(), False) for line in text.splitlines() if line.strip() and not line.lstrip().startswith("//")
+                        ]
+                    else:
+                        values = list(_nested_strings(yaml.safe_load(text) or {}, {"run", "script", "command"}))
+                except yaml.YAMLError:
+                    reason_codes.add("invalid_runner_config")
+                    values = []
+                for index, (command, conditional) in enumerate(values):
+                    source_commands.append((f"{component_id}:{path}#ci:{index}", command, conditional))
+
+            if is_hook and basename == ".pre-commit-config.yaml":
+                try:
+                    data = yaml.safe_load(text) or {}
+                except yaml.YAMLError:
+                    reason_codes.add("invalid_runner_config")
+                    data = {}
+                for repository in data.get("repos", []) if isinstance(data, dict) else []:
+                    if not isinstance(repository, dict) or repository.get("repo") != "local":
+                        continue
+                    for hook in repository.get("hooks", []) or []:
+                        if not isinstance(hook, dict) or not isinstance(hook.get("id"), str):
+                            continue
+                        hook_id = hook["id"]
+                        node = f"{component_id}:{path}#hook:{hook_id}"
+                        entry = hook.get("entry", "")
+                        args = hook.get("args", [])
+                        command = " ".join([entry, *[str(arg) for arg in args]]).strip()
+                        targets["hook"].setdefault(hook_id, []).append({"node": node, "commands": [(command, False)]})
+                continue
+
+            if is_hook and ("/.husky/" in f"/{path}" or "/.githooks/" in f"/{path}"):
+                for index, line in enumerate(text.splitlines()):
+                    if line.strip() and not line.lstrip().startswith("#"):
+                        source_commands.append((f"{component_id}:{path}#hook-script:{index}", line.strip(), False))
+            elif is_hook and basename in {"lefthook.yml", "lefthook.yaml"}:
+                try:
+                    values = list(_nested_strings(yaml.safe_load(text) or {}, {"run", "command"}))
+                except yaml.YAMLError:
+                    reason_codes.add("invalid_runner_config")
+                    values = []
+                for index, (command, conditional) in enumerate(values):
+                    source_commands.append((f"{component_id}:{path}#hook:{index}", command, conditional))
+
+        edges = []
+        seen_edges = set()
+
+        def append_edge(source, target, resolution, reason=None, edge_list=edges, seen=seen_edges):
+            key = (source, target, resolution)
+            if key not in seen:
+                seen.add(key)
+                edge_list.append({"from": source, "to": target, "resolution": resolution})
+            if reason:
+                reason_codes.add(reason)
+
+        def walk(
+            source,
+            command,
+            depth,
+            ancestry,
+            conditional=False,
+            target_map=targets,
+            current_component_id=component_id,
+            edge_list=edges,
+            edge_limit=budget.max_candidate_paths,
+        ):
+            for reference in _runner_references(command, conditional):
+                runner = reference["runner"]
+                target_name = reference["target"]
+                if runner == "nox":
+                    append_edge(source, None, "unresolved", "unsupported_runner_syntax")
+                    continue
+                if reference["dynamic"]:
+                    append_edge(source, None, "unresolved", "dynamic_target")
+                    continue
+
+                if runner == "pre-commit":
+                    candidates = [target_name] if target_name else sorted(target_map["hook"])
+                    found = [record for name in candidates for record in target_map["hook"].get(name, [])]
+                    runner_targets = {"hook": found}
+                else:
+                    runner_targets = {runner: target_map.get(runner, {}).get(target_name, []) if target_name else []}
+                    candidates = [target_name] if target_name else []
+
+                records = runner_targets.get("hook", []) if runner == "pre-commit" else runner_targets[runner]
+                target_node = (
+                    records[0]["node"] if len(records) == 1 else (f"{current_component_id}:{runner}:{target_name}" if target_name else None)
+                )
+                if reference["conditional"]:
+                    append_edge(source, target_node, "unresolved", "conditional_target")
+                elif not target_name:
+                    append_edge(source, None, "unresolved", "dynamic_target")
+                elif not records:
+                    append_edge(source, target_node, "unresolved", "missing_target")
+                elif len(records) > 1:
+                    append_edge(source, target_node, "unresolved", "ambiguous_target")
+                elif target_node in ancestry:
+                    append_edge(source, target_node, "cycle")
+                elif depth >= max_depth:
+                    append_edge(source, target_node, "budget_exceeded", "budget_exceeded")
+                elif len(edge_list) >= edge_limit:
+                    append_edge(source, None, "budget_exceeded", "budget_exceeded")
+                    return
+                else:
+                    append_edge(source, target_node, "resolved")
+                    for child_command, child_conditional in records[0]["commands"]:
+                        walk(target_node, child_command, depth + 1, {*ancestry, target_node}, child_conditional)
+
+        for source, command, conditional in source_commands:
+            walk(source, command, 0, {source}, conditional)
+        all_edges.extend(edges)
+
+    all_edges.sort(key=lambda edge: (edge["from"], edge["to"] or "", edge["resolution"]))
+    return all_edges, sorted(reason_codes)
 
 
 def bind_provenance(

@@ -18,17 +18,21 @@ sources: ['Plan.md', 'Architecture.md', 'Test-Plan.md', 'Mocking-Plan.md', 'Gold
 
 ## Resume State
 
-Current phase: **M3**. Current milestone: **M3.3, not started**.
-Last completed product task: M3.2. Last verified evidence: exact M3 gate passed
-89 tests and 26 subtests; Ruff passed. Seven topics resolve only to existing
-core/INF IDs; assembly emits bounded declared observations with source digests,
-and the untracked sentinel is absent. M3.3 remains for the full applicability/
-evidence state matrix; WN-031 remains a later viewer acceptance gate. `task
-integrity` passes after the reviewed adapted-runtime hash update. Root `task
-check` passes skill/repo-quality/demo/build gates but the browser suite times
-out after 21 passes, 5 skips, and 2 tests not run; docs stage is not reached.
-`task precommit` is otherwise clean but remains blocked by the pre-existing
-Trail learning missing `type` frontmatter.
+Current phase: **M4**. Current milestone: **M4.1, not started**.
+Last completed product task: M3 exit. Last verified evidence: exact M3 gate
+passed 95 tests and 166 subtests; the expanded safety/report suite passed 180
+tests and 169 subtests; logging contract passed 7 tests; Ruff and `task
+integrity` passed. The golden oracle contains 43 cases; materialized fixtures
+cover seven component recipes (two Python, two Node, mixed, infra-only and
+Rust-only) plus three topic-source recipes. This is an initial synthetic sample,
+not evidence of universal adapter or runner coverage. Runner traversal is
+restricted to catalogued static files/syntax and never executes targets. WN-031
+remains a later viewer acceptance gate. Root `task check` passes
+skill/repo-quality/demo/build gates; the browser suite completed with 23 passed
+and 5 skipped in 12 minutes. The final docs check failed only because the
+pre-existing `.trail/learnings/2026-11-04-resolve-backlog-id-collisions-on-merge-andreas.md`
+is missing `type` frontmatter. Do not repair that unrelated Trail learning as
+part of this change.
 
 Other production blocker: WN-031 full browser suite must pass before viewer
 acceptance. No scope or visual-layout choice remains open. The owner selected
@@ -138,10 +142,10 @@ changing the core or leaking any sentinel.
 
 - [x] M3.1 Materialize PY-01/PY-02/NODE-01/NODE-02 and mixed/infra-only/Rust recipes in the established fixture layout; keep inputs deterministic and synthetic. (AC-2, AC-12; `concept.component`, `concept.fixture`; UNIT-COMP)
 - [x] M3.2 Create the unscored seven-topic catalog, resolve references to existing check IDs, and collect safe static observations without duplicating core checks. (AC-8; `concept.topic`; UNIT-CATALOG)
-- [ ] M3.3 Add Python/Node component-local applicability; enumerate other detected languages as unsupported; generate every topic/applicability/evidence-state combination with must-reject execution claims. (AC-2, AC-3, AC-8, AC-12; `concept.component`, `concept.applicability`, `concept.evidence`, `concept.fixture`)
-- [ ] M3.4 Traverse allowlisted static CI/task/hook references with cycles, missing/dynamic/conditional targets and depth exhaustion; preserve unresolved reasons and never execute. (AC-7; `concept.runner_edge`; UNIT-RUNNER, E2E-STATIC)
-- [ ] M3.5 Run every must-fail oracle, including secret/path controls and unsupported scoring; record actual fixture counts and explained calibration limits rather than claim universal coverage. (AC-5, AC-12; `concept.safe_read`, `concept.fixture`; SMOKE-DATA, E2E-PARTIAL)
-- [ ] M3 exit: run the gate with meaningful case counts; check lifecycle logging bypasses and current core equality. (AC-2, AC-7, AC-8, AC-12; `concept.logging`, `concept.core_score`)
+- [x] M3.3 Add Python/Node component-local applicability; enumerate other detected languages as unsupported; generate every topic/applicability/evidence-state combination with must-reject execution claims. (AC-2, AC-3, AC-8, AC-12; `concept.component`, `concept.applicability`, `concept.evidence`, `concept.fixture`)
+- [x] M3.4 Traverse allowlisted static CI/task/hook references with cycles, missing/dynamic/conditional targets and depth exhaustion; preserve unresolved reasons and never execute. (AC-7; `concept.runner_edge`; UNIT-RUNNER, E2E-STATIC)
+- [x] M3.5 Run every must-fail oracle, including secret/path controls and unsupported scoring; record actual fixture counts and explained calibration limits rather than claim universal coverage. (AC-5, AC-12; `concept.safe_read`, `concept.fixture`; SMOKE-DATA, E2E-PARTIAL)
+- [x] M3 exit: run the gate with meaningful case counts; check lifecycle logging bypasses and current core equality. (AC-2, AC-7, AC-8, AC-12; `concept.logging`, `concept.core_score`)
 
 ## Phase M4: Existing Grid And ISO City Projection
 
@@ -229,6 +233,10 @@ destructive migration is required. No runtime feature flag is assumed to exist.
 | 2026-11-05 | M2 complete. Files: `audit.py`, `coverage.py`, `triage.py`, `report.schema.json`, `test_audit.py`, `test_coverage.py`, and this playbook, plus prior phase files. Decisions: top-level quality sibling, unscored coverage, no fabricated score, local receipts remain unverified, and Python 3.14+ for shipped logging. Open question: observation collection, catalog and runner graph are M3; WN-031 remains M4/M5. | Exact M2 gate passed 59 tests and 9 subtests; `task --dir skills/harness-audit lint` passed; direct-output scan found only established CLI summaries/argument handling, no direct logging calls. |
 | 2026-11-05 | M3.1 materialized the seven golden component recipes as deterministic synthetic directories under the skill test fixtures. Two Python and two Node samples classify separately; mixed, infra-only and Rust-only cases match the expected support boundary. | Exact M3 gate passed 85 tests and 19 subtests; Ruff passed. |
 | 2026-11-05 | M3.2 added the unscored seven-topic catalog, validated all core/INF references and limits, and wired bounded tracked-source observations into reports without duplicating score checks. Testing locators are specific to test config/files; MCP/skills locators avoid generic instruction-file false positives. | Exact M3 gate passed 89 tests and 26 subtests; Ruff passed, 43 files formatted. |
+| 2026-11-05 | M3.3 now emits one observation for every detected component/topic pair, including unsupported language and no-source unknown states; the report validator rejects incomplete/duplicate pairs and `execution_observed`. | `coverage.py`, `audit.py`, `test_coverage.py`, `test_audit.py`; 109 tests and 166 subtests passed; Ruff and `task integrity` passed. Runner traversal remains M3.4. |
+| 2026-11-05 | M3.4 adds allowlisted static CI/task/hook traversal with bounded graph depth, cycle detection, and safe reason codes for missing/dynamic/conditional/ambiguous targets; audited commands are never invoked. | `coverage.py`, `audit.py`, runner/report tests, and adapted-runtime hashes; 112 tests and 166 subtests passed; Ruff and `task integrity` passed. M3.5 must-fail oracles remain. |
+| 2026-11-05 | M3.5 exercises the full must-fail set and golden joins; unsupported-only topics remain unsupported/unknown, infra-only produces no observations or score, and synthetic secret sentinels are absent from every captured audit output. Calibration is 43 golden cases, seven component recipes (two per supported adapter plus mixed/infra/Rust), and three topic-source fixtures; no universal coverage claim is made. | Expanded M3 safety/report suite: 180 passed, 169 subtests; logging contract: 7 passed; exact M3 gate: 95 passed, 166 subtests; Ruff and `task integrity` passed. |
+| 2026-11-05 | M3 complete. Files across the phase: component/topic fixtures, coverage catalog, `coverage.py`, `audit.py`, coverage/report tests, adapted-runtime manifest hashes and this playbook. Decisions: keep coverage unscored; enumerate all component/topic states; reject static execution claims; trace only bounded catalogued static runner declarations. Open limitation: the initial synthetic adapter/runner sample is intentionally small; WN-031 remains a later viewer/release gate. | Exact M3 gate passed 95 tests and 166 subtests; expanded must-fail/report suite passed 180 tests and 169 subtests; logging contract passed 7 tests; Ruff and `task integrity` passed. Next phase: M4 existing Grid/ISO city projection. |
 | 2026-11-05 | Updated the extraction manifest's adapted-runtime hashes for intentional 0011 changes; preserved original source hashes and marked `triage.py` adapted. | `task integrity`: PASS. |
 | 2026-11-05 | Current root `task check` passed skill lint/tests, repo-quality, demo conversion and city build, but Playwright timed out after 21 passed, 5 skipped and 2 not run; WN-031 remains open. `task precommit` then confirmed only the pre-existing Trail learning frontmatter error remains. | `.trail/learnings/2026-11-04-resolve-backlog-id-collisions-on-merge-andreas.md` is unchanged. |
 
@@ -265,6 +273,12 @@ destructive migration is required. No runtime feature flag is assumed to exist.
 2026-11-05 | M3.2 | Red: topic catalog/validator and report observations were absent; the report integration then failed on an untracked sentinel/empty observation expectation and a legacy evidence-schema collision. Green: catalog rejects `BAD-99`; seven golden topic source fixtures pass; report emits only tracked source hashes and excludes `UNTRACKED_SENTINEL`. Exact M3 gate: 89 passed, 26 subtests; Ruff passed, 43 files formatted. Remaining task: M3.3 state matrix. Root `task check` later passed all Python, repository-quality, demo and build gates, then timed out in browser tests (21 passed, 5 skipped, 2 not run); docs/integrity were not reached.
 
 2026-11-05 | M3.2 | Red: catalog/collector files and report observations were absent; must-fail reference test rejects `BAD-99`. Green: catalog determinism/reference test passes; seven golden topic source fixtures pass; report integration emits tracked-only provenance and excludes `UNTRACKED_SENTINEL`. Exact M3 gate: 89 passed, 26 subtests; Ruff passed, 43 files formatted. Remaining task: M3.3 full applicability/evidence matrix and execution-claim rejection.
+
+2026-11-05 | M3.3 | Red: `task --dir skills/harness-audit test -- tests/test_audit.py -k 'mixed_report_marks_only_unsupported_language_without_score_change or supported_report_adds_coverage_quality_without_changing_core'` failed with 3 observations instead of 21 and the obsolete `state_matrix_not_implemented` reason. Green: the focused report tests passed; the collector no-source and 140 topic/applicability/evidence schema subtests passed. Exact M3 gate including audit assembly: 109 passed, 166 subtests; Ruff passed; `task integrity`: PASS after updating only the two adapted target hashes. Unsupported component/topic rows are explicit and static execution claims are rejected. Remaining task: M3.4 configured runner traversal.
+
+2026-11-05 | M3.4 | Red: UNIT-RUNNER failed because `collect_runner_edges` was absent; report integration had no resolved CI-to-task edge and retained the M3.4 placeholder. Green: static CI → Taskfile → local pre-commit chain resolves and detects a cycle; missing/dynamic/conditional targets remain unresolved with reason codes; depth exhaustion is bounded. E2E-STATIC reports the task edge with zero target process/import/socket attempts and an unchanged worktree. Exact M3 gate: 112 passed, 166 subtests; Ruff passed; `task integrity`: PASS after refreshing adapted target hashes only. Remaining task: M3.5 must-fail oracles.
+
+2026-11-05 | M3.5 + M3 exit | Golden-data check passes for 43 unique cases, complete AC/scenario joins and closed state enums. Unsupported-only and infra-only reports retain null/unavailable core without invented scores; path/symlink/swap/untracked/read-budget, Docker ENV redaction, receipt, runner cycle/unresolved/depth, and execution-claim rejection oracles pass. Expanded M3 safety/report suite: 180 passed, 169 subtests; exact M3 gate: 95 passed, 166 subtests; logging contract: 7 passed; Ruff and `task integrity`: PASS. Bounded calibration is seven component recipes (two Python, two Node, mixed, infra-only, Rust-only) and three topic fixtures; no universal coverage claim. M3 complete; resume at M4.1.
 
 Add one bounded entry per implemented boundary: date/revision, task ID, red
 command and expected failure, green command and collected counts, safe artifact

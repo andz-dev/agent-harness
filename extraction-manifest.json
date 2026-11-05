@@ -118,7 +118,7 @@
       "source": "agents/skills/engineering/harness-audit/scripts/audit.py",
       "target": "skills/harness-audit/scripts/audit.py",
       "source_sha256": "329a9623db89b1a76e8f23202c69ad54a05ac141c1b3aba56eff855743042d6f",
-      "sha256": "8d5dd863e7d2cc4dbb0669fc6e7fc42849cd5e5c4c50192ddfe92d0e4e4b7b76",
+      "sha256": "77eda3584bb5a0be145e2e626855778b24c2f132cdbfe4e5b009e717c729e3ad",
       "kind": "adapted-runtime"
     },
     {
@@ -181,7 +181,7 @@
       "source": "agents/skills/engineering/harness-audit/tests/test_audit.py",
       "target": "skills/harness-audit/tests/test_audit.py",
       "source_sha256": "11978f0a26c23edf222521061d297b0abfc0008a86b9c88100fa060a6216d6ca",
-      "sha256": "0523d03a7143aa99a697e0042b5de9ba962b8139a8391a7033ce14d4ccd83f0c",
+      "sha256": "5816de78e7aa7b2ae5f914eb5c397b16865b9c6888e85279efecbd57b98fcec8",
       "kind": "adapted-runtime"
     },
     {
