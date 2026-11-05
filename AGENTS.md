@@ -3,7 +3,7 @@ type: 'Project Guide'
 title: 'Agent Harness Development Rules'
 status: 'active'
 created: '2026-10-27'
-updated: '2026-10-30'
+updated: '2026-11-05'
 generated: 'agent'
 verified: 'unverified'
 owner: 'Andreas Elser'
@@ -53,6 +53,13 @@ Pi and Pendant are set up as described in [CONTRIBUTING.md](CONTRIBUTING.md).
 `trail build` in the git-ignored `.trail/cache/`. Pi project trust and the MCP
 admission policy are per-machine files outside the repo; never commit them, local
 paths or credentials. `.vscode/settings.json` keeps the agent sandbox at `workspace`.
+
+The **docs graph** (artifact-atlas skill) maps `docs/` documents and their links,
+cached in the git-ignored `.atlas/cache/` (entry: `INDEX.md`). Before you
+open numbered docs folders to find where a topic was planned, decided or retired,
+run `map`, `ask "<question>"` or `links <doc>`; each rebuilds the stale cache
+itself. The script needs Python 3.14:
+`uv run --no-project --python 3.14 ~/.agents/skills/artifact-atlas/scripts/artifact_atlas.py ask "..."`.
 
 ## Documentation
 
