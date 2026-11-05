@@ -11,6 +11,7 @@ status: "open"
 blocked_by:
   - "03-safe-evidence-and-reachability"
   - "06-validation-and-acceptance"
+claimed_by: "GitHub Copilot"
 created: "2026-11-04"
 updated: "2026-11-04"
 generated: "agent"
