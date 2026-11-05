@@ -18,15 +18,18 @@ sources: ['Plan.md', 'Architecture.md', 'Test-Plan.md', 'Mocking-Plan.md', 'Gold
 
 ## Resume State
 
-Current phase: **M4**. Current milestone: **M4.3, blocked pending owner decision**.
+Current phase: **M4**. Current milestone: **M4.3, not started; awaiting owner confirmation of the derived mapping rows**.
 Last completed product task: M4.2. Last validation result: `task tools:test`
 reported 19 tests passing. The real report validator accepted the seven-topic
 current fixture; the converter preserved it exactly, kept legacy score/levels
 without inventing coverage, marked unknown coverage unsupported without copying
 its payload, and rejected an unknown envelope major with a fixed diagnostic.
-Open blocker: neither `coverage-topics.yaml` nor the report schema maps the seven
-topic IDs to airport/factory/highway anchors, so M4.3 cannot connect them without
-inventing an association. No M4.3 runtime changes have started.
+Open item: Plan section 6 already fixed the anchor areas; Architecture section 7
+now resolves them to catalog topic IDs and links the 0005, 0007 and 0009 designs.
+The airport row is derived from `INF-*` check references and needs owner
+confirmation. The DESIGN grid was redrawn from the L3 plan export and the code;
+M4.3 starts with its layout conflicts C10 (airport `dx` -2), C11 (rail end) and
+C12 (tree keep-out), then draws the anchors. No M4.3 runtime changes have started.
 
 Other production blocker: WN-031 full browser suite must pass before viewer
 acceptance. No scope or visual-layout choice remains open. The owner selected
@@ -236,6 +239,8 @@ destructive migration is required. No runtime feature flag is assumed to exist.
 | 2026-11-05 | M4.1 defines airport/factory/highway as coverage anchors, with factory and highway remaining planned locations rather than approved models. The keyboard inventory and selection panel preserve independent applicability/evidence/freshness, safe provenance, limitations and synthetic origin; none maps to L0-L3 or score. | `apps/harness-city/DESIGN.md`; `task tools:test`: 15 passed, including the repository design check. Only the declared design file changed; next task is M4.2. |
 | 2026-11-05 | M4.2 preserves legacy core without adding coverage and carries supported version-1 observations/provenance unchanged; unknown coverage versions retain core but expose only an unsupported marker and fixed limitation; unknown report-envelope majors fail before output with a fixed diagnostic. | `apps/harness-city/tools/report_to_city.py`, `tests/test_repo_quality.py`; schema-valid current report plus legacy/future cases; 10 root tests passed. Next task is M4.3. |
 | 2026-11-05 | M4.3 is blocked: the seven catalog topic IDs and the three city anchor IDs have no defined association in the report schema or architecture. No mapping was inferred and no viewer code changed. | Await owner choice: supply a topic-to-anchor table; keep the anchors as focus locations with a global, unassociated inventory and amend AC-10/M4.3; or add a versioned upstream mapping field to the catalog/report contract. |
+| 2026-11-05 | Correction to the previous row: Plan section 6 already mapped airport = infrastructure, factory = build/artifact/dependency supply chain, highway = CI/task/hook reachability. Architecture section 7 now resolves these to catalog topic IDs, links the 0005, 0007 and 0009 designs (with back-references there), and notes that 0009 used the highway for supply-chain delivery. | Owner pointed to the earlier folders; artifact-atlas `ask` located 0009 Design-Proposal and 0007 airport assets. Derived airport row awaits owner confirmation. |
+| 2026-11-05 | DESIGN City map redrawn at one character per cell from a single coordinate table, checked for overlapping plots and crossings. Export conflicts C6..C9 recorded with resolutions (C8 changed to one spur at x 44); new conflicts C10..C14 found against the code and the 0009/0011 meanings. `dependencies` moved off the airport. | Source: `research/Repo harness audit and security - Claude.pdf` (east edge cropped at x 50) and `index.html` `AP`, `airSetup`, `buildRail`, tree scatter. |
 
 ## Definition Of Done
 

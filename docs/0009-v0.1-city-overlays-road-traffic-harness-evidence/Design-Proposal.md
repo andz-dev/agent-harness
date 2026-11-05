@@ -74,6 +74,10 @@ The gantry says "checked and recorded", not "pays toll": the audit does not meas
 Routes follow the existing rule that a link is only as good as both ends. The factory is not
 graded, so a route's level is the shopping mall's level.
 
+Later use (2026-11-05): 0011 anchors coverage topics on the goods industry and the highway
+reservation, with the highway standing for CI/task/hook reachability rather than delivery;
+see [0011 topic-to-anchor mapping](../0011-v0.1-harness-coverage-expansion/Architecture.md#topic-to-anchor-mapping).
+
 ### Data protection: protected city archive
 
 Owner decision: a protected city archive, not a prison. Valuable records are protected;

@@ -699,7 +699,7 @@
       "source": "apps/harness-city/tools/report_to_city.py",
       "target": "apps/harness-city/tools/report_to_city.py",
       "source_sha256": "77e6a935dc309bbc70d77ae0f3aa66c148ace37eacbf4ed6fd7762bcb99ef7d6",
-      "sha256": "013deb17267329cceb73c870f2a5d5827c7303b5c7a2878f88445ab1b9daea47",
+      "sha256": "74ed81764a7f6fac6005608b74ee9a56849b4c3e641f7e6dbdc14f194f1d64a7",
       "kind": "adapted-runtime"
     },
     {
@@ -1119,7 +1119,7 @@
       "source": "session:harness-audit-v1.2",
       "target": "docs/0005-v0.1-infrastructure-overlay-matched/research/Infrastructure-Coverage-Map.md",
       "source_sha256": "66c6d7288ab89e05bdca61c79c70299c1067818dd3f22e58d4c92f77b8d1ae61",
-      "sha256": "d2c90107dbefe58c10897c44a459450c8195497f4eee8d4b058fd0f9f97d7b8c",
+      "sha256": "bb0f6d53a3f49c673de24784e369cc157fcc372929c7653b2750835e73651259",
       "kind": "adapted-runtime"
     },
     {

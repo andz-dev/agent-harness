@@ -16,6 +16,9 @@ Scope of this map: what harness-audit must detect, check and report for infrastr
 containers, Docker Compose and devcontainers, and how that reaches the repo scan JSON. Everything here is a
 proposal; the items are tracked as B-166 to B-190 in the skill's [BACKLOG](../../../skills/harness-audit/BACKLOG.md).
 
+Later use: 0011 anchors its unscored coverage topics that reference `INF-*` checks on the airport; see
+[0011 topic-to-anchor mapping](../../0011-v0.1-harness-coverage-expansion/Architecture.md#topic-to-anchor-mapping).
+
 ## Starting point (verified in this repo)
 
 - Detection now exists as an overlay (`scripts/detect_infra.py`). The check catalog still has no infrastructure check. `Dockerfile`, Compose files, `.devcontainer/`, Terraform and

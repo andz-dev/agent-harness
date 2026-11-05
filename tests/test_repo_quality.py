@@ -115,9 +115,7 @@ class CityConverterTests(unittest.TestCase):
         }
         coverage = {
             "version": 1,
-            "components": [
-                {"id": "api", "root": ".", "languages": ["python"], "adapter": "python", "applicability": "applicable"}
-            ],
+            "components": [{"id": "api", "root": ".", "languages": ["python"], "adapter": "python", "applicability": "applicable"}],
             "observations": [
                 {
                     "id": f"api:{topic_id}",

@@ -101,7 +101,9 @@ Topic-to-object mapping: airport = infrastructure, factory =
 build/artifact/dependency supply chain, highway = CI/task/hook reachability.
 Shared topics may reference multiple objects by stable topic ID;
 objects never create duplicate score contributions. Later architecture owns
-the exact wire schema and field responsibilities.
+the exact wire schema and field responsibilities; the topic-ID table and its
+links to the 0005, 0007 and 0009 designs are in
+[Architecture section 7](Architecture.md#topic-to-anchor-mapping).
 
 ### Storage Policy Reference
 

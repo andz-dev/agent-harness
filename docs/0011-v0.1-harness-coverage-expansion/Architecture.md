@@ -236,6 +236,34 @@ time and limits. Unsupported/inapplicable topics stay in accessible inventory,
 not a fake L0 building. Maintain seven scored districts and existing score-tier
 growth rules. Reservations are not newly approved production assets.
 
+### Topic-To-Anchor Mapping
+
+[Plan section 6](Plan.md#6-proposed-approach) fixes the areas: airport =
+infrastructure, factory = build/artifact/dependency supply chain, highway =
+CI/task/hook reachability. The table resolves those areas to the stable topic
+IDs in `skills/harness-audit/checks/coverage-topics.yaml`. Rows marked
+*derived* follow from the catalog's check references and need owner confirmation
+before M4.3 is accepted.
+
+<!-- atlas:table=topic-anchor-mapping -->
+| Anchor | Plan area | Topic IDs | Basis | Prior design |
+|---|---|---|---|---|
+| Airport | Infrastructure | `security` | Derived: its `check_ids` reference infrastructure-overlay checks (`INF-*`); awaits owner confirmation | [0005 coverage map](../0005-v0.1-infrastructure-overlay-matched/research/Infrastructure-Coverage-Map.md), [0007 airport assets](../0007-v0.1-airport-overlay-evidence-matched/research/airport-assets.md) |
+| Factory | Build/artifact/dependency supply chain | `dependencies`, `ci_build` | Plan area; `ci_build` carries the build side | [0009 supply chain](../0009-v0.1-city-overlays-road-traffic-harness-evidence/Design-Proposal.md#supply-chain-shopping-mall-goods-industry-highway) |
+| Highway | CI/task/hook reachability | `ci_build`, plus `coverage.runner_edges` | Plan area | [0009 highway growth](../0009-v0.1-city-overlays-road-traffic-harness-evidence/Design-Proposal.md#highway-that-grows-with-the-city) |
+| None | Inventory only | `code_standards`, `testing`, `mcp`, `skills_extensions` | No Plan area; listed in the topic inventory, never drawn as L0 | [Ticket 04](wayfinder-tickets/04-report-city-and-publication.md#resolution) |
+
+A topic shared by two anchors appears under both with one observation ID; it
+never counts twice. `dependencies` stays on the factory only, because Plan
+section 6 places the dependency supply chain there. Cell positions, the redrawn
+grid and the layout conflicts C6..C14 live in
+[DESIGN City map](../../apps/harness-city/DESIGN.md#city-map-grid). Relation to earlier designs: 0007 owns the airport's
+infrastructure L0-L3 ladder, which stays independent of these indicators. 0009 used the highway as the supply-chain delivery route into the Shopping Mall;
+0011 reuses the same Grid reservation for runner reachability instead (DESIGN
+conflict C13), and the mall,
+harbor, bank, archive and court overlays stay out of scope until their topics
+are applicable (ticket 04).
+
 M4 updates DESIGN first for the exact indicator/selection contract, registry and
 explanation entries, without changing Grid coordinates or ISO camera. Address
 prototype overview label crowding with focus/zoom/decluttering in the existing

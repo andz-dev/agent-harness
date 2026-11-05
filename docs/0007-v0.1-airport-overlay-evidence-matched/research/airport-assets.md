@@ -14,6 +14,9 @@ owner: 'Andreas Elser'
 
 Status: proposal for review. The earlier harbor overlay was reverted; the airport replaces it.
 
+Later use: 0011 adds coverage-topic indicators to the airport without changing this L0-L3
+ladder; see [0011 topic-to-anchor mapping](../../0011-v0.1-harness-coverage-expansion/Architecture.md#topic-to-anchor-mapping).
+
 ## What it shows
 
 The airport is the **infrastructure overlay** (levels L0 to L3, never part of the 0-100 score).
