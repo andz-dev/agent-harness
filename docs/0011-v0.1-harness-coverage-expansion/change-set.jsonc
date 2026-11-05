@@ -1,0 +1,324 @@
+// change-set.jsonc: drafted by implementation-document-gatekeeper from the Files Touched Per Slice table.
+// Unverified until the owner reads it and sets "verified": "human-reviewed".
+{
+  "artifact": "change-set",
+  "schema": "change-set/1",
+  "created": "2026-11-05",
+  "stage": "specification",
+  "generated": "agent",
+  "verified": "unverified",
+  "based_on": [
+    {
+      "path": "docs/0011-v0.1-harness-coverage-expansion/Architecture.md",
+      "sha256": "200fb8928b06db04a22b6fd08e2a2d881cd1eae4d9164ff1f5a1378788454ab6"
+    },
+    {
+      "path": "docs/0011-v0.1-harness-coverage-expansion/Plan.md",
+      "sha256": "e851f97ebdffdd20e73011444d632b5efdcfb71fc9d9d60e32db778a220a6c22"
+    }
+  ],
+  "slices": [
+    {
+      "id": "M1",
+      "title": "Safety and logging foundation",
+      "gate": "task --dir skills/harness-audit test -- tests/test_logging_contract.py && task --dir skills/harness-audit test -- tests/test_infra_checks.py tests/test_coverage.py -k 'redact or safe_read'"
+    },
+    {
+      "id": "M2",
+      "title": "Versioned contract and provenance",
+      "gate": "task --dir skills/harness-audit test -- tests/test_coverage.py tests/test_audit.py tests/test_score.py tests/test_logging_contract.py"
+    },
+    {
+      "id": "M3",
+      "title": "Catalog and static collection",
+      "gate": "task --dir skills/harness-audit test -- tests/test_coverage.py tests/test_detect_stack.py tests/test_run_checks.py"
+    },
+    {
+      "id": "M4",
+      "title": "Existing Grid and ISO city projection",
+      "gate": "task tools:test && task app:check && task app:test"
+    },
+    {
+      "id": "M5",
+      "title": "Release evidence and maintenance",
+      "gate": "task check && task integrity"
+    }
+  ],
+  "entries": [
+    {
+      "id": "E001",
+      "slice": "M1",
+      "op": "add",
+      "targets": [
+        "skills/harness-audit/scripts/lean_log.py"
+      ],
+      "detail": "",
+      "source": "Architecture.md, Files Touched Per Slice",
+      "state": "planned"
+    },
+    {
+      "id": "E002",
+      "slice": "M1",
+      "op": "add",
+      "targets": [
+        "skills/harness-audit/tests/test_logging_contract.py"
+      ],
+      "detail": "",
+      "source": "Architecture.md, Files Touched Per Slice",
+      "state": "planned"
+    },
+    {
+      "id": "E003",
+      "slice": "M1",
+      "op": "change",
+      "targets": [
+        "skills/harness-audit/scripts/infra_checks.py"
+      ],
+      "detail": "",
+      "source": "Architecture.md, Files Touched Per Slice",
+      "state": "planned"
+    },
+    {
+      "id": "E004",
+      "slice": "M1",
+      "op": "change",
+      "targets": [
+        "skills/harness-audit/tests/test_infra_checks.py"
+      ],
+      "detail": "",
+      "source": "Architecture.md, Files Touched Per Slice",
+      "state": "planned"
+    },
+    {
+      "id": "E005",
+      "slice": "M1",
+      "op": "add",
+      "targets": [
+        "skills/harness-audit/scripts/coverage.py"
+      ],
+      "detail": "",
+      "source": "Architecture.md, Files Touched Per Slice",
+      "state": "planned"
+    },
+    {
+      "id": "E006",
+      "slice": "M1",
+      "op": "add",
+      "targets": [
+        "skills/harness-audit/tests/test_coverage.py"
+      ],
+      "detail": "",
+      "source": "Architecture.md, Files Touched Per Slice",
+      "state": "planned"
+    },
+    {
+      "id": "E007",
+      "slice": "M2",
+      "op": "change",
+      "targets": [
+        "skills/harness-audit/schema/report.schema.json"
+      ],
+      "detail": "",
+      "source": "Architecture.md, Files Touched Per Slice",
+      "state": "planned"
+    },
+    {
+      "id": "E008",
+      "slice": "M2",
+      "op": "change",
+      "targets": [
+        "skills/harness-audit/scripts/audit.py"
+      ],
+      "detail": "",
+      "source": "Architecture.md, Files Touched Per Slice",
+      "state": "planned"
+    },
+    {
+      "id": "E009",
+      "slice": "M2",
+      "op": "change",
+      "targets": [
+        "skills/harness-audit/scripts/coverage.py"
+      ],
+      "detail": "",
+      "source": "Architecture.md, Files Touched Per Slice",
+      "state": "planned"
+    },
+    {
+      "id": "E010",
+      "slice": "M2",
+      "op": "change",
+      "targets": [
+        "skills/harness-audit/tests/test_coverage.py"
+      ],
+      "detail": "",
+      "source": "Architecture.md, Files Touched Per Slice",
+      "state": "planned"
+    },
+    {
+      "id": "E011",
+      "slice": "M2",
+      "op": "change",
+      "targets": [
+        "skills/harness-audit/tests/test_audit.py"
+      ],
+      "detail": "",
+      "source": "Architecture.md, Files Touched Per Slice",
+      "state": "planned"
+    },
+    {
+      "id": "E012",
+      "slice": "M2",
+      "op": "change",
+      "targets": [
+        "skills/harness-audit/tests/test_score.py"
+      ],
+      "detail": "",
+      "source": "Architecture.md, Files Touched Per Slice",
+      "state": "planned"
+    },
+    {
+      "id": "E013",
+      "slice": "M3",
+      "op": "add",
+      "targets": [
+        "skills/harness-audit/checks/coverage-topics.yaml"
+      ],
+      "detail": "",
+      "source": "Architecture.md, Files Touched Per Slice",
+      "state": "planned"
+    },
+    {
+      "id": "E014",
+      "slice": "M3",
+      "op": "change",
+      "targets": [
+        "skills/harness-audit/scripts/coverage.py"
+      ],
+      "detail": "",
+      "source": "Architecture.md, Files Touched Per Slice",
+      "state": "planned"
+    },
+    {
+      "id": "E015",
+      "slice": "M3",
+      "op": "change",
+      "targets": [
+        "skills/harness-audit/scripts/detect_stack.py"
+      ],
+      "detail": "",
+      "source": "Architecture.md, Files Touched Per Slice",
+      "state": "planned"
+    },
+    {
+      "id": "E016",
+      "slice": "M3",
+      "op": "change",
+      "targets": [
+        "skills/harness-audit/tests/test_coverage.py"
+      ],
+      "detail": "",
+      "source": "Architecture.md, Files Touched Per Slice",
+      "state": "planned"
+    },
+    {
+      "id": "E017",
+      "slice": "M3",
+      "op": "add",
+      "targets": [
+        "skills/harness-audit/tests/fixtures/coverage/"
+      ],
+      "detail": "",
+      "source": "Architecture.md, Files Touched Per Slice",
+      "state": "planned"
+    },
+    {
+      "id": "E018",
+      "slice": "M4",
+      "op": "change",
+      "targets": [
+        "apps/harness-city/DESIGN.md"
+      ],
+      "detail": "",
+      "source": "Architecture.md, Files Touched Per Slice",
+      "state": "planned"
+    },
+    {
+      "id": "E019",
+      "slice": "M4",
+      "op": "change",
+      "targets": [
+        "apps/harness-city/tools/report_to_city.py"
+      ],
+      "detail": "",
+      "source": "Architecture.md, Files Touched Per Slice",
+      "state": "planned"
+    },
+    {
+      "id": "E020",
+      "slice": "M4",
+      "op": "change",
+      "targets": [
+        "tests/test_repo_quality.py"
+      ],
+      "detail": "",
+      "source": "Architecture.md, Files Touched Per Slice",
+      "state": "planned"
+    },
+    {
+      "id": "E021",
+      "slice": "M4",
+      "op": "change",
+      "targets": [
+        "apps/harness-city/index.html"
+      ],
+      "detail": "",
+      "source": "Architecture.md, Files Touched Per Slice",
+      "state": "planned"
+    },
+    {
+      "id": "E022",
+      "slice": "M4",
+      "op": "add",
+      "targets": [
+        "apps/harness-city/tests/coverage.spec.js"
+      ],
+      "detail": "",
+      "source": "Architecture.md, Files Touched Per Slice",
+      "state": "planned"
+    },
+    {
+      "id": "E023",
+      "slice": "M4",
+      "op": "change",
+      "targets": [
+        "extraction-manifest.json"
+      ],
+      "detail": "",
+      "source": "Architecture.md, Files Touched Per Slice",
+      "state": "planned"
+    },
+    {
+      "id": "E024",
+      "slice": "M5",
+      "op": "change",
+      "targets": [
+        "README.md"
+      ],
+      "detail": "",
+      "source": "Architecture.md, Files Touched Per Slice",
+      "state": "planned"
+    },
+    {
+      "id": "E025",
+      "slice": "M5",
+      "op": "change",
+      "targets": [
+        "docs/0011-v0.1-harness-coverage-expansion/Implementation.md"
+      ],
+      "detail": "",
+      "source": "Architecture.md, Files Touched Per Slice",
+      "state": "planned"
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "artifact": "ontology.json",
+  "generatedAt": "2026-11-05T00:00:00Z",
+  "mode": "final",
+  "inputs": ["../Plan.md", "../Architecture.md", "../Test-Plan.md", "../Mocking-Plan.md", "../Golden-Dataset/dataset.json"],
+  "outputs": ["Ontology.md", "ontology.json"],
+  "validation": {"status": "pass", "checks": ["19_concept_urns", "source_traces", "relation_endpoints", "14_ac_joins", "no_architecture_model_gaps", "frontmatter_links_lf", "pinned_markdownlint"]},
+  "notes": ["Vocabulary only; Architecture retains runtime ownership. OWL/RDF not requested. No human-review claim."]
+}

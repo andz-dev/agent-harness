@@ -1,0 +1,9 @@
+{
+  "artifact": "Map.md",
+  "generatedAt": "2026-11-05T00:00:00Z",
+  "mode": "final",
+  "inputs": ["Map.md", "wayfinder-tickets/"],
+  "outputs": ["Ideation-Book.md"],
+  "validation": {"status": "pass", "checks": ["approved_existing_source_selection", "eight_closed_tickets", "frontmatter_links_lf", "pinned_markdownlint"]},
+  "notes": ["Existing Map and eight closed owner-confirmed tickets reused; no discovery rerun. Original Map stop is superseded by the explicit full-chain request; historical frontmatter retained."]
+}

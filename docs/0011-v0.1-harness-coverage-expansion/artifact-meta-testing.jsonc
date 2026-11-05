@@ -1,0 +1,9 @@
+{
+  "artifact": "Test-Plan.md",
+  "generatedAt": "2026-11-05T00:00:00Z",
+  "mode": "final",
+  "inputs": ["Plan.md", "Architecture.md"],
+  "outputs": ["Test-Plan.md", "tests/"],
+  "validation": {"status": "pass", "checks": ["14_ac_mappings", "19_scenarios", "five_nonexecutable_scaffolds", "frontmatter_links_lf", "pinned_markdownlint"]},
+  "notes": ["Future test design only. Text placeholders are not runnable or skipped tests. Production red-green gates remain unrun."]
+}

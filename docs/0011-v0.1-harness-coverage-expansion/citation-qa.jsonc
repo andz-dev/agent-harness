@@ -1,0 +1,92 @@
+// Citation QA sidecar. Updated by shared/scripts/citation_lint.py
+// Default policy: final mode blocks URL failures; draft mode warns.
+{
+  "documents": {
+    "Ideation-Book.md": {
+      "checks": {
+        "bareNumericGroups": 0,
+        "escapedCitationSyntax": 0,
+        "missingAnchors": [],
+        "orphanAnchors": [],
+        "placeholders": 0
+      },
+      "lastRunAt": "2026-11-05T08:21:38.363997+00:00",
+      "mode": "final",
+      "offline": false,
+      "path": "docs/0011-v0.1-harness-coverage-expansion/Ideation-Book.md",
+      "status": "pass",
+      "summary": {
+        "anchors": 1,
+        "citations": 1,
+        "errors": 0,
+        "warnings": 0
+      },
+      "urlValidation": [
+        {
+          "detail": "HTTP 200",
+          "reachable": true,
+          "ref": 1,
+          "url": "https://raw.githubusercontent.com/GoogleCloudPlatform/knowledge-catalog/main/okf/SPEC.md"
+        }
+      ]
+    },
+    "Research-Paper.md": {
+      "checks": {
+        "bareNumericGroups": 0,
+        "escapedCitationSyntax": 0,
+        "missingAnchors": [],
+        "orphanAnchors": [],
+        "placeholders": 0
+      },
+      "lastRunAt": "2026-11-05T08:21:38.772755+00:00",
+      "mode": "final",
+      "offline": false,
+      "path": "docs/0011-v0.1-harness-coverage-expansion/Research-Paper.md",
+      "status": "pass",
+      "summary": {
+        "anchors": 1,
+        "citations": 2,
+        "errors": 0,
+        "warnings": 0
+      },
+      "urlValidation": [
+        {
+          "detail": "HTTP 200",
+          "reachable": true,
+          "ref": 1,
+          "url": "https://raw.githubusercontent.com/GoogleCloudPlatform/knowledge-catalog/main/okf/SPEC.md"
+        }
+      ]
+    },
+    "Whitepaper.md": {
+      "checks": {
+        "bareNumericGroups": 0,
+        "escapedCitationSyntax": 0,
+        "missingAnchors": [],
+        "orphanAnchors": [],
+        "placeholders": 0
+      },
+      "lastRunAt": "2026-11-05T08:21:39.168458+00:00",
+      "mode": "final",
+      "offline": false,
+      "path": "docs/0011-v0.1-harness-coverage-expansion/Whitepaper.md",
+      "status": "pass",
+      "summary": {
+        "anchors": 1,
+        "citations": 2,
+        "errors": 0,
+        "warnings": 0
+      },
+      "urlValidation": [
+        {
+          "detail": "HTTP 200",
+          "reachable": true,
+          "ref": 1,
+          "url": "https://raw.githubusercontent.com/GoogleCloudPlatform/knowledge-catalog/main/okf/SPEC.md"
+        }
+      ]
+    }
+  },
+  "modeDefault": "final",
+  "schemaVersion": 1
+}

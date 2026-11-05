@@ -1,0 +1,9 @@
+{
+  "artifact": "Ideation-Book.md",
+  "generatedAt": "2026-11-05T00:00:00Z",
+  "mode": "final",
+  "inputs": ["Map.md", "wayfinder-tickets/", "../0010-v0.1-harness-coverage-discovery/research/coverage-findings.md"],
+  "outputs": ["Ideation-Book.md"],
+  "validation": {"status": "pass", "checks": ["frontmatter_links_lf", "pinned_markdownlint", "two_mermaid_renders", "final_online_citation_qa"]},
+  "notes": ["Specification QA passed; no human-review or production-validation claim."]
+}

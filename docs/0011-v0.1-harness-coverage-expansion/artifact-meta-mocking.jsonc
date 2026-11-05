@@ -1,0 +1,9 @@
+{
+  "artifact": "Mocking-Plan.md",
+  "generatedAt": "2026-11-05T00:00:00Z",
+  "mode": "final",
+  "inputs": ["Architecture.md", "Test-Plan.md"],
+  "outputs": ["Mocking-Plan.md"],
+  "validation": {"status": "pass", "checks": ["seven_boundary_controls", "consumer_scenario_joins", "frontmatter_links_lf", "pinned_markdownlint"]},
+  "notes": ["External boundaries only; no executable mocks or fake core/scorer/converter created. No external API dependency."]
+}

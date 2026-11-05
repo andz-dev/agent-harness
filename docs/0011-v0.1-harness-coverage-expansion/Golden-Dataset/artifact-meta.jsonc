@@ -1,0 +1,9 @@
+{
+  "artifact": "dataset.json",
+  "generatedAt": "2026-11-05T00:00:00Z",
+  "mode": "final",
+  "inputs": ["../Plan.md", "../Architecture.md", "../Test-Plan.md", "../Mocking-Plan.md"],
+  "outputs": ["dataset.json", "dataset-guide.md"],
+  "validation": {"status": "pass", "checks": ["json_structure", "43_unique_cases", "19_scenario_joins", "14_ac_joins", "seven_topic_recipes", "two_samples_per_adapter", "frontmatter_links_lf", "pinned_markdownlint"]},
+  "notes": ["Synthetic semantic input recipes and expected predicates, not actual report outputs. Fixture builders remain future tasks; no CSV needed."]
+}

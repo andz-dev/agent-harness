@@ -1,0 +1,9 @@
+{
+  "artifact": "Implementation.md",
+  "generatedAt": "2026-11-05T00:00:00Z",
+  "mode": "final",
+  "inputs": ["Plan.md", "Architecture.md", "Test-Plan.md", "Mocking-Plan.md", "Golden-Dataset/dataset.json", "ontology/ontology.json"],
+  "outputs": ["Implementation.md", "change-set.jsonc"],
+  "validation": {"status": "pass", "checks": ["five_done_contracts", "unchecked_tasks", "ontology_concept_joins", "14_ac_joins", "change_set_draft", "change_set_check", "frontmatter_links_lf", "pinned_markdownlint"]},
+  "notes": ["Five unstarted phases; 25 planned operations. Full logging foundation first. Production safety and WN-031 prerequisites not waived."]
+}

@@ -1,0 +1,9 @@
+{
+  "artifact": "Architecture.md",
+  "generatedAt": "2026-11-05T00:00:00Z",
+  "mode": "final",
+  "inputs": ["Plan.md", "Prototype-Decision.md"],
+  "outputs": ["Architecture.md", "architecture-model.jsonc"],
+  "validation": {"status": "pass", "checks": ["architecture_model_draft", "architecture_model_check", "five_mermaid_renders", "frontmatter_links_lf", "pinned_markdownlint"]},
+  "notes": ["Six layers, seven components; target proposal, not as-built. Fixed Grid/ISO baseline. Specification QA passed."]
+}

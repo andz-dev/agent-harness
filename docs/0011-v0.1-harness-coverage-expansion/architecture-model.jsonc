@@ -1,0 +1,161 @@
+// architecture-model.jsonc: drafted by architecture-gatekeeper from Architecture.md.
+// Unverified until the owner reads the chart and sets "verified": "human-reviewed".
+{
+  "artifact": "architecture-model",
+  "schema": "architecture-model/1",
+  "created": "2026-11-05",
+  "title": "Harness Coverage Expansion Architecture",
+  "generated": "agent",
+  "verified": "unverified",
+  "states": {
+    "current": "additive static coverage for Python/Node components and three topic objects in the existing Grid/ISO city.",
+    "target": "preserve the scored core while exposing what was and was not observed."
+  },
+  "layers": [
+    "Collection",
+    "Contract",
+    "Observability",
+    "Application",
+    "Projection",
+    "Presentation"
+  ],
+  "components": [
+    {
+      "id": "safe-reader",
+      "label": "Safe Reader",
+      "layer": "Collection",
+      "kind": "module",
+      "path": "skills/harness-audit/scripts/coverage.py",
+      "in": [
+        "current",
+        "target"
+      ]
+    },
+    {
+      "id": "topic-catalog",
+      "label": "Topic Catalog",
+      "layer": "Contract",
+      "kind": "data",
+      "path": "skills/harness-audit/checks/coverage-topics.yaml",
+      "in": [
+        "target"
+      ]
+    },
+    {
+      "id": "report-contract",
+      "label": "Report Contract",
+      "layer": "Contract",
+      "kind": "schema",
+      "path": "skills/harness-audit/schema/report.schema.json",
+      "in": [
+        "current",
+        "target"
+      ]
+    },
+    {
+      "id": "logging",
+      "label": "Logging",
+      "layer": "Observability",
+      "kind": "module",
+      "path": "skills/harness-audit/scripts/lean_log.py",
+      "in": [
+        "target"
+      ]
+    },
+    {
+      "id": "audit-coordinator",
+      "label": "Audit Coordinator",
+      "layer": "Application",
+      "kind": "script",
+      "path": "skills/harness-audit/scripts/audit.py",
+      "in": [
+        "current",
+        "target"
+      ]
+    },
+    {
+      "id": "city-converter",
+      "label": "City Converter",
+      "layer": "Projection",
+      "kind": "script",
+      "path": "apps/harness-city/tools/report_to_city.py",
+      "in": [
+        "current",
+        "target"
+      ]
+    },
+    {
+      "id": "city-viewer",
+      "label": "City Viewer",
+      "layer": "Presentation",
+      "kind": "application",
+      "path": "apps/harness-city/index.html",
+      "in": [
+        "current",
+        "target"
+      ]
+    }
+  ],
+  "links": [
+    {
+      "from": "safe-reader",
+      "to": "topic-catalog",
+      "label": "uses",
+      "in": [
+        "target"
+      ]
+    },
+    {
+      "from": "safe-reader",
+      "to": "logging",
+      "label": "uses",
+      "in": [
+        "target"
+      ]
+    },
+    {
+      "from": "audit-coordinator",
+      "to": "safe-reader",
+      "label": "uses",
+      "in": [
+        "current",
+        "target"
+      ]
+    },
+    {
+      "from": "audit-coordinator",
+      "to": "report-contract",
+      "label": "uses",
+      "in": [
+        "current",
+        "target"
+      ]
+    },
+    {
+      "from": "audit-coordinator",
+      "to": "logging",
+      "label": "uses",
+      "in": [
+        "target"
+      ]
+    },
+    {
+      "from": "city-converter",
+      "to": "report-contract",
+      "label": "uses",
+      "in": [
+        "current",
+        "target"
+      ]
+    },
+    {
+      "from": "city-viewer",
+      "to": "city-converter",
+      "label": "uses",
+      "in": [
+        "current",
+        "target"
+      ]
+    }
+  ]
+}

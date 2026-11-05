@@ -1,0 +1,9 @@
+{
+  "artifact": "Prototype-Decision.md",
+  "generatedAt": "2026-11-05T00:00:00Z",
+  "mode": "final",
+  "inputs": ["Plan.md", "../../apps/harness-city/DESIGN.md", "../../apps/harness-city/index.html"],
+  "outputs": ["Prototype-Decision.md"],
+  "validation": {"status": "warn", "checks": ["syntax", "existing_viewer_embedding", "21_topic_state_combinations", "four_rotations", "desktop_mobile_canvas_pixels", "screenshots"]},
+  "notes": ["Owner-fixed Grid/ISO baseline. Temporary HTML/captures ignored. Overview label crowding is recorded, not accepted; production pointer/keyboard/export suite remains unrun."]
+}

@@ -1,0 +1,1 @@
+Documentation scaffold only: SMOKE-DATA and SMOKE-LOG. Implement in the established production test ownership named in Test-Plan.md; no test exists here.

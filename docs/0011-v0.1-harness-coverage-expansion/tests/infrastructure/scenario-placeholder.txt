@@ -1,0 +1,1 @@
+Documentation scaffold only: INFRA-SAFE and INFRA-INTEGRITY. Use isolated temporary Git worktrees and the real integrity gate; no test exists here.

@@ -1,0 +1,81 @@
+{
+  "@context": {
+    "@base": "urn:ontology:agent-harness:",
+    "concept.core_score": "urn:ontology:agent-harness:concept.core_score",
+    "concept.component": "urn:ontology:agent-harness:concept.component",
+    "concept.applicability": "urn:ontology:agent-harness:concept.applicability",
+    "concept.evidence": "urn:ontology:agent-harness:concept.evidence",
+    "concept.freshness": "urn:ontology:agent-harness:concept.freshness",
+    "concept.provenance": "urn:ontology:agent-harness:concept.provenance",
+    "concept.receipt": "urn:ontology:agent-harness:concept.receipt",
+    "concept.collection": "urn:ontology:agent-harness:concept.collection",
+    "concept.runner_edge": "urn:ontology:agent-harness:concept.runner_edge",
+    "concept.topic": "urn:ontology:agent-harness:concept.topic",
+    "concept.projection": "urn:ontology:agent-harness:concept.projection",
+    "concept.city_object": "urn:ontology:agent-harness:concept.city_object",
+    "concept.synthetic_origin": "urn:ontology:agent-harness:concept.synthetic_origin",
+    "concept.safe_read": "urn:ontology:agent-harness:concept.safe_read",
+    "concept.implementation_type": "urn:ontology:agent-harness:concept.implementation_type",
+    "concept.logging": "urn:ontology:agent-harness:concept.logging",
+    "concept.decision_log_override": "urn:ontology:agent-harness:concept.decision_log_override",
+    "concept.fixture": "urn:ontology:agent-harness:concept.fixture",
+    "concept.release_gate": "urn:ontology:agent-harness:concept.release_gate"
+  },
+  "meta": {"id":"0011","version":"0.1","generatedAt":"2026-11-05T00:00:00Z","generated":"agent","verified":"unverified","sources":["../Plan.md","../Architecture.md","../Test-Plan.md","../Mocking-Plan.md","../Golden-Dataset/dataset.json"]},
+  "contexts": [
+    {"name":"Collection","architectureRefs":["Architecture.md section 5"],"description":"Vocabulary for bounded observations; responsibilities are owned by Architecture."},
+    {"name":"Contract","architectureRefs":["Architecture.md section 7"],"description":"Vocabulary for independent states and provenance."},
+    {"name":"Presentation","architectureRefs":["Architecture.md section 7 Existing City Projection"],"description":"Vocabulary for evidence inspection in the fixed Grid and ISO city."},
+    {"name":"Delivery","architectureRefs":["Architecture.md sections 6 and 8"],"description":"Vocabulary for fixtures, logging and acceptance."}
+  ],
+  "concepts": [
+    {"id":"concept.core_score","term":"Core score","kind":"value_object","definition":"The existing seven-pillar quality result, separate from coverage.","aliases":["scored core"],"attributes":[{"name":"score","type":"number_or_null","required":true}],"constraints":["Coverage never contributes to score, levels, weights, caps or entropy.","Unavailable applicable core is null, not invented zero."],"sourceTrace":["AC-1","AC-2","Architecture.md section 7","UNIT-CORE"]},
+    {"id":"concept.component","term":"Component","kind":"entity","definition":"A repository-local unit with a relative root, languages and adapter applicability.","aliases":["repository component"],"attributes":[{"name":"id","type":"string","required":true},{"name":"adapter","type":"python_node_or_null","required":true}],"constraints":["No additional language adapter is implied by detection."],"sourceTrace":["AC-2","Architecture.md section 7","UNIT-COMP"]},
+    {"id":"concept.applicability","term":"Applicability","kind":"value_object","definition":"Whether a topic can apply and be supported for a component.","aliases":[],"attributes":[{"name":"applicability","type":"enum","required":true,"values":["applicable","inapplicable","unsupported","undetermined"]}],"constraints":["Never substitute evidence or maturity for applicability."],"sourceTrace":["AC-3","Architecture.md section 7","UNIT-STATES"]},
+    {"id":"concept.evidence","term":"Evidence state","kind":"value_object","definition":"The category of claim backed by an observation method, not an assurance score.","aliases":["evidence"],"attributes":[{"name":"evidence","type":"enum","required":true,"values":["declared","static_implementation_found","execution_observed","prototype_simulated","unknown"]}],"constraints":["No execution_observed producer exists in this scope.","Unknown is never verified; declarations and local receipts are not execution."],"sourceTrace":["AC-3","AC-6","Architecture.md section 7","UNIT-STATES"]},
+    {"id":"concept.freshness","term":"Freshness","kind":"value_object","definition":"Identity agreement between an observation and its referenced revision/sources.","aliases":[],"attributes":[{"name":"freshness","type":"enum","required":true,"values":["current","stale","unknown"]}],"constraints":["Changed digest or revision is stale; missing identity is unknown.","Stale history retains its evidence label but is excluded from current summaries."],"sourceTrace":["AC-4","Architecture.md section 7","UNIT-PROVENANCE"]},
+    {"id":"concept.provenance","term":"Safe provenance","kind":"value_object","definition":"Minimal source identity, locator, method and time supporting an observation.","aliases":["provenance"],"attributes":[{"name":"revision","type":"string","required":true},{"name":"sources","type":"relative_path_sha256_locator_array","required":true},{"name":"method","type":"string","required":true},{"name":"observed_at","type":"utc_timestamp","required":true}],"constraints":["No raw excerpt, command, credential or endpoint."],"sourceTrace":["AC-4","AC-5","Architecture.md section 7"]},
+    {"id":"concept.receipt","term":"Local receipt","kind":"entity","definition":"An untrusted repository-local record of a claimed run.","aliases":["run receipt"],"attributes":[{"name":"outcome","type":"enum","required":true,"values":["absent","present_unverified","invalid","stale","partial","failed"]}],"constraints":["Presence and self-claimed success do not authenticate an issuer or execution."],"sourceTrace":["AC-6","Architecture.md section 7","UNIT-RECEIPT"]},
+    {"id":"concept.collection","term":"Collection outcome","kind":"value_object","definition":"Whether the bounded collection process completed, partially completed or failed.","aliases":[],"attributes":[{"name":"outcome","type":"enum","required":true,"values":["complete","partial","failed"]}],"constraints":["Not the receipt lifecycle or evidence state."],"sourceTrace":["AC-2","AC-5","Architecture.md section 7"]},
+    {"id":"concept.runner_edge","term":"Configured runner edge","kind":"entity","definition":"A static relationship between named runner targets.","aliases":["reachability edge"],"attributes":[{"name":"resolution","type":"enum","required":true,"values":["resolved","unresolved","cycle","budget_exceeded"]}],"constraints":["Reachability is not installation, invocation or successful execution."],"sourceTrace":["AC-7","Architecture.md section 5","UNIT-RUNNER"]},
+    {"id":"concept.topic","term":"Coverage topic","kind":"entity","definition":"An unscored subject linked to existing check IDs and component observations.","aliases":["overlay topic"],"attributes":[{"name":"topic_id","type":"catalog_key","required":true}],"constraints":["Catalog keys are not extra score pillars; existing check references must resolve."],"sourceTrace":["AC-8","Architecture.md sections 2 and 7","UNIT-CATALOG"]},
+    {"id":"concept.projection","term":"City projection","kind":"value_object","definition":"The version-aware safe representation consumed by the city.","aliases":["city summary"],"attributes":[{"name":"coverage_version","type":"integer","required":true}],"constraints":["Preserve independent states and limitations; reject unknown envelope major version."],"sourceTrace":["AC-9","AC-11","Architecture.md section 5","INT-CONVERT"]},
+    {"id":"concept.city_object","term":"Coverage city object","kind":"entity","definition":"An airport, factory or highway topic anchor in the existing Grid/ISO city.","aliases":["topic object"],"attributes":[{"name":"object_id","type":"airport_factory_or_highway","required":true}],"constraints":["Existing Grid, camera and assets remain baseline; separate indicators carry evidence.","A reservation outline is not an implemented building or maturity level."],"sourceTrace":["AC-10","AC-13","Architecture.md section 7 Existing City Projection","E2E-CITY"]},
+    {"id":"concept.synthetic_origin","term":"Synthetic origin","kind":"value_object","definition":"An explicit indication that input or presentation is fabricated for demonstration/testing.","aliases":["simulation origin"],"attributes":[{"name":"synthetic","type":"boolean","required":true}],"constraints":["Survives conversion, display and export regardless of evidence label."],"sourceTrace":["AC-11","Architecture.md section 7","E2E-EXPORT"]},
+    {"id":"concept.safe_read","term":"Bounded safe read","kind":"policy","definition":"The constrained acquisition of allowlisted tracked regular-file data.","aliases":[],"attributes":[],"constraints":["See Architecture.md section 5 for the owning boundary and budgets; never execute target code."],"sourceTrace":["AC-5","Architecture.md section 5","INFRA-SAFE"]},
+    {"id":"concept.implementation_type","term":"Implementation type","kind":"value_object","definition":"Runnable Python scripts plus static browser application.","aliases":[],"attributes":[{"name":"logging_disposition","type":"literal_full","required":true}],"constraints":["Architecture.md section 6 owns the derivation; this specification run is not product implementation."],"sourceTrace":["AC-14","Architecture.md section 6"]},
+    {"id":"concept.logging","term":"Lifecycle logging","kind":"policy","definition":"Bounded structured operational events emitted through the shared logging API.","aliases":[],"attributes":[],"constraints":["Load lean-logging; full disposition, including opt-in TRACE; no repository content in any sink."],"sourceTrace":["AC-14","Architecture.md section 6","SMOKE-LOG"]},
+    {"id":"concept.decision_log_override","term":"Decision-log override","kind":"policy","definition":"A documented owner-visible reason for changing an architecture-derived disposition.","aliases":[],"attributes":[],"constraints":["No silent logging-type or scope override."],"sourceTrace":["AC-14","Architecture.md section 6"]},
+    {"id":"concept.fixture","term":"Golden recipe","kind":"entity","definition":"A deterministic synthetic input recipe with independent expected predicates.","aliases":["golden case"],"attributes":[{"name":"id","type":"string","required":true},{"name":"scenarios","type":"scenario_id_array","required":true},{"name":"acs","type":"ac_id_array","required":true}],"constraints":["Not an observed production result or a substitute for red-green evidence."],"sourceTrace":["AC-12","Golden-Dataset/dataset.json","SMOKE-DATA"]},
+    {"id":"concept.release_gate","term":"Release gate","kind":"policy","definition":"The recorded pass of the required complete checks before production acceptance.","aliases":[],"attributes":[],"constraints":["Includes WN-031 full browser suite and reviewed runtime manifest; no test weakening."],"sourceTrace":["AC-13","Architecture.md section 9","INFRA-INTEGRITY"]}
+  ],
+  "events": [
+    {"id":"event.collection_completed","term":"Collection completed","trigger":"Bounded collection finishes","preconditions":["Safety prerequisite satisfied"],"postconditions":["Safe collection outcome and limits emitted; no execution promotion"],"sourceTrace":["INT-REPORT","E2E-STATIC"]},
+    {"id":"event.projection_inspected","term":"Projection inspected","trigger":"Owner selects a topic object or inventory entry","preconditions":["Version policy satisfied"],"postconditions":["Independent states and limitations visible; core unchanged"],"sourceTrace":["INT-CITY","E2E-CITY"]}
+  ],
+  "relations": [
+    {"from":"concept.component","type":"has_applicability","to":"concept.applicability","cardinality":"1:N"},
+    {"from":"concept.topic","type":"has_evidence","to":"concept.evidence","cardinality":"1:N"},
+    {"from":"concept.evidence","type":"supported_by","to":"concept.provenance","cardinality":"1:1"},
+    {"from":"concept.provenance","type":"has_freshness","to":"concept.freshness","cardinality":"1:1"},
+    {"from":"concept.city_object","type":"references","to":"concept.topic","cardinality":"N:N"},
+    {"from":"concept.projection","type":"preserves","to":"concept.synthetic_origin","cardinality":"1:1"},
+    {"from":"concept.fixture","type":"validates","to":"concept.release_gate","cardinality":"N:N"}
+  ],
+  "traceability": [
+    {"conceptId":"concept.core_score","acceptanceCriteria":["AC-1","AC-2"],"architectureRefs":["Architecture.md section 7"],"testScenarios":["UNIT-CORE","UNIT-COMP"],"datasetFields":["cases[].expected.core_equals_baseline","cases[].expected.score"]},
+    {"conceptId":"concept.applicability","acceptanceCriteria":["AC-3"],"architectureRefs":["Architecture.md section 7"],"testScenarios":["UNIT-STATES"],"datasetFields":["applicability"]},
+    {"conceptId":"concept.provenance","acceptanceCriteria":["AC-4"],"architectureRefs":["Architecture.md section 7"],"testScenarios":["UNIT-PROVENANCE"],"datasetFields":["cases[].recipe.identity"]},
+    {"conceptId":"concept.safe_read","acceptanceCriteria":["AC-5"],"architectureRefs":["Architecture.md section 5"],"testScenarios":["INFRA-SAFE","UNIT-REDACT"],"datasetFields":["cases[].expected.read_rejected"]},
+    {"conceptId":"concept.receipt","acceptanceCriteria":["AC-6"],"architectureRefs":["Architecture.md section 7"],"testScenarios":["UNIT-RECEIPT"],"datasetFields":["cases[].expected.receipt_outcome"]},
+    {"conceptId":"concept.runner_edge","acceptanceCriteria":["AC-7"],"architectureRefs":["Architecture.md section 5"],"testScenarios":["UNIT-RUNNER"],"datasetFields":["cases[].expected.resolution"]},
+    {"conceptId":"concept.topic","acceptanceCriteria":["AC-8"],"architectureRefs":["Architecture.md section 2"],"testScenarios":["UNIT-CATALOG"],"datasetFields":["topics","cases[].recipe.topic_id"]},
+    {"conceptId":"concept.projection","acceptanceCriteria":["AC-9"],"architectureRefs":["Architecture.md section 5"],"testScenarios":["INT-CONVERT"],"datasetFields":["cases[].recipe.coverage_version"]},
+    {"conceptId":"concept.city_object","acceptanceCriteria":["AC-10","AC-13"],"architectureRefs":["Architecture.md section 7 Existing City Projection"],"testScenarios":["E2E-CITY"],"datasetFields":["cases[].recipe.objects","cases[].recipe.rotations"]},
+    {"conceptId":"concept.synthetic_origin","acceptanceCriteria":["AC-11"],"architectureRefs":["Architecture.md section 7"],"testScenarios":["E2E-EXPORT"],"datasetFields":["meta.synthetic","cases[].expected.export_origin_retained"]},
+    {"conceptId":"concept.fixture","acceptanceCriteria":["AC-12"],"architectureRefs":["Architecture.md section 9"],"testScenarios":["SMOKE-DATA"],"datasetFields":["cases[].acs","cases[].scenarios"]},
+    {"conceptId":"concept.logging","acceptanceCriteria":["AC-14"],"architectureRefs":["Architecture.md section 6"],"testScenarios":["SMOKE-LOG"],"datasetFields":["cases[].expected.json_stdout_intact"]}
+  ],
+  "ambiguities": [],
+  "architectureDataModelGaps": []
+}
