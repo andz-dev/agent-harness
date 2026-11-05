@@ -50,3 +50,7 @@ block of `report.json` (`checks`, `summary`, `rollup`, `levels`). The overlay ha
 
 It never changes the score (decision D1; a test pins it). Other IaC tools are detected but not checked yet. Plan and
 backlog: `docs/0005-v0.1-infrastructure-overlay-matched/Infrastructure-Coverage-Map.md` in the repository root and `BACKLOG.md` sections 4v to 4x.
+
+## Bounded coverage reads
+
+The coverage reader in `scripts/coverage.py` accepts only relative paths present in a supplied tracked-path snapshot. It reads regular files through directory-relative no-follow opens, compares file identity before and after reading, and enforces 256 KiB per file, 8 MiB total, and 2,048 candidate paths per budget. Rejections return a content-free `unknown` result with a stable reason code. It never executes target code. Platforms without the required no-follow and directory-descriptor guarantees return `unsupported_platform` rather than reading unsafely. These initial limits are conservative defaults, not a measured coverage guarantee. The reader is a safety foundation; report-collection integration is handled by later implementation phases.

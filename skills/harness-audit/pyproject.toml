@@ -2,7 +2,7 @@
 name = "harness-audit"
 version = "1.2.0"
 description = "Read-only audit of how well a repository equips AI agents and humans to work in it"
-requires-python = ">=3.11"
+requires-python = ">=3.14"
 dependencies = ["pyyaml>=6", "jsonschema>=4"]
 
 [dependency-groups]

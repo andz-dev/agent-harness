@@ -1,0 +1,48 @@
+version: 1
+scope: unscored-static-observations
+default_limits:
+  max_files: 256
+  max_bytes: 8388608
+topics:
+  - id: code_standards
+    title: Code standards
+    adapters: [python, node]
+    check_ids: [STA-01, STA-02, STA-03, STA-04, STA-05, STA-06, STA-07]
+    locators: [pyproject.toml, ruff.toml, .flake8, eslint.config.*, biome.json*, .prettierrc*]
+    limits: {max_files: 128, max_bytes: 262144}
+  - id: testing
+    title: Testing
+    adapters: [python, node]
+    check_ids: [VER-01, VER-02, VER-03, VER-04, VER-05, VER-06, VER-07, VER-08, VER-09, VER-10, VER-11]
+    locators: [pytest.ini, tox.ini, noxfile.py, vitest.config.*, jest.config.*, test/**, tests/**]
+    limits: {max_files: 256, max_bytes: 262144}
+  - id: ci_build
+    title: CI and build
+    adapters: [python, node]
+    check_ids: [CIP-01, CIP-02, CIP-03, CIP-04, CIP-05, CIP-06, CIP-07]
+    locators: [.github/workflows/**, .gitlab-ci.yml, azure-pipelines*, .circleci/config.yml, Taskfile.yml, Makefile, justfile]
+    limits: {max_files: 128, max_bytes: 262144}
+  - id: security
+    title: Security declarations
+    adapters: [python, node, repository]
+    check_ids: [INF-D06, INF-C03, INF-X04, INF-X05, INF-B05, INF-K06, INF-A03, INF-F03, INF-P03]
+    locators: [SECURITY.md, Dockerfile*, compose*.y*ml, .github/workflows/**, bicepconfig.json, Chart.yaml, requirements*.txt]
+    limits: {max_files: 128, max_bytes: 262144}
+  - id: dependencies
+    title: Dependencies and supply chain
+    adapters: [python, node]
+    check_ids: [VER-08, CIP-04, INF-P01]
+    locators: [pyproject.toml, requirements*.txt, uv.lock, poetry.lock, package.json, package-lock.json, pnpm-lock.yaml, yarn.lock, bun.lock*]
+    limits: {max_files: 128, max_bytes: 262144}
+  - id: mcp
+    title: MCP declarations
+    adapters: [python, node, repository]
+    check_ids: [ORI-02]
+    locators: [.mcp.json, mcp.json, .vscode/mcp.json, .cursor/mcp.json]
+    limits: {max_files: 64, max_bytes: 131072}
+  - id: skills_extensions
+    title: Agent skills and extensions
+    adapters: [python, node, repository]
+    check_ids: [ORI-02, ORI-10]
+    locators: [.agents/skills/**, .claude/skills/**, .github/agents/**, .github/copilot-instructions.md, .vscode/extensions.json]
+    limits: {max_files: 128, max_bytes: 262144}

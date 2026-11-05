@@ -18,15 +18,23 @@ sources: ['Plan.md', 'Architecture.md', 'Test-Plan.md', 'Mocking-Plan.md', 'Gold
 
 ## Resume State
 
-Current phase: **M1, not started**. Last completed product task: none.
-Next action after owner authorization to implement: verify the current checkout,
-read M1's bounded inputs, then begin one red-green safety/logging slice.
-This specification run does not authorize or claim production implementation.
+Current phase: **M3**. Current milestone: **M3.3, not started**.
+Last completed product task: M3.2. Last verified evidence: exact M3 gate passed
+89 tests and 26 subtests; Ruff passed. Seven topics resolve only to existing
+core/INF IDs; assembly emits bounded declared observations with source digests,
+and the untracked sentinel is absent. M3.3 remains for the full applicability/
+evidence state matrix; WN-031 remains a later viewer acceptance gate. `task
+integrity` passes after the reviewed adapted-runtime hash update. Root `task
+check` passes skill/repo-quality/demo/build gates but the browser suite times
+out after 21 passes, 5 skips, and 2 tests not run; docs stage is not reached.
+`task precommit` is otherwise clean but remains blocked by the pre-existing
+Trail learning missing `type` frontmatter.
 
-Open production blockers: known Docker legacy ENV redaction defect must be fixed
-before expanded collection; WN-031 full browser suite must pass before viewer
-acceptance. Neither blocks writing this specification. No scope or visual-layout
-choice remains open. The owner selected the defined Grid and existing ISO city.
+Other production blocker: WN-031 full browser suite must pass before viewer
+acceptance. No scope or visual-layout choice remains open. The owner selected
+the defined Grid and existing ISO city.
+
+Resume timestamp: 2026-11-05.
 
 Pinned package: [Plan](Plan.md), [Architecture](Architecture.md),
 [Test Plan](Test-Plan.md), [Mocking Plan](Mocking-Plan.md),
@@ -71,11 +79,11 @@ any captured sink. Safety failure stops M2/M3 collection work.
 
 ### M1 Tasks
 
-- [ ] M1.1 First runnable milestone: load lean-logging, introduce its standard-library module and contract test in the established script/test layout, record red then green, and verify default severity, TRACE opt-in, bounds, retention, redaction and idempotent handlers. (AC-14; `concept.logging`, `concept.implementation_type`; SMOKE-LOG)
-- [ ] M1.2 Reproduce the legacy `ENV KEY value` leak with a synthetic sentinel; fix legacy, modern and multiline forms without weakening existing checks; assert every sink is clean. (AC-5, AC-14; `concept.safe_read`, `concept.logging`; UNIT-REDACT)
-- [ ] M1.3 Add the one bounded tracked regular-file reader in the proposed coverage module; reject parent escapes, symlink components, untracked files, identity swaps and exhausted budgets; use literal paths, not shell interpolation. (AC-5; `concept.safe_read`; INFRA-SAFE)
-- [ ] M1.4 Exercise no-execution/import/network tripwires and permission failures; verify the target/worktree is unchanged. (AC-5; `concept.safe_read`; E2E-STATIC)
-- [ ] M1 exit: run the exact gate; inspect touched logging paths for `print(`, direct `.debug/.info/.warning/.error` and `console.` bypasses; record red/green commands, result counts and safe evidence here. (AC-5, AC-14; `concept.logging`)
+- [x] M1.1 First runnable milestone: load lean-logging, introduce its standard-library module and contract test in the established script/test layout, record red then green, and verify default severity, TRACE opt-in, bounds, retention, redaction and idempotent handlers. (AC-14; `concept.logging`, `concept.implementation_type`; SMOKE-LOG)
+- [x] M1.2 Reproduce the legacy `ENV KEY value` leak with a synthetic sentinel; fix legacy, modern and multiline forms without weakening existing checks; assert every sink is clean. (AC-5, AC-14; `concept.safe_read`, `concept.logging`; UNIT-REDACT)
+- [x] M1.3 Add the one bounded tracked regular-file reader in the proposed coverage module; reject parent escapes, symlink components, untracked files, identity swaps and exhausted budgets; use literal paths, not shell interpolation. (AC-5; `concept.safe_read`; INFRA-SAFE)
+- [x] M1.4 Exercise no-execution/import/network tripwires and permission failures; verify the target/worktree is unchanged. (AC-5; `concept.safe_read`; E2E-STATIC)
+- [x] M1 exit: run the exact gate; inspect touched logging paths for `print(`, direct `.debug/.info/.warning/.error` and `console.` bypasses; record red/green commands, result counts and safe evidence here. (AC-5, AC-14; `concept.logging`)
 
 ## Phase M2: Versioned Contract And Provenance
 
@@ -99,12 +107,12 @@ and infra-only/unsupported cases have truthful availability and null score.
 
 ### M2 Tasks
 
-- [ ] M2.1 Pin independent baseline core values from existing synthetic fixtures; add current/legacy report compatibility assertions before the additive envelope change. (AC-1; `concept.core_score`; UNIT-CORE, INT-REPORT)
-- [ ] M2.2 Implement schema/component/applicability/evidence/collection fields exactly as Architecture section 7; keep unsupported languages explicit and no-applicable-core score null. (AC-2, AC-3; `concept.component`, `concept.applicability`, `concept.collection`; UNIT-COMP, UNIT-STATES)
-- [ ] M2.3 Bind observations to safe revision/source digests/locators/method/UTC time; retain stale history while excluding it from current summaries. (AC-4; `concept.provenance`, `concept.freshness`; UNIT-PROVENANCE)
-- [ ] M2.4 Inventory the six receipt outcomes; reject self-claimed execution; do not resolve credentials, connect issuers or execute receipt commands. (AC-6; `concept.receipt`, `concept.evidence`; UNIT-RECEIPT)
-- [ ] M2.5 Wire bounded lifecycle events through `emit`, safe reason codes/counts/durations and content-free TRACE; retain JSON stdout. (AC-14; `concept.logging`; SMOKE-LOG)
-- [ ] M2 exit: run the gate, record counts, compare every unchanged core field and scan all sinks/logging paths for leaks or bypasses. (AC-1, AC-2, AC-3, AC-4, AC-6, AC-14; `concept.core_score`, `concept.logging`)
+- [x] M2.1 Pin independent baseline core values from existing synthetic fixtures; add current/legacy report compatibility assertions before the additive envelope change. (AC-1; `concept.core_score`; UNIT-CORE, INT-REPORT)
+- [x] M2.2 Implement schema/component/applicability/evidence/collection fields exactly as Architecture section 7; keep unsupported languages explicit and no-applicable-core score null. (AC-2, AC-3; `concept.component`, `concept.applicability`, `concept.collection`; UNIT-COMP, UNIT-STATES)
+- [x] M2.3 Bind observations to safe revision/source digests/locators/method/UTC time; retain stale history while excluding it from current summaries. (AC-4; `concept.provenance`, `concept.freshness`; UNIT-PROVENANCE)
+- [x] M2.4 Inventory the six receipt outcomes; reject self-claimed execution; do not resolve credentials, connect issuers or execute receipt commands. (AC-6; `concept.receipt`, `concept.evidence`; UNIT-RECEIPT)
+- [x] M2.5 Wire bounded lifecycle events through `emit`, safe reason codes/counts/durations and content-free TRACE; retain JSON stdout. (AC-14; `concept.logging`; SMOKE-LOG)
+- [x] M2 exit: run the gate, record counts, compare every unchanged core field and scan all sinks/logging paths for leaks or bypasses. (AC-1, AC-2, AC-3, AC-4, AC-6, AC-14; `concept.core_score`, `concept.logging`)
 
 ## Phase M3: Catalog And Static Collection
 
@@ -128,8 +136,8 @@ changing the core or leaking any sentinel.
 
 ### M3 Tasks
 
-- [ ] M3.1 Materialize PY-01/PY-02/NODE-01/NODE-02 and mixed/infra-only/Rust recipes in the established fixture layout; keep inputs deterministic and synthetic. (AC-2, AC-12; `concept.component`, `concept.fixture`; UNIT-COMP)
-- [ ] M3.2 Create the unscored seven-topic catalog, resolve references to existing check IDs, and collect safe static observations without duplicating core checks. (AC-8; `concept.topic`; UNIT-CATALOG)
+- [x] M3.1 Materialize PY-01/PY-02/NODE-01/NODE-02 and mixed/infra-only/Rust recipes in the established fixture layout; keep inputs deterministic and synthetic. (AC-2, AC-12; `concept.component`, `concept.fixture`; UNIT-COMP)
+- [x] M3.2 Create the unscored seven-topic catalog, resolve references to existing check IDs, and collect safe static observations without duplicating core checks. (AC-8; `concept.topic`; UNIT-CATALOG)
 - [ ] M3.3 Add Python/Node component-local applicability; enumerate other detected languages as unsupported; generate every topic/applicability/evidence-state combination with must-reject execution claims. (AC-2, AC-3, AC-8, AC-12; `concept.component`, `concept.applicability`, `concept.evidence`, `concept.fixture`)
 - [ ] M3.4 Traverse allowlisted static CI/task/hook references with cycles, missing/dynamic/conditional targets and depth exhaustion; preserve unresolved reasons and never execute. (AC-7; `concept.runner_edge`; UNIT-RUNNER, E2E-STATIC)
 - [ ] M3.5 Run every must-fail oracle, including secret/path controls and unsupported scoring; record actual fixture counts and explained calibration limits rather than claim universal coverage. (AC-5, AC-12; `concept.safe_read`, `concept.fixture`; SMOKE-DATA, E2E-PARTIAL)
@@ -208,6 +216,21 @@ destructive migration is required. No runtime feature flag is assumed to exist.
 | 2026-11-05 | Logging foundation is first in M1; detailed events remain M2 | Architecture section 6; supports Plan AC-14; no disposition override |
 | 2026-11-05 | Receipt claims stay unverified; no execution producer | Closed ticket 08 and Architecture section 7 |
 | 2026-11-05 | No Architecture enum gap or logging-type override carried forward | ontology JSON validation; future gaps require explicit back-edge |
+| 2026-11-05 | Owner approved raising harness-audit's Python floor to 3.14+; copied the shipped lean-logging module/catalog into the established scripts layout and added the project-owned contract test. | M1.1; `pyproject.toml`, `uv.lock`, `SKILL.md`; Python 3.14.6 contract and skill checks passed. |
+| 2026-11-05 | INF-D06 now joins Dockerfile continuation lines for secret assignment detection and emits only the variable name in evidence; existing finding/status behavior remains covered. | M1.2; synthetic modern, legacy and multiline cases in `tests/test_infra_checks.py`. |
+| 2026-11-05 | The bounded reader uses directory-relative no-follow opens, named file/total/path budgets and pre/open/post identity comparison; unsupported platforms return unknown. | M1.3; Architecture section 5 and `INFRA-SAFE`; 7 real-filesystem tests pass. |
+| 2026-11-05 | M1 complete. Files: logger/catalog, logging and infrastructure tests, bounded reader, audit tripwire test, skill README/setup metadata, lock and this playbook. Decisions: Python 3.14+ uses the shipped logger; evidence contains only secret variable names; the reader fails closed on identity/symlink/platform uncertainty. Open question: reader-to-report integration begins in M2/M3; WN-031 remains a later viewer gate. | Exact M1 gate passed 9 tests and 3 subtests; `task --dir skills/harness-audit lint` passed; `task --dir skills/harness-audit test -- tests/test_audit.py tests/test_coverage.py` passed 16 tests. |
+| 2026-11-05 | M2.1 froze the legacy synthetic report core before adding coverage: seven pillar values/weights, score 19 from raw 20 minus entropy 1, and the fixed entropy item. The generated legacy report remains schema-valid with coverage absent. | `test_legacy_core_baseline_is_pinned` in `tests/test_audit.py`; 29 audit/score tests passed. |
+| 2026-11-05 | Owner selected a top-level `quality` sibling beside `coverage`; available/partial reports keep existing score/pillars and unavailable reports omit fabricated core fields. | Architecture D7 and section 7; AC-1/2. |
+| 2026-11-05 | M2.2 adds a version-1 coverage envelope with explicit component applicability, closed state enums, collection budgets/reasons, and a top-level quality sibling. Supported core fields remain unchanged; unsupported-only reports omit them and report null quality score. | `audit.py`, `report.schema.json`, and CLI tests; exact M2 gate passed 48 tests. |
+| 2026-11-05 | M2.3 adds safe provenance construction, revision/digest freshness classification, observation binding, and current-only filtering; stale evidence labels remain historical and unchanged. | `coverage.py` and `tests/test_coverage.py`; 13 tests and 3 subtests passed. |
+| 2026-11-05 | M2.4 classifies local receipts as absent/present_unverified/invalid/stale/partial/failed, emits no raw receipt fields, and never promotes a claim to execution_observed. | `classify_receipt` in `coverage.py`; 16 tests and 9 subtests passed. |
+| 2026-11-05 | M2.5 emits bounded collection/conversion lifecycle events through `emit`; TRACE contains aggregate counts only, and conversion rejection logs a safe reason/count with the actual exit status. | CLI output and rejection canaries; exact M2 gate 59 tests and 9 subtests; Ruff passes. |
+| 2026-11-05 | M2 complete. Files: `audit.py`, `coverage.py`, `triage.py`, `report.schema.json`, `test_audit.py`, `test_coverage.py`, and this playbook, plus prior phase files. Decisions: top-level quality sibling, unscored coverage, no fabricated score, local receipts remain unverified, and Python 3.14+ for shipped logging. Open question: observation collection, catalog and runner graph are M3; WN-031 remains M4/M5. | Exact M2 gate passed 59 tests and 9 subtests; `task --dir skills/harness-audit lint` passed; direct-output scan found only established CLI summaries/argument handling, no direct logging calls. |
+| 2026-11-05 | M3.1 materialized the seven golden component recipes as deterministic synthetic directories under the skill test fixtures. Two Python and two Node samples classify separately; mixed, infra-only and Rust-only cases match the expected support boundary. | Exact M3 gate passed 85 tests and 19 subtests; Ruff passed. |
+| 2026-11-05 | M3.2 added the unscored seven-topic catalog, validated all core/INF references and limits, and wired bounded tracked-source observations into reports without duplicating score checks. Testing locators are specific to test config/files; MCP/skills locators avoid generic instruction-file false positives. | Exact M3 gate passed 89 tests and 26 subtests; Ruff passed, 43 files formatted. |
+| 2026-11-05 | Updated the extraction manifest's adapted-runtime hashes for intentional 0011 changes; preserved original source hashes and marked `triage.py` adapted. | `task integrity`: PASS. |
+| 2026-11-05 | Current root `task check` passed skill lint/tests, repo-quality, demo conversion and city build, but Playwright timed out after 21 passed, 5 skipped and 2 not run; WN-031 remains open. `task precommit` then confirmed only the pre-existing Trail learning frontmatter error remains. | `.trail/learnings/2026-11-04-resolve-backlog-id-collisions-on-merge-andreas.md` is unchanged. |
 
 ## Definition Of Done
 
@@ -219,7 +242,31 @@ destructive migration is required. No runtime feature flag is assumed to exist.
 
 ## Execution Evidence
 
-No product red/green run yet. Add one bounded entry per implemented boundary:
-date/revision, task ID, red command and expected failure, green command and
-collected counts, safe artifact location, and remaining blocker. Keep raw target
-output and private paths out of this tracked record.
+2026-11-05 | M1.1 | Red: `UV_PROJECT_ENVIRONMENT=/tmp/agent-harness-py314 UV_PYTHON=3.14 task --dir skills/harness-audit test -- tests/test_logging_contract.py` failed collection with `ModuleNotFoundError: No module named 'lean_log'` (0 tests collected). Green: same command after adding the logger: 7 passed. Final gate: `task --dir skills/harness-audit check` passed Ruff and 258 tests plus 3 subtests under Python 3.14.6. No report artifacts; temporary log files were created under the test's temporary directory. Remaining blocker: M1.2 legacy Docker ENV redaction regression.
+
+2026-11-05 | M1.2 | Red: `task --dir skills/harness-audit test -- tests/test_infra_checks.py -k secret_values_are_redacted_across_env_forms` had 2 failing subtests (legacy sentinel leaked into findings; multiline assignment was not detected). Green: same command, 1 passed with 3 subtests. Full file: 67 passed, 3 subtests. Synthetic sentinel values are absent from returned findings.
+
+2026-11-05 | M1.3 | Red: `task --dir skills/harness-audit test -- tests/test_coverage.py -k reads_tracked_regular_file_and_accounts_for_budget` failed collection because `coverage.py` was absent (0 tests collected). Green: `task --dir skills/harness-audit test -- tests/test_coverage.py`: 7 passed. Exact M1 safety gate: 8 passed, 66 deselected, 3 subtests; Ruff passed. No target code was executed; temporary Git repositories were removed by test cleanup. Remaining task: M1.4 execution/import/network tripwires and permission controls.
+
+2026-11-05 | M1.4 | `task --dir skills/harness-audit test -- tests/test_coverage.py -k safe_read_permission_failure_is_content_free`: 1 passed. `task --dir skills/harness-audit test -- tests/test_audit.py -k static_audit_emits_report_without_target_capabilities`: 1 passed; report validated, no non-Git process/import/socket tripwire fired, and target files/Git status were unchanged. Combined audit/reader files: 16 passed. The exact M1 gate passed 9 tests and 3 subtests. Bypass scan had one documentation-only match and zero direct-output code paths. AC-5 README behavior and limitations documented; no open M1 blocker.
+
+2026-11-05 | M2.1 | Red: the initial legacy core assertion used a capture placeholder and failed while reporting the fixed fixture values. Green: `task --dir skills/harness-audit test -- tests/test_audit.py -k legacy_core_baseline_is_pinned`: 1 passed after pinning literal expected values. Compatibility: `audit.validate` accepts the pre-coverage report, and `coverage` remains absent. `task --dir skills/harness-audit test -- tests/test_audit.py tests/test_score.py`: 29 passed. Remaining task: M2.2 additive envelope/schema and state fields.
+
+2026-11-05 | M2.2 | Red: supported report lacked `quality`; unsupported-only assembly raised exit 3; after the null-core path was added, schema required pillars/score/entropy and nonempty supported stack. Green: supported, Rust-only, infra-only and mixed Python/Node/Rust fixtures validate; CLI emits report/Markdown/triage for unavailable core. Exact M2 gate: 48 passed. `task --dir skills/harness-audit lint`: all checks passed; 39 files formatted. Core baseline remains exact. Remaining task: M2.3 provenance/freshness.
+
+2026-11-05 | M2.3 | Red/green: provenance, freshness, current-summary and observation-binding tests each failed before their helper was added, then passed. `task --dir skills/harness-audit test -- tests/test_coverage.py`: 13 passed, 3 subtests; `task --dir skills/harness-audit lint`: all checks passed, 39 files formatted. No source bytes enter provenance; stale/unknown observations remain unchanged in history and are omitted from current summaries. Remaining task: M2.4 receipt inventory.
+
+2026-11-05 | M2.4 | Red: the receipt tests failed because no classifier existed. Green: `task --dir skills/harness-audit test -- tests/test_coverage.py -k receipt_`: 2 passed, 6 subtests; stale source digest: 1 passed. Full file: 16 passed, 9 subtests. Ruff passed. Receipt outcomes and reason codes contain no source bytes, command, issuer, or execution claim. Remaining task: M2.5 lifecycle logging.
+
+2026-11-05 | M2.5 | Red: CLI lifecycle test found no collection events; injected validation sentinel leaked through a raw stderr print and `run.end` showed exit 0. Green: lifecycle event/stdout test passed; conversion rejection test passed with no sentinel and exit 4; TRACE test passed with aggregate counts only. Exact M2 gate: 59 passed, 9 subtests; Ruff clean. Logging bypass scan found only established user-facing CLI summary/invalid-root output and a documentation mention. M2 exit criteria met; next task M3.1 synthetic fixture materialization.
+
+2026-11-05 | M3.1 | Red: fixture classification failed because `tests/fixtures/coverage/PY-01` did not exist. Green: `task --dir skills/harness-audit test -- tests/test_coverage.py -k golden_component_recipes_are_materialized_and_deterministic`: 1 passed, 7 subtests. Exact M3 gate: 85 passed, 19 subtests; Ruff passed, 41 files formatted. No fixture commands executed. Remaining task: M3.2 seven-topic catalog and check-reference validation.
+
+2026-11-05 | M3.2 | Red: topic catalog/validator and report observations were absent; the report integration then failed on an untracked sentinel/empty observation expectation and a legacy evidence-schema collision. Green: catalog rejects `BAD-99`; seven golden topic source fixtures pass; report emits only tracked source hashes and excludes `UNTRACKED_SENTINEL`. Exact M3 gate: 89 passed, 26 subtests; Ruff passed, 43 files formatted. Remaining task: M3.3 state matrix. Root `task check` later passed all Python, repository-quality, demo and build gates, then timed out in browser tests (21 passed, 5 skipped, 2 not run); docs/integrity were not reached.
+
+2026-11-05 | M3.2 | Red: catalog/collector files and report observations were absent; must-fail reference test rejects `BAD-99`. Green: catalog determinism/reference test passes; seven golden topic source fixtures pass; report integration emits tracked-only provenance and excludes `UNTRACKED_SENTINEL`. Exact M3 gate: 89 passed, 26 subtests; Ruff passed, 43 files formatted. Remaining task: M3.3 full applicability/evidence matrix and execution-claim rejection.
+
+Add one bounded entry per implemented boundary: date/revision, task ID, red
+command and expected failure, green command and collected counts, safe artifact
+location, and remaining blocker. Keep raw target output and private paths out of
+this tracked record.

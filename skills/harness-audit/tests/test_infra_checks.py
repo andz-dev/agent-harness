@@ -3,6 +3,7 @@
 Run: python3 -I tests/test_infra_checks.py
 """
 
+import json
 import sys
 import tempfile
 import unittest
@@ -46,6 +47,21 @@ class DockerfileTests(unittest.TestCase):
         self.assertEqual(status(r, "INF-D03"), "fail")
         self.assertEqual(status(r, "INF-D04"), "fail")
         self.assertEqual(status(r, "INF-D06"), "fail")
+
+    def test_secret_values_are_redacted_across_env_forms(self):
+        cases = {
+            "modern": "ENV PASSWORD=MODERN_SENTINEL_123\n",
+            "legacy": "ENV PASSWORD LEGACY_SENTINEL_123\n",
+            "multiline": "ENV NORMAL=value \\\n    PASSWORD=MULTILINE_SENTINEL_123\n",
+        }
+        for form, dockerfile in cases.items():
+            with self.subTest(form=form):
+                result = run({"Dockerfile": dockerfile})
+                self.assertEqual(status(result, "INF-D06"), "fail")
+                rendered = json.dumps(result)
+                self.assertNotIn("MODERN_SENTINEL_123", rendered)
+                self.assertNotIn("LEGACY_SENTINEL_123", rendered)
+                self.assertNotIn("MULTILINE_SENTINEL_123", rendered)
 
     def test_digest_scratch_and_stage_references_are_pinned(self):
         r = run({"Dockerfile": "FROM scratch AS a\nFROM a AS b\nFROM python@sha256:" + "a" * 64 + "\n"})

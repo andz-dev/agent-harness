@@ -175,6 +175,24 @@ def line_of(text: str, pattern: str) -> tuple[int | None, str]:
 # ---- Dockerfile ----------------------------------------------------------------------------------
 
 
+def _docker_logical_lines(text: str):
+    pending = ""
+    start_line = 1
+    for line_number, physical_line in enumerate(text.splitlines(), 1):
+        line = physical_line.rstrip()
+        if not pending:
+            start_line = line_number
+        continued = line.endswith("\\")
+        if continued:
+            line = line[:-1]
+        pending = f"{pending} {line.strip()}".strip()
+        if not continued:
+            yield start_line, pending
+            pending = ""
+    if pending:
+        yield start_line, pending
+
+
 def docker_checks(repo: Repo, path: str) -> list[dict]:
     text = repo.text(path)
     out = []
@@ -231,10 +249,14 @@ def docker_checks(repo: Repo, path: str) -> list[dict]:
     )
 
     leaks = []
-    for i, ln in enumerate(text.splitlines(), 1):
-        m = re.match(r"\s*(ENV|ARG)\s+([A-Za-z0-9_]+)(?:=|\s+)(\S+)", ln, re.I)
-        if m and SECRET_NAME.search(m.group(2)) and not m.group(3).startswith(("$", '""', "''")):
-            leaks.append(ev(path, ln.strip().split("=")[0] + "=…", i))
+    for i, ln in _docker_logical_lines(text):
+        m = re.match(r"\s*(ENV|ARG)\s+(.+)", ln, re.I)
+        if not m:
+            continue
+        directive = m.group(1).upper()
+        for key, value in re.findall(r"([A-Za-z0-9_]+)(?:=|\s+)(\S+)", m.group(2)):
+            if SECRET_NAME.search(key) and not value.startswith(("$", '""', "''")):
+                leaks.append(ev(path, f"{directive} {key}=…", i))
     out.append(finding("INF-D06", path, "fail" if leaks else "pass", leaks or [ev(path, "no secret-like ENV or ARG values")]))
 
     built = repo.has(r"docker(\s+buildx)?\s+build|docker/build-push-action|compose\s+build|buildah|kaniko")

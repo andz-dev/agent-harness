@@ -1,0 +1,3 @@
+[package]
+name = "coverage-rust-only"
+version = "0.1.0"

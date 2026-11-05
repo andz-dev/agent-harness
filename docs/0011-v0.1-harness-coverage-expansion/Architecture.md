@@ -35,6 +35,8 @@ converter and runtime entry paths. This is target design, not an as-built claim.
 | D4 | Trace configured Python/Node runner edges, never run them | AC-7, AC-8 |
 | D5 | Preserve existing Grid, ISO camera, assets and selection; add evidence indicators and inventory | AC-9, AC-10, AC-11, AC-13 |
 | D6 | Synthetic fixtures and representative adapter samples are release oracles, not generalization evidence | AC-12 |
+| D7 | Place availability, nullable core score and reason codes in a top-level `quality` sibling beside unscored `coverage`; preserve legacy score/pillars when available and omit them only for unavailable core | AC-1, AC-2 |
+| D8 | Use Python 3.14+ for harness-audit so the shipped lean-logging contract is available; update package support metadata and lock | AC-14 |
 
 <!-- atlas:part=system-design -->
 ## 2. System Design
@@ -91,8 +93,8 @@ or deployment is introduced. Existing environment/lockfiles remain authoritative
 <!-- atlas:part=network -->
 ## 4. Runtime And Network
 
-Python minimum remains **3.11**, from audit pyproject read 2026-11-05; no dependency
-upgrade is proposed. Browser tooling remains **Node >=22**, Playwright 1.64.1
+Python minimum is **3.14**, owner-approved on 2026-11-05 to use the shipped
+lean-logging module. Browser tooling remains **Node >=22**, Playwright 1.64.1
 from app package metadata. Existing vendored Three.js **r160** remains in use.
 These are repository constraints, not claims about latest supported releases.
 
@@ -205,7 +207,7 @@ by relabelling historical data.
 | Receipt | outcome `absent`/`present_unverified`/`invalid`/`stale`/`partial`/`failed` | Never an authenticated issuer or execution proof |
 | Collection | outcome `complete`/`partial`/`failed`, limits and reason codes | Separate from receipt outcome and evidence |
 | Runner edge | from, to or null, resolution `resolved`/`unresolved`/`cycle`/`budget_exceeded` | Configured relationship only |
-| Quality envelope | availability `available`/`partial`/`unavailable`, score number or null, reason codes | Score null when no valid applicable core; never invented zero |
+| Quality envelope | Top-level `quality` object with availability `available`/`partial`/`unavailable`, numeric-or-null core score and reason codes; separate from top-level unscored `coverage` | Available/partial reports retain the existing detailed `score` object and seven `pillars`, with `quality.score` equal to `score.final`; unavailable reports use null and omit those core fields; legacy reports omit both new siblings and remain valid |
 | Projection | supported coverage version, safe observations, topics-to-object IDs, synthetic flag, limitations | No lossy unknown-to-verified mapping |
 
 Current evidence means matching identity, not trusted evidence. Stale observation

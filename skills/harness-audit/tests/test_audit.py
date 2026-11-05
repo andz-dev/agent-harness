@@ -1,9 +1,16 @@
+import builtins
+import hashlib
 import json
+import os
 import subprocess
 import sys
 import tempfile
 import unittest
+from contextlib import redirect_stderr, redirect_stdout
+from io import StringIO
 from pathlib import Path
+from shutil import copytree
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "scripts"))
@@ -18,6 +25,38 @@ FILES = {
     "README.md": "# x\n\n## Installation\n\npip install x\n",
     "scripts/lonely.sh": "echo hi\n",
     ".github/workflows/ci.yml": "on: [push, pull_request]\njobs:\n  t:\n    steps:\n      - run: pytest\n",
+}
+LEGACY_CORE_BASELINE = {
+    "pillars": [
+        {"pillar": "verification", "level": 2, "weight": 25, "points": 16.67, "gate_failures": []},
+        {"pillar": "orientation", "level": 0, "weight": 20, "points": 0.0, "gate_failures": []},
+        {"pillar": "static_guardrails", "level": 0, "weight": 15, "points": 0.0, "gate_failures": ["STA-01"]},
+        {"pillar": "workflow_entry_points", "level": 0, "weight": 15, "points": 0.0, "gate_failures": ["ENT-01"]},
+        {"pillar": "automatic_triggers", "level": 0, "weight": 10, "points": 0.0, "gate_failures": ["TRG-01"]},
+        {"pillar": "pipeline_parity", "level": 1, "weight": 10, "points": 3.33, "gate_failures": ["CIP-02"]},
+        {"pillar": "doc_hygiene", "level": 0, "weight": 5, "points": 0.0, "gate_failures": []},
+    ],
+    "score": {"raw": 20.0, "entropy_penalty": 1.0, "final": 19, "caps_applied": []},
+    "entropy": {
+        "candidate_files": 3,
+        "flagged_files": 1,
+        "history_available": False,
+        "items": [
+            {
+                "check_id": "ENR-01",
+                "path": "scripts/lonely.sh",
+                "verdict": "orphaned",
+                "evidence": [
+                    {
+                        "kind": "searched",
+                        "path": "runner/CI/hook files, manifests, docs, other scripts",
+                        "snippet": "no file references lonely.sh",
+                    }
+                ],
+            }
+        ],
+        "penalty": 1.0,
+    },
 }
 
 
@@ -70,6 +109,187 @@ class AuditTests(unittest.TestCase):
         self.assertEqual(b["infra"]["tools"], ["devcontainer", "docker", "terraform"])
         self.assertTrue(any("not part of the score" in x for x in b["limitations"]))
         self.assertIn("## Infrastructure (detected, not scored)", (with_infra / "report.md").read_text())
+
+    def test_assembler_validates_the_shipped_coverage_catalog(self):
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            repo_root = Path(temporary_directory) / "target"
+            repo_root.mkdir()
+            for relative_path, text in FILES.items():
+                path = repo_root / relative_path
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text(text, encoding="utf-8")
+            catalog = audit.yaml.safe_load((ROOT / "checks" / "catalog.yaml").read_text(encoding="utf-8"))
+            validator = audit.coverage.validate_topic_catalog
+
+            with patch.object(audit.coverage, "validate_topic_catalog", wraps=validator) as validate_topics:
+                report = audit.assemble(repo_root, catalog)
+
+        self.assertEqual(audit.validate(report), [])
+        validate_topics.assert_called_once()
+
+    def test_report_collects_catalog_observations_from_tracked_files_only(self):
+        fixture = Path(__file__).parent / "fixtures" / "coverage" / "PY-01"
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            repo_root = Path(temporary_directory) / "repo"
+            copytree(fixture, repo_root)
+            subprocess.run(["git", "init", "--quiet"], cwd=repo_root, check=True)
+            subprocess.run(["git", "-C", str(repo_root), "add", "--", "."], check=True)
+            (repo_root / "private.env").write_text("UNTRACKED_SENTINEL", encoding="utf-8")
+            taskfile_digest = hashlib.sha256((repo_root / "Taskfile.yml").read_bytes()).hexdigest()
+            catalog = audit.yaml.safe_load((ROOT / "checks" / "catalog.yaml").read_text(encoding="utf-8"))
+
+            report = audit.assemble(repo_root, catalog)
+        observations = {observation["topic_id"]: observation for observation in report["coverage"]["observations"]}
+        self.assertIn("ci_build", observations)
+        observation = observations["ci_build"]
+        self.assertEqual(observation["evidence"], "declared")
+        self.assertEqual(observation["applicability"], "applicable")
+        self.assertEqual(observation["freshness"], "unknown")
+        self.assertEqual(observation["receipt"], {"outcome": "absent"})
+        self.assertEqual(
+            observation["provenance"]["sources"],
+            [
+                {
+                    "path": "Taskfile.yml",
+                    "sha256": taskfile_digest,
+                    "locator": "file",
+                }
+            ],
+        )
+        self.assertNotIn("UNTRACKED_SENTINEL", json.dumps(report))
+
+    def test_legacy_core_baseline_is_pinned(self):
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            repo_root = Path(temporary_directory) / "target"
+            repo_root.mkdir()
+            for relative_path, text in FILES.items():
+                path = repo_root / relative_path
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text(text, encoding="utf-8")
+            catalog = audit.yaml.safe_load((ROOT / "checks" / "catalog.yaml").read_text(encoding="utf-8"))
+            report = audit.assemble(repo_root, catalog)
+
+        legacy_report = {key: value for key, value in report.items() if key not in ("coverage", "quality")}
+        self.assertEqual(audit.validate(legacy_report), [])
+        core = {
+            "pillars": [
+                {key: pillar[key] for key in ("pillar", "level", "weight", "points", "gate_failures")}
+                for pillar in legacy_report["pillars"]
+            ],
+            "score": legacy_report["score"],
+            "entropy": legacy_report["entropy"],
+        }
+        self.assertEqual(core, LEGACY_CORE_BASELINE)
+
+    def test_supported_report_adds_coverage_quality_without_changing_core(self):
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            repo_root = Path(temporary_directory) / "target"
+            repo_root.mkdir()
+            for relative_path, text in FILES.items():
+                path = repo_root / relative_path
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text(text, encoding="utf-8")
+            catalog = audit.yaml.safe_load((ROOT / "checks" / "catalog.yaml").read_text(encoding="utf-8"))
+            report = audit.assemble(repo_root, catalog)
+
+        self.assertEqual(audit.validate(report), [])
+        self.assertEqual(
+            report["quality"],
+            {"availability": "available", "score": LEGACY_CORE_BASELINE["score"]["final"], "reason_codes": []},
+        )
+        self.assertEqual(
+            {key: report[key] for key in ("pillars", "score", "entropy")},
+            LEGACY_CORE_BASELINE,
+        )
+        self.assertEqual(report["coverage"]["version"], 1)
+        self.assertTrue(report["coverage"]["observations"])
+        self.assertTrue(all(observation["evidence"] == "declared" for observation in report["coverage"]["observations"]))
+        self.assertEqual(report["coverage"]["runner_edges"], [])
+        self.assertEqual(len(report["coverage"]["limitations"]), 1)
+        self.assertIn("state matrix", report["coverage"]["limitations"][0])
+        self.assertEqual(report["coverage"]["collection"]["outcome"], "partial")
+        self.assertEqual(report["coverage"]["collection"]["reason_codes"], ["state_matrix_not_implemented"])
+        self.assertEqual(
+            report["coverage"]["components"],
+            [
+                {
+                    "id": component["id"],
+                    "root": component["path"],
+                    "languages": [component["ecosystem"]],
+                    "adapter": component["ecosystem"],
+                    "applicability": "applicable",
+                }
+                for component in report["stack"]["components"]
+            ],
+        )
+
+    def test_unsupported_only_report_has_null_quality_and_no_fabricated_core(self):
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            repo_root = Path(temporary_directory) / "target"
+            repo_root.mkdir()
+            (repo_root / "Cargo.toml").write_text("[package]\nname = 'fixture'\nversion = '0.1.0'\n", encoding="utf-8")
+            catalog = audit.yaml.safe_load((ROOT / "checks" / "catalog.yaml").read_text(encoding="utf-8"))
+
+            report = audit.assemble(repo_root, catalog)
+
+        self.assertEqual(audit.validate(report), [])
+        self.assertEqual(report["quality"], {"availability": "unavailable", "score": None, "reason_codes": ["no_applicable_core"]})
+        self.assertNotIn("pillars", report)
+        self.assertNotIn("score", report)
+        self.assertNotIn("entropy", report)
+        self.assertEqual(
+            report["coverage"]["components"],
+            [
+                {
+                    "id": "root-rust",
+                    "root": ".",
+                    "languages": ["rust"],
+                    "adapter": None,
+                    "applicability": "unsupported",
+                }
+            ],
+        )
+
+    def test_infrastructure_only_report_is_unavailable_without_zero_score(self):
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            repo_root = Path(temporary_directory) / "target"
+            repo_root.mkdir()
+            (repo_root / "Dockerfile").write_text("FROM python:3.14\n", encoding="utf-8")
+            (repo_root / "compose.yaml").write_text("services: {}\n", encoding="utf-8")
+            catalog = audit.yaml.safe_load((ROOT / "checks" / "catalog.yaml").read_text(encoding="utf-8"))
+
+            report = audit.assemble(repo_root, catalog)
+
+        self.assertEqual(audit.validate(report), [])
+        self.assertEqual(report["quality"]["availability"], "unavailable")
+        self.assertIsNone(report["quality"]["score"])
+        self.assertEqual(report["coverage"]["components"], [])
+        self.assertEqual(report["stack"]["components"], [])
+        self.assertEqual(report["stack"]["ecosystems"], [])
+        self.assertTrue(report["infra"]["detected"])
+
+    def test_mixed_report_marks_only_unsupported_language_without_score_change(self):
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            repo_root = Path(temporary_directory) / "target"
+            (repo_root / "api").mkdir(parents=True)
+            (repo_root / "web").mkdir()
+            (repo_root / "native").mkdir()
+            (repo_root / "api" / "pyproject.toml").write_text("[project]\nname='api'\nversion='1'\n", encoding="utf-8")
+            (repo_root / "web" / "package.json").write_text('{"name":"web"}\n', encoding="utf-8")
+            (repo_root / "native" / "Cargo.toml").write_text("[package]\nname='native'\nversion='0.1.0'\n", encoding="utf-8")
+            catalog = audit.yaml.safe_load((ROOT / "checks" / "catalog.yaml").read_text(encoding="utf-8"))
+
+            report = audit.assemble(repo_root, catalog)
+
+        self.assertEqual(audit.validate(report), [])
+        self.assertEqual(report["quality"]["availability"], "available")
+        self.assertEqual(report["quality"]["score"], report["score"]["final"])
+        by_language = {component["languages"][0]: component for component in report["coverage"]["components"]}
+        self.assertEqual(set(by_language), {"python", "node", "rust"})
+        self.assertEqual(by_language["python"]["applicability"], "applicable")
+        self.assertEqual(by_language["node"]["applicability"], "applicable")
+        self.assertEqual(by_language["rust"]["applicability"], "unsupported")
+        self.assertIsNone(by_language["rust"]["adapter"])
 
     def test_infra_judgement_answers_reach_the_report_without_touching_the_score(self):
         agents = "# Agents\n\nRun `pytest` before committing.\nNever run `terraform apply`.\n"
@@ -131,10 +351,56 @@ class AuditTests(unittest.TestCase):
         st = {f["check_id"]: f["status"] for f in report["findings"]}
         self.assertEqual((st["ORI-06"], st["ORI-05"]), ("pass", "unknown"))  # forged quote -> unknown
 
-    def test_no_supported_component_exits_3(self):
-        r, out = self.run_audit({"main.go": "package main\n", "go.mod": "module x\n"})
-        self.assertEqual(r.returncode, 3)
-        self.assertFalse((out / "report.json").exists())
+    def test_unsupported_only_cli_emits_unavailable_report(self):
+        r, out = self.run_audit({"Cargo.toml": "[package]\nname = 'fixture'\nversion = '0.1.0'\n"})
+        self.assertEqual(r.returncode, 0, r.stderr)
+        report = json.loads((out / "report.json").read_text(encoding="utf-8"))
+        self.assertEqual(audit.validate(report), [])
+        self.assertEqual(report["quality"]["availability"], "unavailable")
+        self.assertIsNone(report["quality"]["score"])
+        self.assertNotIn("score", report)
+        self.assertIn("unavailable", (out / "report.md").read_text(encoding="utf-8"))
+
+    def test_cli_emits_lifecycle_events_to_stderr_and_keeps_summary_on_stdout(self):
+        r, _ = self.run_audit(FILES)
+
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertIn("Static collection started", r.stderr)
+        self.assertIn("Static collection completed", r.stderr)
+        self.assertIn("Report conversion started", r.stderr)
+        self.assertIn("Report conversion completed", r.stderr)
+        self.assertFalse(r.stdout.lstrip().startswith("{"))
+        self.assertIn("/100 ->", r.stdout)
+
+    def test_conversion_rejection_does_not_emit_raw_validation_details(self):
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            repo_root = Path(temporary_directory) / "target"
+            repo_root.mkdir()
+            for relative_path, text in FILES.items():
+                path = repo_root / relative_path
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text(text, encoding="utf-8")
+            output_path = Path(temporary_directory) / "report"
+            stdout = StringIO()
+            stderr = StringIO()
+            with patch("audit.validate", return_value=["PRIVATE_DIAGNOSTIC_SENTINEL"]):
+                with redirect_stdout(stdout), redirect_stderr(stderr):
+                    exit_code = audit.main([str(repo_root), "--out", str(output_path)])
+
+        self.assertEqual(exit_code, 4)
+        self.assertNotIn("PRIVATE_DIAGNOSTIC_SENTINEL", stderr.getvalue())
+        self.assertIn("Report conversion rejected", stderr.getvalue())
+        self.assertIn("Run ended with exit code 4", stderr.getvalue())
+
+    def test_trace_logging_is_opt_in_and_contains_only_aggregate_counts(self):
+        with patch.dict(os.environ, {"LOG_LEVEL": "trace"}):
+            result, _ = self.run_audit(FILES)
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("TRACE", result.stderr)
+        self.assertIn("1 supported and 0 unsupported components", result.stderr)
+        self.assertNotIn("scripts/lonely.sh", result.stderr)
+        self.assertNotIn("Run ended with exit code", result.stdout)
 
     def test_bad_directory_exits_2(self):
         r = subprocess.run([sys.executable, "-I", str(ROOT / "scripts" / "audit.py"), "/nonexistent-dir"], capture_output=True, text=True)
@@ -149,6 +415,105 @@ class AuditTests(unittest.TestCase):
         report["findings"][0]["status"] = "pass"
         report["findings"][0]["evidence"] = []
         self.assertTrue(audit.validate(report))
+
+    def test_static_audit_emits_report_without_target_capabilities(self):
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            temp_root = Path(temporary_directory)
+            repo_root = temp_root / "target"
+            repo_root.mkdir()
+            marker_paths = {name: temp_root / name for name in ("process.marker", "import.marker", "network.marker")}
+            files = {
+                **FILES,
+                "Taskfile.yml": "version: '3'\ntasks:\n  default:\n    cmds:\n      - python scripts/process_tripwire.py\n",
+                "scripts/process_tripwire.py": f"from pathlib import Path\nPath({str(marker_paths['process.marker'])!r}).write_text('ran')\n",
+                "src/target_import_tripwire.py": f"from pathlib import Path\nPath({str(marker_paths['import.marker'])!r}).write_text('imported')\n",
+                "src/network_tripwire.py": (
+                    "import socket\n"
+                    f"from pathlib import Path\nPath({str(marker_paths['network.marker'])!r}).write_text('connected')\n"
+                    "socket.socket()\n"
+                ),
+                "src/app.py": "import target_import_tripwire\nimport network_tripwire\n",
+            }
+            for relative_path, text in files.items():
+                path = repo_root / relative_path
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text(text, encoding="utf-8")
+            subprocess.run(["git", "init", "--quiet"], cwd=repo_root, check=True)
+            subprocess.run(["git", "-C", str(repo_root), "add", "--", "."], check=True)
+            tracked_status = subprocess.run(
+                ["git", "-C", str(repo_root), "status", "--porcelain"], capture_output=True, text=True, check=True
+            ).stdout
+            before = {
+                path.relative_to(repo_root).as_posix(): path.read_bytes()
+                for path in repo_root.rglob("*")
+                if path.is_file() and ".git" not in path.relative_to(repo_root).parts
+            }
+
+            process_attempts = []
+            import_attempts = []
+            socket_attempts = []
+            original_run = subprocess.run
+            original_popen = subprocess.Popen
+            original_import = builtins.__import__
+
+            def is_allowed_git(command):
+                return (
+                    isinstance(command, (list, tuple))
+                    and len(command) > 3
+                    and command[0] == "git"
+                    and command[1] == "-C"
+                    and command[3] in {"ls-files", "rev-parse", "log"}
+                )
+
+            def guarded_run(command, *args, **kwargs):
+                if not is_allowed_git(command):
+                    process_attempts.append(command)
+                    raise AssertionError("non-Git target process call blocked")
+                return original_run(command, *args, **kwargs)
+
+            def guarded_popen(command, *args, **kwargs):
+                if not is_allowed_git(command):
+                    process_attempts.append(command)
+                    raise AssertionError("non-Git target process call blocked")
+                return original_popen(command, *args, **kwargs)
+
+            def guarded_import(name, globals=None, locals=None, fromlist=(), level=0):
+                if name in {"target_import_tripwire", "network_tripwire"}:
+                    import_attempts.append(name)
+                    raise AssertionError("target module import blocked")
+                return original_import(name, globals, locals, fromlist, level)
+
+            def guarded_socket(*args, **kwargs):
+                socket_attempts.append("socket")
+                raise AssertionError("network call blocked")
+
+            output_path = temp_root / "report"
+            with (
+                patch("subprocess.run", side_effect=guarded_run),
+                patch("subprocess.Popen", side_effect=guarded_popen),
+                patch("builtins.__import__", side_effect=guarded_import),
+                patch("socket.socket", side_effect=guarded_socket),
+            ):
+                exit_code = audit.main([str(repo_root), "--out", str(output_path), "--name", "synthetic/tripwire"])
+
+            report = json.loads((output_path / "report.json").read_text(encoding="utf-8"))
+            after = {
+                path.relative_to(repo_root).as_posix(): path.read_bytes()
+                for path in repo_root.rglob("*")
+                if path.is_file() and ".git" not in path.relative_to(repo_root).parts
+            }
+            final_status = subprocess.run(
+                ["git", "-C", str(repo_root), "status", "--porcelain"], capture_output=True, text=True, check=True
+            ).stdout
+
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(audit.validate(report), [])
+            self.assertEqual(process_attempts, [])
+            self.assertEqual(import_attempts, [])
+            self.assertEqual(socket_attempts, [])
+            self.assertEqual(before, after)
+            self.assertEqual(tracked_status, final_status)
+            self.assertFalse(any(path.exists() for path in marker_paths.values()))
 
 
 if __name__ == "__main__":

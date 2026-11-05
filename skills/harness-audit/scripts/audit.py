@@ -13,15 +13,20 @@ from __future__ import annotations
 
 import argparse
 import json
+import logging
+import re
 import sys
+import time
 from datetime import UTC, datetime
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import coverage  # noqa: E402
 import detect_infra  # noqa: E402
 import detect_stack  # noqa: E402
 import git_signals  # noqa: E402
 import infra_checks  # noqa: E402
+import lean_log  # noqa: E402
 import llm_layer  # noqa: E402
 import run_checks  # noqa: E402
 import score  # noqa: E402
@@ -39,6 +44,16 @@ PILLAR_LABEL = {
     "automatic_triggers": "Automatic triggers",
     "pipeline_parity": "Pipeline parity",
     "doc_hygiene": "Doc hygiene",
+}
+AUDIT_MESSAGES = {
+    "collection.started": "Static collection started",
+    "collection.completed": "Static collection completed with {components} supported components in {duration_ms} ms",
+    "collection.limited": "Static collection limited (reason {reason_code})",
+    "collection.failed": "Static collection failed (reason {reason_code})",
+    "collection.trace": "Static collection decisions: {supported_components} supported and {unsupported_components} unsupported components",
+    "conversion.started": "Report conversion started",
+    "conversion.completed": "Report conversion completed",
+    "conversion.rejected": "Report conversion rejected (reason {reason_code}, errors {error_count})",
 }
 
 
@@ -104,8 +119,9 @@ def infra_limitations(infra: dict) -> list[str]:
 def assemble(root: Path, catalog: dict, name=None, url=None, weight=None, llm_answers=None, tasks_out=None) -> dict:
     stack_result = detect_stack.detect(root)
     stack = stack_result["stack"]
-    if not stack["components"]:
-        raise SystemExit_(3, "no supported component (Python or Node) found")
+    coverage_topics = yaml.safe_load((HERE / "checks" / "coverage-topics.yaml").read_text(encoding="utf-8"))
+    existing_check_ids = {check["id"] for check in catalog["checks"]} | set(infra_checks.CHECKS)
+    coverage_topics = coverage.validate_topic_catalog(coverage_topics, existing_check_ids)
     run = run_checks.run(root, catalog)
     git = git_signals.run(root, catalog)
     plan = llm_layer.plan(root, catalog)
@@ -120,7 +136,7 @@ def assemble(root: Path, catalog: dict, name=None, url=None, weight=None, llm_an
         entropy["flagged_files"] = len({i["path"] for i in entropy["items"]})
     replaced = {f["check_id"] for f in git["findings"]} | {f["check_id"] for f in llm_findings}
     findings = [f for f in run["findings"] if f["check_id"] not in replaced] + git["findings"] + llm_findings
-    parts = score.build({"findings": findings, "stack": stack}, catalog, entropy)
+    parts = score.build({"findings": findings, "stack": stack}, catalog, entropy) if stack["components"] else None
     meta = repo_meta(root, name, url, weight)
     infra = detect_infra.detect(root)
     infra["detected"] = detect_infra.attribute(infra["detected"], [c["path"] for c in stack["components"]])
@@ -132,20 +148,82 @@ def assemble(root: Path, catalog: dict, name=None, url=None, weight=None, llm_an
     infra = {**infra, "checks": merged, **infra_checks.summarize(merged)}
     stack_out = dict(stack)
     stack_out["ecosystems"] = sorted({c["ecosystem"] for c in stack["components"]})
-    return {
+    coverage_components = [
+        {
+            "id": component["id"],
+            "root": component["path"],
+            "languages": [component["ecosystem"]],
+            "adapter": component["ecosystem"],
+            "applicability": "applicable",
+        }
+        for component in stack["components"]
+    ]
+    for unsupported in stack.get("unsupported", []):
+        root_path = unsupported["path"]
+        component_id = f"{root_path if root_path != '.' else 'root'}-{unsupported['language']}"
+        coverage_components.append(
+            {
+                "id": re.sub(r"[^a-z0-9._-]+", "-", component_id.lower()).strip("-") or "unsupported",
+                "root": root_path,
+                "languages": [unsupported["language"]],
+                "adapter": None,
+                "applicability": "unsupported",
+            }
+        )
+    core_available = parts is not None
+    generated_at = datetime.now(UTC)
+    tracked_paths = detect_stack.list_files(root)
+    observed_revision = meta["commit"] if meta["commit"] != "0000000" else None
+    observations, collection_reasons = coverage.collect_component_observations(
+        root,
+        stack["components"],
+        tracked_paths,
+        coverage_topics,
+        coverage.ReadBudget(),
+        observed_revision,
+        generated_at,
+    )
+    collection_reasons = sorted(set(collection_reasons) | {"state_matrix_not_implemented"})
+    coverage_report = {
+        "version": 1,
+        "components": coverage_components,
+        "observations": observations,
+        "runner_edges": [],
+        "collection": {
+            "outcome": "partial",
+            "limits": {
+                "max_file_bytes": coverage.MAX_FILE_BYTES,
+                "max_total_bytes": coverage.MAX_TOTAL_BYTES,
+                "max_candidate_paths": coverage.MAX_CANDIDATE_PATHS,
+                "max_runner_depth": 16,
+            },
+            "reason_codes": collection_reasons if core_available else ["no_applicable_core"],
+        },
+        "limitations": (
+            ["Coverage applicability state matrix and runner-edge collection remain in later milestones."]
+            if core_available
+            else ["No supported Python or Node core component is available."]
+        ),
+    }
+    report = {
         "schema_version": "0.1",
         "tool": {"name": "harness-audit", "version": VERSION, "catalog_version": str(catalog["catalog_version"])},
-        "generated_at": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "generated_at": generated_at.strftime("%Y-%m-%dT%H:%M:%SZ"),
         "repo": meta,
         "stack": stack_out,
         "infra": infra,
-        "pillars": parts["pillars"],
         "findings": findings,
-        "score": parts["score"],
-        "entropy": parts["entropy"],
-        "top_gaps": parts["top_gaps"],
+        "quality": (
+            {"availability": "available", "score": parts["score"]["final"], "reason_codes": []}
+            if core_available
+            else {"availability": "unavailable", "score": None, "reason_codes": ["no_applicable_core"]}
+        ),
+        "coverage": coverage_report,
         "limitations": limitations(meta, stack_result, run, git, findings) + infra_limitations(infra),
     }
+    if core_available:
+        report.update({"pillars": parts["pillars"], "score": parts["score"], "entropy": parts["entropy"], "top_gaps": parts["top_gaps"]})
+    return report
 
 
 class SystemExit_(Exception):
@@ -159,33 +237,40 @@ def validate(report: dict) -> list[str]:
     errs = [
         f"{'/'.join(str(p) for p in e.absolute_path) or '<root>'}: {e.message}" for e in Draft202012Validator(schema).iter_errors(report)
     ]
-    errs += score.verify_arithmetic(report)
+    if all(key in report for key in ("pillars", "score", "entropy")):
+        errs += score.verify_arithmetic(report)
     return errs
 
 
 def render_md(r: dict, titles: dict[str, str]) -> str:
-    s = r["score"]
+    s = r.get("score")
+    quality = r["quality"]
     lines = [
         f"# Harness audit: {r['repo']['name']}",
         "",
-        f"**Score: {s['final']} / 100** (raw {s['raw']}, entropy penalty {s['entropy_penalty']})",
+        (
+            f"**Score: {s['final']} / 100** (raw {s['raw']}, entropy penalty {s['entropy_penalty']})"
+            if s is not None
+            else f"**Quality score unavailable** ({', '.join(quality['reason_codes'])})"
+        ),
         "",
         f"Commit `{r['repo']['commit'][:12]}`, clone mode {r['repo']['clone_mode']}, "
         f"catalog {r['tool']['catalog_version']}, generated {r['generated_at']}",
         "",
     ]
-    if s["caps_applied"]:
+    if s is not None and s["caps_applied"]:
         lines += (
             ["## Caps applied", ""] + [f"- **{c['id']}** caps the score at {c['limit']}: {c['reason']}" for c in s["caps_applied"]] + [""]
         )
-    lines += ["## Pillars", "", "| Pillar | Level | Points | Blocked by | Weakest component |", "|---|---|---|---|---|"]
-    for p in r["pillars"]:
-        lines.append(
-            f"| {PILLAR_LABEL[p['pillar']]} | L{p['level']} | {p['points']} / {p['weight']} | "
-            f"{', '.join(p['gate_failures']) or '-'} | {p.get('weakest_component', '-')} |"
-        )
-    lines += [""]
-    if r["top_gaps"]:
+    if "pillars" in r:
+        lines += ["## Pillars", "", "| Pillar | Level | Points | Blocked by | Weakest component |", "|---|---|---|---|---|"]
+        for p in r["pillars"]:
+            lines.append(
+                f"| {PILLAR_LABEL[p['pillar']]} | L{p['level']} | {p['points']} / {p['weight']} | "
+                f"{', '.join(p['gate_failures']) or '-'} | {p.get('weakest_component', '-')} |"
+            )
+        lines += [""]
+    if r.get("top_gaps"):
         lines += ["## Top gaps", ""] + [f"{i}. **{g['check_id']}** {g['fix']}" for i, g in enumerate(r["top_gaps"], 1)] + [""]
     fails = {}
     for f in r["findings"]:
@@ -204,19 +289,20 @@ def render_md(r: dict, titles: dict[str, str]) -> str:
                 tail = f" - {ev['path']}{':' + str(ev['line']) if ev.get('line') else ''}: {ev['snippet']}" if ev else ""
                 lines.append(f"- **{cid}**{where} {titles.get(cid, '')}{tail}")
             lines.append("")
-    e = r["entropy"]
-    lines += [
-        "## Entropy",
-        "",
-        f"{e['flagged_files']} of {e['candidate_files']} examined files flagged "
-        f"(history {'available' if e.get('history_available') else 'not available'}). Nothing is deleted; a human decides.",
-        "",
-    ]
-    for it in e["items"][:20]:
-        ev = it["evidence"][-1]
-        lines.append(f"- {it['verdict']}: `{it['path']}` ({it['check_id']}) {ev['snippet']}")
-    if e["items"]:
-        lines.append("")
+    e = r.get("entropy")
+    if e is not None:
+        lines += [
+            "## Entropy",
+            "",
+            f"{e['flagged_files']} of {e['candidate_files']} examined files flagged "
+            f"(history {'available' if e.get('history_available') else 'not available'}). Nothing is deleted; a human decides.",
+            "",
+        ]
+        for it in e["items"][:20]:
+            ev = it["evidence"][-1]
+            lines.append(f"- {it['verdict']}: `{it['path']}` ({it['check_id']}) {ev['snippet']}")
+        if e["items"]:
+            lines.append("")
     real = [d for d in r.get("infra", {}).get("detected", []) if not d["sample"]]
     if real:
         lines += ["## Infrastructure (detected, not scored)", "", "| Kind | Tool | Location | Component | Files |", "|---|---|---|---|---|"]
@@ -256,6 +342,60 @@ def render_md(r: dict, titles: dict[str, str]) -> str:
     return "\n".join(lines)
 
 
+def _execute_logged(a: argparse.Namespace, run: lean_log.Run) -> int:
+    root = Path(a.repo)
+    catalog = yaml.safe_load(Path(a.catalog).read_text())
+    collection_started = time.monotonic()
+    lean_log.emit(run.logger, logging.INFO, "collection.started", phase="static")
+    try:
+        answers = json.loads(Path(a.llm_answers).read_text()) if a.llm_answers else None
+        tasks: dict = {}
+        report = assemble(root, catalog, a.name, a.url, a.weight, answers, tasks)
+    except SystemExit_ as exc:
+        lean_log.emit(run.logger, logging.ERROR, "collection.failed", reason_code="no_supported_component")
+        run.exit_code = exc.code
+        return exc.code
+    collection = report["coverage"]["collection"]
+    duration_ms = round((time.monotonic() - collection_started) * 1000)
+    if collection["outcome"] != "complete":
+        lean_log.emit(run.logger, logging.WARNING, "collection.limited", reason_code=collection["reason_codes"][0])
+    lean_log.emit(
+        run.logger,
+        logging.INFO,
+        "collection.completed",
+        components=len(report["coverage"]["components"]),
+        duration_ms=duration_ms,
+    )
+    lean_log.emit(
+        run.logger,
+        lean_log.TRACE,
+        "collection.trace",
+        supported_components=len(report["stack"]["components"]),
+        unsupported_components=len(report["stack"].get("unsupported", [])),
+    )
+    lean_log.emit(run.logger, logging.INFO, "conversion.started", phase="report")
+    errs = validate(report)
+    if errs:
+        lean_log.emit(run.logger, logging.ERROR, "conversion.rejected", reason_code="schema_invalid", error_count=len(errs))
+        run.exit_code = 4
+        return 4
+    out = Path(a.out)
+    out.mkdir(parents=True, exist_ok=True)
+    (out / "report.json").write_text(json.dumps(report, indent=2) + "\n")
+    if tasks.get("tasks"):
+        (out / "llm_tasks.json").write_text(json.dumps(tasks, indent=2) + "\n")
+    titles = {c["id"]: c["title"] for c in catalog["checks"]}
+    (out / "report.md").write_text(render_md(report, titles) + "\n")
+    fix_plan = triage.plan(report, catalog, yaml.safe_load((Path(__file__).resolve().parent.parent / "checks" / "fixes.yaml").read_text()))
+    (out / "triage.json").write_text(json.dumps(fix_plan, indent=2) + "\n")
+    (out / "triage.md").write_text(triage.render_md(fix_plan, report["repo"]["name"]))
+    lean_log.emit(run.logger, logging.INFO, "conversion.completed", output_files=4 + bool(tasks.get("tasks")))
+    score_value = report["quality"]["score"]
+    score_label = f"{score_value}/100" if score_value is not None else "unavailable"
+    print(f"{report['repo']['name']}: {score_label} -> {out}/report.json, report.md")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("repo")
@@ -270,30 +410,8 @@ def main(argv: list[str] | None = None) -> int:
     if not root.is_dir():
         print(f"not a directory: {root}", file=sys.stderr)
         return 2
-    catalog = yaml.safe_load(Path(a.catalog).read_text())
-    try:
-        answers = json.loads(Path(a.llm_answers).read_text()) if a.llm_answers else None
-        tasks: dict = {}
-        report = assemble(root, catalog, a.name, a.url, a.weight, answers, tasks)
-    except SystemExit_ as exc:
-        print(exc.msg, file=sys.stderr)
-        return exc.code
-    errs = validate(report)
-    if errs:
-        print("report failed validation:\n  " + "\n  ".join(errs[:20]), file=sys.stderr)
-        return 4
-    out = Path(a.out)
-    out.mkdir(parents=True, exist_ok=True)
-    (out / "report.json").write_text(json.dumps(report, indent=2) + "\n")
-    if tasks.get("tasks"):
-        (out / "llm_tasks.json").write_text(json.dumps(tasks, indent=2) + "\n")
-    titles = {c["id"]: c["title"] for c in catalog["checks"]}
-    (out / "report.md").write_text(render_md(report, titles) + "\n")
-    fix_plan = triage.plan(report, catalog, yaml.safe_load((Path(__file__).resolve().parent.parent / "checks" / "fixes.yaml").read_text()))
-    (out / "triage.json").write_text(json.dumps(fix_plan, indent=2) + "\n")
-    (out / "triage.md").write_text(triage.render_md(fix_plan, report["repo"]["name"]))
-    print(f"{report['repo']['name']}: {report['score']['final']}/100 -> {out}/report.json, report.md")
-    return 0
+    with lean_log.open_run("harness-audit", None, AUDIT_MESSAGES, command="audit", version=VERSION) as run:
+        return _execute_logged(a, run)
 
 
 if __name__ == "__main__":

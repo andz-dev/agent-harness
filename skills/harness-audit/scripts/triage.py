@@ -47,6 +47,16 @@ def _with_fixed(findings: list[dict], ids: set[str]) -> list[dict]:
 
 
 def plan(report: dict, catalog: dict, fixes: dict, max_steps: int = 10) -> dict:
+    if "score" not in report:
+        return {
+            "score_now": None,
+            "score_if_all_steps_done": None,
+            "steps": [],
+            "no_score_effect_yet": [],
+            "needs_judgement_answers": [],
+            "cleanup": [],
+            "caps": [],
+        }
     findings, comps = report["findings"], report["stack"]["components"]
     penalty = float(report["score"]["entropy_penalty"])
     ratio = float(catalog["level_rule"].get("pass_ratio", score.PASS_RATIO))
@@ -131,6 +141,8 @@ def _cleanup(report: dict) -> list[dict]:
 
 
 def render_md(t: dict, name: str) -> str:
+    if t["score_now"] is None:
+        return f"# Fix plan: {name}\n\nNo score-ranked fix plan is available because core quality is unavailable.\n"
     L = [f"# Fix plan: {name}", "", f"**Score now {t['score_now']}; after all steps below about {t['score_if_all_steps_done']}.**", ""]
     if t["caps"]:
         L += [f"Caps in force: {', '.join(t['caps'])}. Fix these first, they limit the whole score.", ""]
@@ -179,7 +191,8 @@ def main(argv: list[str] | None = None) -> int:
     out.mkdir(parents=True, exist_ok=True)
     (out / "triage.json").write_text(json.dumps(t, indent=2) + "\n")
     (out / "triage.md").write_text(render_md(t, report["repo"]["name"]))
-    print(f"{report['repo']['name']}: {t['score_now']} -> {t['score_if_all_steps_done']} in {len(t['steps'])} steps -> {out / 'triage.md'}")
+    score_label = f"{t['score_now']} -> {t['score_if_all_steps_done']}" if t["score_now"] is not None else "unavailable"
+    print(f"{report['repo']['name']}: {score_label} in {len(t['steps'])} steps -> {out / 'triage.md'}")
     return 0
 
 

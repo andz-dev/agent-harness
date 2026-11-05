@@ -11,12 +11,29 @@
     "generated_at",
     "repo",
     "stack",
-    "pillars",
     "findings",
-    "score",
-    "entropy",
-    "top_gaps",
     "limitations"
+  ],
+  "allOf": [
+    {
+      "if": {
+        "required": ["quality"],
+        "properties": {
+          "quality": {"properties": {"availability": {"const": "unavailable"}}}
+        }
+      },
+      "then": {
+        "not": {
+          "anyOf": [
+            {"required": ["pillars"]},
+            {"required": ["score"]},
+            {"required": ["entropy"]},
+            {"required": ["top_gaps"]}
+          ]
+        }
+      },
+      "else": {"required": ["pillars", "score", "entropy", "top_gaps"]}
+    }
   ],
   "properties": {
     "schema_version": {
@@ -99,7 +116,7 @@
         "ecosystems": {
           "type": "array",
           "uniqueItems": true,
-          "minItems": 1,
+          "minItems": 0,
           "items": {
             "enum": [
               "python",
@@ -109,7 +126,7 @@
         },
         "components": {
           "type": "array",
-          "minItems": 1,
+          "minItems": 0,
           "items": {
             "$ref": "#/$defs/component"
           }
@@ -188,6 +205,12 @@
       "items": {
         "type": "string"
       }
+    },
+    "quality": {
+      "$ref": "#/$defs/quality"
+    },
+    "coverage": {
+      "$ref": "#/$defs/coverage"
     },
     "infra": {
       "type": "object",
@@ -504,10 +527,136 @@
       "type": "string",
       "pattern": "^(ORI|VER|STA|TRG|ENT|CIP|DOC|ENR)-[0-9]{2}$"
     },
+    "coverage_check_id": {
+      "type": "string",
+      "pattern": "^(ORI|VER|STA|TRG|ENT|CIP|DOC|ENR)-[0-9]{2}$|^INF-[A-Z][0-9]{2}$"
+    },
     "level": {
       "type": "integer",
       "minimum": 0,
       "maximum": 3
+    },
+    "quality": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["availability", "score", "reason_codes"],
+      "properties": {
+        "availability": {"enum": ["available", "partial", "unavailable"]},
+        "score": {"type": ["number", "null"], "minimum": 0, "maximum": 100},
+        "reason_codes": {"type": "array", "uniqueItems": true, "items": {"type": "string"}}
+      }
+    },
+    "coverage_component": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "root", "languages", "adapter", "applicability"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$"},
+        "root": {"type": "string"},
+        "languages": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+        "adapter": {"enum": ["python", "node", null]},
+        "applicability": {"$ref": "#/$defs/applicability"}
+      }
+    },
+    "applicability": {
+      "enum": ["applicable", "inapplicable", "unsupported", "undetermined"]
+    },
+    "coverage_evidence": {
+      "enum": ["declared", "static_implementation_found", "execution_observed", "prototype_simulated", "unknown"]
+    },
+    "freshness": {
+      "enum": ["current", "stale", "unknown"]
+    },
+    "receipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["outcome"],
+      "properties": {
+        "outcome": {"enum": ["absent", "present_unverified", "invalid", "stale", "partial", "failed"]}
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["revision", "sources", "method", "observed_at"],
+      "properties": {
+        "revision": {"type": "string"},
+        "sources": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["path", "sha256", "locator"],
+            "properties": {
+              "path": {"type": "string"},
+              "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+              "locator": {"type": "string"}
+            }
+          }
+        },
+        "method": {"type": "string"},
+        "observed_at": {"type": "string", "format": "date-time"}
+      }
+    },
+    "coverage_observation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "component_id", "topic_id", "check_ids", "applicability", "evidence", "freshness", "provenance", "receipt", "limitations"],
+      "properties": {
+        "id": {"type": "string"},
+        "component_id": {"type": "string"},
+        "topic_id": {"type": "string"},
+        "check_ids": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/coverage_check_id"}},
+        "applicability": {"$ref": "#/$defs/applicability"},
+        "evidence": {"$ref": "#/$defs/coverage_evidence"},
+        "freshness": {"$ref": "#/$defs/freshness"},
+        "provenance": {"$ref": "#/$defs/provenance"},
+        "receipt": {"$ref": "#/$defs/receipt"},
+        "limitations": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "runner_edge": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["from", "to", "resolution"],
+      "properties": {
+        "from": {"type": "string"},
+        "to": {"type": ["string", "null"]},
+        "resolution": {"enum": ["resolved", "unresolved", "cycle", "budget_exceeded"]}
+      }
+    },
+    "coverage_collection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["outcome", "limits", "reason_codes"],
+      "properties": {
+        "outcome": {"enum": ["complete", "partial", "failed"]},
+        "limits": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["max_file_bytes", "max_total_bytes", "max_candidate_paths", "max_runner_depth"],
+          "properties": {
+            "max_file_bytes": {"type": "integer", "minimum": 1},
+            "max_total_bytes": {"type": "integer", "minimum": 1},
+            "max_candidate_paths": {"type": "integer", "minimum": 1},
+            "max_runner_depth": {"type": "integer", "minimum": 1}
+          }
+        },
+        "reason_codes": {"type": "array", "uniqueItems": true, "items": {"type": "string"}}
+      }
+    },
+    "coverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["version", "components", "observations", "runner_edges", "collection", "limitations"],
+      "properties": {
+        "version": {"const": 1},
+        "components": {"type": "array", "items": {"$ref": "#/$defs/coverage_component"}},
+        "observations": {"type": "array", "items": {"$ref": "#/$defs/coverage_observation"}},
+        "runner_edges": {"type": "array", "items": {"$ref": "#/$defs/runner_edge"}},
+        "collection": {"$ref": "#/$defs/coverage_collection"},
+        "limitations": {"type": "array", "items": {"type": "string"}}
+      }
     },
     "component": {
       "type": "object",

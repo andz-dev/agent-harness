@@ -12,7 +12,7 @@ repository and never deletes anything: it reports, a human decides.
 
 ## Setup
 
-Needs Python 3.11+ and two packages: `pip install pyyaml jsonschema` (or `pip install -r requirements.txt`). No network access
+Needs Python 3.14+ and two packages: `pip install pyyaml jsonschema` (or `pip install -r requirements.txt`). No network access
 is needed. Run every script as `python3 -I scripts/<name>.py` from this skill's directory.
 
 ## When to use

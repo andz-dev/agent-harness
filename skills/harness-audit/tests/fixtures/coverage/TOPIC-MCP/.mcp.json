@@ -1,0 +1,5 @@
+{
+  "mcpServers": {
+    "synthetic": {"command": "node", "args": ["server.js"]}
+  }
+}
