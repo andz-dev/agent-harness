@@ -1,4 +1,5 @@
 ---
+type: 'Learning'
 title: Resolve backlog ID collisions on merge
 author: Andreas
 date: 2026-11-04

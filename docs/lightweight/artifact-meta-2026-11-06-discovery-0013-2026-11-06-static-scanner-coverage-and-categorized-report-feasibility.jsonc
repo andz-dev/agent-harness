@@ -1,0 +1,14 @@
+{
+  "artifact": "2026-11-06-discovery-0013-2026-11-06-static-scanner-coverage-and-categorized-report-feasibility.md",
+  "status": "active",
+  "validate": "uv run --python 3.14 python agents/skills/engineering/discovery-poc/scripts/gate_check.py docs/0013-v0.1-audit-scan-report-and-rule-catalog/discovery/2026-11-06-static-scanner-coverage-and-categorized-report-feasibility",
+  "stopWhen": "Discovery gates and saved verdict check exit 0.",
+  "inputs": [
+    "docs/0013-v0.1-audit-scan-report-and-rule-catalog/discovery/2026-11-06-static-scanner-coverage-and-categorized-report-feasibility/hypothesis.jsonc"
+  ],
+  "outputs": [
+    "docs/0013-v0.1-audit-scan-report-and-rule-catalog/discovery/2026-11-06-static-scanner-coverage-and-categorized-report-feasibility/",
+    "docs/0013-v0.1-audit-scan-report-and-rule-catalog/discovery/2026-11-06-static-scanner-coverage-and-categorized-report-feasibility/spike/verdict.json"
+  ],
+  "generatedBy": "specs-lightweight/scripts/lightweight_meta.py"
+}

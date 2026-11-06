@@ -1,0 +1,6 @@
+{
+  "schema": "discovery-provenance/1",
+  "grade": "none",
+  "reason": "Real tracked repository files are the evidence; the oracle cases come from cited prior art, so no generated sample is needed.",
+  "skill_version": "v0.3"
+}

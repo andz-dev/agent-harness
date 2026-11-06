@@ -1,0 +1,45 @@
+{
+  "schema": "discovery-hypothesis/1",
+  "question": "Can one stable category per check, derived by static rules from the tracked harness-audit catalog and infrastructure checks, represent every existing check and the requested Security, SBOM, license and linter scan topics for Python, Node, Go and Rust without running any audited code?",
+  "decision": "Whether the next version adds an unscored category layer plus static scanner-presence checks, or keeps pillar-only reporting and defers the scanners.",
+  "kill_assumption": "A single category per check cannot represent the existing checks without many checks needing two categories, or the static rules disagree with the independent oracle on more than three checks.",
+  "evidence": {
+    "minimum": "real",
+    "real_inputs": [
+      "skills/harness-audit/checks/catalog.yaml",
+      "skills/harness-audit/scripts/infra_checks.py",
+      "skills/harness-audit/scripts/detect_stack.py",
+      "skills/harness-audit/scripts/audit.py"
+    ],
+    "why": ""
+  },
+  "criteria": [
+    {"id": "C1", "role": "go", "metric": "mismatches", "op": "==", "value": 0, "why": "Every oracle check must receive its expected category."},
+    {"id": "C2", "role": "go", "metric": "discriminating_cases", "op": ">=", "value": 8, "why": "At least eight oracle checks where the pillar or area default gives a different category, so a lazy mapping fails."},
+    {"id": "C3", "role": "go", "metric": "detection.mismatches", "op": "==", "value": 0, "why": "Static detection by file name must match every documented tool config and reject near-miss names."},
+    {"id": "C4", "role": "go", "metric": "detection.discriminating_negatives", "op": ">=", "value": 4, "why": "At least four near-miss names must be rejected, so an over-broad detector fails."},
+    {"id": "C5", "role": "go", "metric": "partition_complete", "op": "==", "value": true, "why": "Category counts must sum to the number of checks: none lost, none counted twice."},
+    {"id": "C6", "role": "go", "metric": "oracle_controls.pillar_mapping_detected", "op": "==", "value": true, "why": "Must-fail control: the oracle flags a pillar-only mapping."},
+    {"id": "C7", "role": "go", "metric": "oracle_controls.broken_detector_detected", "op": "==", "value": true, "why": "Must-fail control: the detection oracle flags an unanchored detector."},
+    {"id": "K1", "role": "kill", "metric": "ambiguous_check_ids", "op": ">", "value": 3, "why": "More than three checks needing two categories means one category per check is unstable."},
+    {"id": "K2", "role": "kill", "metric": "mismatches", "op": ">", "value": 3, "why": "More than three oracle disagreements means the rules cannot reach the independent expectation."}
+  ],
+  "next": {
+    "go": {"route": "spec-workflow", "action": "Run the spec workflow for a follow-on version: an unscored category field on findings and coverage, a category summary in report.md, and static scanner-presence checks for Python, Node, Go and Rust."},
+    "no_go": {"action": "Keep pillar-only reporting, defer scanners, and record the reason in the backlog."},
+    "pivot": {"action": "Re-scope to categories on core checks only, then run a new card for scanner presence."},
+    "inconclusive": {"action": "Restore the missing real input and rerun the spike."}
+  },
+  "open_questions": [
+    {"question": "Is the nine-category set (testing, code_standards, ci_pipeline, security, supply_chain, agent_guidance, docs, workflow, infrastructure) final?", "owner": "human", "lean": "Accept it; categories are unscored labels and can be extended without changing any score."},
+    {"question": "Should new scanner-presence checks ever count toward the 0-100 score or gate a level?", "owner": "human", "lean": "No: keep them an overlay like infrastructure, since presence is not proof that a scan ran or passed."},
+    {"question": "Does WN-017 (SBOM generation for this repository in CI) join this version?", "owner": "human", "lean": "Keep it separate: it produces an artifact, while this version only detects declarations in audited repositories."},
+    {"question": "Which folder carries the follow-on spec?", "owner": "agent", "lean": "A new numbered folder through the spec workflow, because 0011 is closed."}
+  ],
+  "does_not_prove": [
+    "That any scanner ran or passed: detection reports configuration presence only.",
+    "That Go and Rust detection works on a real Go or Rust repository: only documented config names are tested.",
+    "That the oracle is complete: it covers a sample of checks written by the same agent from cited sources, not every check.",
+    "Anything about the Harness City map, which this version leaves untouched."
+  ]
+}

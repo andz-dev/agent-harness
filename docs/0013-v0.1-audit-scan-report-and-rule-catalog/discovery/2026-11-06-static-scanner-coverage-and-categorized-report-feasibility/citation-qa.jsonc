@@ -1,0 +1,66 @@
+// Citation QA sidecar. Updated by shared/scripts/citation_lint.py
+// Default policy: final mode blocks URL failures; draft mode warns.
+{
+  "documents": {
+    "Ideation-Book.md": {
+      "checks": {
+        "bareNumericGroups": 0,
+        "escapedCitationSyntax": 0,
+        "missingAnchors": [],
+        "orphanAnchors": [],
+        "placeholders": 0
+      },
+      "lastRunAt": "2026-11-06T14:22:54.049195+00:00",
+      "mode": "final",
+      "offline": false,
+      "path": "docs/0013-v0.1-audit-scan-report-and-rule-catalog/discovery/2026-11-06-static-scanner-coverage-and-categorized-report-feasibility/Ideation-Book.md",
+      "status": "pass",
+      "summary": {
+        "anchors": 6,
+        "citations": 8,
+        "errors": 0,
+        "warnings": 0
+      },
+      "urlValidation": [
+        {
+          "detail": "HTTP 200",
+          "reachable": true,
+          "ref": 1,
+          "url": "https://github.com/ossf/scorecard/blob/main/docs/checks.md"
+        },
+        {
+          "detail": "HTTP 403",
+          "reachable": true,
+          "ref": 2,
+          "url": "https://cyclonedx.org/specification/overview/"
+        },
+        {
+          "detail": "HTTP 200",
+          "reachable": true,
+          "ref": 3,
+          "url": "https://golangci-lint.run/docs/configuration/file/"
+        },
+        {
+          "detail": "HTTP 200",
+          "reachable": true,
+          "ref": 4,
+          "url": "https://rust-lang.github.io/rustfmt/"
+        },
+        {
+          "detail": "HTTP 200",
+          "reachable": true,
+          "ref": 5,
+          "url": "https://doc.rust-lang.org/clippy/configuration.html"
+        },
+        {
+          "detail": "HTTP 200",
+          "reachable": true,
+          "ref": 6,
+          "url": "https://embarkstudios.github.io/cargo-deny/checks/cfg.html"
+        }
+      ]
+    }
+  },
+  "modeDefault": "final",
+  "schemaVersion": 1
+}

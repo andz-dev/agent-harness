@@ -1,0 +1,9 @@
+{
+  "artifact": "Ideation-Book.md",
+  "generatedAt": "2026-11-06T00:00:00Z",
+  "mode": "final",
+  "inputs": ["discovery/2026-11-06-static-scanner-coverage-and-categorized-report-feasibility/", "research/2026-11-06-official-rule-references.md"],
+  "outputs": ["Ideation-Book.md"],
+  "validation": {"status": "pass", "checks": ["docs_audit", "final_online_citation_qa"]},
+  "notes": ["Agent-drafted; no human review and no implementation claim."]
+}

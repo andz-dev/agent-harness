@@ -1,0 +1,9 @@
+{
+  "artifact": "Plan.md",
+  "generatedAt": "2026-11-06T00:00:00Z",
+  "mode": "draft",
+  "inputs": ["Ideation-Book.md", "research/2026-11-06-official-rule-references.md", "../Whats-Next.md"],
+  "outputs": ["Plan.md"],
+  "validation": {"status": "warn", "checks": ["docs_audit"], "notRun": ["stage_skill_validator", "citation_qa", "semantic_claim_review"]},
+  "notes": ["Draft plan; decisions D2, D5 and D6 await owner review; no implementation or test result is claimed."]
+}

@@ -1,0 +1,9 @@
+{
+  "artifact": "Ideation-Book.md",
+  "generatedAt": "2026-11-06T00:00:00Z",
+  "mode": "final",
+  "inputs": ["hypothesis.jsonc", "research/", "data/findings.json", "spike/verdict.json"],
+  "outputs": ["Ideation-Book.md"],
+  "validation": {"status": "pass", "checks": ["discovery_gate_check_g0_g6", "verdict_check", "final_online_citation_qa"]},
+  "notes": ["Agent-mode discovery run; no human review, no production validation and no technology decision is claimed."]
+}

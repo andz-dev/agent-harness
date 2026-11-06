@@ -1,4 +1,5 @@
 ---
+type: 'Learning'
 title: Harness City browser suite is too slow for agent sessions
 author: Andreas
 date: 2026-11-06
