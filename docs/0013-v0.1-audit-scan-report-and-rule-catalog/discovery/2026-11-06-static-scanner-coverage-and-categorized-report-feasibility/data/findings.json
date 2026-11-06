@@ -1,0 +1,216 @@
+{
+  "date": "2026-11-06",
+  "rows": [
+    {
+      "evidence": "probe.py --only checks",
+      "evidence_kind": "command",
+      "metric": "present",
+      "probe": "checks",
+      "unit": "bool",
+      "value": true
+    },
+    {
+      "evidence": "probe.py --only checks",
+      "evidence_kind": "command",
+      "metric": "count",
+      "probe": "checks",
+      "unit": "count",
+      "value": 116
+    },
+    {
+      "evidence": "probe.py --only checks",
+      "evidence_kind": "command",
+      "metric": "core_check_ids",
+      "probe": "checks",
+      "unit": "count",
+      "value": 56
+    },
+    {
+      "evidence": "probe.py --only checks",
+      "evidence_kind": "command",
+      "metric": "infra_check_ids",
+      "probe": "checks",
+      "unit": "count",
+      "value": 60
+    },
+    {
+      "evidence": "probe.py --only scan_topics",
+      "evidence_kind": "command",
+      "metric": "present",
+      "probe": "scan_topics",
+      "unit": "bool",
+      "value": true
+    },
+    {
+      "evidence": "probe.py --only scan_topics",
+      "evidence_kind": "command",
+      "metric": "count",
+      "probe": "scan_topics",
+      "unit": "count",
+      "value": 0
+    },
+    {
+      "evidence": "probe.py --only scan_topics",
+      "evidence_kind": "command",
+      "metric": "topics_without_checks",
+      "probe": "scan_topics",
+      "unit": "count",
+      "value": 6
+    },
+    {
+      "evidence": "probe.py --only scan_topics",
+      "evidence_kind": "command",
+      "metric": "secret_scanning_check_ids",
+      "probe": "scan_topics",
+      "unit": "count",
+      "value": 1
+    },
+    {
+      "evidence": "probe.py --only scan_topics",
+      "evidence_kind": "command",
+      "metric": "sast_check_ids",
+      "probe": "scan_topics",
+      "unit": "count",
+      "value": 0
+    },
+    {
+      "evidence": "probe.py --only scan_topics",
+      "evidence_kind": "command",
+      "metric": "dependency_vulnerability_check_ids",
+      "probe": "scan_topics",
+      "unit": "count",
+      "value": 1
+    },
+    {
+      "evidence": "probe.py --only scan_topics",
+      "evidence_kind": "command",
+      "metric": "sbom_check_ids",
+      "probe": "scan_topics",
+      "unit": "count",
+      "value": 0
+    },
+    {
+      "evidence": "probe.py --only scan_topics",
+      "evidence_kind": "command",
+      "metric": "license_check_ids",
+      "probe": "scan_topics",
+      "unit": "count",
+      "value": 0
+    },
+    {
+      "evidence": "probe.py --only scan_topics",
+      "evidence_kind": "command",
+      "metric": "go_lint_check_ids",
+      "probe": "scan_topics",
+      "unit": "count",
+      "value": 0
+    },
+    {
+      "evidence": "probe.py --only scan_topics",
+      "evidence_kind": "command",
+      "metric": "rust_lint_check_ids",
+      "probe": "scan_topics",
+      "unit": "count",
+      "value": 0
+    },
+    {
+      "evidence": "probe.py --only scan_topics",
+      "evidence_kind": "command",
+      "metric": "coding_standards_doc_check_ids",
+      "probe": "scan_topics",
+      "unit": "count",
+      "value": 0
+    },
+    {
+      "evidence": "probe.py --only adapters",
+      "evidence_kind": "command",
+      "metric": "present",
+      "probe": "adapters",
+      "unit": "bool",
+      "value": true
+    },
+    {
+      "evidence": "probe.py --only adapters",
+      "evidence_kind": "command",
+      "metric": "count",
+      "probe": "adapters",
+      "unit": "count",
+      "value": 0
+    },
+    {
+      "evidence": "probe.py --only adapters",
+      "evidence_kind": "command",
+      "metric": "go_rust_manifests_listed",
+      "probe": "adapters",
+      "unit": "bool",
+      "value": true
+    },
+    {
+      "evidence": "probe.py --only adapters",
+      "evidence_kind": "command",
+      "metric": "checks_applying_to_go_or_rust",
+      "probe": "adapters",
+      "unit": "count",
+      "value": 0
+    },
+    {
+      "evidence": "probe.py --only adapters",
+      "evidence_kind": "command",
+      "metric": "checks_applying_to_python_or_node",
+      "probe": "adapters",
+      "unit": "count",
+      "value": 12
+    },
+    {
+      "evidence": "probe.py --only report",
+      "evidence_kind": "command",
+      "metric": "present",
+      "probe": "report",
+      "unit": "bool",
+      "value": true
+    },
+    {
+      "evidence": "probe.py --only report",
+      "evidence_kind": "command",
+      "metric": "count",
+      "probe": "report",
+      "unit": "count",
+      "value": 0
+    },
+    {
+      "evidence": "probe.py --only report",
+      "evidence_kind": "command",
+      "metric": "render_mentions_coverage",
+      "probe": "report",
+      "unit": "bool",
+      "value": false
+    },
+    {
+      "evidence": "probe.py --only report",
+      "evidence_kind": "command",
+      "metric": "render_mentions_category",
+      "probe": "report",
+      "unit": "bool",
+      "value": false
+    },
+    {
+      "evidence": "probe.py --only report",
+      "evidence_kind": "command",
+      "metric": "render_groups_by_pillar",
+      "probe": "report",
+      "unit": "bool",
+      "value": true
+    },
+    {
+      "evidence": "probe.py --only report",
+      "evidence_kind": "command",
+      "metric": "schema_category_keys",
+      "probe": "report",
+      "unit": "count",
+      "value": 0
+    }
+  ],
+  "schema": "discovery-findings/1",
+  "skill_version": "v0.3",
+  "subject": "harness-audit scan and report coverage"
+}

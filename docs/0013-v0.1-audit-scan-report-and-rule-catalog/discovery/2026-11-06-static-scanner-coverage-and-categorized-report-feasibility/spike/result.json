@@ -1,0 +1,57 @@
+{
+  "answer": {
+    "ambiguous_check_ids": 1,
+    "category_counts": {
+      "agent_guidance": 14,
+      "ci_pipeline": 5,
+      "code_standards": 16,
+      "docs": 6,
+      "infrastructure": 27,
+      "security": 14,
+      "supply_chain": 11,
+      "testing": 10,
+      "workflow": 13
+    },
+    "checks_total": 116,
+    "detection": {
+      "cases": 17,
+      "discriminating_negatives": 5,
+      "mismatches": 0
+    },
+    "discriminating_cases": 15,
+    "go_rust_manifests_listed": true,
+    "mismatches": 0,
+    "oracle_cases": 27,
+    "oracle_cases_found": 27,
+    "oracle_controls": {
+      "broken_detector_detected": true,
+      "pillar_mapping_detected": true
+    },
+    "partition_complete": true,
+    "report_has_category_summary": false
+  },
+  "evidence": [
+    {
+      "grade": "real",
+      "input": "skills/harness-audit/checks/catalog.yaml"
+    },
+    {
+      "grade": "real",
+      "input": "skills/harness-audit/scripts/infra_checks.py"
+    },
+    {
+      "grade": "real",
+      "input": "skills/harness-audit/scripts/detect_stack.py"
+    },
+    {
+      "grade": "real",
+      "input": "skills/harness-audit/scripts/audit.py"
+    }
+  ],
+  "grade": "none",
+  "hypothesis_sha256": "6ba4c190b419971d2b5fc7d095a00ff565b3e4739a93be3d6b35a77636efc962",
+  "question": "Can one stable category per check, derived by static rules from the tracked harness-audit catalog and infrastructure checks, represent every existing check and the requested Security, SBOM, license and linter scan topics for Python, Node, Go and Rust without running any audited code?",
+  "sample_sha256": null,
+  "schema": "discovery-spike-result/1",
+  "skill_version": "v0.3"
+}

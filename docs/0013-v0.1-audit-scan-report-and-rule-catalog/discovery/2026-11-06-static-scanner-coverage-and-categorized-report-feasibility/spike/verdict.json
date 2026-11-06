@@ -1,0 +1,133 @@
+{
+  "criteria": [
+    {
+      "actual": 0,
+      "id": "C1",
+      "met": true,
+      "metric": "mismatches",
+      "op": "==",
+      "role": "go",
+      "value": 0
+    },
+    {
+      "actual": 15,
+      "id": "C2",
+      "met": true,
+      "metric": "discriminating_cases",
+      "op": ">=",
+      "role": "go",
+      "value": 8
+    },
+    {
+      "actual": 0,
+      "id": "C3",
+      "met": true,
+      "metric": "detection.mismatches",
+      "op": "==",
+      "role": "go",
+      "value": 0
+    },
+    {
+      "actual": 5,
+      "id": "C4",
+      "met": true,
+      "metric": "detection.discriminating_negatives",
+      "op": ">=",
+      "role": "go",
+      "value": 4
+    },
+    {
+      "actual": true,
+      "id": "C5",
+      "met": true,
+      "metric": "partition_complete",
+      "op": "==",
+      "role": "go",
+      "value": true
+    },
+    {
+      "actual": true,
+      "id": "C6",
+      "met": true,
+      "metric": "oracle_controls.pillar_mapping_detected",
+      "op": "==",
+      "role": "go",
+      "value": true
+    },
+    {
+      "actual": true,
+      "id": "C7",
+      "met": true,
+      "metric": "oracle_controls.broken_detector_detected",
+      "op": "==",
+      "role": "go",
+      "value": true
+    },
+    {
+      "actual": 1,
+      "id": "K1",
+      "met": false,
+      "metric": "ambiguous_check_ids",
+      "op": ">",
+      "role": "kill",
+      "value": 3
+    },
+    {
+      "actual": 0,
+      "id": "K2",
+      "met": false,
+      "metric": "mismatches",
+      "op": ">",
+      "role": "kill",
+      "value": 3
+    }
+  ],
+  "decision": "Whether the next version adds an unscored category layer plus static scanner-presence checks, or keeps pillar-only reporting and defers the scanners.",
+  "does_not_prove": [
+    "That any scanner ran or passed: detection reports configuration presence only.",
+    "That Go and Rust detection works on a real Go or Rust repository: only documented config names are tested.",
+    "That the oracle is complete: it covers a sample of checks written by the same agent from cited sources, not every check.",
+    "Anything about the Harness City map, which this version leaves untouched."
+  ],
+  "evidence": {
+    "achieved": "real",
+    "inputs": [
+      "skills/harness-audit/checks/catalog.yaml",
+      "skills/harness-audit/scripts/audit.py",
+      "skills/harness-audit/scripts/detect_stack.py",
+      "skills/harness-audit/scripts/infra_checks.py"
+    ],
+    "minimum": "real"
+  },
+  "hypothesis_sha256": "6ba4c190b419971d2b5fc7d095a00ff565b3e4739a93be3d6b35a77636efc962",
+  "next": {
+    "action": "Run the spec workflow for a follow-on version: an unscored category field on findings and coverage, a category summary in report.md, and static scanner-presence checks for Python, Node, Go and Rust.",
+    "route": "spec-workflow"
+  },
+  "open_questions": [
+    {
+      "lean": "Accept it; categories are unscored labels and can be extended without changing any score.",
+      "owner": "human",
+      "question": "Is the nine-category set (testing, code_standards, ci_pipeline, security, supply_chain, agent_guidance, docs, workflow, infrastructure) final?"
+    },
+    {
+      "lean": "No: keep them an overlay like infrastructure, since presence is not proof that a scan ran or passed.",
+      "owner": "human",
+      "question": "Should new scanner-presence checks ever count toward the 0-100 score or gate a level?"
+    },
+    {
+      "lean": "Keep it separate: it produces an artifact, while this version only detects declarations in audited repositories.",
+      "owner": "human",
+      "question": "Does WN-017 (SBOM generation for this repository in CI) join this version?"
+    },
+    {
+      "lean": "A new numbered folder through the spec workflow, because 0011 is closed.",
+      "owner": "agent",
+      "question": "Which folder carries the follow-on spec?"
+    }
+  ],
+  "question": "Can one stable category per check, derived by static rules from the tracked harness-audit catalog and infrastructure checks, represent every existing check and the requested Security, SBOM, license and linter scan topics for Python, Node, Go and Rust without running any audited code?",
+  "reason": "every go criterion met, no kill criterion met",
+  "schema": "discovery-verdict/1",
+  "verdict": "GO"
+}

@@ -1,0 +1,244 @@
+- generic [ref=f2e2]:
+  - banner [ref=f2e3]:
+    - generic [ref=f2e4]:
+      - generic [ref=f2e5]: harness-audit 1.2.0 · scan of 2026-10-27 · 4 repositories
+      - heading "Synthetic Harness City" [level=1] [ref=f2e6]
+      - paragraph [ref=f2e7]: Every repository is a city. Its seven districts are the seven harness pillars, built up from a vacant lot (L0) to a skyline (L3). Traffic shows known limits, construction sites show the next planned fix, and decay shows entropy findings.
+    - generic [ref=f2e8]: "score = Σ level ÷ 3 × weight − entropy penaltyweights: Verification 25 · Orientation 20 · Guardrails 15 · Entry points 15 · Triggers 10 · Parity 10 · Docs 5"
+  - navigation "Repositories" [ref=f2e9]:
+    - generic [ref=f2e10]: Thriving
+    - button "thriving-demo 100" [pressed] [ref=f2e11] [cursor=pointer]:
+      - text: thriving-demo
+      - generic [ref=f2e12]: "100"
+    - generic [ref=f2e13]: Prosperous
+    - button "prosperous-demo 67" [ref=f2e14] [cursor=pointer]:
+      - text: prosperous-demo
+      - generic [ref=f2e15]: "67"
+    - generic [ref=f2e16]: Working
+    - button "working-demo 47" [ref=f2e17] [cursor=pointer]:
+      - text: working-demo
+      - generic [ref=f2e18]: "47"
+    - generic [ref=f2e19]: Neglected
+    - button "absent-demo 0" [ref=f2e20] [cursor=pointer]:
+      - text: absent-demo
+      - generic [ref=f2e21]: "0"
+  - generic [ref=f2e22]:
+    - group "City layer" [ref=f2e23]:
+      - button "Surface" [pressed] [ref=f2e24] [cursor=pointer]
+      - button "Underground" [ref=f2e25] [cursor=pointer]
+    - status
+  - generic [ref=f2e26]:
+    - generic [ref=f2e27]:
+      - generic "3D city map of the selected repository" [ref=f2e28]
+      - generic:
+        - generic [ref=f2e29] [cursor=pointer]:
+          - generic [ref=f2e30]: thriving-demo
+          - generic [ref=f2e31]:
+            - generic [ref=f2e32]: Thriving
+            - text: score 100 · 0 decay
+        - generic [ref=f2e33]:
+          - button "Rotate left" [ref=f2e34] [cursor=pointer]: ⟲
+          - button "Rotate right" [ref=f2e35] [cursor=pointer]: ⟳
+          - button "Zoom in" [ref=f2e36] [cursor=pointer]: +
+          - button "Zoom out" [ref=f2e37] [cursor=pointer]: −
+          - button "Fit city" [ref=f2e38] [cursor=pointer]: ⤢
+          - button "Show or hide labels" [pressed] [ref=f2e39] [cursor=pointer]: Aa
+          - button "Export PNG" [ref=f2e40] [cursor=pointer]: ↓
+      - generic: Drag to move · scroll or pinch to zoom · click a building, street, bus, rail or power line
+      - generic [ref=f2e41]: Loading city assets…
+    - complementary [ref=f2e42]:
+      - generic [ref=f2e43]:
+        - generic [ref=f2e44]: 1 component
+        - heading "thriving-demo" [level=2] [ref=f2e45]
+      - generic [ref=f2e46]:
+        - term [ref=f2e47]: Tool score
+        - definition [ref=f2e48]: 100 / 100 · Thriving
+        - term [ref=f2e49]: Entropy penalty
+        - definition [ref=f2e50]: "0.0"
+        - term [ref=f2e51]: Tracked files
+        - definition [ref=f2e52]: "0"
+      - region "City landmarks" [ref=f2e53]:
+        - heading "City landmarks" [level=3] [ref=f2e54]
+        - list [ref=f2e55]:
+          - listitem [ref=f2e56]:
+            - button "Airport" [ref=f2e57] [cursor=pointer]
+          - listitem [ref=f2e58]:
+            - button "Factory" [ref=f2e59] [cursor=pointer]
+          - listitem [ref=f2e60]:
+            - button "Shopping Mall" [ref=f2e61] [cursor=pointer]
+          - listitem [ref=f2e62]:
+            - button "Bank" [ref=f2e63] [cursor=pointer]
+          - listitem [ref=f2e64]:
+            - button "City Archive" [ref=f2e65] [cursor=pointer]
+          - listitem [ref=f2e66]:
+            - button "Highway" [ref=f2e67] [cursor=pointer]
+          - listitem [ref=f2e68]:
+            - button "Mountains" [ref=f2e69] [cursor=pointer]
+          - listitem [ref=f2e70]:
+            - button "Mountain Tunnel" [ref=f2e71] [cursor=pointer]
+          - listitem [ref=f2e72]:
+            - button "Highway Bridge" [ref=f2e73] [cursor=pointer]
+      - generic [ref=f2e74]:
+        - heading "Reading this city" [level=3] [ref=f2e75]
+        - paragraph [ref=f2e76]: "Score 100: the districts earn 100.0 of 100 points (level ÷ 3 × weight). Tier Thriving: Thriving ≥ 80, Prosperous ≥ 60, Working ≥ 45, Neglected below. Richer cities get more trees; neglected ones get potholes."
+        - paragraph [ref=f2e77]: Each district is one pillar. Its building grows from a vacant lot (L0) to a skyline (L3). The street shows how work reaches it, buses and the metro from the central station show how well the entry points serve it, cranes mark the next planned fix, and wagons, graffiti and broken pylons are decay.
+        - paragraph [ref=f2e78]: Click a building, street, bus, the rail line or the power line to see what it means.
+      - group [ref=f2e79]:
+        - generic "What the levels mean" [ref=f2e80] [cursor=pointer]
+      - group [ref=f2e81]:
+        - generic "Limitations of this scan" [ref=f2e82] [cursor=pointer]
+      - generic [ref=f2e83]:
+        - generic [ref=f2e84]: Districts
+        - table [ref=f2e85]:
+          - rowgroup [ref=f2e86]:
+            - row [ref=f2e87] [cursor=pointer]:
+              - cell "Verification" [ref=f2e88]
+              - cell "L3" [ref=f2e90]
+              - cell "25.0/25" [ref=f2e91]
+            - row [ref=f2e92] [cursor=pointer]:
+              - cell "Orientation" [ref=f2e93]
+              - cell "L3" [ref=f2e95]
+              - cell "20.0/20" [ref=f2e96]
+            - row [ref=f2e97] [cursor=pointer]:
+              - cell "Static guardrails" [ref=f2e98]
+              - cell "L3" [ref=f2e100]
+              - cell "15.0/15" [ref=f2e101]
+            - row [ref=f2e102] [cursor=pointer]:
+              - cell "Workflow entry points" [ref=f2e103]
+              - cell "L3" [ref=f2e105]
+              - cell "15.0/15" [ref=f2e106]
+            - row [ref=f2e107] [cursor=pointer]:
+              - cell "Automatic triggers" [ref=f2e108]
+              - cell "L3" [ref=f2e110]
+              - cell "10.0/10" [ref=f2e111]
+            - row [ref=f2e112] [cursor=pointer]:
+              - cell "Pipeline parity" [ref=f2e113]
+              - cell "L3" [ref=f2e115]
+              - cell "10.0/10" [ref=f2e116]
+            - row [ref=f2e117] [cursor=pointer]:
+              - cell "Doc hygiene" [ref=f2e118]
+              - cell "L3" [ref=f2e120]
+              - cell "5.0/5" [ref=f2e121]
+      - generic [ref=f2e122]:
+        - generic [ref=f2e123]: Decay · 0 entropy items
+        - paragraph [ref=f2e124]: No entropy items in the export for this repository.
+      - generic [ref=f2e125]:
+        - generic [ref=f2e126]: Next fixes (construction sites)
+        - paragraph [ref=f2e127]: No fix plan in this data.
+  - generic [ref=f2e129]:
+    - generic [ref=f2e130]: How to read a city
+    - heading "Traffic, construction and decay" [level=2] [ref=f2e131]
+  - generic [ref=f2e132]:
+    - generic [ref=f2e133]:
+      - generic [ref=f2e134]: Asset sheet
+      - heading "Every district at every level" [level=2] [ref=f2e135]
+    - paragraph [ref=f2e136]: The renderer builds each city from these pieces only, seeded by the repository name, so the same scan always draws the same city.
+    - generic [ref=f2e137]:
+      - generic [ref=f2e139]: L0 absent
+      - generic [ref=f2e140]: L1 present
+      - generic [ref=f2e141]: L2 enforced
+      - generic [ref=f2e142]: L3 agent-native
+  - generic [ref=f2e143]:
+    - generic [ref=f2e144]:
+      - generic [ref=f2e145]: Plain data
+      - heading "All 4 scans" [level=2] [ref=f2e146]
+    - table [ref=f2e148]:
+      - rowgroup [ref=f2e149]:
+        - row [ref=f2e150]:
+          - columnheader "Repository" [ref=f2e151]
+          - columnheader "Set" [ref=f2e152]
+          - columnheader "Score" [ref=f2e153]
+          - columnheader "Gut" [ref=f2e154]
+          - columnheader "Tier" [ref=f2e155]
+          - columnheader "Verif" [ref=f2e156]
+          - columnheader "Orient" [ref=f2e157]
+          - columnheader "Guard" [ref=f2e158]
+          - columnheader "Entry" [ref=f2e159]
+          - columnheader "Trig" [ref=f2e160]
+          - columnheader "Parity" [ref=f2e161]
+          - columnheader "Docs" [ref=f2e162]
+          - columnheader "Penalty" [ref=f2e163]
+          - columnheader "Decay" [ref=f2e164]
+          - columnheader "All fixes" [ref=f2e165]
+      - rowgroup [ref=f2e166]:
+        - row [ref=f2e167] [cursor=pointer]:
+          - cell "thriving-demo" [ref=f2e168]
+          - cell [ref=f2e169]
+          - cell "100" [ref=f2e170]
+          - cell "–" [ref=f2e171]
+          - cell "Thriving" [ref=f2e172]
+          - cell "L3" [ref=f2e173]
+          - cell "L3" [ref=f2e174]
+          - cell "L3" [ref=f2e175]
+          - cell "L3" [ref=f2e176]
+          - cell "L3" [ref=f2e177]
+          - cell "L3" [ref=f2e178]
+          - cell "L3" [ref=f2e179]
+          - cell "0.0" [ref=f2e180]
+          - cell "0" [ref=f2e181]
+          - cell "–" [ref=f2e182]
+        - row [ref=f2e183] [cursor=pointer]:
+          - cell "prosperous-demo" [ref=f2e184]
+          - cell [ref=f2e185]
+          - cell "67" [ref=f2e186]
+          - cell "–" [ref=f2e187]
+          - cell "Prosperous" [ref=f2e188]
+          - cell "L2" [ref=f2e189]
+          - cell "L2" [ref=f2e190]
+          - cell "L2" [ref=f2e191]
+          - cell "L2" [ref=f2e192]
+          - cell "L2" [ref=f2e193]
+          - cell "L2" [ref=f2e194]
+          - cell "L2" [ref=f2e195]
+          - cell "0.0" [ref=f2e196]
+          - cell "0" [ref=f2e197]
+          - cell "–" [ref=f2e198]
+        - row [ref=f2e199] [cursor=pointer]:
+          - cell "working-demo" [ref=f2e200]
+          - cell [ref=f2e201]
+          - cell "47" [ref=f2e202]
+          - cell "–" [ref=f2e203]
+          - cell "Working" [ref=f2e204]
+          - cell "L2" [ref=f2e205]
+          - cell "L1" [ref=f2e206]
+          - cell "L1" [ref=f2e207]
+          - cell "L2" [ref=f2e208]
+          - cell "L1" [ref=f2e209]
+          - cell "L1" [ref=f2e210]
+          - cell "L1" [ref=f2e211]
+          - cell "0.0" [ref=f2e212]
+          - cell "0" [ref=f2e213]
+          - cell "–" [ref=f2e214]
+        - row [ref=f2e215] [cursor=pointer]:
+          - cell "absent-demo" [ref=f2e216]
+          - cell [ref=f2e217]
+          - cell "0" [ref=f2e218]
+          - cell "–" [ref=f2e219]
+          - cell "Neglected" [ref=f2e220]
+          - cell "L0" [ref=f2e221]
+          - cell "L0" [ref=f2e222]
+          - cell "L0" [ref=f2e223]
+          - cell "L0" [ref=f2e224]
+          - cell "L0" [ref=f2e225]
+          - cell "L0" [ref=f2e226]
+          - cell "L0" [ref=f2e227]
+          - cell "0.0" [ref=f2e228]
+          - cell "0" [ref=f2e229]
+          - cell "–" [ref=f2e230]
+    - paragraph [ref=f2e231]: "Source: Illustrative synthetic profiles only; not audited repository results. Decay shows the entropy items present in the export for each repository."
+  - generic [ref=f2e232]:
+    - generic [ref=f2e233]:
+      - generic [ref=f2e234]: Credits
+      - heading "Assets and licences" [level=2] [ref=f2e235]
+    - generic [ref=f2e236]:
+      - generic [ref=f2e237]:
+        - text: "Buildings, skyscrapers, vehicles and road tiles:"
+        - link "Kenney" [ref=f2e238] [cursor=pointer]:
+          - /url: https://kenney.nl
+        - text: (City Kit Commercial, Car Kit, City Builder Starter Kit models), CC0 1.0.
+      - generic [ref=f2e239]:
+        - text: "Trees, rocks, fences, crates, generators, hangar and props:"
+        - link "Quaternius" [ref=f2e240] [cursor=pointer]:
+          - /url: https://quaternius.com
+        - text: ", CC0 1.0. Optimised copies via the @netforge/asset-library-files package, which records each pack's licence."
+      - generic [ref=f2e241]: "Landmarks, rail line, trains, traffic lights, cones, barriers, cranes and power lines are drawn in code for this page. Rendering: three.js (MIT)."
