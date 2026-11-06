@@ -99,7 +99,7 @@ def from_export_repo(r, warn):
         caps = ["no-tests"]
     fp = r.get("fix_plan") or {}
     return {
-        "id": r["id"], "set": r.get("set", ""), "gut": r.get("human_gut_score"),
+        "id": r["id"], "set": r.get("set", ""), "gut": r.get("human_gut_score"), "synthetic": None,
         "score": s["score"], "L": L, "comp": s.get("components", 1), "files": s.get("tracked_files", 0),
         "pen": s.get("entropy_penalty", 0), "done": fp.get("score_if_all_steps_done"),
         "steps": steps_from_export(r), "ent": entropy((r.get("entropy") or {}).get("items"), warn, r["id"]),
@@ -112,12 +112,16 @@ def from_report(d, warn):
     if not isinstance(schema_version, str) or not re.fullmatch(r"0\.\d+", schema_version):
         raise ValueError("unsupported report envelope version")
     name = d["repo"]["name"]
+    meta = d.get("meta")
+    synthetic = meta.get("synthetic") if isinstance(meta, dict) else None
+    if type(synthetic) is not bool:
+        synthetic = None
     by = {p["pillar"]: p["level"] for p in d["pillars"]}
     gates = {p["pillar"]: p.get("gate_failures", []) for p in d["pillars"]}
     comps = d.get("stack", {}).get("components", [])
     sc = d["score"]
     city = {
-        "id": name.split("/")[-1].split(" (")[0], "set": "", "gut": None,
+        "id": name.split("/")[-1].split(" (")[0], "set": "", "gut": None, "synthetic": synthetic,
         "score": round(sc["final"]), "L": [by.get(p, 0) for p in PILLARS],
         "comp": len(comps) or 1, "files": sum(c.get("tracked_files", 0) for c in comps),
         "pen": sc.get("entropy_penalty", 0), "done": None,

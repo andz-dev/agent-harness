@@ -3,7 +3,7 @@ type: 'Design'
 title: 'Harness City Design'
 status: 'active'
 created: '2026-10-27'
-updated: '2026-11-05'
+updated: '2026-11-06'
 generated: 'agent'
 verified: 'unverified'
 owner: 'Andreas Elser'
@@ -24,8 +24,9 @@ scoring system.
 
 ## Principles
 
-1. **Metaphor is data.** Each object stands for one audit fact. No decoration without
-   meaning, except trees and ground.
+1. **Metaphor is data.** Scored objects stand for audit facts. Default city landmarks
+  identify domain areas, not detected controls: their presence never implies evidence,
+  applicability or enforcement. Trees, ground and mountains establish the map.
 2. **Level grows the thing.** Every area has levels L0 to L3: vacant fenced lot, small,
    working, agent-native. The same ladder applies everywhere (buildings, roads, transit,
    rail, airport).
@@ -79,7 +80,9 @@ in the exported image. Export never changes the live camera or audit data.
 ## Infrastructure overlay (airport)
 
 Status: **prototype** inside the real city, enabled with `?airport` (or the standalone build
-`build_standalone.py --airport`). Not part of the default city yet. Details and open variants:
+`build_standalone.py --airport`). The normal city has a stable airport landmark without
+simulated gates or levels; opt-in evaluation replaces it with the existing prototype.
+Details and open variants:
 [../../docs/0007-v0.1-airport-overlay-evidence-matched/airport-assets.md](../../docs/0007-v0.1-airport-overlay-evidence-matched/research/airport-assets.md).
 
 * The airport is the infrastructure overlay in teal `#0a9cb8`. It is never part of the 0-100 score
@@ -113,6 +116,32 @@ Status: **prototype** inside the real city, enabled with `?airport` (or the stan
 
 ## City map (grid)
 
+### Default Landmark Buildout (2026-11-06)
+
+The owner requested visible Airport, Factory, Shopping Mall, Highway with mountains and
+tunnel, Bank (secrets) and the separate City Archive (protected data). Implement these
+at the footprints below for every input, including legacy data without coverage.
+This supersedes their planned-only presentation, not the proposed evidence/traffic ladders.
+Harbor, Court, new traffic simulation and Bank/Archive audit mappings remain deferred.
+
+All new models are code-generated. Factory uses sawtooth sheds, loading bays and silos;
+Mall uses glazed shop fronts and parking; Bank uses a columned facade and vault;
+Archive uses a separate secure store with stacked repository bays. Highway has divided
+lanes, a stone portal with a dark passage, north mountains and a south elevated span.
+Keep the passage clear of mountain geometry. Fit includes x -24..78, z -30..42 and
+height 10 in all four isometric rotations; existing core bounds still govern district roads.
+Trees exclude the civic quarter and north mountain belt as well as existing reservations.
+
+Asset registry: `landmark-airport`, `landmark-factory`, `landmark-mall`,
+`landmark-bank`, `landmark-archive`, `landmark-highway`, `landmark-mountains`,
+`landmark-tunnel` and `landmark-bridge`; generated meshes, no external license additions.
+Every landmark supports raycast selection and a named keyboard button. Click text explains
+its domain and states that scenery is unscored and not audit evidence. Level disposition:
+not applicable to these stable landmarks; no L0-L3 is inferred. Coverage rings remain
+independent report-derived selections, with clear foreground clearance.
+Implementation and validation are tracked from
+[0011 Implementation](../../docs/0011-v0.1-harness-coverage-expansion/Implementation.md).
+
 Status: planned layout for the full level 3 city, agreed 2026-10-29 and redrawn 2026-11-05 from
 the L3 plan export ([research PDF](../../docs/0011-v0.1-harness-coverage-expansion/research/Repo%20harness%20audit%20and%20security%20-%20Claude.pdf),
 whose east edge is cropped at x 50) and from the code. This section is the source of truth. Units are
@@ -122,10 +151,10 @@ grid cells, x east, z south; an integer is a cell centre and a .5 value is a cel
 | Area | Cells (x, z) | State |
 |---|---|---|
 | City core, seven districts | x -4.5..33.5, z -4.5..19.5; roads at z 0, 8, 16 | exists |
-| Rail and siding | tracks z -1.75 and -2.75, siding z -3.75; x -10.5..43.5, ends at the airport station's express platforms | exists; code end moves (C11) |
-| Airport | x 45..61, z 1..7; entry from the core connector at x 53 | exists at x 47..63; moves (C10) |
-| Airport station | x 37..43, z 1..7 | exists at x 39..45; moves with the airport (C10) |
-| Airport roads | z 0, x 34..44 and x 44, z 1..7 | exists at x 46; moves with the airport |
+| Rail and siding | tracks z -1.75 and -2.75, siding z -3.75; x -10.5..43.5, ends at the airport station's express platforms | exists; airport-mode end x 43.5 (C11) |
+| Airport | x 45..61, z 1..7; entry from the core connector at x 53 | exists at x 45..61 after default dx=-2 (C10) |
+| Airport station | x 37..43, z 1..7 | exists at x 37..43 after the same default shift (C10) |
+| Airport roads | z 0, x 32..44 and x 44, z 1..7 | exists after the default two-cell westward shift |
 | Core connector | z 8 from the city east gate (x 33.5) to the highway (x 62.5) | exists to x 64 with `?airport`; ends at the highway |
 | Civic quarter | bank x -20..-15, court x -13..-8, both z 1..6; archive x -20..-11, z 9..15 (~) | planned |
 | Shopping Mall | x 50..58, z 11..17; entry road z 14, x 59..62, with the toll gantry | planned |
@@ -346,6 +375,7 @@ Usage: [EDITOR.md](EDITOR.md).
 | graffiti wall | `graffitiWall` | ENR-02 conflicting configs, police district |
 | broken pylon, power cable | `pylon`, `cable` | ENR-04 stale CI reference (broken); power line (intact) |
 | cooling tower | `coolingTower` | pipeline parity, power plant |
+| Factory/highway coverage rings and labels | `buildCoverageAnchors` | Selectable unscored topic references in planned reservations; no building or maturity ladder |
 | construction crane, site | `crane` | next fix in a district |
 | traffic light, cone, barrier | `trafficLight`, `cone`, `barrier` | district street ladder: L0 closed, L1 one lane |
 | district landmark | `landmark` | one landmark per pillar and level |
@@ -357,7 +387,9 @@ Add a row when you add an asset.
 
 Coverage anchors are selectable topic references, not score-bearing districts or
 new asset models. Topic-to-anchor references come from the converted report; an
-anchor's presence or infrastructure level is not a coverage observation.
+anchor's presence or infrastructure level is not a coverage observation. Factory
+and highway use small ground-plane rings and matching labels as pick targets;
+they mark reserved locations only and do not represent production buildings.
 
 | Anchor | Existing Grid source | Selection explanation |
 | --- | --- | --- |
@@ -374,6 +406,11 @@ Selecting an anchor lists its referenced topics; selecting a topic focuses its
 location when one exists and opens the same detail panel. Pointer selection and
 inventory selection expose the same details.
 
+At overview zoom, labels are decluttered in stable scene order: an overlapping
+later label is hidden rather than stacked. Selecting an inventory item focuses
+and zooms to its location, while the keyboard inventory remains available for
+labels hidden by decluttering. This presentation never changes report state.
+
 | Indicator | Values | Meaning |
 | --- | --- | --- |
 | Applicability | applicable, inapplicable, unsupported, undetermined | Whether the topic can be assessed for its component. |
@@ -386,8 +423,12 @@ Show each state independently with its text label, plus safe provenance
 (relative source path and digest, a topic-specific locator, method and
 observation time) and limitations where present. For testing topics, locators
 must identify test-specific configuration or files, not broad package manifests.
-Synthetic origin remains explicit independently of the evidence label. Never
-display raw source excerpts, commands, credentials or endpoint identities.
+Synthetic origin remains independent of the evidence label. The converter reads
+optional `report.meta.synthetic` and carries it to each city as `synthetic`:
+true is synthetic, false is explicitly non-synthetic, and null is unknown for
+legacy input. Show that distinction in the selection panel and PNG description;
+never infer it from `prototype_simulated`. Never display raw source excerpts,
+commands, credentials or endpoint identities.
 
 Coverage indicators have no L0-L3 ladder and no numeric ordering. The existing
 district and infrastructure ladders retain their current meanings; neither a
@@ -397,8 +438,9 @@ building, and unknown, unsupported and inapplicable are not L0.
 
 PNG export keeps the current camera, layer and visible labels. Its description
 includes the selected topic's independent states, safe provenance, limitations
-and synthetic/prototype origin. Stale and simulated evidence retain those labels;
-export never promotes either to observed evidence or changes audit data.
+and synthetic origin. Unknown legacy origin stays visibly unknown; stale and
+simulated evidence retain those labels. Export never promotes either to observed
+evidence or changes audit data.
 
 ## Camera
 

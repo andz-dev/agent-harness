@@ -35,6 +35,7 @@ def illustration(name, levels, catalog_version):
         "schema_version": "0.1",
         "tool": {"name": "harness-audit", "version": audit.VERSION, "catalog_version": str(catalog_version)},
         "generated_at": "2026-10-27T00:00:00Z",
+        "meta": {"synthetic": True},
         "repo": {"name": "synthetic/" + name, "commit": "0000000", "clone_mode": "local"},
         "stack": {"ecosystems": ["python"], "components": [{"id": name, "path": ".", "ecosystem": "python", "kind": "app"}]},
         "pillars": pillars,

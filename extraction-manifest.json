@@ -111,7 +111,7 @@
       "source": "agents/skills/engineering/harness-audit/schema/report.schema.json",
       "target": "skills/harness-audit/schema/report.schema.json",
       "source_sha256": "303bb0a324331f1bb0541ec15eccfd2a070f1d0a8e8368e255fa0f30c47eb135",
-      "sha256": "34d1b7f0b42e09ce7b751422cfa099023a027bcb5fe33d554109be2866a68fe1",
+      "sha256": "ba0dbb92648bbd914ca9dc5ac7d1f194964153425ede7b3f7c3301617c42682f",
       "kind": "adapted-runtime"
     },
     {
@@ -251,7 +251,7 @@
       "source": "apps/harness-city/README.md",
       "target": "apps/harness-city/README.md",
       "source_sha256": "db5639596c8225d1cf1ae3c5ca63ee264cc4c381d6482ef0a70f17c33ff39db9",
-      "sha256": "2453838406483efa193c035605318c77c5028313d029d951858e05ced61f589c",
+      "sha256": "58e6700fd7194449e0ddb51a89e5fecc126848e8a1f4a39f4c6c233850845e3d",
       "kind": "adapted-runtime"
     },
     {
@@ -678,7 +678,7 @@
       "source": "apps/harness-city/index.html",
       "target": "apps/harness-city/index.html",
       "source_sha256": "912ed4af45e312a850a68bfbcca1a2c16a6e7fa07a267ae230dcfc7388d2a322",
-      "sha256": "7a49ea6321b29e2cc1ed89f051bedda621b3a89341779b06929f47f8aa7978bb",
+      "sha256": "f67135d7ae3b6a76008175a1432cf2639d401c223849cd7163068ad3bb34c92b",
       "kind": "adapted-runtime"
     },
     {
@@ -699,7 +699,7 @@
       "source": "apps/harness-city/tools/report_to_city.py",
       "target": "apps/harness-city/tools/report_to_city.py",
       "source_sha256": "77e6a935dc309bbc70d77ae0f3aa66c148ace37eacbf4ed6fd7762bcb99ef7d6",
-      "sha256": "74ed81764a7f6fac6005608b74ee9a56849b4c3e641f7e6dbdc14f194f1d64a7",
+      "sha256": "516c1d3a6aa13cec4dfdf6012a1643da5ed4450b46308c9db9e12e6f60550caa",
       "kind": "adapted-runtime"
     },
     {

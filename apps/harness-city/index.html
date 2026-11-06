@@ -281,7 +281,7 @@ const BOUNDS={x0:-4.5,x1:33.5,z0:-4.5,z1:19.5};
 // (editor.html, embed mode) replaces them through applyLayout. The score is never touched.
 const EMBED=new URLSearchParams(location.search).has("embed");
 const LAYOUT={rail:{tracks:RAIL_Z,siding:SIDING_Z,x0:null,x1:null},power:{z:17.3,from:22,to:-2,step:3},links:[0,9,16,24,29],
- meadow:{trees:true,ground:true,keepOut:[[-1,30,-4.4,17.8]]},airport:{dx:0,dz:0}};
+ meadow:{trees:true,ground:true,keepOut:[[-1,30,-4.4,17.8],[49.5,58.5,10.5,17.5],[47.5,62.5,-18.5,-7.5],[61.5,70.5,-30,40],[-21,-7,0,16],[-24,78,-32,-19],[36.5,61.5,.5,7.5]]},airport:{dx:-2,dz:0}};
 const DEFAULT_LAYOUT=JSON.parse(JSON.stringify({districts:DIST,roads:[...ROADS],...LAYOUT}));
 function applyLayout(L={}){
  if(L.districts)for(const k of Object.keys(L.districts))if(DIST[k])Object.assign(DIST[k],L.districts[k]);
@@ -458,7 +458,7 @@ function buildRoads(par,rep){const lists={"road-straight":[],"road-lamps":[],"ro
   else{rot=(e||w)&&!(n||s)?90:0;if((e||w)&&!(n||s)&&(x%4===2)&&x>0&&x<29)id="road-lamps"}
   lists[id].push([x,z,rot])}
  for(const [id,l] of Object.entries(lists))instanced(par,id,l,id==="road-lamps")}
-function buildRail(par,rep){const lvl=rep.L[PI.workflow_entry_points];const g=new THREE.Group();g.userData.pick={kind:"rail"};par.add(g);const xa=LAYOUT.rail.x0??BOUNDS.x0-6,xb=LAYOUT.rail.x1??BOUNDS.x1+6,len=xb-xa;
+function buildRail(par,rep){const lvl=rep.L[PI.workflow_entry_points];const g=new THREE.Group();g.userData.pick={kind:"rail"};par.add(g);const xa=LAYOUT.rail.x0??BOUNDS.x0-6,xb=LAYOUT.rail.x1??(AIR_ON?43.5:BOUNDS.x1+6),len=xb-xa;
  const tracks=lvl===0?[RAIL_Z[0]]:RAIL_Z;const rust=lvl===0;
  for(const tz of tracks){const bed=new THREE.Mesh(bg(len,.06,.78),mat(rust?"#a59578":"#9c9184"));bed.position.set((xa+xb)/2,.03,tz);bed.receiveShadow=true;g.add(bed);
   const n=Math.floor(len/.28);const sl=new THREE.InstancedMesh(bg(.08,.03,.62),mat(rust?"#6e5640":"#5b4636"),n);const t=new THREE.Object3D();let k=0;for(let i=0;i<n;i++){if(rust&&i%3===1){continue}t.position.set(xa+i*.28,.075,tz);t.updateMatrix();sl.setMatrixAt(k++,t.matrix)}sl.count=k;sl.receiveShadow=true;g.add(sl);
@@ -562,7 +562,7 @@ function airSetup(){for(const k of AIR_ROADS)ROADS.delete(k);AIR_ROADS.length=0;
  const add=(x,z)=>{const k=rk(x+LAYOUT.airport.dx,z+LAYOUT.airport.dz);if(!ROADS.has(k)){ROADS.add(k);AIR_ROADS.push(k)}};
  for(let x=34;x<=64;x++)add(x,8);for(let x=34;x<=46;x++)add(x,0);for(let z=1;z<=7;z++)add(46,z)}
 function airInfra(){const list=AIR_AREAS.filter(a=>AIR.areas[a.k]!=null).map(a=>({...a,lv:AIR.areas[a.k]}));const tool=list.filter(a=>a.core);const overall=tool.length?Math.min(...tool.map(a=>a.lv)):null;return {list,tool,overall}}
-const homeX=()=>(BOUNDS.x0+BOUNDS.x1)/2;
+const homeX=()=>27;
 function airPlane(kind,col){const yaw=new THREE.Group(),pitch=new THREE.Group();yaw.add(pitch);const m=new THREE.Group();m.position.y=.1;m.scale.setScalar(1.3);pitch.add(m);let prop=null;
  const hull=(len,r,c,x=0,y=0)=>{const b=new THREE.Mesh(cg(r,r,len,10),mat(c));b.rotation.z=Math.PI/2;b.position.set(x,y,0);b.castShadow=true;m.add(b);const n=new THREE.Mesh(new THREE.ConeGeometry(r,r*1.6,10),mat(c));n.rotation.z=-Math.PI/2;n.position.set(x+len/2+r*.8,y,0);n.castShadow=true;m.add(n)};
  const eng=(x,z,c="#5d646c",l=.2)=>{const e=new THREE.Mesh(cg(.035,.035,l,8),mat(c));e.rotation.z=Math.PI/2;e.position.set(x,-.02,z);e.castShadow=true;m.add(e)};
@@ -727,15 +727,70 @@ window.__air={AIR,AIR_AREAS,AIR_PRESETS,rebuildAir};
 const stage=document.getElementById("stage"),canvas=document.getElementById("city"),labelsEl=document.getElementById("labels");
 let renderer,scene,camera,sun,city=null,dyn=null,tags=[],plates=[],current=null,sel=null;
 const view={az:45,zoom:1,target:new THREE.Vector3(homeX(),0,7.5)};
+const LANDMARKS={
+ airport:{name:"Airport",x:53,z:4,description:"Infrastructure and deployment destinations. The default terminal is a domain landmark; simulated gate levels are available only in airport evaluation mode."},
+ factory:{name:"Factory",x:55,z:-13,description:"Dependencies and build production: assembly sheds, silos and loading bays. Coverage observations, when supplied, remain separate from the building."},
+ mall:{name:"Shopping Mall",x:54,z:14,description:"The delivery destination for packaged work and dependencies. Shop fronts and parking identify the commercial quarter."},
+ bank:{name:"Bank",x:-17.5,z:3.5,description:"Secrets and credentials storage. The vault is a metaphor, not a record of stored secrets or proof of secret-management controls."},
+ archive:{name:"City Archive",x:-15.5,z:12,description:"Protected project data and retained records. This secure store is separate from the public library and does not assert backup, retention or access-control enforcement."},
+ highway:{name:"Highway",x:66,z:5,description:"Build and delivery routes across the city. Configured runner relationships, when supplied, are inspected separately; the road does not prove execution."},
+ mountains:{name:"Mountains",x:20,z:-26,description:"The northern boundary of the city and the terrain surrounding its delivery route."},
+ tunnel:{name:"Mountain Tunnel",x:66,z:-22,description:"The highway's northern entrance through the mountain range, with a clear passage and a stone portal."},
+ bridge:{name:"Highway Bridge",x:66,z:36,description:"The elevated southern continuation of the highway, carried on concrete piers."}
+};
+function buildLandmarks(par){
+ const group=id=>{const definition=LANDMARKS[id],object=new THREE.Group();object.name=`landmark-${id}`;object.position.set(definition.x,0,definition.z);object.userData.pick={kind:`LAND:${id}`};par.add(object);return object};
+ const road=(width,length,x,z)=>box(par,width,.08,length,"#60696b",x,.02,z);
+ road(29,1,48,8);road(14,1,55,-6);road(1,2,55,-7);road(4,1,60,14);road(1,18,-6.5,8);road(13,1,-11,0);road(7.5,1,-8.25,8);road(7.5,1,-8.25,16);
+ const factory=group("factory");box(factory,14,.12,10,"#c0c7bf",0,0,0);
+ box(factory,4,2.3,7,"#d4dbcf",-3,.12,0);
+ for(const offset of [-2.4,-.1,2.2])gable(factory,4,.8,2.2,"#47766f",-3,2.42,offset);
+ for(const offset of [-2.4,0,2.4]){box(factory,.05,1.4,1.5,"#45565b",-.98,.2,offset);box(factory,.3,.15,1.7,"#8c9e92",-.8,.12,offset)}
+ box(factory,3,1.7,3,"#d4dbcf",4,.12,2.8);box(factory,3.4,.18,3.4,"#47766f",4,1.82,2.8);
+ for(const offset of [2.8,5]){cyl(factory,.85,.85,3.2,"#9baeb3",offset,.12,-2.8);cyl(factory,0,.85,.65,"#d7e1df",offset,3.32,-2.8)}
+ box(factory,.7,4.4,.7,"#a95955",-4.3,0,-3);box(factory,1,.2,1,"#646e70",-4.3,4.4,-3);
+ const mall=group("mall");box(mall,8,.1,6,"#b7c0bd",0,0,0);box(mall,6,1.6,3.3,"#e5e9e1",-.4,.1,-.7);box(mall,6.5,.2,3.8,"#477d84",-.4,1.7,-.7);
+ for(const offset of [-2.4,-.8,.8,2.4]){box(mall,1.25,1.1,.05,"#6cbdc5",offset,.35,1);box(mall,1.35,.18,.7,"#d66c65",offset,1.4,1.3);box(mall,.04,.02,1.3,"#f4f2d7",offset,.12,2.25)}
+ box(mall,1.2,.7,1.2,"#b7dfdb",-.4,1.9,-.7);
+ const bank=group("bank");box(bank,5,.22,5,"#bcc4c3",0,0,0);box(bank,4,2.4,3.2,"#dce1d9",0,.22,-.4);gable(bank,4.6,.9,.9,"#426b66",0,2.62,1.05);
+ for(const offset of [-1.6,-.55,.55,1.6])cyl(bank,.17,.22,2,"#f0f0e4",offset,.22,1.25,8);
+ const vault=cyl(bank,.65,.65,.12,"#688a88",0,0,0,16);vault.rotation.x=Math.PI/2;vault.position.set(0,1.35,-2.06);box(bank,.08,.8,.18,"#d9e1db",0,.95,-2.16);box(bank,.8,.08,.18,"#d9e1db",0,1.3,-2.16);
+ const archive=group("archive");box(archive,9,.16,6,"#b7c5c4",0,0,0);box(archive,7.5,2.6,4.5,"#92b8ad",0,.16,0);box(archive,8,.2,5,"#355c5b",0,2.76,0);
+ for(const offset of [-2.7,-.9,.9,2.7])for(const side of [-1,1]){box(archive,1.3,1.5,.08,"#456e6b",offset,.6,side*2.28);for(const height of [.85,1.35,1.85])box(archive,1.1,.08,.1,"#c7dcd3",offset,height,side*2.34)}
+ box(archive,1.2,1.7,.3,"#344d4f",0,.16,2.5);box(archive,1.8,.15,1,"#d1e0d6",0,1.9,2.65);
+ const highway=group("highway");box(highway,7,.12,52,"#596669",0,0,0);box(highway,.45,.18,52,"#9bafa4",0,.12,0);
+ for(const offset of [-3.4,3.4])box(highway,.12,.32,52,"#becac6",offset,.12,0);
+ for(let distance=-24;distance<26;distance+=3)for(const offset of [-2,2])box(highway,.09,.02,1.4,"#f1ead3",offset,.13,distance);
+ const tunnel=group("tunnel");box(tunnel,7,.08,8,"#414d50",0,.02,-4);
+ for(const offset of [-4.2,4.2]){box(tunnel,1.4,4.8,8,"#829b91",offset,0,-4);box(tunnel,.18,.2,.15,"#fff0ac",offset>0?3.45:-3.45,2.4,.12)}
+ box(tunnel,9.8,1,8,"#a5b5ab",0,4,-4);box(tunnel,9.8,.6,1,"#d6ded3",0,4.8,0);box(tunnel,7,3.9,.06,"#172b2e",0,.1,-7.95);
+ const mountains=group("mountains");const random=rng(hash("harness-city-mountain-range"));
+ for(let east=-18;east<=76;east+=7){if(east>55)continue;const height=5+random()*4,radius=4+random()*1.4;const peak=cyl(mountains,0,radius,height,east%2?"#7d9b87":"#94ad96",east-20,0,random()*2-1,5);peak.rotation.y=random();cyl(mountains,0,radius*.28,height*.28,"#e3ece0",east-20,height*.72,peak.position.z,5)}
+ for(const east of [57,75]){cyl(mountains,0,3.7,7,"#829d89",east-20,0,0,5);cyl(mountains,0,1.05,2,"#e3ece0",east-20,5,0,5)}
+ const bridge=group("bridge");box(bridge,7,.3,12,"#69787b",0,1.2,0);box(bridge,.45,.2,12,"#a6b9b0",0,1.5,0);
+ for(const offset of [-3.35,3.35])box(bridge,.15,.55,12,"#c5d4ce",offset,1.5,0);
+ for(const distance of [-4,0,4])for(const offset of [-2.5,2.5])box(bridge,.8,1.2,.8,"#acbcb5",offset,0,distance);
+ const ramp=box(par,7,.2,4,"#69787b",66,.6,29);ramp.rotation.x=-Math.atan(1.2/4);
+ if(!AIR_ON){const airport=group("airport");box(airport,16,.1,6,"#c0d0c8",0,0,0);box(airport,15,.04,1.4,"#57686e",0,.12,-1.8);
+  for(let offset=-6;offset<=6;offset+=2)box(airport,.9,.02,.1,"#f4f1d5",offset,.17,-1.8);
+  box(airport,7,1.3,2,"#cce2dc",-1,.1,.4);box(airport,7.5,.2,2.4,"#3f8890",-1,1.4,.4);box(airport,6.6,.7,.06,"#65b4c1",-1,.5,1.42);
+  box(airport,2.4,1.7,2,"#afc5bf",5,.1,.2);gable(airport,2.8,.7,2.4,"#53828a",5,1.8,.2);
+  box(airport,.7,3.2,.7,"#dbe1d7",-6,.1,.5);box(airport,1.2,.8,1.2,"#57989c",-6,3.3,.5);box(airport,1.4,.15,1.4,"#355f66",-6,4.1,.5);
+  const plane=airPlane("prop","#3c8896");plane.yaw.userData.pick={kind:"LAND:airport"};plane.yaw.position.set(2,.2,-1.8);airport.add(plane.yaw);
+  box(par,6,.1,6,"#b9cbc3",40,0,4);box(par,4,1.1,1.8,"#d3e1d5",40,.1,4);box(par,4.5,.2,2.3,"#48777a",40,1.2,4);road(1,8,44,4);road(12,1,38,0);
+ }
+}
+function landmarkPanel(){let html=`<section aria-label="City landmarks"><h3>City landmarks</h3><ul class="plain">${Object.entries(LANDMARKS).map(([id,item])=>`<li><button class="btnlink" data-kind="LAND:${id}" aria-pressed="${selKind===`LAND:${id}`}">${item.name}</button></li>`).join("")}</ul></section>`;
+ if(selKind?.startsWith("LAND:")){const item=LANDMARKS[selKind.slice(5)];if(item)html+=`<div class="focus"><h3>${item.name}</h3><p>${item.description}</p><p>Unscored scenery, not audit evidence. No control level is inferred from this landmark.</p><button class="btnlink" id="clr">Show the whole city</button></div>`}return html}
 function initScene(){renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true,preserveDrawingBuffer:true});renderer.setPixelRatio(Math.min(2,window.devicePixelRatio||1));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
  scene=new THREE.Scene();
  scene.add(new THREE.HemisphereLight("#f4f8ff","#8aa77a",1.35));sun=new THREE.DirectionalLight("#fff3dd",2.5);sun.position.set(26,30,22);sun.target.position.set(14.5,0,7.5);sun.castShadow=true;sun.shadow.mapSize.set(4096,4096);const sc=sun.shadow.camera;sc.left=-26;sc.right=26;sc.top=24;sc.bottom=-24;sc.near=1;sc.far=90;sun.shadow.bias=-.0004;sun.shadow.normalBias=.02;scene.add(sun,sun.target);
  camera=new THREE.OrthographicCamera(-1,1,1,-1,-200,400);resize()}
-function placeCamera(){const a=view.az*Math.PI/180,d=60;camera.position.set(view.target.x+Math.sin(a)*d,view.target.y+d*.82,view.target.z+Math.cos(a)*d);camera.lookAt(view.target);const w=stage.clientWidth,h=stage.clientHeight;const s=fitSize(w/h)/view.zoom;camera.left=-s*w/h;camera.right=s*w/h;camera.top=s;camera.bottom=-s;camera.updateProjectionMatrix()}
+function placeCamera(){const a=view.az*Math.PI/180,d=60;camera.position.set(view.target.x+Math.sin(a)*d,view.target.y+d*.82,view.target.z+Math.cos(a)*d);camera.lookAt(view.target);const w=stage.clientWidth,h=stage.clientHeight;const s=fitSize(w/h)/view.zoom;camera.left=-s*w/h;camera.right=s*w/h;camera.top=s;camera.bottom=-s;camera.updateProjectionMatrix();camera.updateMatrixWorld(true)}
 function fitSize(aspect){// half-height in world units so the whole city (incl. rail and power line) fits the stage
  const a=view.az*Math.PI/180;const dir=new THREE.Vector3(Math.sin(a),.82,Math.cos(a)).normalize();const right=new THREE.Vector3().crossVectors(new THREE.Vector3(0,1,0),dir).normalize();const up=new THREE.Vector3().crossVectors(dir,right);
- const c0=new THREE.Vector3(homeX(),0,7.5);let mx=0,my=0;for(const x of [BOUNDS.x0+1,BOUNDS.x1])for(const z of [BOUNDS.z0+.5,BOUNDS.z1-1])for(const y of [0,2.2]){const v=new THREE.Vector3(x,y,z).sub(c0);mx=Math.max(mx,Math.abs(v.dot(right)));my=Math.max(my,Math.abs(v.dot(up)))}
- return Math.max(my,mx/aspect)*1.0}
+ const c0=new THREE.Vector3(homeX(),0,7.5);let mx=0,my=0;for(const x of [-24,78])for(const z of [-30,42])for(const y of [0,10]){const v=new THREE.Vector3(x,y,z).sub(c0);mx=Math.max(mx,Math.abs(v.dot(right)));my=Math.max(my,Math.abs(v.dot(up)))}
+ return Math.max(my,mx/aspect)*1.06}
 function resize(){const w=stage.clientWidth,h=stage.clientHeight;renderer.setSize(w,h,false);placeCamera()}
 function releaseCity(group){
  const sharedGeometry=new Set(Object.values(GEO)),sharedMaterial=new Set(Object.values(MAT)),sharedTexture=new Set(Object.values(TEX));
@@ -752,6 +807,8 @@ function build(rep){airDim(false);airSetup();if(city){scene.remove(city);release
  buildOutskirts(city,rep);buildRoads(city,rep);const rail=buildRail(city,rep);const grid=buildGrid(city,rep);const transit=buildTransit(city,rep);
  const air=AIR_ON?buildAirportAll(city,rep,rail,transit):null;
  const AD=LAYOUT.airport;if(air&&air.g&&(AD.dx||AD.dz)){air.g.position.set(AD.dx,0,AD.dz);for(const t of tags)if(String(t.kind).startsWith("AIR"))t.pos.add(new THREE.Vector3(AD.dx,0,AD.dz))}
+ if(air?.g)air.g.name="landmark-airport";
+ buildLandmarks(city);buildCoverageAnchors(city,rep);
  const districts={},traffic=[];if(air&&air.traffic)traffic.push(air.traffic);
  for(const p of PILLARS){const lvl=rep.L[PI[p.k]];const st=stepsFor(rep,p);const cap=p.k==="verification"&&rep.caps.length?rep.caps[0]:null;
   const d=buildDistrict(city,p.k,lvl,DIST[p.k],rep,hash(rep.id+p.k),{steps:st,cap});districts[p.k]=d;
@@ -778,7 +835,9 @@ function updateLabels(){const w=stage.clientWidth,h=stage.clientHeight,occupied=
   pl.el.style.transform=`translate(${x}px,${y}px) translate(-50%,-100%)`;
   let rectangle=pl.el.getBoundingClientRect();
   if(pl.k==="__air"){const insideX=Math.max(rectangle.width/2+8,Math.min(w-rectangle.width/2-8,x));pl.el.style.transform=`translate(${insideX}px,${y}px) translate(-50%,-100%)`;rectangle=pl.el.getBoundingClientRect();}
-  if(pl.air&&(rectangle.left<stageRectangle.left+4||rectangle.right>stageRectangle.right-4||occupied.some(other=>rectangle.left<other.right+4&&rectangle.right>other.left-4&&rectangle.top<other.bottom+4&&rectangle.bottom>other.top-4))){pl.el.style.display="none";continue;}
+  const outsideAirportLabel=pl.air&&(rectangle.left<stageRectangle.left+4||rectangle.right>stageRectangle.right-4);
+  const overlapsLabel=occupied.some(other=>rectangle.left<other.right+4&&rectangle.right>other.left-4&&rectangle.top<other.bottom+4&&rectangle.bottom>other.top-4);
+  if(outsideAirportLabel||overlapsLabel){pl.el.style.display="none";continue;}
   occupied.push(rectangle);
  }
 }
@@ -814,7 +873,7 @@ canvas.addEventListener("wheel",e=>{if(EMBED)return;e.preventDefault();zoomBy(e.
 let pinch=null;canvas.addEventListener("touchstart",e=>{if(!EMBED&&e.touches.length===2){pinch=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);drag=null}},{passive:true});
 canvas.addEventListener("touchmove",e=>{if(pinch&&e.touches.length===2){const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);zoomBy(d/pinch);pinch=d}},{passive:true});
 canvas.addEventListener("touchend",()=>{pinch=null});
-function clampTarget(){view.target.x=Math.max(-2,Math.min(Math.max(31,BOUNDS.x1-(AIR_ON?1:4)),view.target.x));view.target.z=Math.max(-3,Math.min(18,view.target.z))}
+function clampTarget(){view.target.x=Math.max(-24,Math.min(78,view.target.x));view.target.z=Math.max(-30,Math.min(42,view.target.z))}
 function zoomBy(f){view.zoom=Math.max(.7,Math.min(4,view.zoom*f));placeCamera()}
 let rotAnim=null;function rotate(d){const from=view.az,to=view.az+d;const t0=performance.now();cancelAnimationFrame(rotAnim);const step=now=>{const u=Math.min(1,(now-t0)/450);const e=u<.5?2*u*u:1-Math.pow(-2*u+2,2)/2;view.az=from+(to-from)*(reduce?1:e);placeCamera();if(u<1&&!reduce)rotAnim=requestAnimationFrame(step)};rotAnim=requestAnimationFrame(step)}
 document.getElementById("rotL").onclick=()=>rotate(-90);document.getElementById("rotR").onclick=()=>rotate(90);
@@ -827,9 +886,12 @@ document.getElementById("underground").onclick=()=>setLayer(true);
 document.getElementById("cityplate").onclick=()=>select(null,"city");
 function focusDistrict(k){const b=DIST[k];view.target.set((b.x0+b.x1)/2,0,(b.z0+b.z1)/2+.5);view.zoom=Math.max(view.zoom,1.7);placeCamera()}
 let selKind=null,about=null;const KIND_PILLAR={rail:"workflow_entry_points",grid:"pipeline_parity"};
-function select(k,kind){if(KIND_PILLAR[kind])k=KIND_PILLAR[kind];sel=k||null;selKind=kind&&(kind.startsWith("ENR")||kind.startsWith("AIR"))?kind:null;about=sel&&kind&&kind!=="district"?kind:null;if(sel&&!KIND_PILLAR[kind])focusDistrict(sel);
+function select(k,kind){if(KIND_PILLAR[kind])k=KIND_PILLAR[kind];sel=k||null;selKind=kind&&(kind.startsWith("ENR")||kind.startsWith("AIR")||kind.startsWith("COV:")||kind.startsWith("LAND:"))?kind:null;about=sel&&kind&&kind!=="district"?kind:null;if(sel&&!KIND_PILLAR[kind])focusDistrict(sel);
  if(selKind&&selKind.startsWith("AIR")){const key=selKind.startsWith("AIR:gate:")?selKind.split(":")[2]:null;const site=key&&AIR.areas[key]!=null?AIR_SUPPORT[key]:null;
   view.target.set(site?site.x:selKind==="AIR:link"?43:55,0,site?site.z:4.5);view.zoom=site?stage.clientWidth<560?4:3:selKind==="AIR:link"?1.7:stage.clientWidth<560?3.5:2.2;placeCamera();}
+ else if(selKind?.startsWith("COV:topic:")){const topic=coverageTopics(current).find(item=>item.id===selKind.slice("COV:topic:".length));const anchors=topic?coverageAnchors(topic):[];if(anchors.length)focusCoverageAnchor(anchors[0]);}
+ else if(selKind?.startsWith("COV:anchor:"))focusCoverageAnchor(selKind.slice("COV:anchor:".length));
+ else if(selKind?.startsWith("LAND:")){const item=LANDMARKS[selKind.slice(5)];if(item){view.target.set(item.x,0,item.z);view.zoom=stage.clientWidth<560?4:3;placeCamera()}}
  updateSelection();renderPanel()}
 
 /* ================= panel, picker, table ================= */
@@ -866,9 +928,38 @@ function issuesHTML(rep,i){const p=PILLARS[i];const iss=issuesOf(rep,i);const ga
 function cityHTML(rep){const raw=PILLARS.reduce((s,p,i)=>s+rep.L[i]/3*p.w,0);const t=tierOf(rep.score);const nIss=PILLARS.reduce((s,p,i)=>s+issuesOf(rep,i).length,0);
  return `<div class="about"><h3>Reading this city</h3><p>Score ${rep.score}: the districts earn ${raw.toFixed(1)} of 100 points (level ÷ 3 × weight)${rep.pen?`, minus ${rep.pen.toFixed(1)} entropy penalty for decay`:""}${rep.caps.length?`, limited by the cap ${esc(rep.caps[0])}`:""}. Tier ${t.n}: Thriving ≥ 80, Prosperous ≥ 60, Working ≥ 45, Neglected below. Richer cities get more trees; neglected ones get potholes.</p><p>Each district is one pillar. Its building grows from a vacant lot (L0) to a skyline (L3). The street shows how work reaches it, buses and the metro from the central station show how well the entry points serve it, cranes mark the next planned fix, and wagons, graffiti and broken pylons are decay.</p>${rep.f.length?`<p>${nIss} failed or unknown check${nIss===1?"":"s"} recorded across the districts.</p>`:""}<p class="meta">Click a building, street, bus, the rail line or the power line to see what it means.</p></div>
  <details class="sec"><summary>What the levels mean</summary>${levelList(LEVEL_DESC,-1)}</details>${rep.lim.length?`<details class="sec"><summary>Limitations of this scan</summary><ul class="plain">${rep.lim.map(l=>`<li class="meta">${esc(l)}</li>`).join("")}</ul></details>`:""}`}
+function coverageTopics(rep){
+ const topics=new Map();for(const observation of rep.coverage?.observations||[]){if(typeof observation.topic_id!=="string")continue;let topic=topics.get(observation.topic_id);if(!topic){topic={id:observation.topic_id,observations:[]};topics.set(topic.id,topic)}topic.observations.push(observation)}
+ return [...topics.values()].sort((a,b)=>a.id.localeCompare(b.id))}
+function coverageAnchors(topic){
+ const anchors=[];if(topic.observations.some(observation=>(observation.check_ids||[]).some(id=>String(id).startsWith("INF-"))))anchors.push("airport");
+ if(topic.id==="dependencies"||topic.id==="ci_build")anchors.push("factory");if(topic.id==="ci_build")anchors.push("highway");return anchors}
+function coverageLabel(value){return String(value??"unknown").replaceAll("_"," ")}
+function syntheticOriginLabel(value){return value===true?"synthetic":value===false?"not synthetic":"unknown"}
+function focusCoverageAnchor(anchor){const point={airport:[53,4.5],factory:[55,-13],highway:[66,5]}[anchor];if(!point||(anchor==="airport"&&!AIR_ON))return;view.target.set(point[0],0,point[1]);view.zoom=Math.max(view.zoom,anchor==="highway"?1.5:2.2);placeCamera()}
+function coverageTopicDetail(rep,topic){
+ const anchors=coverageAnchors(topic);let h=`<div class="focus"><div class="eyebrow">Coverage topic · unscored</div><h3>${esc(topic.id)}</h3>`;
+ if(anchors.length)h+=`<p>Anchors: ${anchors.map(anchor=>`<button class="btnlink" data-kind="COV:anchor:${anchor}">${anchor}</button>`).join(" · ")}</p>`;
+ h+=topic.observations.map(observation=>{const sources=(observation.provenance?.sources||[]).map(source=>`${esc(source.path)}${source.sha256?` · sha256 ${esc(source.sha256)}`:""}${source.locator?` · ${esc(source.locator)}`:""}`).join("<br>")||"Not recorded";
+  return `<div><div class="eyebrow">Component ${esc(observation.component_id)}</div><dl class="see"><dt>Applicability</dt><dd>${esc(coverageLabel(observation.applicability))}</dd><dt>Evidence</dt><dd>${esc(coverageLabel(observation.evidence))}</dd><dt>Freshness</dt><dd>${esc(coverageLabel(observation.freshness))}</dd><dt>Receipt</dt><dd>${esc(coverageLabel(observation.receipt?.outcome))}</dd><dt>Check references</dt><dd>${(observation.check_ids||[]).map(esc).join(", ")||"None"}</dd><dt>Sources</dt><dd>${sources}</dd><dt>Method and time</dt><dd>${esc(observation.provenance?.method||"Not recorded")} · ${esc(observation.provenance?.observed_at||"Not recorded")}</dd><dt>Collection</dt><dd>${esc(coverageLabel(rep.coverage.collection?.outcome))}</dd><dt>Limitations</dt><dd>${(observation.limitations||[]).map(esc).join("; ")||"None recorded"}</dd></dl></div>`}).join("");
+ return h+`</div>`}
+function coverageAnchorDetail(rep,anchor){const label=anchor[0].toUpperCase()+anchor.slice(1),topics=coverageTopics(rep).filter(topic=>coverageAnchors(topic).includes(anchor));
+ const edges=anchor==="highway"?rep.coverage.runner_edges||[]:[],edgeCounts={};for(const edge of edges)edgeCounts[edge.resolution]=(edgeCounts[edge.resolution]||0)+1;
+ const edgeSummary=anchor==="highway"?`<p class="meta">${edges.length} configured runner relationships · reachability only, not execution${Object.entries(edgeCounts).map(([resolution,count])=>` · ${count} ${esc(resolution)}`).join("")}</p>`:"";
+ return `<div class="focus"><div class="eyebrow">Coverage anchor · unscored</div><h3>${label}</h3>${topics.length?`<ul class="plain">${topics.map(topic=>`<li><button class="btnlink" data-kind="COV:topic:${esc(topic.id)}">${esc(topic.id)}</button> <span class="meta">${topic.observations.length} component observation${topic.observations.length===1?"":"s"}</span></li>`).join("")}</ul>`:`<p class="empty">No projected topics reference this anchor.</p>`}${edgeSummary}<p class="meta">Anchor presence and infrastructure level do not imply coverage or maturity.</p></div>`}
+function buildCoverageAnchors(par,rep){if(!rep.coverage)return;const referenced=new Set(coverageTopics(rep).flatMap(coverageAnchors));for(const [anchor,x,z,color] of [["factory",55,-13,"#c56b2c"],["highway",66,5,"#347b67"]]){if(!referenced.has(anchor))continue;
+ const marker=new THREE.Mesh(new THREE.RingGeometry(.45,.95,24),new THREE.MeshBasicMaterial({color,side:THREE.DoubleSide,transparent:true,opacity:.9,depthWrite:false}));marker.rotation.x=-Math.PI/2;marker.position.set(x,.2,z);marker.renderOrder=4;marker.name=`coverage-anchor-${anchor}`;marker.userData.pick={kind:`COV:anchor:${anchor}`};par.add(marker);
+ const label=anchor[0].toUpperCase()+anchor.slice(1);tags.push({pos:new THREE.Vector3(x,.55,z),text:`${label} · coverage`,color,kind:`COV:anchor:${anchor}`});}}
+function coveragePanel(rep){if(!rep.coverage)return"";const topics=coverageTopics(rep);let h=`<section aria-label="Coverage topics"><div class="eyebrow">Coverage topics · unscored</div>`;
+ if(topics.length)h+=`<ul class="plain">${topics.map(topic=>{const states=[...new Set(topic.observations.map(observation=>`${coverageLabel(observation.applicability)} · ${coverageLabel(observation.evidence)} · ${coverageLabel(observation.freshness)}`))];return `<li><button class="btnlink" data-kind="COV:topic:${esc(topic.id)}" aria-pressed="${selKind===`COV:topic:${topic.id}`}">${esc(topic.id)}</button> <span class="meta">${esc(states.join("; "))}</span></li>`}).join("")}</ul>`;
+ else h+=`<p class="empty">${rep.coverage.availability==="unsupported"?"Coverage is unsupported.":"No coverage topics were projected."}</p>`;
+ if(rep.coverage.limitations?.length)h+=`<ul class="plain">${rep.coverage.limitations.map(limit=>`<li class="meta">${esc(limit)}</li>`).join("")}</ul>`;h+=`</section>`;
+ if(selKind?.startsWith("COV:topic:")){const topic=topics.find(item=>item.id===selKind.slice("COV:topic:".length));if(topic)h+=coverageTopicDetail(rep,topic)}
+ else if(selKind?.startsWith("COV:anchor:"))h+=coverageAnchorDetail(rep,selKind.slice("COV:anchor:".length));
+ else if(selKind?.startsWith("AIR"))h+=coverageAnchorDetail(rep,"airport");return h}
 function renderPanel(){const rep=current,pn=document.getElementById("panel");const t=tierOf(rep.score);const pts=PILLARS.map((p,i)=>rep.L[i]/3*p.w);
  let h=`<div><div class="eyebrow">${rep.set?esc(rep.set)+" set · ":""}${rep.comp} component${rep.comp===1?"":"s"}</div><h2>${esc(rep.id)}</h2></div>
- <dl class="kv"><dt>Tool score</dt><dd>${rep.score} / 100 · ${t.n}</dd>${rep.gut!=null?`<dt>Human gut score</dt><dd>${rep.gut} (tool ${rep.score-rep.gut>=0?"+":""}${rep.score-rep.gut})</dd>`:""}${rep.done!=null?`<dt>All fixes done</dt><dd>${rep.done}</dd>`:""}<dt>Entropy penalty</dt><dd>${rep.pen.toFixed(1)}</dd><dt>Tracked files</dt><dd>${rep.files.toLocaleString("en")}</dd>${rep.caps.length?`<dt>Cap</dt><dd style="color:var(--bad)">${esc(rep.caps[0])}</dd>`:""}</dl>`;
+ <dl class="kv"><dt>Tool score</dt><dd>${rep.score} / 100 · ${t.n}</dd><dt>Synthetic origin</dt><dd>${syntheticOriginLabel(rep.synthetic)}</dd>${rep.gut!=null?`<dt>Human gut score</dt><dd>${rep.gut} (tool ${rep.score-rep.gut>=0?"+":""}${rep.score-rep.gut})</dd>`:""}${rep.done!=null?`<dt>All fixes done</dt><dd>${rep.done}</dd>`:""}<dt>Entropy penalty</dt><dd>${rep.pen.toFixed(1)}</dd><dt>Tracked files</dt><dd>${rep.files.toLocaleString("en")}</dd>${rep.caps.length?`<dt>Cap</dt><dd style="color:var(--bad)">${esc(rep.caps[0])}</dd>`:""}</dl>`;
  if(sel){const p=PILLARS[PI[sel]];const i=PI[sel];const lvl=rep.L[i];const st=stepsFor(rep,p);
   h+=`<div class="focus" style="--pc:${p.c}"><div><div class="eyebrow">${p.b}</div><h3>${p.n}: L${lvl} ${LEVEL[lvl]}</h3><div class="meta">${pts[i].toFixed(1)} of ${p.w} points${p.w-pts[i]>0?` · ${(p.w-pts[i]).toFixed(1)} still open`:" · complete"}</div><p><i>${esc(ABOUT[p.k].q)}</i></p></div>
   ${about?aboutHTML(rep,about,sel):""}
@@ -879,6 +970,7 @@ function renderPanel(){const rep=current,pn=document.getElementById("panel");con
   <button class="btnlink" id="clr">Show the whole city</button></div>`}
  if(selKind&&selKind.startsWith("AIR"))h+=airPanel(rep,selKind);
  if(selKind&&selKind.startsWith("ENR")){const items=rep.ent.filter(e=>e.c===selKind);h+=`<div class="focus" style="--pc:#b0377f"><div><div class="eyebrow">${ENR[selKind].where}</div><h3>${items.length} ${ENR[selKind].t}${items.length>1?"s":""}</h3></div><ul class="plain">${items.map(e=>`<li class="path">${esc(e.p)}</li>`).join("")}</ul><p class="meta">The tool only reports; a person decides whether to delete or wire it up.</p><button class="btnlink" id="clr">Show the whole city</button></div>`}
+ h+=coveragePanel(rep);h+=landmarkPanel();
  if(!sel&&!selKind)h+=cityHTML(rep);
  if(!selKind||!selKind.startsWith("AIR"))h+=airCard(rep);
  const hasF=rep.f.length>0;
@@ -897,11 +989,14 @@ function choose(id,push){const r=REPOS.find(x=>x.id===id);if(!r)return;current=r
 function exportDescription(rep){
  const rows=[];const add=(text,heading=false,color=null)=>rows.push({text,heading,color});
  add(rep.id,true);add(`Score ${rep.score} / 100 - ${tierOf(rep.score).n}`);
+ add(`Synthetic origin: ${syntheticOriginLabel(rep.synthetic)}`);
  add(`Entropy penalty: ${rep.pen.toFixed(1)}. ${rep.comp} components; ${rep.files} tracked files.`);
  if(rep.caps.length)add("Score caps: "+rep.caps.join(", "));
  if(META.scanDate)add("Scan: "+META.scanDate);
  if(META.source)add("Source: "+META.source);
  add(DISPLAY.under?"Underground view":"Surface view");
+ add("City landmarks are unscored scenery, not audit evidence; no control level is inferred.");
+ if(selKind?.startsWith("LAND:")){const item=LANDMARKS[selKind.slice(5)];if(item){add(item.name,true);add(item.description)}}
  add("District legend",true);
  for(const [index,pillar] of PILLARS.entries())add(`${pillar.place}: ${pillar.n}, L${rep.L[index]} (${(rep.L[index]/3*pillar.w).toFixed(1)} / ${pillar.w} points)`,false,pillar.c);
  add("Transport",true);add("L0: closed, no service. L1: bus. L2+: underground metro and buses. Each connection uses the lower endpoint level.");

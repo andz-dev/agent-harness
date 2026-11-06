@@ -63,6 +63,13 @@
       "type": "string",
       "format": "date-time"
     },
+    "meta": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "synthetic": {"type": "boolean"}
+      }
+    },
     "repo": {
       "type": "object",
       "additionalProperties": false,

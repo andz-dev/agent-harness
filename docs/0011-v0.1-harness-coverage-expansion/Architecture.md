@@ -208,14 +208,18 @@ by relabelling historical data.
 | Collection | outcome `complete`/`partial`/`failed`, limits and reason codes | Separate from receipt outcome and evidence |
 | Runner edge | from, to or null, resolution `resolved`/`unresolved`/`cycle`/`budget_exceeded` | Configured relationship only |
 | Quality envelope | Top-level `quality` object with availability `available`/`partial`/`unavailable`, numeric-or-null core score and reason codes; separate from top-level unscored `coverage` | Available/partial reports retain the existing detailed `score` object and seven `pillars`, with `quality.score` equal to `score.final`; unavailable reports use null and omit those core fields; legacy reports omit both new siblings and remain valid |
-| Projection | supported coverage version, safe observations, topics-to-object IDs, synthetic flag, limitations | No lossy unknown-to-verified mapping |
+| Projection | supported coverage version, safe observations, topics-to-object IDs, `synthetic: true`/`false`/`null`, limitations | `true` and `false` come only from explicit input metadata; `null` means origin is unknown |
 
 Current evidence means matching identity, not trusted evidence. Stale observation
 retains its original evidence label for inspection but is excluded from current
 summaries; never rewrite history as unknown merely to simplify a badge. The
 throwaway prototype simplified the stale badge; production must preserve both.
-Simulation origin is explicit at record and projection level; synthetic examples
-may exercise declared/static labels but are still labelled synthetic.
+Simulation origin is independent of evidence. A report may provide the optional
+`meta.synthetic: boolean` field; the converter copies it to each city record's
+`synthetic` field. Missing metadata in a legacy report projects to `null` and is
+shown as unknown, not assumed false. Never infer input origin from
+`prototype_simulated`; synthetic examples may exercise declared/static labels
+but remain labelled synthetic.
 
 <!-- atlas:diagram=observation-lifecycle -->
 ```mermaid
@@ -242,16 +246,20 @@ growth rules. Reservations are not newly approved production assets.
 infrastructure, factory = build/artifact/dependency supply chain, highway =
 CI/task/hook reachability. The table resolves those areas to the stable topic
 IDs in `skills/harness-audit/checks/coverage-topics.yaml`. Rows marked
-*derived* follow from the catalog's check references and need owner confirmation
-before M4.3 is accepted.
+*derived* follow from the catalog's check references. The airport row's
+`security` mapping is owner-confirmed under the 0005 `INF-*` anchoring rule.
 
 <!-- atlas:table=topic-anchor-mapping -->
 | Anchor | Plan area | Topic IDs | Basis | Prior design |
 |---|---|---|---|---|
-| Airport | Infrastructure | `security` | Derived: its `check_ids` reference infrastructure-overlay checks (`INF-*`); awaits owner confirmation | [0005 coverage map](../0005-v0.1-infrastructure-overlay-matched/research/Infrastructure-Coverage-Map.md), [0007 airport assets](../0007-v0.1-airport-overlay-evidence-matched/research/airport-assets.md) |
+| Airport | Infrastructure | `security` | Owner-confirmed 2026-11-05: topics with `INF-*` check references anchor on the airport; `security` currently has those references | [0005 coverage map](../0005-v0.1-infrastructure-overlay-matched/research/Infrastructure-Coverage-Map.md), [0007 airport assets](../0007-v0.1-airport-overlay-evidence-matched/research/airport-assets.md) |
 | Factory | Build/artifact/dependency supply chain | `dependencies`, `ci_build` | Plan area; `ci_build` carries the build side | [0009 supply chain](../0009-v0.1-city-overlays-road-traffic-harness-evidence/Design-Proposal.md#supply-chain-shopping-mall-goods-industry-highway) |
 | Highway | CI/task/hook reachability | `ci_build`, plus `coverage.runner_edges` | Plan area | [0009 highway growth](../0009-v0.1-city-overlays-road-traffic-harness-evidence/Design-Proposal.md#highway-that-grows-with-the-city) |
 | None | Inventory only | `code_standards`, `testing`, `mcp`, `skills_extensions` | No Plan area; listed in the topic inventory, never drawn as L0 | [Ticket 04](wayfinder-tickets/04-report-city-and-publication.md#resolution) |
+
+Owner decision (2026-11-05): apply the 0005 rule to 0011: a coverage topic
+whose `check_ids` reference `INF-*` is anchored at the airport. This maps the
+current `security` topic to Airport; the Plan area remains Infrastructure.
 
 A topic shared by two anchors appears under both with one observation ID; it
 never counts twice. `dependencies` stays on the factory only, because Plan

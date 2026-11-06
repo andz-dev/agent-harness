@@ -3,10 +3,10 @@ type: 'Implementation'
 id: '0011'
 version: 'v0.1'
 title: 'Harness Coverage Expansion Implementation Playbook'
-description: 'Unstarted five-phase execution contract with red-green gates and fixed Grid/ISO design.'
-status: 'draft'
+description: 'Five-phase execution contract with red-green gates and fixed Grid/ISO design; closed 2026-11-06 with the full browser gate moved to WN-031.'
+status: 'done'
 created: '2026-11-05'
-updated: '2026-11-05'
+updated: '2026-11-06'
 generated: 'agent'
 verified: 'unverified'
 owner: 'Andreas Elser'
@@ -18,24 +18,57 @@ sources: ['Plan.md', 'Architecture.md', 'Test-Plan.md', 'Mocking-Plan.md', 'Gold
 
 ## Resume State
 
-Current phase: **M4**. Current milestone: **M4.3, not started; awaiting owner confirmation of the derived mapping rows**.
-Last completed product task: M4.2. Last validation result: `task tools:test`
-reported 19 tests passing. The real report validator accepted the seven-topic
-current fixture; the converter preserved it exactly, kept legacy score/levels
-without inventing coverage, marked unknown coverage unsupported without copying
-its payload, and rejected an unknown envelope major with a fixed diagnostic.
-Open item: Plan section 6 already fixed the anchor areas; Architecture section 7
-now resolves them to catalog topic IDs and links the 0005, 0007 and 0009 designs.
-The airport row is derived from `INF-*` check references and needs owner
-confirmation. The DESIGN grid was redrawn from the L3 plan export and the code;
-M4.3 starts with its layout conflicts C10 (airport `dx` -2), C11 (rail end) and
-C12 (tree keep-out), then draws the anchors. No M4.3 runtime changes have started.
+Follow-on requested by the owner on 2026-11-06: the visible physical city buildout
+is tracked in [0012 Plan](../0012-v0.1-city-landmark-buildout/Plan.md) and
+[0012 Implementation](../0012-v0.1-city-landmark-buildout/Implementation.md).
+Airport, Factory, Mall, Bank, Archive, Highway, mountains/tunnel and bridge are
+default scenery, separate from M4.3's conditional coverage markers. This is an
+explicit scope addition, not a retrospective claim that M4.3 built those models.
+M4.4's origin contract and the M4.5/M4.6 acceptance gates below remain unchanged.
 
-Other production blocker: WN-031 full browser suite must pass before viewer
-acceptance. No scope or visual-layout choice remains open. The owner selected
-the defined Grid and existing ISO city.
+Status: **closed 2026-11-06** by owner decision (light finish). All M1..M5 tasks are
+checked against the fast gates below. The complete 42-test browser suite is not part
+of 0011 any more; it is tracked as [WN-031](../Whats-Next.md) for CI or a GPU machine.
+Next unfinished work: WN-031, then 0012 B4/B5 and the planned map areas after owner
+approval. Final gates on the closing revision: `task tools:test` 19 passed;
+`task --dir skills/harness-audit check` 297 passed, 169 subtests; `task app:check`
+PASS; `python3 tools/check.py --integrity-only` PASS; `tools/city_grid.py --check` PASS;
+`task --dir skills/harness-audit audit -- ../.. --out /tmp/...` exit 0, score 45.
 
-Resume timestamp: 2026-11-05.
+History before closure. Last completed product task: M4.5. `task app:test -- city.spec.js`: 18 passed
+across desktop and mobile Chromium. The new overview regression verifies no label
+collisions over all four rotations at 1440 x 1000 and 390 x 844, nonblank canvas
+pixels, screenshots, and keyboard focus/zoom. Existing real pointer/raycast and
+inventory-selection cases also passed. M4.4 accepts optional `report.meta.synthetic`,
+projects it as `city.synthetic`, preserves explicit true/false, and displays missing
+legacy origin as unknown; `task tools:test` passed 19 tests and `task app:check`
+passed deterministic synthetic generation plus online/offline standalone builds.
+
+M4.3 connected the owner-confirmed airport=`security` mapping, factory topics,
+and CI/build plus runner edges on the highway; added accessible topic inventory,
+independent state/provenance details and selectable non-model markers; corrected
+C10-C12 layout conflicts; and kept topic markers conditional on projected
+references. M4.5 is complete. WN-031 full browser suite remains a production
+prerequisite for M4.6; the owner-selected Grid and existing ISO city remain the
+only layout.
+
+M4.6 updated the four intentional adapted-runtime hashes; `python3 tools/check.py
+--integrity-only` passes. WN-031 remains blocked: `CITY_TEST_PORT=18765 task
+app:test` timed out at 900 seconds with 21 passed and 21 not run; retrying the
+same 42-test suite with `--global-timeout=2400000` was interrupted after 4.4
+minutes with 4 passed, 1 interrupted and 37 not run. A separate mobile run finished:
+16 passed, 5 skipped (the editor is explicitly desktop-only); the next desktop-only run
+was interrupted by the owner. No skipped or timed-out acceptance cases can close this
+gate. Do not rerun the full suite in an agent session: the owner runs it on a GPU
+machine or in CI (WN-031).
+
+Stop 2026-11-06, awaiting owner review: the audit is usable now. `task --dir
+skills/harness-audit audit -- ../.. --out /tmp/x` exits 0 and writes report.json/.md,
+triage.json/.md and llm_tasks.json; `report_to_city.py` converts it; `task --dir
+skills/harness-audit check` passed 297 tests. `tools/city_grid.py --check` passes, and
+the landmark positions match the DESIGN grid. Further map work waits for owner approval.
+
+Resume timestamp: 2026-11-06.
 
 Pinned package: [Plan](Plan.md), [Architecture](Architecture.md),
 [Test Plan](Test-Plan.md), [Mocking Plan](Mocking-Plan.md),
@@ -169,11 +202,14 @@ rendering pass the full suite. WN-031 is a prerequisite, not a waiver.
 
 - [x] M4.1 Update app DESIGN first for exact evidence indicators/inventory/selection/export semantics while preserving its existing Grid and Camera; add required registry/explanation/ladder entries for actual new objects. (AC-10, AC-13; `concept.city_object`; E2E-CITY)
 - [x] M4.2 Extend the actual converter and existing root tests with accepted legacy/current/future-coverage/rejected-envelope cases; preserve all independent states and safe provenance. (AC-9; `concept.projection`; INT-CONVERT)
-- [ ] M4.3 Connect airport/factory/highway topics to the existing ISO city; implement any approved missing models only within current Grid reservations; keep evidence independent of geometry/maturity and expose unsupported/inapplicable topics in accessible inventory. (AC-10; `concept.city_object`, `concept.applicability`; INT-CITY, E2E-CITY)
-- [ ] M4.4 Preserve synthetic/simulation origin, stale labels and limitations through display and JSON/HTML/PNG export as applicable; do not mislabel airport presets. (AC-11; `concept.synthetic_origin`, `concept.freshness`; E2E-EXPORT)
-- [ ] M4.5 Resolve overview label crowding through focus/zoom/decluttering in the existing design; verify real pointer/raycast and keyboard selection, screenshots, canvas pixels, all rotations and actual desktop/mobile viewport size. (AC-13; `concept.city_object`; E2E-CITY)
-- [ ] M4.6 Complete owner-reviewed runtime manifest baseline update for intentional index changes, retaining frozen regression checks; record full browser-suite results and WN-031 disposition. (AC-13; `concept.release_gate`; INFRA-INTEGRITY)
-- [ ] M4 exit: run the whole gate; no skipped/timed-out browser acceptance cases; inspect synthetic outputs and safe diagnostics. (AC-9, AC-10, AC-11, AC-13; `concept.projection`, `concept.release_gate`)
+- [x] M4.3 Connect airport/factory/highway topics to the existing ISO city; implement any approved missing models only within current Grid reservations; keep evidence independent of geometry/maturity and expose unsupported/inapplicable topics in accessible inventory. (AC-10; `concept.city_object`, `concept.applicability`; INT-CITY, E2E-CITY)
+- [x] M4.4 Preserve synthetic/simulation origin, stale labels and limitations through display and JSON/HTML/PNG export as applicable; do not mislabel airport presets. (AC-11; `concept.synthetic_origin`, `concept.freshness`; E2E-EXPORT)
+- [x] M4.5 Resolve overview label crowding through focus/zoom/decluttering in the existing design; verify real pointer/raycast and keyboard selection, screenshots, canvas pixels, all rotations and actual desktop/mobile viewport size. (AC-13; `concept.city_object`; E2E-CITY)
+- [x] M4.6 Complete owner-reviewed runtime manifest baseline update for intentional index changes, retaining frozen regression checks; record full browser-suite results and WN-031 disposition. (AC-13; `concept.release_gate`; INFRA-INTEGRITY)
+  Disposition 2026-11-06: manifest integrity passes; browser results recorded below; full-suite gate moved to WN-031 by owner decision.
+- [x] M4 exit: run the whole gate; no skipped/timed-out browser acceptance cases; inspect synthetic outputs and safe diagnostics. (AC-9, AC-10, AC-11, AC-13; `concept.projection`, `concept.release_gate`)
+  Closed with the per-spec browser runs (city 18/18, export synthetic-origin) and the fast gates; the whole-suite run is WN-031.
+
 
 ## Phase M5: Release Evidence And Maintenance
 
@@ -195,10 +231,10 @@ visible. A failed gate leaves its task unchecked.
 
 ### M5 Tasks
 
-- [ ] M5.1 Run the complete test/lint/build/conversion/documentation/integrity gates on the final revision, with collected counts and safe command evidence. (AC-1, AC-2, AC-3, AC-4, AC-5, AC-6, AC-7, AC-8, AC-9, AC-10, AC-11, AC-12, AC-13, AC-14; `concept.release_gate`)
-- [ ] M5.2 Review catalog/adapters, fixture coverage, output privacy and logging bypass scan; record budget/sample calibration limitations and known unsupported areas. (AC-5, AC-8, AC-12, AC-14; `concept.fixture`, `concept.logging`)
-- [ ] M5.3 Update owner-facing README and this Resume State with actual outcomes, red-green evidence, final hashes, approved limitations and next unfinished task; obtain owner review without self-assigning human-reviewed metadata. (AC-12, AC-13; `concept.release_gate`)
-- [ ] M5 exit: every phase gate evidenced and every acceptance criterion met, or explicitly remain blocked rather than declare release done. (AC-1, AC-2, AC-3, AC-4, AC-5, AC-6, AC-7, AC-8, AC-9, AC-10, AC-11, AC-12, AC-13, AC-14; `concept.release_gate`)
+- [x] M5.1 Run the complete test/lint/build/conversion/documentation/integrity gates on the final revision, with collected counts and safe command evidence. (AC-1, AC-2, AC-3, AC-4, AC-5, AC-6, AC-7, AC-8, AC-9, AC-10, AC-11, AC-12, AC-13, AC-14; `concept.release_gate`)
+- [x] M5.2 Review catalog/adapters, fixture coverage, output privacy and logging bypass scan; record budget/sample calibration limitations and known unsupported areas. (AC-5, AC-8, AC-12, AC-14; `concept.fixture`, `concept.logging`)
+- [x] M5.3 Update owner-facing README and this Resume State with actual outcomes, red-green evidence, final hashes, approved limitations and next unfinished task; obtain owner review without self-assigning human-reviewed metadata. (AC-12, AC-13; `concept.release_gate`)
+- [x] M5 exit: every phase gate evidenced and every acceptance criterion met, or explicitly remain blocked rather than declare release done. (AC-1, AC-2, AC-3, AC-4, AC-5, AC-6, AC-7, AC-8, AC-9, AC-10, AC-11, AC-12, AC-13, AC-14; `concept.release_gate`)
 
 ## Rollout And Rollback
 
@@ -238,17 +274,28 @@ destructive migration is required. No runtime feature flag is assumed to exist.
 | 2026-11-05 | Current root `task check` passed skill lint/tests, repo-quality, demo conversion and city build, but Playwright timed out after 21 passed, 5 skipped and 2 not run; WN-031 remains open. `task precommit` then confirmed only the pre-existing Trail learning frontmatter error remains. | `.trail/learnings/2026-11-04-resolve-backlog-id-collisions-on-merge-andreas.md` is unchanged. |
 | 2026-11-05 | M4.1 defines airport/factory/highway as coverage anchors, with factory and highway remaining planned locations rather than approved models. The keyboard inventory and selection panel preserve independent applicability/evidence/freshness, safe provenance, limitations and synthetic origin; none maps to L0-L3 or score. | `apps/harness-city/DESIGN.md`; `task tools:test`: 15 passed, including the repository design check. Only the declared design file changed; next task is M4.2. |
 | 2026-11-05 | M4.2 preserves legacy core without adding coverage and carries supported version-1 observations/provenance unchanged; unknown coverage versions retain core but expose only an unsupported marker and fixed limitation; unknown report-envelope majors fail before output with a fixed diagnostic. | `apps/harness-city/tools/report_to_city.py`, `tests/test_repo_quality.py`; schema-valid current report plus legacy/future cases; 10 root tests passed. Next task is M4.3. |
+| 2026-11-05 | At the M4.3 resume check, the airport mapping was blocked: Plan section 6 says airport = infrastructure; Architecture section 7 derived airport = `security` from `INF-*` references but awaited owner confirmation. Atlas found the corresponding 0005 rule, although the source is marked `proposed`; no runtime mapping existed. | No product or test changes were made while blocked. Resolved by the following owner decision. |
+| 2026-11-05 | Owner confirmed the 0005 rule for 0011: every coverage topic whose `check_ids` reference `INF-*` anchors on Airport; current `security` therefore maps to Airport, while its Plan area remains Infrastructure. | Recorded in Architecture section 7. M4.3 implementation proceeds against this mapping and the existing Grid reservations. |
+| 2026-11-05 | The first coverage-inventory test run reached the topic detail but expected the raw enum `static_implementation_found`; the UI correctly renders the design label “static implementation found.” | Update the assertion to the displayed label; no product behavior change is needed. |
+| 2026-11-05 | M4.3 connects report coverage to the existing city: all seven topics appear in an accessible inventory; selection shows independent states and safe provenance; the owner-mapped airport and only referenced factory/highway anchors expose their topics; highway shows runner-edge counts without target names or execution claims. Applied DESIGN C10-C12 first, documented ring markers as reservations rather than buildings, and updated the adapted-runtime hash. | Files: `apps/harness-city/DESIGN.md`, `apps/harness-city/index.html`, `apps/harness-city/tests/city.spec.js`, `apps/harness-city/tests/fixtures.js`, `docs/0011-v0.1-harness-coverage-expansion/Architecture.md`, `docs/0011-v0.1-harness-coverage-expansion/Implementation.md`, `extraction-manifest.json`. `task tools:test`: 19 passed; `task app:check`: four schema-valid synthetic profiles converted deterministically and online/offline builds passed; `task app:test -- city.spec.js`: 14 passed across desktop/mobile; `python3 tools/check.py --integrity-only`: PASS. Full `python3 tools/check.py` still reports only the unrelated pre-existing Trail learning frontmatter error. Next: M4.4. |
+| 2026-11-06 | M4.4 remains blocked after checking AC-11, Architecture, the report schema, ontology and golden dataset: the outcome is explicit, but the canonical report input field, city projection field and behavior when legacy input omits origin are not. The ontology's `meta.synthetic` dataset trace does not define those wire semantics, and deriving origin from `prototype_simulated` is explicitly prohibited. No product/test files changed; awaiting owner choice before implementation. | M4.4; `Plan.md` AC-11, `Architecture.md` section 7, `skills/harness-audit/schema/report.schema.json`, `ontology/ontology.json`, `Golden-Dataset/dataset.json`. |
+| 2026-11-06 | Owner resolved M4.4: accept optional `report.meta.synthetic`, copy it to each projected `city.synthetic`, and map omitted legacy origin to null/visibly unknown. | AC-11; Architecture section 7; INT-CITY and E2E-EXPORT. |
+| 2026-11-06 | M4.4 completed. Files: report schema, converter, demo report producer/data, city panel/PNG description, conversion and export tests, Architecture/design/README/ontology/golden/resume records. The root suite passed 19 tests; `task app:check` passed deterministic generation plus online/offline builds; focused desktop E2E-EXPORT passed with synthetic, non-synthetic and unknown panel states and synthetic/unknown PNG descriptions. WN-031 and M4.5/M4.6 remain open. | `task tools:test`; `task app:check`; `CITY_TEST_PORT=18765 task app:test -- export.spec.js --project=desktop-chromium -g "synthetic origin"`. |
+| 2026-11-06 | M4.5 completed. DESIGN now requires deterministic stable-order overlap suppression. The city spec passes 18 tests across desktop/mobile, including actual pointer/raycast and keyboard selection, focus/zoom, collision checks at all four rotations and 1440x1000/390x844, screenshots and nonblank canvas pixels. The full viewport screenshots were inspected; no clipping or incoherent overlaps remained. WN-031 full-suite gate and M4.6 manifest review remain. | `CITY_TEST_PORT=18765 task app:test -- city.spec.js`; screenshot artifacts remain ignored under `apps/harness-city/test-results/artifacts/`. |
+| 2026-11-06 | M4.6 partially completed: refreshed four already-adapted runtime hashes and `python3 tools/check.py --integrity-only` passes. The full 42-test browser suite timed out after 900 seconds (21 passed, 21 not run); the extended retry was interrupted after 4.4 minutes (4 passed, 1 interrupted, 37 not run). WN-031 is unresolved; M4.6 and M4 exit remain unchecked. | `extraction-manifest.json`; `python3 tools/check.py --integrity-only`; full `task app:test` results. |
+| 2026-11-06 | Owner decision: close 0011 with the fast gates and move the complete browser suite (WN-031) to the backlog for CI or a GPU machine. This overrides the Test-Plan rule that only a full unskipped run closes M4.6/M4 exit for this version. Phase summary M4/M5: files touched across M4 are the report schema, converter, demo producer/data, city `index.html`, city tests/fixtures, DESIGN/README, Architecture/ontology/golden dataset and the extraction manifest. Decisions: owner topic-to-anchor mapping, `meta.synthetic` origin with unknown for legacy input, stable-order label decluttering. M5.2 relies on the M3.5 calibration record (43 golden cases, 7 component recipes, 3 topic-source fixtures; Python/Node only, no universal coverage claim) and reports staying under ignored paths. Carried forward: WN-031, 0012 B4/B5, planned map areas (Court, Harbor, power-line extension, traffic). | Final gates: root tests 19 passed; skill check 297 passed, 169 subtests; `task app:check`, integrity and city-grid PASS; real audit run exit 0. |
 | 2026-11-05 | M4.3 is blocked: the seven catalog topic IDs and the three city anchor IDs have no defined association in the report schema or architecture. No mapping was inferred and no viewer code changed. | Await owner choice: supply a topic-to-anchor table; keep the anchors as focus locations with a global, unassociated inventory and amend AC-10/M4.3; or add a versioned upstream mapping field to the catalog/report contract. |
 | 2026-11-05 | Correction to the previous row: Plan section 6 already mapped airport = infrastructure, factory = build/artifact/dependency supply chain, highway = CI/task/hook reachability. Architecture section 7 now resolves these to catalog topic IDs, links the 0005, 0007 and 0009 designs (with back-references there), and notes that 0009 used the highway for supply-chain delivery. | Owner pointed to the earlier folders; artifact-atlas `ask` located 0009 Design-Proposal and 0007 airport assets. Derived airport row awaits owner confirmation. |
 | 2026-11-05 | DESIGN City map redrawn at one character per cell from a single coordinate table, checked for overlapping plots and crossings. Export conflicts C6..C9 recorded with resolutions (C8 changed to one spur at x 44); new conflicts C10..C14 found against the code and the 0009/0011 meanings. `dependencies` moved off the airport. | Source: `research/Repo harness audit and security - Claude.pdf` (east edge cropped at x 50) and `index.html` `AP`, `airSetup`, `buildRail`, tree scatter. |
+| 2026-11-05 | M4.4 blocker after M4.3 completion: Architecture section 7 requires synthetic origin at record and projection level; ontology `concept.synthetic_origin` requires a boolean `synthetic`; the closed version-1 coverage schema defines no such field, and the converter passes supported coverage through unchanged. Ticket 04 does not resolve the field location. `prototype_simulated` is an independent evidence state and cannot substitute for origin. | No M4.4 code or tests changed. Await owner decision on the canonical input field and backward-compatible absence semantics (for example, optional `coverage.synthetic` versus a separately defined projection origin). Amend schema/Architecture/ontology first as needed. M4.4 remains unchecked; stop here. |
 
 ## Definition Of Done
 
-- [ ] All product phase tasks and exit criteria have actual evidence; docs QA alone does not count.
-- [ ] Every AC has passing scenarios and deterministic independent fixture expectations.
-- [ ] Docker ENV safety, read boundary, unverified receipts and state preservation are enforced by tests.
-- [ ] Existing Grid/ISO city, full WN-031 browser suite and reviewed runtime integrity baseline pass.
-- [ ] Privacy, limitations, safe lifecycle logging and owner review are recorded.
+- [x] All product phase tasks and exit criteria have actual evidence; docs QA alone does not count.
+- [x] Every AC has passing scenarios and deterministic independent fixture expectations.
+- [x] Docker ENV safety, read boundary, unverified receipts and state preservation are enforced by tests.
+- [ ] Existing Grid/ISO city, full WN-031 browser suite and reviewed runtime integrity baseline pass. (Grid/ISO and integrity pass; full suite moved to WN-031.)
+- [x] Privacy, limitations, safe lifecycle logging and owner review are recorded.
 
 ## Execution Evidence
 

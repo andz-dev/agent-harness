@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
-import { test, expect, openCity } from "./fixtures.js";
+import { test, expect, openCity, convertedCoverageCity } from "./fixtures.js";
 
 async function downloadPNG(page) {
   const pending = page.waitForEvent("download");
@@ -50,6 +50,44 @@ test("PNG download includes descriptions without changing the live camera", asyn
   for (const text of ["Score 100", "District legend", "Infrastructure", "benefit", "Agent guidance office"]) expect(result.words).toContain(text);
 });
 
+test("synthetic origin stays visible in the panel and PNG description", async ({ page }) => {
+  const cityData = await convertedCoverageCity();
+  await openCity(page, true, cityData);
+  await expect(page.locator("#panel")).toContainText("Synthetic origin");
+  await expect(page.locator("#panel")).toContainText("synthetic");
+  await page.evaluate(() => {
+    window.__exportWords = [];
+    const original = CanvasRenderingContext2D.prototype.fillText;
+    CanvasRenderingContext2D.prototype.fillText = function(text, ...args) {
+      window.__exportWords.push(String(text));
+      return original.call(this, text, ...args);
+    };
+  });
+  await downloadPNG(page);
+  const words = await page.evaluate(() => window.__exportWords.join(" "));
+  expect(words).toContain("Synthetic origin: synthetic");
+
+  cityData.cities[0].synthetic = false;
+  await openCity(page, true, cityData);
+  await expect(page.locator("#panel")).toContainText("not synthetic");
+
+  cityData.cities[0].synthetic = null;
+  await openCity(page, true, cityData);
+  await expect(page.locator("#panel")).toContainText("Synthetic origin");
+  await expect(page.locator("#panel")).toContainText("unknown");
+  await page.evaluate(() => {
+    window.__exportWords = [];
+    const original = CanvasRenderingContext2D.prototype.fillText;
+    CanvasRenderingContext2D.prototype.fillText = function(text, ...args) {
+      window.__exportWords.push(String(text));
+      return original.call(this, text, ...args);
+    };
+  });
+  await downloadPNG(page);
+  const unknownWords = await page.evaluate(() => window.__exportWords.join(" "));
+  expect(unknownWords).toContain("Synthetic origin: unknown");
+});
+
 test("PNG encoding failure restores the control and reports the failure", async ({ page }) => {
   await openCity(page);
   await page.evaluate(() => { HTMLCanvasElement.prototype.toBlob = callback => callback(null); });
@@ -69,6 +107,19 @@ test("offline standalone renders and exports with all network requests blocked",
   await page.waitForFunction(() => window.__ready && window.__thumbs);
   await page.getByRole("button", { name: "Underground", exact: true }).click();
   await expect(page.locator("#stage")).toHaveClass(/under/);
+  await page.evaluate(() => {
+    window.__t.select(null, "LAND:bank");
+    window.__exportWords = [];
+    const original = CanvasRenderingContext2D.prototype.fillText;
+    CanvasRenderingContext2D.prototype.fillText = function(text, ...args) {
+      window.__exportWords.push(String(text));
+      return original.call(this, text, ...args);
+    };
+  });
   await downloadPNG(page);
+  const words = await page.evaluate(() => window.__exportWords.join(" "));
+  expect(words).toContain("Bank");
+  expect(words).toContain("Secrets and credentials storage");
+  expect(words).toContain("not audit evidence");
   expect(attempted).toEqual([]);
 });

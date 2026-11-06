@@ -23,6 +23,8 @@ Everything is static: no build step, no server-side code.
 
 Inputs may be a scan export (`{"repos": [...]}`) or single-repo reports that follow
 harness-audit's `schema/report.schema.json`; directories are searched for `*.json`. Reload the page.
+Reports may include `meta.synthetic` (`true` or `false`); the converter copies it to
+each city record. Missing metadata remains `null` and is displayed as unknown.
 To try another data file without overwriting: `index.html?data=data/other.json`.
 
 ## One file to share
@@ -40,7 +42,7 @@ Rebuild it after every data change.
     { "meta":   { "title", "tool", "scanDate", "source",         // all optional
                   "checks": { "ORI-04": {"p": 1, "l": 2, "g": true, "a": "all",
                                          "t": "title", "w": "why it matters"} } },  // from the catalog
-      "cities": [ { "id": "repo", "score": 87,
+    "cities": [ { "id": "repo", "score": 87, "synthetic": true, // true, false or null (unknown)
                     "L": [3,2,3,3,3,2,1],      // verification, orientation, static_guardrails,
                                                // workflow_entry_points, automatic_triggers,
                                                // pipeline_parity, doc_hygiene  (0-3)
@@ -84,8 +86,13 @@ provenance and airport evaluation overrides are identified in the image.
 
 ## Airport prototype (infrastructure overlay)
 
-`index.html?airport` (or `tools/build_standalone.py --airport`) adds an airport east of the
-city with a control bar for the station-link variants and gate levels.
+The normal city includes Airport, Factory, Shopping Mall, Bank, City Archive and
+Highway with a mountain tunnel and elevated bridge. These domain landmarks are
+unscored scenery, not detected controls. Select a mesh or its City landmarks button
+for its explanation; the Bank and Archive are separate from the public library.
+
+`index.html?airport` (or `tools/build_standalone.py --airport`) replaces the default
+airport landmark with the evaluation prototype and its control bar for station-link variants and gate levels.
 It is a draft and never changes the score. See [DESIGN.md](DESIGN.md) and
 [docs/0007-v0.1-airport-overlay-evidence-matched](../../docs/0007-v0.1-airport-overlay-evidence-matched/research/airport-assets.md).
 

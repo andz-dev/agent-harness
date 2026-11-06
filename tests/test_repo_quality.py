@@ -98,6 +98,8 @@ class CityConverterTests(unittest.TestCase):
         self.assertEqual(city["score"], expected_score)
         self.assertEqual(city["L"], expected_levels)
         self.assertNotIn("coverage", city)
+        self.assertIn("synthetic", city)
+        self.assertIsNone(city["synthetic"])
 
     def test_current_coverage_report_preserves_states_and_safe_provenance(self):
         root = Path(__file__).resolve().parents[1]
@@ -151,6 +153,7 @@ class CityConverterTests(unittest.TestCase):
             "limitations": [],
         }
         report["quality"] = {"availability": "available", "score": report["score"]["final"], "reason_codes": []}
+        report["meta"] = {"synthetic": True}
         report["coverage"] = coverage
         self.assertEqual(audit_engine.validate(report), [])
 
@@ -168,6 +171,7 @@ class CityConverterTests(unittest.TestCase):
             city_data = json.loads(output.read_text(encoding="utf-8"))
 
         self.assertEqual(city_data["cities"][0].get("coverage"), coverage)
+        self.assertIs(city_data["cities"][0]["synthetic"], True)
 
     def test_unknown_coverage_version_keeps_core_and_drops_future_payload(self):
         root = Path(__file__).resolve().parents[1]

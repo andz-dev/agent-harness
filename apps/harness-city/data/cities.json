@@ -460,6 +460,7 @@
    "id": "thriving-demo",
    "set": "",
    "gut": null,
+   "synthetic": true,
    "score": 100,
    "L": [
     3,
@@ -495,6 +496,7 @@
    "id": "prosperous-demo",
    "set": "",
    "gut": null,
+   "synthetic": true,
    "score": 67,
    "L": [
     2,
@@ -530,6 +532,7 @@
    "id": "working-demo",
    "set": "",
    "gut": null,
+   "synthetic": true,
    "score": 47,
    "L": [
     2,
@@ -565,6 +568,7 @@
    "id": "absent-demo",
    "set": "",
    "gut": null,
+   "synthetic": true,
    "score": 0,
    "L": [
     0,
