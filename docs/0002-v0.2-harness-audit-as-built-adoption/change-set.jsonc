@@ -8,11 +8,11 @@
   "based_on": [
     {
       "path": "docs/0002-v0.2-harness-audit-as-built-adoption/Architecture.md",
-      "sha256": "b074e13c2bcee2ed61d7b931a7e3316fae6c369447aa99f822e4d271deaba696"
+      "sha256": "c34af530e41a888b8806d3d24e8180ed4b77a4d8b7dbb748313ba7d70a856e09"
     },
     {
       "path": "docs/0002-v0.2-harness-audit-as-built-adoption/Plan.md",
-      "sha256": "0bbd62a61f859b515a0475499c71da69c80881571e2ce773019d02f81103f472"
+      "sha256": "d4288deb5641c10b0af29f1b2dbe253ab4039478e28ed60bb9091727555b9ed3"
     }
   ],
   "slices": [],

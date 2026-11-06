@@ -7,6 +7,11 @@ updated: '2026-10-27'
 generated: 'agent'
 verified: 'unverified'
 owner: 'Andreas Elser'
+description: >-
+  Second run, after the prompt fixes in B-162 and with DOC-06 resolved by script where possible.
+stale_after: '2026-11-18'
+tags:
+  - 'documentation'
 ---
 
 <!-- markdownlint-disable-next-line MD025 -->

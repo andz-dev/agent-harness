@@ -12,6 +12,9 @@ verified: 'unverified'
 owner: 'Andreas Elser'
 doc_scope: 'proposal'
 sources: ['Plan.md', 'Architecture.md', 'Test-Plan.md', 'Mocking-Plan.md', 'Golden-Dataset/dataset.json', 'ontology/ontology.json']
+stale_after: '2026-12-06'
+tags:
+  - 'documentation'
 ---
 
 # Harness Coverage Expansion Implementation Playbook
@@ -245,6 +248,29 @@ approval and restore its reviewed manifest baseline together; do not rewrite
 report history, erase limitations or disable integrity checks. No database or
 destructive migration is required. No runtime feature flag is assumed to exist.
 
+## Acceptance Criteria Traceability
+
+Criteria are owned by [Plan section 1](Plan.md#1-acceptance-criteria). This table
+indexes existing tasks and gates, not a new test run. Counts remain in
+[Execution Evidence](#execution-evidence) and the [Decision Log](#decision-log).
+
+| AC | Tasks | Validation gate or recorded evidence |
+| --- | --- | --- |
+| AC-1 | M2.1, M2.2, M2 exit | [M2 gate](#phase-m2-versioned-contract-and-provenance); pinned legacy core fixture |
+| AC-2 | M2.2, M3.1, M3.3 | M2 gate; [M3 gate](#phase-m3-catalog-and-static-collection) |
+| AC-3 | M2.2, M3.3 | M2/M3 gates; closed component/topic state matrix |
+| AC-4 | M2.3, M4.4 | M2 gate; provenance and stale-history evidence |
+| AC-5 | M1.2-M1.4, M3.5 | [M1 gate](#phase-m1-safety-and-logging-foundation); M3 must-fail oracle record |
+| AC-6 | M2.4 | M2 gate; receipt outcomes and execution-promotion rejection |
+| AC-7 | M3.4 | M3 gate; runner cycle/unresolved/depth controls |
+| AC-8 | M3.2, M3.3 | M3 gate; catalog references and component/topic fixtures |
+| AC-9 | M4.2 | `task tools:test`; legacy/current/unsupported-version conversion |
+| AC-10 | M4.1, M4.3 | M4.3 record; city inventory and topic-to-anchor tests |
+| AC-11 | M4.4 | M4.4 record; focused synthetic-origin export and conversion tests |
+| AC-12 | M3.1, M3.5, M5.2 | M3.5 record: 43 golden cases, seven component recipes, three topic fixtures |
+| AC-13 | M4.5, M4.6, M5.1 | City spec and integrity records pass; complete browser suite remains WN-031 |
+| AC-14 | M1.1, M2.5 | M1/M2 gates; logging contract and diagnostic canaries |
+
 ## Decision Log
 
 | Date | Decision | Source / effect |
@@ -333,3 +359,26 @@ Add one bounded entry per implemented boundary: date/revision, task ID, red
 command and expected failure, green command and collected counts, safe artifact
 location, and remaining blocker. Keep raw target output and private paths out of
 this tracked record.
+
+## Final Verification
+
+These closing results are already recorded in [Resume State](#resume-state)
+and the [2026-11-06 owner decision](#decision-log), not checks rerun by this
+alignment. The owner closed this version with fast gates; that decision does
+not establish a complete browser-suite pass.
+
+| Gate | Recorded closing result |
+| --- | --- |
+| `task tools:test` | 19 passed |
+| `task --dir skills/harness-audit check` | 297 passed, 169 subtests; lint passed |
+| `task app:check` | Deterministic synthetic conversion and standalone builds passed |
+| `python3 tools/check.py --integrity-only` | Passed after intentional adapted-runtime hash updates |
+| `tools/city_grid.py --check` | Passed |
+| Real repository audit | Exit 0; static score 45, not runtime assurance |
+| City browser spec | 18 passed across desktop/mobile; four rotations and canvas/interaction checks recorded |
+| Complete browser suite / WN-031 | Not passed: timeout/interruption results retained; deferred to CI or a GPU machine by owner decision |
+
+The unresolved full-suite gate remains visible in [Definition Of Done](#definition-of-done)
+and [WN-031](../Whats-Next.md). No absent, skipped or interrupted acceptance case
+counts as a pass. This alignment changes documentation only, not release
+criteria, supported adapter scope or historical test results.

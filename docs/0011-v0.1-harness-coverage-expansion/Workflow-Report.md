@@ -12,6 +12,9 @@ verified: 'unverified'
 owner: 'Andreas Elser'
 doc_scope: 'proposal'
 sources: ['Map.md', 'Plan.md', 'Prototype-Decision.md', 'Architecture.md', 'Test-Plan.md', 'Implementation.md']
+stale_after: '2026-11-19'
+tags:
+  - 'documentation'
 ---
 
 # Coverage Expansion Specification Workflow Report

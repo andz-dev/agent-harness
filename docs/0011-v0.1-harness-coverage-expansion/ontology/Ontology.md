@@ -12,6 +12,9 @@ verified: 'unverified'
 owner: 'Andreas Elser'
 doc_scope: 'proposal'
 sources: ['../Plan.md', '../Architecture.md', '../Test-Plan.md', '../Mocking-Plan.md', '../Golden-Dataset/dataset.json']
+stale_after: '2026-11-19'
+tags:
+  - 'documentation'
 ---
 
 # Coverage Vocabulary And Constraints

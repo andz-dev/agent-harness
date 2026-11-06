@@ -12,6 +12,7 @@ verified: 'unverified'
 owner: 'Andreas Elser'
 tags: [mocking, fixtures, harness-audit]
 sources: ['Architecture.md sections 5 and 9', 'Test-Plan.md']
+stale_after: '2026-11-18'
 ---
 
 <!-- markdownlint-disable-next-line MD025 -->

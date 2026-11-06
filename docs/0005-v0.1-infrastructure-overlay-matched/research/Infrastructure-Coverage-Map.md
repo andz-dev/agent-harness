@@ -7,6 +7,12 @@ updated: '2026-10-27'
 generated: 'agent'
 verified: 'unverified'
 owner: 'Andreas Elser'
+description: >-
+  Scope of this map: what harness-audit must detect, check and report for infrastructure as code
+  (IaC), containers, Docker Compose and devcontainers, and how that reaches the repo scan JSON.
+stale_after: '2026-11-19'
+tags:
+  - 'documentation'
 ---
 
 <!-- markdownlint-disable-next-line MD025 -->

@@ -9,6 +9,10 @@ updated: '2026-10-27'
 generated: 'agent'
 verified: 'unverified'
 owner: 'Andreas Elser'
+description: 'This is the authored 0039 bundle from the source repository, relocated to 0002.'
+stale_after: '2026-11-18'
+tags:
+  - 'documentation'
 ---
 
 <!-- markdownlint-disable-next-line MD025 -->

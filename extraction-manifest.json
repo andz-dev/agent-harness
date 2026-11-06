@@ -734,7 +734,7 @@
       "source": "docs/skills/0039-v0.2-agent-harness-setup/Architecture.md",
       "target": "docs/0002-v0.2-harness-audit-as-built-adoption/Architecture.md",
       "source_sha256": "f17527ffa9e07f875f8fb49b44c1cf69b587d04b50a82169d1198a54e01ee248",
-      "sha256": "b074e13c2bcee2ed61d7b931a7e3316fae6c369447aa99f822e4d271deaba696",
+      "sha256": "c34af530e41a888b8806d3d24e8180ed4b77a4d8b7dbb748313ba7d70a856e09",
       "kind": "adapted-runtime"
     },
     {
@@ -748,7 +748,7 @@
       "source": "docs/skills/0039-v0.2-agent-harness-setup/Golden-Dataset/dataset-guide.md",
       "target": "docs/0002-v0.2-harness-audit-as-built-adoption/Golden-Dataset/dataset-guide.md",
       "source_sha256": "26577b69f05fe034cee38225699347e4a944bf62f54c82541b057ce08f281045",
-      "sha256": "dd0a8565b4357ce471db5dd2033964f73fdd6a5b167b97b38e4d912bdc91c5ff",
+      "sha256": "2466ed902b216e057843a26c6dfcd23d6ed1fdd681732841b919c3136b1bbbbb",
       "kind": "adapted-runtime"
     },
     {
@@ -769,35 +769,35 @@
       "source": "docs/skills/0039-v0.2-agent-harness-setup/Implementation.md",
       "target": "docs/0002-v0.2-harness-audit-as-built-adoption/Implementation.md",
       "source_sha256": "24805a60113f7f59347f2adc838b0fe76f5cac9bbe707a341737238f2967a8de",
-      "sha256": "f79cd280b5502939606bf78b2378711d095a4818f27a301b4f1c3b895c803575",
+      "sha256": "5ec72cbd6a569a96696a069cf1c196a164eedf02a8743444556cb6b9c2b13e76",
       "kind": "adapted-runtime"
     },
     {
       "source": "docs/skills/0039-v0.2-agent-harness-setup/Map.md",
       "target": "docs/0002-v0.2-harness-audit-as-built-adoption/Map.md",
       "source_sha256": "99826736ae4eef98dd64e07196b36d2d622d4f0259cd7bb01d095a57b206290e",
-      "sha256": "7748597750a50f4ca21f559742e021e872b9f9ce51f8d8c01edc475f44948d45",
+      "sha256": "9f81a8d43864d6e576420da6941f2251c9a7d967def132ae9c43aafe015cd5a3",
       "kind": "adapted-runtime"
     },
     {
       "source": "docs/skills/0039-v0.2-agent-harness-setup/Mocking-Plan.md",
       "target": "docs/0002-v0.2-harness-audit-as-built-adoption/Mocking-Plan.md",
       "source_sha256": "d6cc04b53581dce29f568f7ad045260f3755a3e89156b1654e0045f1b9aa462e",
-      "sha256": "45e9634df07d3590c8b54f1b987a524f12960f1a5dc16b55dbcc277f76ed443c",
+      "sha256": "e8e2b0170ef44e715e4b97e90f7c5168ac7bb02d0689dd6d14180ee9388083a4",
       "kind": "adapted-runtime"
     },
     {
       "source": "docs/skills/0039-v0.2-agent-harness-setup/Plan.md",
       "target": "docs/0002-v0.2-harness-audit-as-built-adoption/Plan.md",
       "source_sha256": "bcead08e58c97211eaaec7bdbb82ad299816b39ebef0564bb336c6cbc09453bc",
-      "sha256": "0bbd62a61f859b515a0475499c71da69c80881571e2ce773019d02f81103f472",
+      "sha256": "d4288deb5641c10b0af29f1b2dbe253ab4039478e28ed60bb9091727555b9ed3",
       "kind": "adapted-runtime"
     },
     {
       "source": "docs/skills/0039-v0.2-agent-harness-setup/Prototype-Decision.md",
       "target": "docs/0002-v0.2-harness-audit-as-built-adoption/Prototype-Decision.md",
       "source_sha256": "6dca099045911185b049bb9f4d912858b461a1acdfeb352b317b63efa1034156",
-      "sha256": "9b41b6a644e122f7596edcfc2dddf34438fbbbbda7a2208d7b99a10b3fae594c",
+      "sha256": "bd7c7850f60ec6df43d2fc400b268973683f174c6b9f7c551c9f19861543b2b7",
       "kind": "adapted-runtime"
     },
     {
@@ -811,7 +811,7 @@
       "source": "docs/skills/0039-v0.2-agent-harness-setup/Test-Plan.md",
       "target": "docs/0002-v0.2-harness-audit-as-built-adoption/Test-Plan.md",
       "source_sha256": "4e27b471d666e12be0cde17ccebf502d230a8c4c7b8dfefa0d8126bb52a4a530",
-      "sha256": "fc41c2e10c3d34694faaf0f06b2a2f7e668d0a777a691a8c7ffc98e1fd793fd9",
+      "sha256": "d4a11aa17993f354cdbdc926bfaffef358f7d243d01a40b7ff7f0c1fc6b0e78c",
       "kind": "adapted-runtime"
     },
     {
@@ -832,14 +832,14 @@
       "source": "docs/skills/0039-v0.2-agent-harness-setup/Workflow-Report.md",
       "target": "docs/0002-v0.2-harness-audit-as-built-adoption/Workflow-Report.md",
       "source_sha256": "42b13d17777fa59bd7582066226efa80b9bf5b9d874743f726d7b75fefbe21e9",
-      "sha256": "f99c2ddc1c5f074b14f6ed40781b3cd652f3975bfe5d932918b30c8337dfc286",
+      "sha256": "9e820162f44afd8b27af5026f8dc90e52eb74203843cd4aec4f76670628dd22c",
       "kind": "adapted-runtime"
     },
     {
       "source": "docs/skills/0039-v0.2-agent-harness-setup/architecture-model.jsonc",
       "target": "docs/0002-v0.2-harness-audit-as-built-adoption/architecture-model.jsonc",
       "source_sha256": "9dc421b9f658731181ce689c877741973392b25e85c095288d7f22da6ca80529",
-      "sha256": "c744ec6b833a2d79fe358c3f0f6bc8ffb5de262d52a7237dac24c9a41c4a4244",
+      "sha256": "fedb21d638a719beb61cd7e372c825a71f90f63e6ffb46f76a44cd963f23e4df",
       "kind": "adapted-runtime"
     },
     {
@@ -916,7 +916,7 @@
       "source": "docs/skills/0039-v0.2-agent-harness-setup/change-set.jsonc",
       "target": "docs/0002-v0.2-harness-audit-as-built-adoption/change-set.jsonc",
       "source_sha256": "80203f3446ef33c9f853467c448eede4beedba55f5387a0be673f40603c5b41c",
-      "sha256": "bfa5ff9c5777c1b85c066430dbc3b88527d6f4e38815e0af05b4157ff0725c78",
+      "sha256": "f875f6d31287fc4d159a723a181b82494ab41c309d536e0bf22bec8109467bea",
       "kind": "adapted-runtime"
     },
     {
@@ -930,7 +930,7 @@
       "source": "docs/skills/0039-v0.2-agent-harness-setup/ontology/Ontology.md",
       "target": "docs/0002-v0.2-harness-audit-as-built-adoption/ontology/Ontology.md",
       "source_sha256": "ef630307b41e0ab270e13eac43d3bcefa1ae6682e60bbc4c400e085605745cf0",
-      "sha256": "7410c8cf372cf1936ba6bab419da2bff0f0669f2ecca9c38c1f1d6cc6abafd9f",
+      "sha256": "6a46ab3dcd09ef04cb97830c9a40c4b6cb366a9cbf32d194e0473be9630281f6",
       "kind": "adapted-runtime"
     },
     {
@@ -1014,28 +1014,28 @@
       "source": "docs/skills/0039-v0.2-agent-harness-setup/wayfinder-tickets/01-dual-evaluation-and-reconciliation.md",
       "target": "docs/0002-v0.2-harness-audit-as-built-adoption/wayfinder-tickets/01-dual-evaluation-and-reconciliation.md",
       "source_sha256": "bdbc69654865e832c1bcf329fd9f5dee6d209da8c1169e43b632db3a67b714ef",
-      "sha256": "99b96e4339673789665c2028a90a6968abdc27f598db68e67554bc863fcc70c2",
+      "sha256": "2da40b22a9637f5b18f30b5720367e5a4b85e57bb27a449d58bf34cfe5b897cf",
       "kind": "adapted-runtime"
     },
     {
       "source": "docs/skills/0039-v0.2-agent-harness-setup/wayfinder-tickets/02-approved-creation-and-activation.md",
       "target": "docs/0002-v0.2-harness-audit-as-built-adoption/wayfinder-tickets/02-approved-creation-and-activation.md",
       "source_sha256": "612f452b065d1b4d8fb4e5da43eb5abfad97b971834eacd581fba793c9d70a43",
-      "sha256": "5f4e49f6fbd7e61a04f6d6a4cf71255cb827bc713899adb218aaefda940a5c79",
+      "sha256": "4d6b8b4122aa752d5910593bb2099e043c05869d438256b4dc8f3f5540588a75",
       "kind": "adapted-runtime"
     },
     {
       "source": "docs/skills/0039-v0.2-agent-harness-setup/wayfinder-tickets/03-enforcement-and-qualification-evidence.md",
       "target": "docs/0002-v0.2-harness-audit-as-built-adoption/wayfinder-tickets/03-enforcement-and-qualification-evidence.md",
       "source_sha256": "88f46ce3a8cbbd1f40eeca2cdb699b1838ee06a47daf068fedb9615b9d7536a0",
-      "sha256": "394d756aad9f13f0c527dc82e36ec89a2c257c6b260c3e51eee17ee7e6f7c62b",
+      "sha256": "fda5301f3f1a20f7038895bc46925aff268e408bc5c7d61c566a713cc70622a8",
       "kind": "adapted-runtime"
     },
     {
       "source": "docs/skills/0039-v0.2-agent-harness-setup/wayfinder-tickets/04-specification-readiness-and-handoff.md",
       "target": "docs/0002-v0.2-harness-audit-as-built-adoption/wayfinder-tickets/04-specification-readiness-and-handoff.md",
       "source_sha256": "b132792e7afc20e4ee6c2e5b46187010eaa4f10abab6ce491efdfc157121f544",
-      "sha256": "f745f785b0236da430ea575106d25bfdf139091928857bfb94d39d31033eaff6",
+      "sha256": "f51724f57e698b78c4cca27a08b787cf4be0e9eea54b3a56201d85fb368681fc",
       "kind": "adapted-runtime"
     },
     {
@@ -1070,7 +1070,7 @@
       "source": "Repo Harness Next Steps.md",
       "target": "docs/0003-v0.1-harness-roadmap-evidence-matched/research/Repo Harness Next Steps.md",
       "source_sha256": "62887afdedc22e074a951bb294b3abe6d200719423477fa07cd95ae6cf0a77f8",
-      "sha256": "ab9f95cb57c770fac8fbaf31115095a9c63e7e2c0cf711d9878a55c781bb714f",
+      "sha256": "5a492eeb61276be01a446c90735f61a4e19164c4a36b31228e6220fc55d12f79",
       "kind": "adapted-runtime"
     },
     {
@@ -1091,35 +1091,35 @@
       "source": "session:harness-audit-v1.2",
       "target": "docs/0004-v0.1-audit-release-retrospective/research/README.md",
       "source_sha256": "a0d5ef45bc05c2a5eb381e63aaecc5cd7dc659eefba5bd06c4dd6e6ff2c68c44",
-      "sha256": "0eb077ce306569c3a0dbd237395a39f3f1fcb8b5317d2ee67c4059c9f3d74ac9",
+      "sha256": "ccd2af2bf186bdaece98df688553c0e7c590b82befcd0f762364807377f39159",
       "kind": "adapted-runtime"
     },
     {
       "source": "session:harness-audit-v1.2",
       "target": "docs/0004-v0.1-audit-release-retrospective/research/Release-Notes-v1.2.md",
       "source_sha256": "3cf5c098c530059372b52d214e8a47e97585f6205e25813905a00757efbfaae7",
-      "sha256": "3cf5c098c530059372b52d214e8a47e97585f6205e25813905a00757efbfaae7",
+      "sha256": "6ed02418a2a35b4b3ebfe0658d60fb3c74d6ad1bc8238b1d9174390c060f1eb7",
       "kind": "adapted-runtime"
     },
     {
       "source": "session:harness-audit-v1.2",
       "target": "docs/0004-v0.1-audit-release-retrospective/research/Agreement-Report-v1.2.md",
       "source_sha256": "d14f693ed84480c1e0c3d07565edfa769950af7754f95a54a5904a730d305ec8",
-      "sha256": "d14f693ed84480c1e0c3d07565edfa769950af7754f95a54a5904a730d305ec8",
+      "sha256": "c83770d15c52ae9685e094c326ff1820b4eda19773e8e1bd0a012b4061881422",
       "kind": "adapted-runtime"
     },
     {
       "source": "session:harness-audit-v1.2",
       "target": "docs/0005-v0.1-infrastructure-overlay-matched/research/README.md",
       "source_sha256": "03ff5191e2b419dc87eefcb0e5067ee5a091d8accdf986cc8714687f598be702",
-      "sha256": "03ff5191e2b419dc87eefcb0e5067ee5a091d8accdf986cc8714687f598be702",
+      "sha256": "d84c38a2c4a66b1ca474dc9ac97321489214558f99c10547a737dbd03885b97b",
       "kind": "adapted-runtime"
     },
     {
       "source": "session:harness-audit-v1.2",
       "target": "docs/0005-v0.1-infrastructure-overlay-matched/research/Infrastructure-Coverage-Map.md",
       "source_sha256": "66c6d7288ab89e05bdca61c79c70299c1067818dd3f22e58d4c92f77b8d1ae61",
-      "sha256": "bb0f6d53a3f49c673de24784e369cc157fcc372929c7653b2750835e73651259",
+      "sha256": "7526eaf0a8aa02a442c78fae9054d58bd0010d3572d669c874f886223eb2e163",
       "kind": "adapted-runtime"
     },
     {

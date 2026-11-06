@@ -7,6 +7,12 @@ updated: '2026-10-27'
 generated: 'agent'
 verified: 'unverified'
 owner: 'Andreas Elser'
+description: >-
+  First comparison of the infrastructure overlay levels (L0 to L3, never part of the 0-100 score)
+  with a human rating.
+stale_after: '2026-12-04'
+tags:
+  - 'documentation'
 ---
 
 <!-- markdownlint-disable-next-line MD025 -->

@@ -12,6 +12,7 @@ verified: 'unverified'
 owner: 'Andreas Elser'
 tags: [prototype, source-contract, limits]
 sources: ['Plan.md', 'research/As-Built-Findings.md']
+stale_after: '2026-11-18'
 ---
 
 <!-- markdownlint-disable-next-line MD025 -->

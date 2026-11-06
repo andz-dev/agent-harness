@@ -7,6 +7,10 @@ updated: '2026-10-27'
 generated: 'agent'
 verified: 'unverified'
 owner: 'Andreas Elser'
+description: 'Scan JSON, per-repo reports and human gut scores are not committed (see `AGENTS.md`).'
+stale_after: '2026-12-04'
+tags:
+  - 'documentation'
 ---
 
 <!-- markdownlint-disable-next-line MD025 -->

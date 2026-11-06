@@ -7,6 +7,10 @@ updated: '2026-10-28'
 generated: 'agent'
 verified: 'unverified'
 owner: 'Andreas Elser'
+description: 'Status: proposal for review.'
+stale_after: '2026-11-19'
+tags:
+  - 'documentation'
 ---
 
 <!-- markdownlint-disable-next-line MD025 -->

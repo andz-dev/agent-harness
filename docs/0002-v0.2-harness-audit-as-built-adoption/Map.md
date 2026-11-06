@@ -2,13 +2,13 @@
 type: "Wayfinder Map"
 id: '0002'
 version: "v0.2"
+doc_scope: 'relocated'
 title: "Harness Audit Adoption And Reverse Engineering"
 description: "As-built decision provenance for adopting the frozen harness-audit solution, replacing the earlier prospective setup map."
 ticket_type: "wayfinder:map"
 status: "closed"
 created: "2026-10-26"
 updated: "2026-10-27"
-stale_after: "2026-11-09"
 generated: "agent"
 verified: "unverified"
 owner: "Andreas Elser"

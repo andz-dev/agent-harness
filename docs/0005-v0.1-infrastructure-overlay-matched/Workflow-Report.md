@@ -13,6 +13,7 @@ verified: 'unverified'
 owner: 'Andreas Elser'
 tags: [documentation, workflow-report]
 sources: ['docs/Documentation-Alignment.md', 'docs/Whats-Next.md']
+stale_after: '2026-11-18'
 ---
 
 # Workflow Report: Infrastructure Overlay: Matched Plan

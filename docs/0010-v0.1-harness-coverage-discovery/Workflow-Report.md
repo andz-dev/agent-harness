@@ -13,6 +13,7 @@ verified: 'unverified'
 owner: 'Andreas Elser'
 tags: [discovery, workflow]
 sources: ['Ideation-Book.md', 'hypothesis.lock.json', 'spike/verdict.json', 'research/handoff.md']
+stale_after: '2026-11-18'
 ---
 
 # Discovery Workflow Record

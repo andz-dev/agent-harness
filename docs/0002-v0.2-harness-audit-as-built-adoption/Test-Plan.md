@@ -13,6 +13,7 @@ verified: 'unverified'
 owner: 'Andreas Elser'
 tags: [testing, traceability, harness-audit]
 sources: ['Plan.md section 1', 'Architecture.md sections 5 through 11', 'Prototype-Decision.md']
+stale_after: '2026-12-04'
 ---
 
 <!-- markdownlint-disable-next-line MD025 -->

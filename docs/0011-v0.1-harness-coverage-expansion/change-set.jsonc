@@ -10,7 +10,7 @@
   "based_on": [
     {
       "path": "docs/0011-v0.1-harness-coverage-expansion/Architecture.md",
-      "sha256": "200fb8928b06db04a22b6fd08e2a2d881cd1eae4d9164ff1f5a1378788454ab6"
+      "sha256": "21d897c6eadbdd75d128754f62ec952e823df16144ec50df991cfac85bd10624"
     },
     {
       "path": "docs/0011-v0.1-harness-coverage-expansion/Plan.md",

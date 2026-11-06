@@ -2,6 +2,7 @@
 type: "Workflow Report"
 id: '0002'
 version: "v0.2"
+doc_scope: 'relocated'
 title: "Complete Agent Harness Qualification Workflow"
 description: "Reverse-engineered adoption chain for frozen harness-audit, retirement of 0036 and actual artifact-validation evidence; no runtime qualification claim."
 status: "draft"

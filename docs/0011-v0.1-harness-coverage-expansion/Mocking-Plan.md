@@ -12,6 +12,9 @@ verified: 'unverified'
 owner: 'Andreas Elser'
 doc_scope: 'proposal'
 sources: ['Architecture.md', 'Test-Plan.md']
+stale_after: '2026-11-19'
+tags:
+  - 'documentation'
 ---
 
 # Harness Coverage Expansion Mocking Plan

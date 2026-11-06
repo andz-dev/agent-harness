@@ -14,6 +14,8 @@ tags:
   - 'design'
   - 'harness-city'
   - 'harness-audit'
+description: 'Status: proposal for review, updated 2026-10-30.'
+stale_after: '2026-11-19'
 ---
 
 <!-- markdownlint-disable-next-line MD025 -->

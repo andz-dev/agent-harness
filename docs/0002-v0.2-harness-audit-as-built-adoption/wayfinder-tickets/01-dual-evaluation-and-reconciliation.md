@@ -12,7 +12,6 @@ resolution: "superseded"
 blocked_by: []
 created: "2026-10-26"
 updated: "2026-10-26"
-stale_after: "2026-11-09"
 generated: "agent"
 verified: "unverified"
 owner: "Andreas Elser"

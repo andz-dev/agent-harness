@@ -8,6 +8,10 @@ updated: '2026-10-27'
 generated: 'agent'
 verified: 'unverified'
 owner: 'Andreas Elser'
+description: 'Repo Harness Next Steps.md preserves the owner-provided roadmap body.'
+stale_after: '2026-11-18'
+tags:
+  - 'documentation'
 ---
 
 <!-- markdownlint-disable-next-line MD025 -->

@@ -8,6 +8,13 @@ generated: 'agent'
 verified: 'unverified'
 owner: 'Andreas Elser'
 sources: ['Owner-provided roadmap note, 2026-10-27; original body preserved']
+description: >-
+  Oct 27, 2026 · @Andreas v1.1 works end to end (audit, fix plan, bootstrap preview) and sits
+  about 5 points from your gut scores, but three things still limit how far the score can be
+  trusted.
+stale_after: '2026-11-18'
+tags:
+  - 'documentation'
 ---
 
 # Repo Harness: Next Steps

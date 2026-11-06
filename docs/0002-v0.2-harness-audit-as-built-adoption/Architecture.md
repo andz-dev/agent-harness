@@ -13,6 +13,7 @@ verified: 'unverified'
 owner: 'Andreas Elser'
 tags: [architecture, as-built, harness-audit]
 sources: ['Plan.md sections 1 through 5', 'Prototype-Decision.md', 'research/As-Built-Findings.md']
+stale_after: '2026-12-04'
 ---
 
 <!-- markdownlint-disable-next-line MD025 -->

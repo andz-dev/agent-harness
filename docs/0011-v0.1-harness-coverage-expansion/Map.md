@@ -2,6 +2,7 @@
 type: "Wayfinder Map"
 id: '0011'
 version: "v0.1"
+doc_scope: 'proposal'
 title: "Evidence-First Harness Coverage Expansion"
 description: "Decisions toward an approved specification for broader repository-scoped harness auditing and evidence-led city visualization."
 ticket_type: "wayfinder:map"
@@ -17,6 +18,7 @@ sources:
   - "docs/0010-v0.1-harness-coverage-discovery/research/coverage-findings.md"
   - "docs/0002-v0.2-harness-audit-as-built-adoption/Tracker.md"
   - "docs/Whats-Next.md"
+stale_after: '2026-11-19'
 ---
 
 <!-- markdownlint-disable-next-line MD025 -->

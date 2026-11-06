@@ -12,6 +12,7 @@ verified: 'unverified'
 owner: 'Andreas Elser'
 tags: [dataset, synthetic, traceability]
 sources: ['../Plan.md section 1', '../Test-Plan.md', '../Mocking-Plan.md']
+stale_after: '2026-11-18'
 ---
 
 <!-- markdownlint-disable-next-line MD025 -->

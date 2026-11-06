@@ -12,6 +12,9 @@ verified: 'unverified'
 owner: 'Andreas Elser'
 doc_scope: 'proposal'
 sources: ['Plan.md', '../../apps/harness-city/DESIGN.md']
+stale_after: '2026-11-19'
+tags:
+  - 'documentation'
 ---
 
 # Grid and ISO City Coverage Prototype Decision

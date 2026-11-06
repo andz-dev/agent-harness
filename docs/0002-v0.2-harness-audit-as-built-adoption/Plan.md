@@ -13,6 +13,7 @@ verified: 'unverified'
 owner: 'Andreas Elser'
 tags: [plan, adoption, harness-audit]
 sources: ['Map.md', 'Whitepaper.md', 'Research-Paper.md', 'research/As-Built-Findings.md']
+stale_after: '2026-12-04'
 ---
 
 <!-- markdownlint-disable-next-line MD025 -->

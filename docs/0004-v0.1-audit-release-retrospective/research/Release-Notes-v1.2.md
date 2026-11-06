@@ -7,6 +7,12 @@ updated: '2026-10-27'
 generated: 'agent'
 verified: 'unverified'
 owner: 'Andreas Elser'
+description: >-
+  A read-only audit of how well a Python or Node repository equips AI agents and humans to work in
+  it, plus a ranked fix plan and a bootstrap preview that proposes the missing files.
+stale_after: '2026-11-18'
+tags:
+  - 'documentation'
 ---
 
 <!-- markdownlint-disable-next-line MD025 -->

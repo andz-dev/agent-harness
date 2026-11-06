@@ -13,6 +13,7 @@ verified: 'unverified'
 owner: 'Andreas Elser'
 tags: [ontology, vocabulary, harness-audit]
 sources: ['../Plan.md section 1', '../Architecture.md section 9', '../Test-Plan.md', '../Mocking-Plan.md', '../Golden-Dataset/dataset.json']
+stale_after: '2026-11-18'
 ---
 
 <!-- markdownlint-disable-next-line MD025 -->

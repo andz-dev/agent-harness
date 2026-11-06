@@ -12,6 +12,9 @@ verified: 'unverified'
 owner: 'Andreas Elser'
 doc_scope: 'proposal'
 sources: ['Plan.md', 'Prototype-Decision.md', '../../apps/harness-city/DESIGN.md']
+stale_after: '2026-12-06'
+tags:
+  - 'documentation'
 ---
 
 # Harness Coverage Expansion Architecture
@@ -114,6 +117,20 @@ flowchart LR
 ```
 
 No new outbound edge exists. A diagram is not runtime sandbox enforcement.
+
+### Trust Boundaries
+
+These are the existing target-design boundaries, not new capabilities or a
+security certification. They derive from [Plan AC-4 through AC-7 and AC-14](Plan.md#1-acceptance-criteria)
+and the [ingress/egress matrix](#3-ingress-and-egress).
+
+| Boundary | Admission rule | Evidence and limitation |
+| --- | --- | --- |
+| Target worktree to collector | Untrusted filenames, contents and runner declarations; bounded tracked regular files with containment and identity checks | [Collection interface](#5-code-logic-and-interfaces); [M1.3/M1.4 evidence](Implementation.md#execution-evidence), not an OS sandbox claim |
+| Local receipt to observation | Presence and closed receipt outcomes only; no authenticated issuer or execution promotion | [Data contract](#7-data-contract); [M2.4 evidence](Implementation.md#execution-evidence) |
+| Collection to report/log | Safe states, digests, locators and aggregate diagnostics; no raw commands, values or source excerpts | [Logging disposition](#6-logging-disposition); [M2.3/M2.5 evidence](Implementation.md#execution-evidence) |
+| Report to city | Version validation and independent state preservation; unsupported coverage stays explicit | [Converter policy](#5-code-logic-and-interfaces); [M4.2 decision](Implementation.md#decision-log) |
+| Local output to publication | Owner-controlled reports remain ignored; only explicitly synthetic examples are tracked | [Storage disposition](#storage-and-configuration); no publication approval is implied |
 
 <!-- atlas:part=code-logic -->
 ## 5. Code Logic And Interfaces

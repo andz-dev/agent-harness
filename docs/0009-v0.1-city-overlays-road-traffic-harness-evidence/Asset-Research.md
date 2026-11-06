@@ -10,6 +10,9 @@ owner: 'Andreas Elser'
 tags:
   - 'harness-city'
   - 'assets'
+description: >-
+  Question: which planned objects can come from existing CC0 kits, and which must be generated in
+  code.
 ---
 
 # CC0 asset candidates for the planned city overlays

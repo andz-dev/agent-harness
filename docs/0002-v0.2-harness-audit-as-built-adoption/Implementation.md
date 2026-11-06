@@ -13,6 +13,7 @@ verified: 'unverified'
 owner: 'Andreas Elser'
 tags: [implementation, adoption, handoff]
 sources: ['Plan.md', 'Architecture.md', 'Test-Plan.md', 'Mocking-Plan.md', 'Golden-Dataset/dataset.json', 'ontology/ontology.json']
+stale_after: '2026-12-04'
 ---
 
 <!-- markdownlint-disable-next-line MD025 -->
